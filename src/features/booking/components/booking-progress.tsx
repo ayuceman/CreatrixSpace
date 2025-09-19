@@ -13,7 +13,7 @@ export function BookingProgress() {
   const { currentStep } = useBookingStore()
 
   return (
-    <div className="w-full">
+    <div className="w-full" role="progressbar" aria-valuenow={currentStep} aria-valuemin={1} aria-valuemax={4} aria-label="Booking progress">
       <div className="flex items-center justify-between">
         {steps.map((step, index) => {
           const isCompleted = currentStep > step.number
@@ -28,10 +28,13 @@ export function BookingProgress() {
                   className={cn(
                     "w-10 h-10 rounded-full flex items-center justify-center border-2 transition-all duration-300",
                     {
-                      "bg-primary border-primary text-primary-foreground": isCompleted || isCurrent,
+                      "bg-primary border-primary text-primary-foreground shadow-lg": isCompleted || isCurrent,
                       "border-muted-foreground text-muted-foreground": isUpcoming,
+                      "ring-2 ring-primary/20": isCurrent,
                     }
                   )}
+                  aria-current={isCurrent ? "step" : undefined}
+                  aria-label={`${isCompleted ? 'Completed' : isCurrent ? 'Current' : 'Upcoming'} step: ${step.title}`}
                 >
                   {isCompleted ? (
                     <Check className="h-5 w-5" />
