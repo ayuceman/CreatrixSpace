@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { CreditCard, Smartphone, Building, ArrowRight } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -12,6 +12,7 @@ interface PaymentGatewaySelectorProps {
   amount: number
   onPaymentMethodSelect: (method: PaymentMethod) => void
   isProcessing?: boolean
+  showSummary?: boolean
 }
 
 const paymentMethods = [
@@ -65,16 +66,34 @@ export function PaymentGatewaySelector({
   amount,
   onPaymentMethodSelect,
   isProcessing = false,
+  showSummary = true,
 }: PaymentGatewaySelectorProps) {
   const [selectedMethod, setSelectedMethod] = useState<PaymentMethod>('esewa')
 
+  // Fire initial event on component mount
+  useEffect(() => {
+    const event = new CustomEvent('paymentMethodChanged', {
+      detail: { method: selectedMethod }
+    })
+    window.dispatchEvent(event)
+  }, [])
+
   const handleMethodChange = (method: PaymentMethod) => {
     setSelectedMethod(method)
+    
+    // Emit event for summary component to listen
+    const event = new CustomEvent('paymentMethodChanged', {
+      detail: { method }
+    })
+    window.dispatchEvent(event)
   }
 
   const handleProceed = () => {
     onPaymentMethodSelect(selectedMethod)
   }
+
+  // Export selected method for parent component
+  const getSelectedMethod = () => selectedMethod
 
   const calculateFees = (method: PaymentMethod, amount: number) => {
     switch (method) {
@@ -173,84 +192,6 @@ export function PaymentGatewaySelector({
               </div>
             ))}
           </RadioGroup>
-        </CardContent>
-      </Card>
-
-      {/* Payment Summary */}
-      <Card className="bg-primary/5 border-primary/20">
-        <CardHeader>
-          <CardTitle className="text-lg">Payment Summary</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="space-y-2">
-            <div className="flex justify-between text-sm">
-              <span className="text-muted-foreground">Booking Amount:</span>
-              <span className="font-medium">
-                {formatCurrency(amount, 'NPR')}
-              </span>
-            </div>
-
-            {fees > 0 && (
-              <div className="flex justify-between text-sm">
-                <span className="text-muted-foreground">
-                  Payment Gateway Fees:
-                </span>
-                <span className="font-medium">
-                  {formatCurrency(fees, 'NPR')}
-                </span>
-              </div>
-            )}
-
-            <div className="border-t pt-2">
-              <div className="flex justify-between font-bold">
-                <span>Total Amount:</span>
-                <span className="text-primary text-lg">
-                  {formatCurrency(totalAmount, 'NPR')}
-                </span>
-              </div>
-            </div>
-          </div>
-
-          {selectedPaymentMethod && (
-            <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
-              <div className="flex items-center space-x-2 mb-2">
-                <div className="text-lg">{selectedPaymentMethod.logo}</div>
-                <span className="font-medium text-sm">
-                  {selectedPaymentMethod.name}
-                </span>
-              </div>
-              <p className="text-xs text-blue-800">
-                {selectedPaymentMethod.description}
-              </p>
-              {selectedPaymentMethod.id === 'bank_transfer' && (
-                <p className="text-xs text-orange-700 mt-1">
-                  ⚠️ Manual verification required. You'll receive bank details via email.
-                </p>
-              )}
-            </div>
-          )}
-
-          <Button
-            onClick={handleProceed}
-            disabled={isProcessing}
-            size="lg"
-            className="w-full"
-          >
-            {isProcessing ? (
-              'Processing...'
-            ) : (
-              <>
-                Proceed to Payment
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </>
-            )}
-          </Button>
-
-          <div className="text-center">
-            <p className="text-xs text-muted-foreground">
-              🔒 Your payment is secured with 256-bit SSL encryption
-            </p>
-          </div>
         </CardContent>
       </Card>
 

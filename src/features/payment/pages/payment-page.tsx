@@ -4,6 +4,7 @@ import { ArrowLeft, CheckCircle, XCircle, Clock } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { PaymentGatewaySelector } from '../components/payment-gateway-selector'
+import { PaymentBookingSummary } from '../components/payment-booking-summary'
 import { paymentService } from '@/services/payment-service'
 import { PaymentMethod, PaymentData } from '@/lib/payment-config'
 import { formatCurrency } from '@/lib/utils'
@@ -247,12 +248,29 @@ export function PaymentPage() {
           </p>
         </div>
 
-        <div className="max-w-2xl mx-auto">
-          <PaymentGatewaySelector
-            amount={bookingData.totalAmount}
-            onPaymentMethodSelect={handlePaymentMethodSelect}
-            isProcessing={paymentStatus === 'processing'}
-          />
+        <div className="max-w-7xl mx-auto">
+          <div className="grid lg:grid-cols-5 gap-8">
+            {/* Left Column - Payment Methods */}
+            <div className="lg:col-span-3">
+              <PaymentGatewaySelector
+                amount={bookingData.totalAmount}
+                onPaymentMethodSelect={handlePaymentMethodSelect}
+                isProcessing={paymentStatus === 'processing'}
+                showSummary={false} // Don't show summary in selector
+              />
+            </div>
+
+            {/* Right Column - Booking Summary & Action */}
+            <div className="lg:col-span-2">
+              <div className="sticky top-8">
+                <PaymentBookingSummary
+                  bookingData={bookingData}
+                  onPaymentMethodSelect={handlePaymentMethodSelect}
+                  isProcessing={paymentStatus === 'processing'}
+                />
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
