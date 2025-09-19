@@ -114,7 +114,7 @@ export function PaymentGatewaySelector({
   const totalAmount = amount + fees
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/* Payment Methods */}
       <Card>
         <CardHeader>
@@ -129,29 +129,28 @@ export function PaymentGatewaySelector({
           <RadioGroup
             value={selectedMethod}
             onValueChange={handleMethodChange}
-            className="space-y-4"
+            className="space-y-3"
           >
             {paymentMethods.map((method) => (
               <div
                 key={method.id}
-                className={`relative border rounded-lg p-4 transition-all ${
+                className={`relative border rounded-lg p-3 transition-all ${
                   selectedMethod === method.id
                     ? 'border-primary bg-primary/5'
                     : 'border-border hover:bg-muted/50'
                 }`}
               >
-                <div className="flex items-start space-x-3">
+                <div className="flex items-center space-x-3">
                   <RadioGroupItem
                     value={method.id}
                     id={method.id}
-                    className="mt-1"
                   />
                   <Label htmlFor={method.id} className="flex-1 cursor-pointer">
-                    <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center justify-between">
                       <div className="flex items-center space-x-3">
-                        <div className="text-2xl">{method.logo}</div>
+                        <div className="text-xl">{method.logo}</div>
                         <div>
-                          <h3 className="font-medium flex items-center">
+                          <h3 className="font-medium flex items-center text-sm">
                             {method.name}
                             {method.popular && (
                               <Badge variant="secondary" className="ml-2 text-xs">
@@ -159,33 +158,19 @@ export function PaymentGatewaySelector({
                               </Badge>
                             )}
                           </h3>
+                          <p className="text-xs text-muted-foreground">
+                            {method.description}
+                          </p>
                         </div>
                       </div>
                       <div className="text-right">
-                        <div className="text-sm text-muted-foreground">
+                        <div className="text-xs text-muted-foreground">
                           {method.fees}
                         </div>
+                        <div className="text-xs text-muted-foreground">
+                          {method.processingTime}
+                        </div>
                       </div>
-                    </div>
-
-                    <p className="text-sm text-muted-foreground mb-3">
-                      {method.description}
-                    </p>
-
-                    <div className="flex flex-wrap gap-2 mb-2">
-                      {method.features.map((feature) => (
-                        <Badge
-                          key={feature}
-                          variant="outline"
-                          className="text-xs"
-                        >
-                          {feature}
-                        </Badge>
-                      ))}
-                    </div>
-
-                    <div className="text-xs text-muted-foreground">
-                      Processing: {method.processingTime}
                     </div>
                   </Label>
                 </div>
@@ -197,16 +182,15 @@ export function PaymentGatewaySelector({
 
       {/* Security Notice */}
       <Card className="border-green-200 bg-green-50">
-        <CardContent className="p-4">
-          <div className="flex items-start space-x-2">
-            <div className="text-green-600 text-lg">🛡️</div>
+        <CardContent className="p-3">
+          <div className="flex items-center space-x-2">
+            <div className="text-green-600">🛡️</div>
             <div>
-              <h4 className="font-medium text-green-800 text-sm">
+              <h4 className="font-medium text-green-800 text-xs">
                 Secure Payment Guarantee
               </h4>
-              <p className="text-xs text-green-700 mt-1">
-                All payments are processed through PCI DSS compliant gateways. 
-                Your card details are never stored on our servers.
+              <p className="text-xs text-green-700">
+                PCI DSS compliant. Card details never stored.
               </p>
             </div>
           </div>

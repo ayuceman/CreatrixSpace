@@ -94,7 +94,7 @@ export function PaymentBookingSummary({
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/* Booking Details */}
       <Card>
         <CardHeader>
@@ -103,9 +103,9 @@ export function PaymentBookingSummary({
             Booking Summary
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-3">
           {/* Location & Plan */}
-          <div className="space-y-3">
+          <div className="space-y-2">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-2">
                 <MapPin className="h-4 w-4 text-muted-foreground" />
@@ -137,11 +137,11 @@ export function PaymentBookingSummary({
 
           {/* Features Included */}
           <div>
-            <h4 className="font-medium mb-2 text-sm">Included Features</h4>
-            <div className="space-y-1">
+            <h4 className="font-medium mb-1 text-sm">Included Features</h4>
+            <div className="grid grid-cols-2 gap-1">
               {mockBookingData.features.map((feature, index) => (
-                <div key={index} className="flex items-center space-x-2">
-                  <div className="w-1.5 h-1.5 bg-green-500 rounded-full" />
+                <div key={index} className="flex items-center space-x-1">
+                  <div className="w-1 h-1 bg-green-500 rounded-full" />
                   <span className="text-xs text-muted-foreground">{feature}</span>
                 </div>
               ))}
@@ -153,11 +153,11 @@ export function PaymentBookingSummary({
             <>
               <Separator />
               <div>
-                <h4 className="font-medium mb-2 text-sm">Add-ons</h4>
-                <div className="space-y-1">
+                <h4 className="font-medium mb-1 text-sm">Add-ons</h4>
+                <div className="space-y-0.5">
                   {mockBookingData.addOns.map((addOn, index) => (
-                    <div key={index} className="flex items-center space-x-2">
-                      <div className="w-1.5 h-1.5 bg-blue-500 rounded-full" />
+                    <div key={index} className="flex items-center space-x-1">
+                      <div className="w-1 h-1 bg-blue-500 rounded-full" />
                       <span className="text-xs text-muted-foreground">{addOn}</span>
                     </div>
                   ))}
@@ -173,7 +173,7 @@ export function PaymentBookingSummary({
         <CardHeader>
           <CardTitle className="text-lg">Payment Details</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-3">
           {/* Selected Payment Method */}
           {selectedPaymentMethod && (
             <div className="p-3 bg-white border border-primary/20 rounded-lg">
@@ -255,16 +255,15 @@ export function PaymentBookingSummary({
 
       {/* Refund Policy */}
       <Card className="border-blue-200 bg-blue-50">
-        <CardContent className="p-4">
-          <div className="flex items-start space-x-2">
-            <div className="text-blue-600 text-lg">💡</div>
+        <CardContent className="p-3">
+          <div className="flex items-center space-x-2">
+            <div className="text-blue-600">💡</div>
             <div>
-              <h4 className="font-medium text-blue-800 text-sm">
+              <h4 className="font-medium text-blue-800 text-xs">
                 Flexible Cancellation
               </h4>
-              <p className="text-xs text-blue-700 mt-1">
-                Cancel up to 24 hours before your booking starts for a full refund.
-                No questions asked.
+              <p className="text-xs text-blue-700">
+                24h cancellation. Full refund guaranteed.
               </p>
             </div>
           </div>
