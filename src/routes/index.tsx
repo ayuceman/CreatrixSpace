@@ -5,6 +5,7 @@ import { LocationsPage } from '@/features/locations/pages/locations-page'
 import { LocationDetailPage } from '@/features/locations/pages/location-detail-page'
 import { PricingPage } from '@/features/pricing/pages/pricing-page'
 import { BookingPage } from '@/features/booking/pages/booking-page'
+import { PaymentPage } from '@/features/payment/pages/payment-page'
 import { MembershipPage } from '@/features/memberships/pages/membership-page'
 import { BlogPage } from '@/features/blog/pages/blog-page'
 import { BlogPostPage } from '@/features/blog/pages/blog-post-page'
@@ -48,6 +49,10 @@ const router = createBrowserRouter([
       {
         path: ROUTES.BOOKING,
         element: <BookingPage />,
+      },
+      {
+        path: '/payment',
+        element: <PaymentPage />,
       },
       {
         path: ROUTES.MEMBERSHIP,

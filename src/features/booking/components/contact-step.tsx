@@ -1,4 +1,5 @@
 import { User, Mail, Phone, Building } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
 import { useBookingStore } from '@/store/booking-store'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -6,6 +7,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 
 export function ContactStep() {
+  const navigate = useNavigate()
   const {
     bookingData,
     updateBookingData,
@@ -25,14 +27,14 @@ export function ContactStep() {
   const handleSubmit = () => {
     if (!canProceed()) return
     
-    // Here you would typically:
-    // 1. Validate the form
-    // 2. Send booking data to your backend
-    // 3. Redirect to payment gateway
-    // 4. Handle success/error states
+    // Calculate total and redirect to payment
+    const bookingId = `BK-${Date.now()}`
     
-    console.log('Booking submitted:', bookingData)
-    alert('Booking submitted! This would redirect to payment in a real app.')
+    // Here you would typically save the booking to your backend
+    console.log('Booking prepared for payment:', { ...bookingData, bookingId })
+    
+    // Redirect to payment page
+    navigate('/payment')
   }
 
   return (
@@ -202,7 +204,7 @@ export function ContactStep() {
           size="lg"
           className="bg-green-600 hover:bg-green-700"
         >
-          Complete Booking
+          Proceed to Payment
         </Button>
       </div>
     </div>
