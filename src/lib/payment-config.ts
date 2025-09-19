@@ -13,9 +13,10 @@ export const PAYMENT_CONFIG = {
     serviceCharge: 0,
     deliveryCharge: 0,
     taxAmount: 0,
-    successUrl: `${import.meta.env.VITE_APP_URL}/payment/esewa/success`,
-    failureUrl: `${import.meta.env.VITE_APP_URL}/payment/esewa/failure`,
+    successUrl: `${import.meta.env.VITE_APP_URL || 'http://localhost:5175'}/payment/esewa/success`,
+    failureUrl: `${import.meta.env.VITE_APP_URL || 'http://localhost:5175'}/payment/esewa/failure`,
     baseUrl: import.meta.env.VITE_ESEWA_BASE_URL || 'https://uat.esewa.com.np', // UAT for testing
+    paymentUrl: 'https://uat.esewa.com.np/epay/main', // Updated payment endpoint
   },
   
   // Khalti Configuration

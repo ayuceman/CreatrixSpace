@@ -55,6 +55,14 @@ const router = createBrowserRouter([
         element: <PaymentPage />,
       },
       {
+        path: '/payment/esewa/success',
+        element: <PaymentPage />,
+      },
+      {
+        path: '/payment/esewa/failure',
+        element: <PaymentPage />,
+      },
+      {
         path: ROUTES.MEMBERSHIP,
         element: <MembershipPage />,
       },

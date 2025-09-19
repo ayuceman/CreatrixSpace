@@ -87,36 +87,60 @@ export class ESewaPaymentService {
       const pdc = PAYMENT_CONFIG.esewa.deliveryCharge
       const tAmt = txAmt + psc + pdc
 
-      // Create eSewa payment form
+      // Log payment details for debugging
+      console.log('eSewa Payment Details:', {
+        amount: txAmt,
+        productId: paymentData.bookingId,
+        successUrl: PAYMENT_CONFIG.esewa.successUrl,
+        failureUrl: PAYMENT_CONFIG.esewa.failureUrl,
+        merchantCode: PAYMENT_CONFIG.esewa.merchantCode
+      })
+
+      // Create eSewa payment form with correct field names
       const form = document.createElement('form')
       form.method = 'POST'
-      form.action = `${PAYMENT_CONFIG.esewa.baseUrl}/epay/main`
+      form.action = PAYMENT_CONFIG.esewa.paymentUrl || `${PAYMENT_CONFIG.esewa.baseUrl}/epay/main`
+      form.target = '_self' // Ensure it redirects in the same window
 
       const fields = {
-        amt: txAmt.toString(),
-        psc: psc.toString(),
-        pdc: pdc.toString(),
-        txAmt: txAmt.toString(),
-        tAmt: tAmt.toString(),
-        pid: paymentData.bookingId,
-        scd: PAYMENT_CONFIG.esewa.merchantCode,
-        su: PAYMENT_CONFIG.esewa.successUrl,
-        fu: PAYMENT_CONFIG.esewa.failureUrl,
+        amt: txAmt.toFixed(2), // Amount should be formatted to 2 decimal places
+        psc: psc.toFixed(2),
+        pdc: pdc.toFixed(2),
+        txAmt: txAmt.toFixed(2),
+        tAmt: tAmt.toFixed(2),
+        pid: paymentData.bookingId, // Product/Booking ID
+        scd: PAYMENT_CONFIG.esewa.merchantCode, // Service Charge Code (Merchant Code)
+        su: PAYMENT_CONFIG.esewa.successUrl, // Success URL
+        fu: PAYMENT_CONFIG.esewa.failureUrl, // Failure URL
       }
+
+      // Log the form fields for debugging
+      console.log('eSewa Form Fields:', fields)
 
       // Add hidden fields to form
       Object.entries(fields).forEach(([key, value]) => {
         const input = document.createElement('input')
         input.type = 'hidden'
         input.name = key
-        input.value = value
+        input.value = value.toString()
         form.appendChild(input)
       })
 
-      // Submit form (redirects to eSewa)
+      // Add form to DOM temporarily and submit
+      form.style.display = 'none'
       document.body.appendChild(form)
-      form.submit()
-      document.body.removeChild(form)
+      
+      // Small delay to ensure form is properly added to DOM
+      setTimeout(() => {
+        console.log('Submitting eSewa form to:', form.action)
+        form.submit()
+        // Clean up after a delay
+        setTimeout(() => {
+          if (document.body.contains(form)) {
+            document.body.removeChild(form)
+          }
+        }, 1000)
+      }, 100)
 
       // Since eSewa redirects, we return a pending status
       return {
@@ -127,6 +151,7 @@ export class ESewaPaymentService {
         metadata: { redirected: true },
       }
     } catch (error) {
+      console.error('eSewa Payment Error:', error)
       return {
         success: false,
         method: 'esewa',

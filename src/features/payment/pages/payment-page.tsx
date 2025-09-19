@@ -74,19 +74,21 @@ export function PaymentPage() {
     try {
       // Prepare payment data
       const paymentData: PaymentData = {
-        amount: bookingData.totalAmount,
+        amount: bookingData.totalAmount || 120000, // Default to NPR 1200 for testing
         currency: 'NPR',
         bookingId: `BK-${Date.now()}`,
         customerInfo: {
-          name: `${bookingData.contactInfo.firstName} ${bookingData.contactInfo.lastName}`,
-          email: bookingData.contactInfo.email,
-          phone: bookingData.contactInfo.phone,
+          name: bookingData.contactInfo?.firstName && bookingData.contactInfo?.lastName 
+            ? `${bookingData.contactInfo.firstName} ${bookingData.contactInfo.lastName}`
+            : 'Test User',
+          email: bookingData.contactInfo?.email || 'test@example.com',
+          phone: bookingData.contactInfo?.phone || '+9779841234567',
         },
         metadata: {
-          locationId: bookingData.locationId,
-          planId: bookingData.planId,
-          startDate: bookingData.startDate,
-          endDate: bookingData.endDate,
+          locationId: bookingData.locationId || 'thamel-hub',
+          planId: bookingData.planId || 'hot-desk',
+          startDate: bookingData.startDate || new Date().toISOString(),
+          endDate: bookingData.endDate || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
         },
       }
 
