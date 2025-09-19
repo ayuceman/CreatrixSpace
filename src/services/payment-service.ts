@@ -96,51 +96,69 @@ export class ESewaPaymentService {
         merchantCode: PAYMENT_CONFIG.esewa.merchantCode
       })
 
-      // Create eSewa payment form with correct field names
-      const form = document.createElement('form')
-      form.method = 'POST'
-      form.action = PAYMENT_CONFIG.esewa.paymentUrl || `${PAYMENT_CONFIG.esewa.baseUrl}/epay/main`
-      form.target = '_self' // Ensure it redirects in the same window
-
+      // Method 1: Standard form submission (most reliable)
+      const esewaUrl = 'https://uat.esewa.com.np/epay/main'
+      
       const fields = {
-        amt: txAmt.toFixed(2), // Amount should be formatted to 2 decimal places
-        psc: psc.toFixed(2),
-        pdc: pdc.toFixed(2),
-        txAmt: txAmt.toFixed(2),
-        tAmt: tAmt.toFixed(2),
-        pid: paymentData.bookingId, // Product/Booking ID
-        scd: PAYMENT_CONFIG.esewa.merchantCode, // Service Charge Code (Merchant Code)
-        su: PAYMENT_CONFIG.esewa.successUrl, // Success URL
-        fu: PAYMENT_CONFIG.esewa.failureUrl, // Failure URL
+        amt: txAmt.toString(),
+        psc: '0',
+        pdc: '0',
+        txAmt: txAmt.toString(),
+        tAmt: txAmt.toString(),
+        pid: paymentData.bookingId,
+        scd: 'EPAYTEST', // Use hardcoded test merchant code
+        su: PAYMENT_CONFIG.esewa.successUrl,
+        fu: PAYMENT_CONFIG.esewa.failureUrl,
       }
 
-      // Log the form fields for debugging
-      console.log('eSewa Form Fields:', fields)
+      console.log('eSewa Payment Details:', {
+        url: esewaUrl,
+        fields: fields,
+        amount: txAmt,
+        bookingId: paymentData.bookingId
+      })
 
-      // Add hidden fields to form
-      Object.entries(fields).forEach(([key, value]) => {
+      // Create and submit form in a way that ensures it works
+      const form = document.createElement('form')
+      form.method = 'POST'
+      form.action = esewaUrl
+      form.style.display = 'none'
+      
+      // Add all fields
+      Object.entries(fields).forEach(([name, value]) => {
         const input = document.createElement('input')
         input.type = 'hidden'
-        input.name = key
-        input.value = value.toString()
+        input.name = name
+        input.value = value
         form.appendChild(input)
       })
 
-      // Add form to DOM temporarily and submit
-      form.style.display = 'none'
+      // Append to body and submit immediately
       document.body.appendChild(form)
       
-      // Small delay to ensure form is properly added to DOM
-      setTimeout(() => {
-        console.log('Submitting eSewa form to:', form.action)
-        form.submit()
-        // Clean up after a delay
+      // Add a small delay to ensure DOM is ready
+      requestAnimationFrame(() => {
+        console.log('Submitting eSewa form to:', esewaUrl)
+        console.log('Form HTML:', form.outerHTML)
+        
+        try {
+          form.submit()
+        } catch (submitError) {
+          console.error('Form submission failed:', submitError)
+          // Fallback to direct redirect
+          const params = new URLSearchParams(fields)
+          const fallbackUrl = `${esewaUrl}?${params.toString()}`
+          console.log('Trying fallback redirect:', fallbackUrl)
+          window.location.href = fallbackUrl
+        }
+        
+        // Cleanup after delay
         setTimeout(() => {
           if (document.body.contains(form)) {
             document.body.removeChild(form)
           }
-        }, 1000)
-      }, 100)
+        }, 2000)
+      })
 
       // Since eSewa redirects, we return a pending status
       return {

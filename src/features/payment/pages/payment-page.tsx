@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { PaymentGatewaySelector } from '../components/payment-gateway-selector'
 import { PaymentBookingSummary } from '../components/payment-booking-summary'
+import { ESewaDebug } from '../components/esewa-debug'
 import { paymentService } from '@/services/payment-service'
 import { PaymentMethod, PaymentData } from '@/lib/payment-config'
 import { formatCurrency } from '@/lib/utils'
@@ -272,6 +273,11 @@ export function PaymentPage() {
                 />
               </div>
             </div>
+          </div>
+
+          {/* Debug Component - Remove in production */}
+          <div className="max-w-2xl mx-auto mt-8">
+            <ESewaDebug />
           </div>
         </div>
       </div>
