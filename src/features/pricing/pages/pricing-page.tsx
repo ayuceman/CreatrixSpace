@@ -220,7 +220,7 @@ export function PricingPage() {
                       <div className="pt-4">
                         <div className="flex items-baseline justify-center">
                           <span className="text-3xl font-bold">
-                            {formatCurrency(price, 'NPR')}
+                            {formatCurrency(price || 0, 'NPR')}
                           </span>
                           <span className="text-muted-foreground ml-1">
                             /{period}

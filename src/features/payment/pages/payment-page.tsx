@@ -258,7 +258,7 @@ export function PaymentPage() {
               <PaymentGatewaySelector
                 amount={bookingData.totalAmount}
                 onPaymentMethodSelect={handlePaymentMethodSelect}
-                isProcessing={paymentStatus === 'processing'}
+                isProcessing={false}
                 showSummary={false} // Don't show summary in selector
               />
             </div>
@@ -269,7 +269,7 @@ export function PaymentPage() {
                 <PaymentBookingSummary
                   bookingData={bookingData}
                   onPaymentMethodSelect={handlePaymentMethodSelect}
-                  isProcessing={paymentStatus === 'processing'}
+                  isProcessing={false}
                 />
               </div>
             </div>

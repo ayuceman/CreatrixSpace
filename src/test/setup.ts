@@ -1,4 +1,5 @@
 import '@testing-library/jest-dom'
+import React from 'react'
 
 // Mock framer-motion
 vi.mock('framer-motion', () => ({
@@ -21,10 +22,8 @@ vi.mock('react-router-dom', async () => {
     ...actual,
     useNavigate: () => vi.fn(),
     useLocation: () => ({ pathname: '/' }),
-    Link: ({ children, to, ...props }: any) => (
-      <a href={to} {...props}>
-        {children}
-      </a>
-    ),
+    Link: ({ children, to, ...props }: any) => {
+      return React.createElement('a', { href: to, ...props }, children)
+    },
   }
 })

@@ -63,7 +63,7 @@ export function ESewaDebug() {
       const response = await fetch('https://uat.esewa.com.np/', { mode: 'no-cors' })
       setDebugInfo('eSewa server is reachable')
     } catch (error) {
-      setDebugInfo(`eSewa server error: ${error.message}`)
+      setDebugInfo(`eSewa server error: ${(error as Error).message}`)
     }
   }
 
