@@ -100,13 +100,13 @@ export class ESewaPaymentService {
       const esewaUrl = 'https://uat.esewa.com.np/epay/main'
       
       const fields = {
-        amt: txAmt.toString(),
-        psc: '0',
-        pdc: '0',
-        txAmt: txAmt.toString(),
-        tAmt: txAmt.toString(),
+        amt: txAmt.toFixed(2),
+        psc: psc.toFixed(2),
+        pdc: pdc.toFixed(2),
+        txAmt: txAmt.toFixed(2),
+        tAmt: tAmt.toFixed(2),
         pid: paymentData.bookingId,
-        scd: 'EPAYTEST', // Use hardcoded test merchant code
+        scd: PAYMENT_CONFIG.esewa.merchantCode,
         su: PAYMENT_CONFIG.esewa.successUrl,
         fu: PAYMENT_CONFIG.esewa.failureUrl,
       }
@@ -186,31 +186,56 @@ export class ESewaPaymentService {
     refId: string
   ): Promise<PaymentResult> {
     try {
-      // In production, you'd verify with eSewa's verification API
-      const response = await fetch('/api/esewa/verify', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ oid, amt, refId }),
+      // eSewa verification endpoint as per official documentation
+      const verificationUrl = 'https://uat.esewa.com.np/epay/transrec'
+      
+      const verificationData = {
+        amt: amt,
+        rid: refId,
+        pid: oid,
+        scd: PAYMENT_CONFIG.esewa.merchantCode
+      }
+
+      console.log('eSewa verification request:', verificationData)
+
+      // Create form for verification (eSewa requires POST form submission)
+      const form = new FormData()
+      Object.entries(verificationData).forEach(([key, value]) => {
+        form.append(key, value)
       })
 
-      const result = await response.json()
+      const response = await fetch(verificationUrl, {
+        method: 'POST',
+        body: form,
+      })
+
+      const responseText = await response.text()
+      console.log('eSewa verification response:', responseText)
+
+      // eSewa returns 'Success' for successful transactions
+      const isSuccess = responseText.trim().toLowerCase() === 'success'
 
       return {
-        success: result.status === 'Success',
+        success: isSuccess,
         method: 'esewa',
         amount: parseFloat(amt) * 100, // Convert back to paisa
         paymentId: oid,
         transactionId: refId,
-        metadata: result,
+        metadata: {
+          verificationResponse: responseText,
+          verified: isSuccess
+        },
       }
     } catch (error) {
+      console.error('eSewa verification error:', error)
       return {
         success: false,
         method: 'esewa',
         amount: parseFloat(amt) * 100,
         error: 'Payment verification failed',
+        metadata: {
+          verificationError: error instanceof Error ? error.message : 'Unknown error'
+        }
       }
     }
   }
