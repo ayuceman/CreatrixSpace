@@ -102,22 +102,24 @@ const initialBookingData: BookingData = {
 // Mock data - in real app this would come from API
 const mockLocations = [
   {
-    id: 'thamel-hub',
-    name: 'Thamel Hub',
-    address: 'Thamel, Kathmandu',
+    id: 'dhobighat-hub',
+    name: 'Dhobighat (WashingTown) Hub',
+    address: 'Dhobighat, Kathmandu',
     available: true,
   },
   {
     id: 'jhamsikhel-loft',
     name: 'Jhamsikhel Loft', 
     address: 'Jhamsikhel, Lalitpur',
-    available: true,
+    available: false,
+    status: 'Reserved for 6 months',
   },
   {
     id: 'baluwatar-studios',
     name: 'Baluwatar Studios',
     address: 'Baluwatar, Kathmandu',
     available: false,
+    status: 'Coming Soon',
   },
 ]
 

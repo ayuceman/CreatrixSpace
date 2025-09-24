@@ -4,7 +4,7 @@ export const APP_DESCRIPTION = 'Premium coworking spaces for modern professional
 export const ROUTES = {
   HOME: '/',
   LOCATIONS: '/locations',
-  LOCATION_DETAIL: '/locations/:slug',
+  LOCATION_DETAIL: '/locations/:id',
   PRICING: '/pricing',
   BOOKING: '/booking',
   MEMBERSHIP: '/membership',

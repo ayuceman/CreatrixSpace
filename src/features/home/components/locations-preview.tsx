@@ -8,14 +8,15 @@ import { ROUTES } from '@/lib/constants'
 
 const locations = [
   {
-    id: 'thamel-hub',
-    name: 'Thamel Hub',
-    address: 'Thamel, Kathmandu',
+    id: 'dhobighat-hub',
+    name: 'Dhobighat (WashingTown) Hub',
+    address: 'Dhobighat, Kathmandu',
     image: 'https://images.unsplash.com/photo-1497366412874-3415097a27e7?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
     capacity: 120,
     rating: 4.9,
     features: ['24/7 Access', 'Meeting Rooms', 'Event Space'],
     popular: true,
+    available: true,
   },
   {
     id: 'jhamsikhel-loft',
@@ -26,6 +27,8 @@ const locations = [
     rating: 4.8,
     features: ['Rooftop Terrace', 'Cafe', 'Parking'],
     popular: false,
+    available: false,
+    status: 'Reserved for 6 months',
   },
   {
     id: 'baluwatar-studios',
@@ -36,6 +39,8 @@ const locations = [
     rating: 4.7,
     features: ['New Location', 'Creative Spaces', 'Tech Hub'],
     popular: false,
+    available: false,
+    status: 'Coming Soon',
   },
 ]
 
@@ -100,6 +105,12 @@ export function LocationsPreview() {
                     </Badge>
                   )}
                   
+                  {!location.available && location.status && (
+                    <Badge variant="destructive" className="absolute top-4 left-4">
+                      {location.status}
+                    </Badge>
+                  )}
+                  
                   <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm rounded-lg px-2 py-1 flex items-center space-x-1">
                     <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
                     <span className="text-xs font-medium">{location.rating}</span>
@@ -133,11 +144,16 @@ export function LocationsPreview() {
                   <Button 
                     className="w-full" 
                     variant="outline"
-                    asChild
+                    disabled={!location.available}
+                    asChild={location.available}
                   >
-                    <Link to={`${ROUTES.LOCATIONS}/${location.id}`}>
-                      Explore Location
-                    </Link>
+                    {location.available ? (
+                      <Link to={`${ROUTES.LOCATIONS}/${location.id}`}>
+                        Explore Location
+                      </Link>
+                    ) : (
+                      location.status
+                    )}
                   </Button>
                 </CardContent>
               </Card>

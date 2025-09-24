@@ -39,7 +39,7 @@ const router = createBrowserRouter([
         element: <LocationsPage />,
       },
       {
-        path: ROUTES.LOCATION_DETAIL,
+        path: '/locations/:id',
         element: <LocationDetailPage />,
       },
       {
