@@ -1,6 +1,6 @@
 import { useParams, Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { MapPin, Users, Star, Clock, Wifi, Coffee, Car, Shield, ArrowLeft, Calendar, Phone, Mail } from 'lucide-react'
+import { MapPin, Users, Star, Clock, Wifi, Coffee, Car, Shield, ArrowLeft, Calendar, Phone, Mail, ExternalLink } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -30,9 +30,10 @@ const locationData = {
     popular: true,
     description: 'Our flagship location in the heart of Dhobighat, featuring modern amenities and 24/7 access. Perfect for entrepreneurs, freelancers, and remote workers.',
     contact: {
-      phone: '+977-1-2345678',
+      phone: '+977 9851357889',
       email: 'dhobighat@creatrixspace.com'
-    }
+    },
+    googleMapsUrl: 'https://maps.app.goo.gl/Pw4KLyfjaj2Wdrsw9?g_st=ipc'
   },
   'jhamsikhel-loft': {
     id: 'jhamsikhel-loft',
@@ -58,7 +59,7 @@ const locationData = {
     popular: false,
     description: 'A beautiful loft space with rooftop terrace and natural lighting. Currently reserved for a long-term client.',
     contact: {
-      phone: '+977-1-2345679',
+      phone: '+977 9803171819',
       email: 'jhamsikhel@creatrixspace.com'
     }
   },
@@ -86,7 +87,7 @@ const locationData = {
     popular: false,
     description: 'A cutting-edge creative hub designed for artists, designers, and tech innovators. Opening soon with state-of-the-art facilities.',
     contact: {
-      phone: '+977-1-2345680',
+      phone: '+977 9851357889',
       email: 'baluwatar@creatrixspace.com'
     }
   }
@@ -314,6 +315,25 @@ export function LocationDetailPage() {
                       <p className="text-muted-foreground">{location.contact.email}</p>
                     </div>
                   </div>
+                  {location.googleMapsUrl && (
+                    <div className="flex items-center space-x-3">
+                      <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
+                        <MapPin className="h-5 w-5 text-primary" />
+                      </div>
+                      <div>
+                        <p className="font-medium">Location</p>
+                        <a 
+                          href={location.googleMapsUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-primary hover:underline flex items-center space-x-1"
+                        >
+                          <span>View on Google Maps</span>
+                          <ExternalLink className="h-4 w-4" />
+                        </a>
+                      </div>
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             </motion.div>

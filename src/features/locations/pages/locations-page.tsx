@@ -185,20 +185,25 @@ export function LocationsPage() {
                   </div>
                 </div>
 
-                <Button 
-                  className="w-full" 
-                  variant="outline"
-                  disabled={!location.available}
-                  asChild={location.available}
-                >
-                  {location.available ? (
+                {location.available ? (
+                  <Button 
+                    className="w-full" 
+                    variant="outline"
+                    asChild
+                  >
                     <Link to={`${ROUTES.LOCATIONS}/${location.id}`}>
                       View Details
                     </Link>
-                  ) : (
-                    location.status
-                  )}
-                </Button>
+                  </Button>
+                ) : (
+                  <Button 
+                    className="w-full" 
+                    variant="outline"
+                    disabled
+                  >
+                    {location.status}
+                  </Button>
+                )}
               </CardContent>
             </Card>
           </motion.div>

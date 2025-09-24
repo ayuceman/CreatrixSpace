@@ -141,20 +141,25 @@ export function LocationsPreview() {
                     ))}
                   </div>
 
-                  <Button 
-                    className="w-full" 
-                    variant="outline"
-                    disabled={!location.available}
-                    asChild={location.available}
-                  >
-                    {location.available ? (
+                  {location.available ? (
+                    <Button 
+                      className="w-full" 
+                      variant="outline"
+                      asChild
+                    >
                       <Link to={`${ROUTES.LOCATIONS}/${location.id}`}>
                         Explore Location
                       </Link>
-                    ) : (
-                      location.status
-                    )}
-                  </Button>
+                    </Button>
+                  ) : (
+                    <Button 
+                      className="w-full" 
+                      variant="outline"
+                      disabled
+                    >
+                      {location.status}
+                    </Button>
+                  )}
                 </CardContent>
               </Card>
             </motion.div>

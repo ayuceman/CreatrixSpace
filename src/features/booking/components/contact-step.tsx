@@ -101,7 +101,7 @@ export function ContactStep() {
             <Input
               id="phone"
               type="tel"
-              placeholder="+977 98XXXXXXXX"
+              placeholder="+977 9851357889"
               value={bookingData.contactInfo.phone}
               onChange={(e) => handleContactInfoChange('phone', e.target.value)}
               required
