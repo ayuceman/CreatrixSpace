@@ -29,6 +29,24 @@ export function BookingPage() {
     }
   }, [searchParams, updateBookingData])
 
+  // Initial scroll to content when page loads
+  useEffect(() => {
+    // Delay to ensure DOM is fully rendered
+    setTimeout(() => {
+      const bookingContent = document.getElementById('booking-content')
+      if (bookingContent) {
+        // Get the element's position and scroll with offset for header
+        const elementRect = bookingContent.getBoundingClientRect()
+        const absoluteElementTop = elementRect.top + window.pageYOffset
+        const offset = 100 // Account for fixed header
+        window.scrollTo({
+          top: absoluteElementTop - offset,
+          behavior: 'smooth'
+        })
+      }
+    }, 200)
+  }, []) // Run only on initial mount
+
   // Auto-focus on step content when step changes
   useEffect(() => {
     if (stepContentRef.current) {
@@ -66,7 +84,7 @@ export function BookingPage() {
     <div className="min-h-screen bg-muted/30">
       <div className="container py-8">
         {/* Header */}
-        <div className="text-center mb-8">
+        <div className="text-center mb-8" id="booking-header">
           <h1 className="text-3xl md:text-4xl font-display font-bold mb-2">
             Book Your Workspace
           </h1>
@@ -78,7 +96,7 @@ export function BookingPage() {
         {/* Progress Indicator */}
         <BookingProgress />
 
-        <div className="mt-8 grid lg:grid-cols-3 gap-8">
+        <div className="mt-8 grid lg:grid-cols-3 gap-8" id="booking-content">
           {/* Main Content */}
             <div className="lg:col-span-2">
               <motion.div
