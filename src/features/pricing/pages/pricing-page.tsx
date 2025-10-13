@@ -15,7 +15,7 @@ const plans = [
     description: 'Perfect for trying us out',
     icon: Zap,
     pricing: {
-      daily: 80000, // NPR 800
+      daily: 60000, // NPR 600 (25% reduction for competitiveness)
     },
     features: [
       'Hot desk access for 1 day',
@@ -38,8 +38,8 @@ const plans = [
     description: 'Flexible workspace solution',
     icon: Star,
     pricing: {
-      monthly: 1200000, // NPR 12,000 (equivalent to 15 days - good value)
-      annual: 12960000, // NPR 129,600 (10% discount)
+      monthly: 950000, // NPR 9,500 (20% reduction for competitiveness)
+      annual: 10260000, // NPR 102,600 (10% discount)
     },
     features: [
       'Hot desk access',
@@ -61,8 +61,8 @@ const plans = [
     description: 'Your personal workspace',
     icon: Crown,
     pricing: {
-      monthly: 2200000, // NPR 22,000
-      annual: 23760000, // NPR 237,600 (10% discount)
+      monthly: 1850000, // NPR 18,500 (15% reduction for competitiveness)
+      annual: 19980000, // NPR 199,800 (10% discount)
     },
     features: [
       'Your own dedicated desk',
@@ -86,8 +86,8 @@ const plans = [
     description: 'Ultimate privacy and productivity',
     icon: Crown,
     pricing: {
-      monthly: 6500000, // NPR 65,000
-      annual: 70200000, // NPR 702,000 (10% discount)
+      monthly: 5850000, // NPR 58,500 (10% reduction for competitiveness)
+      annual: 63180000, // NPR 631,800 (10% discount)
     },
     features: [
       'Private locked office',
@@ -111,22 +111,22 @@ const plans = [
 const addOns = [
   {
     name: 'Extra Meeting Room Hours',
-    price: 150000, // NPR 1,500/hour
+    price: 120000, // NPR 1,200/hour (20% reduction)
     description: 'Additional meeting room access',
   },
   {
     name: 'Guest Day Passes',
-    price: 60000, // NPR 600/day (25% discount from regular day pass)
+    price: 45000, // NPR 450/day (25% discount from regular day pass)
     description: 'Bring colleagues for a day',
   },
   {
     name: 'Virtual Office Address',
-    price: 800000, // NPR 8,000/month
+    price: 600000, // NPR 6,000/month (25% reduction)
     description: 'Use our address for your business',
   },
   {
     name: 'Phone Line',
-    price: 500000, // NPR 5,000/month
+    price: 400000, // NPR 4,000/month (20% reduction)
     description: 'Dedicated phone number',
   },
 ]

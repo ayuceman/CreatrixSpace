@@ -11,7 +11,7 @@ const plans = [
   {
     name: 'Day Pass',
     description: 'Perfect for trying us out',
-    price: 80000, // in paisa (NPR 800)
+    price: 60000, // in paisa (NPR 600) - 25% reduction for competitiveness
     period: 'day',
     features: [
       'Hot desk access',
@@ -24,7 +24,7 @@ const plans = [
   {
     name: 'Hot Desk',
     description: 'Flexible workspace solution',
-    price: 1200000, // in paisa (NPR 12,000)
+    price: 950000, // in paisa (NPR 9,500) - 20% reduction for competitiveness
     period: 'month',
     features: [
       'Hot desk access',
@@ -38,7 +38,7 @@ const plans = [
   {
     name: 'Dedicated Desk',
     description: 'Your personal workspace',
-    price: 2200000, // in paisa (NPR 22,000)
+    price: 1850000, // in paisa (NPR 18,500) - 15% reduction for competitiveness
     period: 'month',
     features: [
       'Dedicated desk',
