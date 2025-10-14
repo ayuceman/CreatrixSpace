@@ -125,28 +125,28 @@ const mockLocations = [
 
 const mockPlans = [
   {
-    id: 'day-pass',
-    name: 'Day Pass',
+    id: 'explorer',
+    name: 'Explorer',
     type: 'day_pass',
-    pricing: { daily: 80000 }, // NPR 800
+    pricing: { daily: 70000 }, // NPR 700
   },
   {
-    id: 'hot-desk',
-    name: 'Hot Desk',
+    id: 'professional',
+    name: 'Professional',
     type: 'hot_desk', 
-    pricing: { monthly: 1200000, annual: 12960000 }, // NPR 12,000/month
+    pricing: { monthly: 899900, annual: 9719000 }, // NPR 8,999/month
   },
   {
-    id: 'dedicated-desk',
-    name: 'Dedicated Desk',
+    id: 'enterprise',
+    name: 'Enterprise',
     type: 'dedicated_desk',
-    pricing: { monthly: 2200000, annual: 23760000 }, // NPR 22,000/month
+    pricing: { monthly: 1899900, annual: 20519000 }, // NPR 18,999/month
   },
   {
     id: 'private-office',
     name: 'Private Office',
     type: 'private_office',
-    pricing: { monthly: 6500000, annual: 70200000 }, // NPR 65,000/month
+    pricing: { monthly: 3200000, annual: 34560000 }, // NPR 32,000/month
   },
 ]
 
@@ -154,26 +154,26 @@ const mockAddOns = [
   {
     id: 'meeting-room-hours',
     name: 'Extra Meeting Room Hours',
-    price: 150000, // NPR 1,500/hour
-    description: 'Additional meeting room access',
+    price: 50000, // NPR 500/hour
+    description: 'Additional meeting room access beyond your plan',
   },
   {
     id: 'guest-passes',
     name: 'Guest Day Passes',
-    price: 60000, // NPR 600/day
+    price: 50000, // NPR 500/day
     description: 'Bring colleagues for a day',
   },
   {
     id: 'virtual-office',
     name: 'Virtual Office Address',
-    price: 800000, // NPR 8,000/month
-    description: 'Use our address for your business',
+    price: 300000, // NPR 3,000/month
+    description: 'Use our address for your business registration',
   },
   {
-    id: 'phone-line',
-    name: 'Phone Line',
-    price: 500000, // NPR 5,000/month
-    description: 'Dedicated phone number',
+    id: 'mail-handling',
+    name: 'Mail Handling Service',
+    price: 200000, // NPR 2,000/month
+    description: 'Mail receiving and forwarding service',
   },
 ]
 

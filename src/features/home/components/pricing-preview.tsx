@@ -9,44 +9,46 @@ import { formatCurrency } from '@/lib/utils'
 
 const plans = [
   {
-    name: 'Day Pass',
+    name: 'Explorer',
     description: 'Perfect for trying us out',
-    price: 80000, // in paisa (NPR 800)
+    price: 70000, // in paisa (NPR 700)
     period: 'day',
     features: [
-      'Hot desk access',
-      'High-speed internet',
+      'Day pass access',
+      'High-speed WiFi',
       'Coffee & tea',
-      'Basic amenities'
+      'Basic printing (10 pages)',
+      'Community events access'
     ],
     popular: false,
   },
   {
-    name: 'Hot Desk',
-    description: 'Flexible workspace solution',
-    price: 1200000, // in paisa (NPR 12,000)
+    name: 'Professional',
+    description: 'Most popular choice',
+    price: 899900, // in paisa (NPR 8,999)
     period: 'month',
     features: [
-      'Hot desk access',
-      'Meeting room credits',
-      'All amenities',
-      'Community events',
-      'Locker access',
+      'Hot desk workstation',
+      '4 hours meeting room/month',
+      'Premium printing (100 pages)',
+      'Personal storage locker',
+      '24/7 access',
+      'Priority support',
     ],
     popular: true,
   },
   {
-    name: 'Dedicated Desk',
-    description: 'Your personal workspace',
-    price: 2200000, // in paisa (NPR 22,000)
+    name: 'Enterprise',
+    description: 'For teams and businesses',
+    price: 1899900, // in paisa (NPR 18,999)
     period: 'month',
     features: [
       'Dedicated desk',
-      'Personal storage',
-      'Meeting room credits',
-      'All amenities',
-      '24/7 access',
-      'Mail handling',
+      'Unlimited meeting rooms',
+      'Unlimited printing',
+      'Guest day passes (5/month)',
+      'Dedicated account manager',
+      'Custom billing options',
     ],
     popular: false,
   },

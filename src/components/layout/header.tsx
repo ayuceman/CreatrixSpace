@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
-import { Menu, X, MapPin, Calendar, User } from 'lucide-react'
+import { Menu, X, MapPin, Calendar } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { ROUTES, APP_NAME } from '@/lib/constants'
@@ -49,12 +49,6 @@ export function Header() {
 
         {/* CTA Buttons */}
         <div className="hidden md:flex items-center space-x-3">
-          <Button variant="ghost" size="sm" asChild>
-            <Link to={ROUTES.LOGIN}>
-              <User className="h-4 w-4 mr-2" />
-              Login
-            </Link>
-          </Button>
           <Button size="sm" asChild>
             <Link to={ROUTES.BOOKING}>
               <Calendar className="h-4 w-4 mr-2" />
@@ -99,12 +93,6 @@ export function Header() {
               ))}
             </nav>
             <div className="flex flex-col space-y-2 pt-4 border-t">
-              <Button variant="ghost" size="sm" asChild>
-                <Link to={ROUTES.LOGIN} onClick={() => setIsMenuOpen(false)}>
-                  <User className="h-4 w-4 mr-2" />
-                  Login
-                </Link>
-              </Button>
               <Button size="sm" asChild>
                 <Link to={ROUTES.BOOKING} onClick={() => setIsMenuOpen(false)}>
                   <Calendar className="h-4 w-4 mr-2" />

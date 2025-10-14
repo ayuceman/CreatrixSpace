@@ -10,75 +10,77 @@ import { formatCurrency } from '@/lib/utils'
 
 const plans = [
   {
-    id: 'day-pass',
-    name: 'Day Pass',
+    id: 'explorer',
+    name: 'Explorer',
     description: 'Perfect for trying us out',
     icon: Zap,
     pricing: {
-      daily: 80000, // NPR 800
+      daily: 70000, // NPR 700
     },
     features: [
-      'Hot desk access for 1 day',
-      'High-speed internet',
+      'Day pass access to all locations',
+      'High-speed WiFi',
       'Coffee & tea',
-      'Basic printing (5 pages)',
-      'Access to common areas',
+      'Basic printing (10 pages)',
+      'Lounge area access',
+      'Community events access',
     ],
     limitations: [
       'No meeting room access',
-      'No locker access',
-      'Limited to business hours',
+      'No storage space',
+      'Limited support hours',
     ],
     popular: false,
     cta: 'Get Day Pass',
   },
   {
-    id: 'hot-desk',
-    name: 'Hot Desk',
-    description: 'Flexible workspace solution',
+    id: 'professional',
+    name: 'Professional',
+    description: 'Most popular choice',
     icon: Star,
     pricing: {
-      monthly: 1200000, // NPR 12,000 (equivalent to 15 days - good value)
-      annual: 12960000, // NPR 129,600 (10% discount)
+      monthly: 899900, // NPR 8,999
+      annual: 9719000, // NPR 97,190 (10% discount)
     },
     features: [
-      'Hot desk access',
-      'High-speed internet',
-      'Meeting room credits (2 hours/month)',
-      'All amenities included',
-      'Community events access',
-      'Locker access',
-      'Phone booth access',
-      'Printing credits (50 pages/month)',
+      'Unlimited access to all locations',
+      'Hot desk workstation',
+      '4 hours meeting room per month',
+      'Premium printing (100 pages)',
+      'Coffee, tea & snacks',
+      'Personal storage locker',
+      'Priority community events',
+      '24/7 access',
+      'Priority support',
     ],
     limitations: [],
     popular: true,
-    cta: 'Start Hot Desking',
+    cta: 'Start Professional',
   },
   {
-    id: 'dedicated-desk',
-    name: 'Dedicated Desk',
-    description: 'Your personal workspace',
+    id: 'enterprise',
+    name: 'Enterprise',
+    description: 'For teams and businesses',
     icon: Crown,
     pricing: {
-      monthly: 2200000, // NPR 22,000
-      annual: 23760000, // NPR 237,600 (10% discount)
+      monthly: 1899900, // NPR 18,999
+      annual: 20519000, // NPR 205,190 (10% discount)
     },
     features: [
-      'Your own dedicated desk',
-      'Personal storage drawer',
-      'High-speed internet',
-      'Meeting room credits (5 hours/month)',
-      'All amenities included',
-      '24/7 access',
-      'Mail handling service',
-      'Locker included',
-      'Priority booking',
-      'Printing credits (100 pages/month)',
+      'Dedicated desk at your chosen location',
+      'Unlimited meeting room access',
+      'Private phone booth priority',
+      'Unlimited printing',
+      'Personal storage cabinet',
+      'Guest day passes (5/month)',
+      'Exclusive networking events',
+      'Priority booking system',
+      'Dedicated account manager',
+      'Custom billing options',
     ],
     limitations: [],
     popular: false,
-    cta: 'Reserve Your Desk',
+    cta: 'Go Enterprise',
   },
   {
     id: 'private-office',
@@ -86,11 +88,11 @@ const plans = [
     description: 'Ultimate privacy and productivity',
     icon: Crown,
     pricing: {
-      monthly: 6500000, // NPR 65,000
-      annual: 70200000, // NPR 702,000 (10% discount)
+      monthly: 3200000, // NPR 32,000
+      annual: 34560000, // NPR 345,600 (10% discount)
     },
     features: [
-      'Private locked office',
+      'Private locked office (2-4 people)',
       'Furniture included',
       'High-speed internet',
       'Unlimited meeting room access',
@@ -111,23 +113,23 @@ const plans = [
 const addOns = [
   {
     name: 'Extra Meeting Room Hours',
-    price: 150000, // NPR 1,500/hour
-    description: 'Additional meeting room access',
+    price: 50000, // NPR 500/hour
+    description: 'Additional meeting room access beyond your plan',
   },
   {
     name: 'Guest Day Passes',
-    price: 60000, // NPR 600/day (25% discount from regular day pass)
+    price: 50000, // NPR 500/day (discounted from regular NPR 700)
     description: 'Bring colleagues for a day',
   },
   {
     name: 'Virtual Office Address',
-    price: 800000, // NPR 8,000/month
-    description: 'Use our address for your business',
+    price: 300000, // NPR 3,000/month
+    description: 'Use our address for your business registration',
   },
   {
-    name: 'Phone Line',
-    price: 500000, // NPR 5,000/month
-    description: 'Dedicated phone number',
+    name: 'Mail Handling Service',
+    price: 200000, // NPR 2,000/month
+    description: 'Mail receiving and forwarding service',
   },
 ]
 

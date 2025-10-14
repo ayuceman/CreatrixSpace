@@ -11,16 +11,19 @@ export interface User {
 export interface Location {
   id: string
   name: string
-  slug: string
+  slug?: string
   description: string
   address: string
-  city: string
-  coordinates: {
+  fullAddress?: string
+  city?: string
+  coordinates?: {
     lat: number
     lng: number
   }
-  images: string[]
+  image?: string
+  images?: string[]
   amenities: string[]
+  features?: string[]
   openingHours: {
     [key: string]: {
       open: string
@@ -28,14 +31,23 @@ export interface Location {
       closed?: boolean
     }
   }
-  capacity: {
+  capacity: number | {
     hotDesks: number
     dedicatedDesks: number
     privateOffices: number
     meetingRooms: number
   }
-  createdAt: Date
-  updatedAt: Date
+  rating?: number
+  available?: boolean
+  status?: string
+  popular?: boolean
+  contact?: {
+    phone: string
+    email: string
+  }
+  googleMapsUrl?: string
+  createdAt?: Date
+  updatedAt?: Date
 }
 
 export interface Plan {
