@@ -11,7 +11,7 @@ const plans = [
   {
     name: 'Explorer',
     description: 'Perfect for trying us out',
-    price: 70000, // in paisa (NPR 700)
+    price: 60000, // in paisa (NPR 600) - 25% reduction for competitiveness
     period: 'day',
     features: [
       'Day pass access',
@@ -23,9 +23,9 @@ const plans = [
     popular: false,
   },
   {
-    name: 'Professional',
-    description: 'Most popular choice',
-    price: 899900, // in paisa (NPR 8,999)
+    name: 'Hot Desk',
+    description: 'Flexible workspace solution',
+    price: 950000, // in paisa (NPR 9,500) - 20% reduction for competitiveness
     period: 'month',
     features: [
       'Hot desk workstation',
@@ -38,9 +38,9 @@ const plans = [
     popular: true,
   },
   {
-    name: 'Enterprise',
-    description: 'For teams and businesses',
-    price: 1899900, // in paisa (NPR 18,999)
+    name: 'Dedicated Desk',
+    description: 'Your personal workspace',
+    price: 1850000, // in paisa (NPR 18,500) - 15% reduction for competitiveness
     period: 'month',
     features: [
       'Dedicated desk',

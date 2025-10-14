@@ -15,7 +15,7 @@ const plans = [
     description: 'Perfect for trying us out',
     icon: Zap,
     pricing: {
-      daily: 70000, // NPR 700
+      daily: 60000, // NPR 600 (25% reduction for competitiveness)
     },
     features: [
       'Day pass access to all locations',
@@ -39,8 +39,8 @@ const plans = [
     description: 'Most popular choice',
     icon: Star,
     pricing: {
-      monthly: 899900, // NPR 8,999
-      annual: 9719000, // NPR 97,190 (10% discount)
+      monthly: 950000, // NPR 9,500 (20% reduction for competitiveness)
+      annual: 10260000, // NPR 102,600 (10% discount)
     },
     features: [
       'Unlimited access to all locations',
@@ -63,8 +63,8 @@ const plans = [
     description: 'For teams and businesses',
     icon: Crown,
     pricing: {
-      monthly: 1899900, // NPR 18,999
-      annual: 20519000, // NPR 205,190 (10% discount)
+      monthly: 1850000, // NPR 18,500 (15% reduction for competitiveness)
+      annual: 19980000, // NPR 199,800 (10% discount)
     },
     features: [
       'Dedicated desk at your chosen location',
@@ -88,8 +88,8 @@ const plans = [
     description: 'Ultimate privacy and productivity',
     icon: Crown,
     pricing: {
-      monthly: 3200000, // NPR 32,000
-      annual: 34560000, // NPR 345,600 (10% discount)
+      monthly: 5850000, // NPR 58,500 (10% reduction for competitiveness)
+      annual: 63180000, // NPR 631,800 (10% discount)
     },
     features: [
       'Private locked office (2-4 people)',
@@ -113,23 +113,23 @@ const plans = [
 const addOns = [
   {
     name: 'Extra Meeting Room Hours',
-    price: 50000, // NPR 500/hour
-    description: 'Additional meeting room access beyond your plan',
+    price: 120000, // NPR 1,200/hour (20% reduction)
+    description: 'Additional meeting room access',
   },
   {
     name: 'Guest Day Passes',
-    price: 50000, // NPR 500/day (discounted from regular NPR 700)
+    price: 45000, // NPR 450/day (25% discount from regular day pass)
     description: 'Bring colleagues for a day',
   },
   {
     name: 'Virtual Office Address',
-    price: 300000, // NPR 3,000/month
-    description: 'Use our address for your business registration',
+    price: 600000, // NPR 6,000/month (25% reduction)
+    description: 'Use our address for your business',
   },
   {
-    name: 'Mail Handling Service',
-    price: 200000, // NPR 2,000/month
-    description: 'Mail receiving and forwarding service',
+    name: 'Phone Line',
+    price: 400000, // NPR 4,000/month (20% reduction)
+    description: 'Dedicated phone number',
   },
 ]
 
