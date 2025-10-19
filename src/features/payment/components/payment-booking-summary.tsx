@@ -33,6 +33,12 @@ const paymentMethods = [
     fees: '3.5% + NPR 10',
   },
   {
+    id: 'qr_payment' as PaymentMethod,
+    name: 'QR Payment',
+    logo: '📱',
+    fees: 'No additional fees',
+  },
+  {
     id: 'bank_transfer' as PaymentMethod,
     name: 'Bank Transfer',
     logo: '🏦',
@@ -65,6 +71,7 @@ export function PaymentBookingSummary({
         return Math.round(amount * 0.035) + 1000 // 3.5% + NPR 10
       case 'esewa':
       case 'khalti':
+      case 'qr_payment':
         return 0
       case 'bank_transfer':
         return 0
@@ -192,6 +199,11 @@ export function PaymentBookingSummary({
               {selectedPaymentMethod.id === 'bank_transfer' && (
                 <p className="text-xs text-orange-700 mt-1">
                   ⚠️ Manual verification required
+                </p>
+              )}
+              {selectedPaymentMethod.id === 'qr_payment' && (
+                <p className="text-xs text-blue-700 mt-1">
+                  📱 QR scan + receipt upload required
                 </p>
               )}
             </div>
