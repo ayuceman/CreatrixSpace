@@ -410,7 +410,7 @@ export function ContactPage() {
                   Book a Tour
                 </a>
               </Button>
-              <Button size="lg" variant="outline" className="border-primary-foreground/20 text-primary-foreground hover:bg-primary-foreground hover:text-primary" asChild>
+              <Button size="lg" variant="secondary" className="border-primary-foreground/20  hover:bg-primary-foreground hover:text-primary" asChild>
                 <a href="tel:+9779851357889">
                   <Phone className="mr-2 h-4 w-4" />
                   Call Now
