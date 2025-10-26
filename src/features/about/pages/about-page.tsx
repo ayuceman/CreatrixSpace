@@ -33,33 +33,6 @@ const values = [
   },
 ]
 
-const team = [
-  {
-    name: 'Sarah Johnson',
-    role: 'Founder & CEO',
-    image: 'https://images.unsplash.com/photo-1494790108755-2616b612b647?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80',
-    bio: 'Former tech executive with 15+ years of experience building innovative workspaces.',
-  },
-  {
-    name: 'Michael Chen',
-    role: 'Head of Operations',
-    image: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80',
-    bio: 'Operations expert passionate about creating seamless member experiences.',
-  },
-  {
-    name: 'Emma Davis',
-    role: 'Community Manager',
-    image: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80',
-    bio: 'Community builder dedicated to fostering connections and collaborative growth.',
-  },
-  {
-    name: 'Alex Rodriguez',
-    role: 'Head of Technology',
-    image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80',
-    bio: 'Tech innovator ensuring our spaces are equipped with the latest technology.',
-  },
-]
-
 export function AboutPage() {
   return (
     <div className="overflow-hidden">
@@ -219,56 +192,6 @@ export function AboutPage() {
         </div>
       </section>
 
-      {/* Team Section */}
-      <section className="section-padding bg-muted/30">
-        <div className="container">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            viewport={{ once: true }}
-            className="text-center mb-16"
-          >
-            <h2 className="text-3xl md:text-4xl font-display font-bold mb-6">
-              Meet Our Team
-            </h2>
-            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              The passionate individuals behind CreatrixSpace who are dedicated 
-              to creating exceptional workspace experiences.
-            </p>
-          </motion.div>
-
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {team.map((member, index) => (
-              <motion.div
-                key={member.name}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-                viewport={{ once: true }}
-              >
-                <Card>
-                  <CardContent className="p-6 text-center">
-                    <div className="w-24 h-24 rounded-full overflow-hidden mx-auto mb-4">
-                      <img
-                        src={member.image}
-                        alt={member.name}
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-                    <h3 className="text-xl font-semibold mb-1">{member.name}</h3>
-                    <p className="text-primary font-medium mb-3">{member.role}</p>
-                    <p className="text-sm text-muted-foreground leading-relaxed">
-                      {member.bio}
-                    </p>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
       {/* Mission Section */}
       <section className="section-padding">
         <div className="container">
@@ -294,7 +217,7 @@ export function AboutPage() {
                 We're here to make that future a reality."
               </blockquote>
               <cite className="block mt-4 text-muted-foreground">
-                — Sarah Johnson, Founder & CEO
+                — Ayushman Bajracharya
               </cite>
             </div>
           </motion.div>
