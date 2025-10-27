@@ -15,7 +15,7 @@ const locationData: Record<string, Location> = {
     name: 'Dhobighat (WashingTown) Hub',
     address: 'Dhobighat, Kathmandu',
     fullAddress: 'Dhobighat Chowk, Kathmandu 44600, Nepal',
-    image: '/dhobighat-office-back.png',
+    image: '/dhobighat-office-space1.png',
     capacity: 120,
     rating: 4.9,
     features: ['24/7 Access', 'Meeting Rooms', 'Event Space', 'High-Speed WiFi', 'Parking'],
@@ -101,44 +101,44 @@ const getLocationGalleryImages = (locationId: string) => {
     'dhobighat-hub': [
       {
         id: 1,
-        src: '/dhobighat-office-back.png',
-        alt: 'Dhobighat office building',
-        title: 'Dhobighat Space Exterior',
-        span: 'col-span-1'
-      },
-      {
-        id: 2,
-        src: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-        alt: 'Meeting rooms',
-        title: 'Meeting Rooms',
-        span: 'sm:col-span-2'
-      },
-      {
-        id: 3,
         src: '/dining-area.png',
         alt: 'Dining area',
         title: 'Dining Area',
         span: 'col-span-1'
       },
       {
+        id: 2,
+        src: '/dhobighat-office-back.png',
+        alt: 'office back',
+        title: 'Office Back',
+        span: 'sm:col-span-2'
+      },
+      {
+        id: 3,
+        src: '/espresso.png',
+        alt: 'espresso',
+        title: 'Espresso',
+        span: 'col-span-1'
+      },
+      {
         id: 4,
-        src: 'https://images.unsplash.com/photo-1524758631624-e2822e304c36?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-        alt: 'Cafe and kitchen',
-        title: 'Cafe & Kitchen',
+        src: '/dhobighat-kitchen.png',
+        alt: 'kitchen',
+        title: 'Kitchen',
         span: 'col-span-1'
       },
       {
         id: 5,
-        src: 'https://images.unsplash.com/photo-1556761175-b413da4baf72?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-        alt: 'Private offices',
-        title: 'Private Offices',
+        src: '/dhobighat-office-front.png',
+        alt: 'office front',
+        title: 'Office Front',
         span: 'col-span-1'
       },
       {
         id: 6,
-        src: 'https://images.unsplash.com/photo-1521737852567-6949f3f9f2b5?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-        alt: 'Event space',
-        title: 'Event Space',
+        src: '/dhobighat-office-space2.png',
+        alt: 'office space',
+        title: 'office space',
         span: 'sm:col-span-2'
       }
     ],
@@ -312,7 +312,7 @@ export function LocationDetailPage() {
                           Book Now
                         </Link>
                       </Button>
-                      <Button size="lg" variant="outline" asChild>
+                      <Button size="lg" asChild>
                         <Link to={ROUTES.CONTACT}>
                           Schedule Tour
                         </Link>
@@ -502,7 +502,12 @@ export function LocationDetailPage() {
                     Book Your Space
                   </Link>
                 </Button>
-                <Button size="lg" variant="outline" className="border-primary-foreground/20 text-primary-foreground hover:bg-primary-foreground hover:text-primary" asChild>
+                <Button 
+                  size="lg" 
+                  variant="outline" 
+                  className="border-2 border-white/30 bg-white/10 text-white hover:bg-white hover:text-primary backdrop-blur-sm" 
+                  asChild
+                >
                   <Link to={ROUTES.CONTACT}>
                     Schedule a Tour
                   </Link>
