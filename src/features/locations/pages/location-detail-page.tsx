@@ -1,7 +1,7 @@
 import { useParams, Link } from 'react-router-dom'
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { MapPin, Users, Star, Clock, Wifi, Coffee, Car, Shield, ArrowLeft, Calendar, Phone, Mail, ExternalLink } from 'lucide-react'
+import { MapPin, Users, Star, Clock, Wifi, Coffee, Car, Shield, ArrowLeft, Calendar, Phone, Mail, ExternalLink, Eye } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -317,6 +317,22 @@ export function LocationDetailPage() {
                           Schedule Tour
                         </Link>
                       </Button>
+                      {location.id === 'dhobighat-hub' && (
+                        <Button 
+                          size="lg" 
+                          variant="outline"
+                          asChild
+                        >
+                          <a 
+                            href="https://tour.panoee.net/68ff28c676f3860dc809beae"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            <Eye className="mr-2 h-4 w-4" />
+                            Virtual Tour
+                          </a>
+                        </Button>
+                      )}
                     </>
                   ) : (
                     <Button size="lg" disabled>
@@ -512,6 +528,23 @@ export function LocationDetailPage() {
                     Schedule a Tour
                   </Link>
                 </Button>
+                {location.id === 'dhobighat-hub' && (
+                  <Button 
+                    size="lg" 
+                    variant="outline" 
+                    className="border-2 border-white/30 bg-white/10 text-white hover:bg-white hover:text-primary backdrop-blur-sm" 
+                    asChild
+                  >
+                    <a 
+                      href="https://tour.panoee.net/68ff28c676f3860dc809beae"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <Eye className="mr-2 h-4 w-4" />
+                      Virtual Tour
+                    </a>
+                  </Button>
+                )}
               </div>
             </motion.div>
           </div>
