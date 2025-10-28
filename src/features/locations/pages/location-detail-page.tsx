@@ -1,7 +1,7 @@
 import { useParams, Link } from 'react-router-dom'
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { MapPin, Users, Star, Clock, Wifi, Coffee, Car, Shield, ArrowLeft, Calendar, Phone, Mail, ExternalLink, Eye } from 'lucide-react'
+import { MapPin, Users, Star, Clock, Wifi, Coffee, Car, Shield, ArrowLeft, Calendar, Phone, Mail, ExternalLink } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -38,6 +38,34 @@ const locationData: Record<string, Location> = {
     },
     googleMapsUrl: 'https://maps.app.goo.gl/Pw4KLyfjaj2Wdrsw9?g_st=ipc'
   },
+  'kausimaa': {
+    id: 'kausimaa',
+    name: 'Kausimaa Co-working',
+    address: 'Kupondole, Lalitpur',
+    fullAddress: 'Jwagal/Kupondole, Lalitpur, Nepal',
+    image: 'https://coworker.imgix.net/photos/nepal/lalitpur/kausimaa/2-1639371534.jpg?w=800&h=0&q=90&auto=format,compress&fit=crop&mark=/template/img/wm_icon.png&markscale=5&markalign=center,middle',
+    capacity: 40,
+    rating: 4.6,
+    features: ['WiFi', 'Outdoor Terrace', 'Phone Booths', 'Lounge Areas'],
+    amenities: ['WiFi', 'Lounge Area', 'Outdoor Terrace', 'Kitchen', 'Phone Booths', 'Event Space For Rent', 'Free Drinking Water', 'Parking'],
+    openingHours: {
+      monday: { open: '10:00', close: '18:00' },
+      tuesday: { open: '10:00', close: '18:00' },
+      wednesday: { open: '10:00', close: '18:00' },
+      thursday: { open: '10:00', close: '18:00' },
+      friday: { open: '10:00', close: '18:00' },
+      saturday: { open: '10:00', close: '18:00' },
+      sunday: { open: '10:00', close: '18:00' }
+    },
+    available: true,
+    popular: false,
+    description: 'Set on an airy terrace, Kausimaa provides a quiet, green workspace ideal for freelancers, students, and creative minds — with steady WiFi, unlimited tea/coffee, and basic printing services.',
+    contact: {
+      phone: '',
+      email: ''
+    },
+    googleMapsUrl: ''
+  },
   'jhamsikhel-loft': {
     id: 'jhamsikhel-loft',
     name: 'Jhamsikhel Loft',
@@ -66,34 +94,7 @@ const locationData: Record<string, Location> = {
       email: 'jhamsikhel@creatrixspace.com'
     }
   },
-  'baluwatar-studios': {
-    id: 'baluwatar-studios',
-    name: 'Baluwatar Studios',
-    address: 'Baluwatar, Kathmandu',
-    fullAddress: 'Baluwatar, Kathmandu 44600, Nepal',
-    image: 'https://images.unsplash.com/photo-1556761175-b413da4baf72?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-    capacity: 60,
-    rating: 4.7,
-    features: ['Creative Spaces', 'Tech Hub', 'Modern Design', 'Quiet Zones'],
-    amenities: ['Recording Studio', 'Photography Studio', '3D Printing', 'VR Lab'],
-    openingHours: {
-      monday: { open: '08:00', close: '20:00' },
-      tuesday: { open: '08:00', close: '20:00' },
-      wednesday: { open: '08:00', close: '20:00' },
-      thursday: { open: '08:00', close: '20:00' },
-      friday: { open: '08:00', close: '20:00' },
-      saturday: { open: '10:00', close: '18:00' },
-      sunday: { open: '10:00', close: '18:00' }
-    },
-    available: false,
-    status: 'Coming Soon',
-    popular: false,
-    description: 'A cutting-edge creative hub designed for artists, designers, and tech innovators. Opening soon with state-of-the-art facilities.',
-    contact: {
-      phone: '+977 9851357889',
-      email: 'baluwatar@creatrixspace.com'
-    }
-  }
+  // Baluwatar Studios temporarily hidden
 }
 
 const getLocationGalleryImages = (locationId: string) => {
@@ -142,6 +143,11 @@ const getLocationGalleryImages = (locationId: string) => {
         span: 'sm:col-span-2'
       }
     ],
+    'kausimaa': [
+      { id: 1, src: 'https://coworker.imgix.net/photos/nepal/lalitpur/kausimaa/1-1639371534.JPG?w=800&h=0&q=90&auto=format,compress&fit=crop&mark=/template/img/wm_icon.png&markscale=5&markalign=center,middle', alt: 'Kausimaa interior', title: 'Kausimaa Interior', span: 'col-span-1' },
+      { id: 2, src: 'https://coworker.imgix.net/photos/nepal/lalitpur/kausimaa/2-1639371534.jpg?w=800&h=0&q=90&auto=format,compress&fit=crop&mark=/template/img/wm_icon.png&markscale=5&markalign=center,middle', alt: 'Kausimaa workspace', title: 'Kausimaa Workspace', span: 'sm:col-span-2' },
+      { id: 3, src: 'https://coworker.imgix.net/photos/nepal/lalitpur/kausimaa/main.jpg?w=800&h=0&q=90&auto=format,compress&fit=crop&mark=/template/img/wm_icon.png&markscale=5&markalign=center,middle', alt: 'Kausimaa main area', title: 'Kausimaa Main Area', span: 'col-span-1' }
+    ],
     'jhamsikhel-loft': [
       {
         id: 1,
@@ -172,29 +178,7 @@ const getLocationGalleryImages = (locationId: string) => {
         span: 'col-span-1'
       }
     ],
-    'baluwatar-studios': [
-      {
-        id: 1,
-        src: 'https://images.unsplash.com/photo-1556761175-b413da4baf72?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-        alt: 'Creative space',
-        title: 'Creative Space',
-        span: 'col-span-1'
-      },
-      {
-        id: 2,
-        src: 'https://images.unsplash.com/photo-1504384308090-c894fdcc538d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-        alt: 'Tech hub',
-        title: 'Tech Hub',
-        span: 'col-span-1'
-      },
-      {
-        id: 3,
-        src: 'https://images.unsplash.com/photo-1581092160562-40aa08e78837?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-        alt: 'Modern design',
-        title: 'Modern Design',
-        span: 'sm:col-span-2'
-      }
-    ]
+    // Baluwatar gallery temporarily hidden
   };
 
   return galleries[locationId] || [];
@@ -317,22 +301,6 @@ export function LocationDetailPage() {
                           Schedule Tour
                         </Link>
                       </Button>
-                      {location.id === 'dhobighat-hub' && (
-                        <Button 
-                          size="lg" 
-                          variant="outline"
-                          asChild
-                        >
-                          <a 
-                            href="https://tour.panoee.net/68ff28c676f3860dc809beae"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                          >
-                            <Eye className="mr-2 h-4 w-4" />
-                            Virtual Tour
-                          </a>
-                        </Button>
-                      )}
                     </>
                   ) : (
                     <Button size="lg" disabled>
@@ -528,23 +496,6 @@ export function LocationDetailPage() {
                     Schedule a Tour
                   </Link>
                 </Button>
-                {location.id === 'dhobighat-hub' && (
-                  <Button 
-                    size="lg" 
-                    variant="outline" 
-                    className="border-2 border-white/30 bg-white/10 text-white hover:bg-white hover:text-primary backdrop-blur-sm" 
-                    asChild
-                  >
-                    <a 
-                      href="https://tour.panoee.net/68ff28c676f3860dc809beae"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      <Eye className="mr-2 h-4 w-4" />
-                      Virtual Tour
-                    </a>
-                  </Button>
-                )}
               </div>
             </motion.div>
           </div>
