@@ -101,7 +101,7 @@ const membershipPlans = [
     id: 'private-office',
     name: 'Private Office',
     subtitle: 'Ultimate privacy and productivity',
-    price: 32000,
+    price: 35000,
     period: 'month',
     originalPrice: 40000,
     popular: false,

@@ -146,7 +146,7 @@ const mockPlans = [
     id: 'private-office',
     name: 'Private Office',
     type: 'private_office',
-    pricing: { monthly: 3200000, annual: 34560000 }, // NPR 32,000/month
+    pricing: { monthly: 3500000, annual: 37800000 }, // NPR 35,000/month
   },
 ]
 

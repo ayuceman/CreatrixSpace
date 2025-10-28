@@ -88,8 +88,8 @@ const plans = [
     description: 'Ultimate privacy and productivity',
     icon: Crown,
     pricing: {
-      monthly: 5850000, // NPR 58,500 (10% reduction for competitiveness)
-      annual: 63180000, // NPR 631,800 (10% discount)
+      monthly: 3500000, // NPR 35,000
+      annual: 37800000, // NPR 378,000 (10% discount)
     },
     features: [
       'Private locked office (2-4 people)',
