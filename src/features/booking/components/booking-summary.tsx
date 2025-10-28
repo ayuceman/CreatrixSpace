@@ -71,7 +71,7 @@ export function BookingSummary() {
             <div className="text-sm text-muted-foreground mb-1">Plan</div>
             <div className="flex items-center justify-between">
               <p className="font-medium">{selectedPlan.name}</p>
-              {selectedPlan.id === 'hot-desk' && <Badge>Popular</Badge>}
+              {selectedPlan.id === 'professional' && <Badge>Popular</Badge>}
             </div>
           </div>
         </div>

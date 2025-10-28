@@ -5,13 +5,14 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { PaymentGatewaySelector } from '../components/payment-gateway-selector'
 import { PaymentBookingSummary } from '../components/payment-booking-summary'
+import { QRPayment } from '../components/qr-payment'
 import { ESewaDebug } from '../components/esewa-debug'
 import { paymentService } from '@/services/payment-service'
 import { PaymentMethod, PaymentData } from '@/lib/payment-config'
 import { formatCurrency } from '@/lib/utils'
 import { useBookingStore } from '@/store/booking-store'
 
-type PaymentStatus = 'selecting' | 'processing' | 'success' | 'error' | 'pending'
+type PaymentStatus = 'selecting' | 'processing' | 'success' | 'error' | 'pending' | 'qr_payment'
 
 export function PaymentPage() {
   const [searchParams] = useSearchParams()
@@ -101,6 +102,9 @@ export function PaymentPage() {
       } else if (method === 'bank_transfer') {
         setPaymentStatus('success')
         setPaymentResult(result)
+      } else if (method === 'qr_payment') {
+        setPaymentStatus('qr_payment')
+        setPaymentResult(result)
       } else if (result.success) {
         setPaymentStatus('success')
         setPaymentResult(result)
@@ -118,8 +122,40 @@ export function PaymentPage() {
     navigate('/booking')
   }
 
+  const handleQRPaymentComplete = (result: any) => {
+    if (result.success) {
+      setPaymentStatus('success')
+      setPaymentResult(result)
+    } else {
+      setPaymentStatus('error')
+      setError(result.error || 'QR payment verification failed')
+    }
+  }
+
+  const handleQRPaymentCancel = () => {
+    setPaymentStatus('selecting')
+    setSelectedMethod(null)
+    setPaymentResult(null)
+  }
+
   const renderPaymentStatus = () => {
     switch (paymentStatus) {
+      case 'qr_payment':
+        return (
+          <div className="min-h-screen bg-muted/30">
+            <div className="container py-8">
+              <div className="max-w-2xl mx-auto">
+                <QRPayment
+                  amount={bookingData.totalAmount || 120000}
+                  bookingId={paymentResult?.paymentId || `BK-${Date.now()}`}
+                  onPaymentComplete={handleQRPaymentComplete}
+                  onCancel={handleQRPaymentCancel}
+                />
+              </div>
+            </div>
+          </div>
+        )
+
       case 'processing':
         return (
           <Card className="text-center">

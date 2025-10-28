@@ -50,6 +50,17 @@ const paymentMethods = [
     logo: '💳',
   },
   {
+    id: 'qr_payment' as PaymentMethod,
+    name: 'QR Payment',
+    description: 'Scan QR code with your banking app and upload receipt',
+    icon: Smartphone,
+    features: ['All major banks', 'QR scan payment', 'Receipt verification'],
+    fees: 'No additional fees',
+    processingTime: '2-5 minutes verification',
+    popular: false,
+    logo: '📱',
+  },
+  {
     id: 'bank_transfer' as PaymentMethod,
     name: 'Bank Transfer',
     description: 'Direct bank transfer - manual verification required',
@@ -101,6 +112,7 @@ export function PaymentGatewaySelector({
         return Math.round(amount * 0.035) + 1000 // 3.5% + NPR 10
       case 'esewa':
       case 'khalti':
+      case 'qr_payment':
         return 0
       case 'bank_transfer':
         return 0 // Bank may charge separately

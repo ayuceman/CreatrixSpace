@@ -353,11 +353,145 @@ export class KhaltiPaymentService {
   }
 }
 
+// QR Payment Service
+export class QRPaymentService {
+  async processPayment(paymentData: PaymentData): Promise<PaymentResult> {
+    // QR Payment returns pending status - actual verification happens via screenshot upload
+    return {
+      success: true,
+      method: 'qr_payment',
+      amount: paymentData.amount,
+      paymentId: `QR-${paymentData.bookingId}`,
+      metadata: {
+        status: 'pending_verification',
+        qr_generated: true,
+        verification_timeout: PAYMENT_CONFIG.qrPayment.verificationTimeout,
+      },
+    }
+  }
+
+  async verifyScreenshot(
+    paymentId: string,
+    screenshot: File,
+    expectedAmount: number
+  ): Promise<PaymentResult> {
+    try {
+      // Simulate OCR processing
+      await new Promise(resolve => setTimeout(resolve, 2000))
+
+      // Mock OCR extraction - in production, use actual OCR service
+      const extractedData = await this.extractPaymentDetails(screenshot)
+      
+      // Validate extracted data
+      const isValid = this.validatePaymentData(extractedData, expectedAmount, paymentId)
+      
+      if (isValid) {
+        return {
+          success: true,
+          method: 'qr_payment',
+          amount: expectedAmount,
+          paymentId: paymentId,
+          transactionId: extractedData.transactionId,
+          metadata: {
+            verification_method: 'screenshot_ocr',
+            extracted_data: extractedData,
+            confidence_score: extractedData.confidence,
+            verified_at: new Date().toISOString(),
+          },
+        }
+      } else {
+        return {
+          success: false,
+          method: 'qr_payment',
+          amount: expectedAmount,
+          error: 'Payment verification failed - details do not match',
+          metadata: {
+            verification_method: 'screenshot_ocr',
+            extracted_data: extractedData,
+            validation_errors: extractedData.errors,
+          },
+        }
+      }
+    } catch (error) {
+      return {
+        success: false,
+        method: 'qr_payment',
+        amount: expectedAmount,
+        error: 'Screenshot processing failed',
+        metadata: {
+          error: error instanceof Error ? error.message : 'Unknown error',
+        },
+      }
+    }
+  }
+
+  private async extractPaymentDetails(screenshot: File) {
+    // Mock OCR extraction - replace with actual OCR service (Tesseract, Google Vision, etc.)
+    const mockExtraction = {
+      amount: null as number | null,
+      transactionId: `TXN${Date.now()}`,
+      date: new Date().toISOString(),
+      bankName: 'Laxmi Sunrise Bank',
+      recipientName: 'Creatrix Technologies Pvt. Ltd.',
+      confidence: 0.85 + Math.random() * 0.1, // 85-95% confidence
+      errors: [] as string[],
+    }
+
+    // Simulate OCR processing time
+    await new Promise(resolve => setTimeout(resolve, 1500))
+
+    // Mock some validation scenarios
+    if (Math.random() > 0.8) {
+      mockExtraction.errors.push('Amount not clearly visible')
+      mockExtraction.confidence = 0.6
+    }
+
+    return mockExtraction
+  }
+
+  private validatePaymentData(
+    extractedData: any,
+    expectedAmount: number,
+    paymentId: string
+  ): boolean {
+    // Check confidence threshold
+    if (extractedData.confidence < 0.8) {
+      extractedData.errors.push('Low confidence in OCR extraction')
+      return false
+    }
+
+    // Check if amount matches (within 1% tolerance for rounding)
+    if (extractedData.amount) {
+      const tolerance = expectedAmount * 0.01
+      if (Math.abs(extractedData.amount - expectedAmount) > tolerance) {
+        extractedData.errors.push('Amount mismatch')
+        return false
+      }
+    } else {
+      extractedData.errors.push('Amount not found in screenshot')
+      return false
+    }
+
+    // Check if transaction is recent (within last 30 minutes)
+    const transactionTime = new Date(extractedData.date).getTime()
+    const currentTime = Date.now()
+    const timeDifference = currentTime - transactionTime
+    
+    if (timeDifference > 30 * 60 * 1000) { // 30 minutes
+      extractedData.errors.push('Transaction too old')
+      return false
+    }
+
+    return true
+  }
+}
+
 // Payment Service Factory
 export class PaymentService {
   private stripeService = new StripePaymentService()
   private esewaService = new ESewaPaymentService()
   private khaltiService = new KhaltiPaymentService()
+  private qrPaymentService = new QRPaymentService()
 
   async processPayment(
     method: PaymentMethod,
@@ -370,6 +504,8 @@ export class PaymentService {
         return this.esewaService.processPayment(paymentData)
       case 'khalti':
         return this.khaltiService.processPayment(paymentData)
+      case 'qr_payment':
+        return this.qrPaymentService.processPayment(paymentData)
       case 'bank_transfer':
         return this.processBankTransfer(paymentData)
       default:

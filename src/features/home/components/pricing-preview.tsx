@@ -9,15 +9,16 @@ import { formatCurrency } from '@/lib/utils'
 
 const plans = [
   {
-    name: 'Day Pass',
+    name: 'Explorer',
     description: 'Perfect for trying us out',
     price: 60000, // in paisa (NPR 600) - 25% reduction for competitiveness
     period: 'day',
     features: [
-      'Hot desk access',
-      'High-speed internet',
+      'Day pass access',
+      'High-speed WiFi',
       'Coffee & tea',
-      'Basic amenities'
+      'Basic printing (10 pages)',
+      'Community events access'
     ],
     popular: false,
   },
@@ -27,11 +28,12 @@ const plans = [
     price: 950000, // in paisa (NPR 9,500) - 20% reduction for competitiveness
     period: 'month',
     features: [
-      'Hot desk access',
-      'Meeting room credits',
-      'All amenities',
-      'Community events',
-      'Locker access',
+      'Hot desk workstation',
+      '4 hours meeting room/month',
+      'Premium printing (100 pages)',
+      'Personal storage locker',
+      '24/7 access',
+      'Priority support',
     ],
     popular: true,
   },
@@ -42,11 +44,11 @@ const plans = [
     period: 'month',
     features: [
       'Dedicated desk',
-      'Personal storage',
-      'Meeting room credits',
-      'All amenities',
-      '24/7 access',
-      'Mail handling',
+      'Unlimited meeting rooms',
+      'Unlimited printing',
+      'Guest day passes (5/month)',
+      'Dedicated account manager',
+      'Custom billing options',
     ],
     popular: false,
   },

@@ -5,8 +5,9 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { ROUTES } from '@/lib/constants'
+import { Location } from '@/lib/types'
 
-const locationData = {
+const locationData: Record<string, Location> = {
   'dhobighat-hub': {
     id: 'dhobighat-hub',
     name: 'Dhobighat (WashingTown) Hub',
@@ -173,7 +174,7 @@ export function LocationDetailPage() {
                     </div>
                     <div className="flex items-center text-muted-foreground">
                       <Users className="h-5 w-5 mr-2" />
-                      <span className="text-lg">{location.capacity} capacity</span>
+                      <span className="text-lg">{typeof location.capacity === 'number' ? location.capacity : location.capacity.hotDesks + location.capacity.dedicatedDesks + location.capacity.privateOffices + location.capacity.meetingRooms} capacity</span>
                     </div>
                   </div>
                 </div>
@@ -231,7 +232,7 @@ export function LocationDetailPage() {
             >
               <h2 className="text-3xl font-display font-bold">Features</h2>
               <div className="grid grid-cols-2 gap-3">
-                {location.features.map((feature) => (
+                {location.features?.map((feature) => (
                   <div key={feature} className="flex items-center space-x-3 p-4 bg-muted/30 rounded-lg">
                     <div className="w-2 h-2 bg-primary rounded-full flex-shrink-0" />
                     <span className="font-medium">{feature}</span>
@@ -303,7 +304,7 @@ export function LocationDetailPage() {
                     </div>
                     <div>
                       <p className="font-medium">Phone</p>
-                      <p className="text-muted-foreground">{location.contact.phone}</p>
+                      <p className="text-muted-foreground">{location.contact?.phone}</p>
                     </div>
                   </div>
                   <div className="flex items-center space-x-3">
@@ -312,7 +313,7 @@ export function LocationDetailPage() {
                     </div>
                     <div>
                       <p className="font-medium">Email</p>
-                      <p className="text-muted-foreground">{location.contact.email}</p>
+                      <p className="text-muted-foreground">{location.contact?.email}</p>
                     </div>
                   </div>
                   {location.googleMapsUrl && (

@@ -30,10 +30,23 @@ export const PAYMENT_CONFIG = {
       onError: '/payment/khalti/error',
       onClose: '/payment/khalti/close',
     }
+  },
+
+  // QR Payment Configuration
+  qrPayment: {
+    companyName: 'Creatrix Technologies Pvt. Ltd.',
+    accountNumber: '11811000527',
+    bankName: 'Laxmi Sunrise Bank',
+    qrCodeImage: '/company-qr-code.png', // Company QR code image path
+    verificationTimeout: 300000, // 5 minutes in milliseconds
+    supportedBanks: [
+      'Laxmi Sunrise Bank',
+      
+    ]
   }
 }
 
-export type PaymentMethod = 'stripe' | 'esewa' | 'khalti' | 'bank_transfer'
+export type PaymentMethod = 'stripe' | 'esewa' | 'khalti' | 'bank_transfer' | 'qr_payment'
 
 export interface PaymentData {
   amount: number // in paisa (1 NPR = 100 paisa)
