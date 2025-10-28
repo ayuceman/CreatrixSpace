@@ -2,6 +2,7 @@ import { Outlet } from 'react-router-dom'
 import { Header } from './header'
 import { Footer } from './footer'
 import { ScrollToTop } from './scroll-to-top'
+import GeminiChatbot from '@/components/ui/gemini-chatbot'
 
 export function RootLayout() {
   return (
@@ -12,6 +13,7 @@ export function RootLayout() {
         <Outlet />
       </main>
       <Footer />
+      <GeminiChatbot />
     </div>
   )
 }
