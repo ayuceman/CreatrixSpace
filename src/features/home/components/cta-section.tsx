@@ -48,7 +48,7 @@ export function CTASection() {
             <Button 
               size="lg" 
               variant="outline" 
-              className="border-primary-foreground/20 text-primary-foreground hover:bg-primary-foreground hover:text-primary"
+              className="border-2 border-white/30 bg-white/10 text-white hover:bg-white hover:text-primary backdrop-blur-sm"
               asChild
             >
               <Link to={ROUTES.LOCATIONS}>

@@ -24,7 +24,7 @@ const membershipPlans = [
     id: 'explorer',
     name: 'Explorer',
     subtitle: 'Perfect for trying us out',
-    price: 700,
+    price: 400,
     period: 'day',
     originalPrice: 1000,
     popular: false,
@@ -487,7 +487,7 @@ export function MembershipPage() {
                   Start Free Tour
                 </Link>
               </Button>
-              <Button size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-primary" asChild>
+              <Button size="lg" variant="outline" className="bg-transparent border-white text-white hover:bg-white hover:text-primary" asChild>
                 <Link to={ROUTES.CONTACT}>
                   Contact Sales
                 </Link>

@@ -15,7 +15,8 @@ const plans = [
     description: 'Perfect for trying us out',
     icon: Zap,
     pricing: {
-      daily: 60000, // NPR 600 (25% reduction for competitiveness)
+      daily: 50000, // NPR 500 per day (promotional price)
+      originalDaily: 100000, // NPR 1000 original price
     },
     features: [
       'Day pass access to all locations',
@@ -191,7 +192,7 @@ export function PricingPage() {
             {plans.map((plan, index) => {
               const Icon = plan.icon
               const price = plan.pricing[billingPeriod] || plan.pricing.daily
-              const period = billingPeriod === 'annual' ? 'year' : billingPeriod === 'monthly' ? 'month' : 'day'
+              const period = plan.id === 'explorer' ? 'day' : billingPeriod === 'annual' ? 'year' : billingPeriod === 'monthly' ? 'month' : 'day'
               
               return (
                 <motion.div
@@ -228,6 +229,16 @@ export function PricingPage() {
                             /{period}
                           </span>
                         </div>
+                        {plan.id === 'explorer' && plan.pricing.originalDaily && (
+                          <div className="flex items-center justify-center gap-2 mt-1">
+                            <span className="text-sm text-muted-foreground line-through">
+                              {formatCurrency(plan.pricing.originalDaily, 'NPR')}
+                            </span>
+                            <Badge variant="destructive" className="text-xs">
+                              Save {formatCurrency(plan.pricing.originalDaily - (price || 0), 'NPR')}
+                            </Badge>
+                          </div>
+                        )}
                         {billingPeriod === 'annual' && plan.pricing.annual && (
                           <p className="text-xs text-green-600 mt-1">
                             Save {formatCurrency((plan.pricing.monthly * 12) - plan.pricing.annual, 'NPR')} per year
@@ -389,7 +400,7 @@ export function PricingPage() {
               <Button size="lg" variant="secondary" asChild>
                 <Link to={ROUTES.BOOKING}>Start Your Journey</Link>
               </Button>
-              <Button size="lg" variant="outline" className="border-primary-foreground/20 text-primary-foreground hover:bg-primary-foreground hover:text-primary" asChild>
+              <Button size="lg" variant="outline" className="border-2 border-white/30 bg-white/10 text-white hover:bg-white hover:text-primary backdrop-blur-sm" asChild>
                 <Link to={ROUTES.CONTACT}>Contact Sales</Link>
               </Button>
             </div>

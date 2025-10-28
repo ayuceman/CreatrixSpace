@@ -11,7 +11,8 @@ const plans = [
   {
     name: 'Explorer',
     description: 'Perfect for trying us out',
-    price: 60000, // in paisa (NPR 600) - 25% reduction for competitiveness
+    price: 50000, // in paisa (NPR 500) - promotional price
+    originalPrice: 100000, // in paisa (NPR 1000) - original price
     period: 'day',
     features: [
       'Day pass access',
@@ -109,6 +110,16 @@ export function PricingPreview() {
                         /{plan.period}
                       </span>
                     </div>
+                    {plan.name === 'Explorer' && plan.originalPrice && (
+                      <div className="flex items-center justify-center gap-2 mt-1">
+                        <span className="text-sm text-muted-foreground line-through">
+                          {formatCurrency(plan.originalPrice, 'NPR')}
+                        </span>
+                        <Badge variant="destructive" className="text-xs">
+                          Save {formatCurrency(plan.originalPrice - plan.price, 'NPR')}
+                        </Badge>
+                      </div>
+                    )}
                   </div>
                 </CardHeader>
 
