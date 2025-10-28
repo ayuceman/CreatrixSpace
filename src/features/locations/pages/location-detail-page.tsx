@@ -16,7 +16,7 @@ const locationData: Record<string, Location> = {
     address: 'Dhobighat, Kathmandu',
     fullAddress: 'Dhobighat Chowk, Kathmandu 44600, Nepal',
     image: '/dhobighat-office-space1.png',
-    capacity: 120,
+    capacity: 30,
     rating: 4.9,
     features: ['24/7 Access', 'Meeting Rooms', 'Event Space', 'High-Speed WiFi', 'Parking'],
     amenities: ['Coffee Bar', 'Printing Services', 'Phone Booths', 'Lounge Areas'],

@@ -46,6 +46,14 @@ const locations = [
     googleMapsUrl: 'https://maps.app.goo.gl/Pw4KLyfjaj2Wdrsw9?g_st=ipc'
   },
   {
+    name: 'Kausimaa Co-working',
+    address: 'Jwagal/Kupondole, Lalitpur',
+    phone: '',
+    email: '',
+    hours: 'Mon-Sun: 10:00 AM - 6:00 PM',
+    status: 'Available'
+  },
+  {
     name: 'Jhamsikhel Loft',
     address: 'Jhamsikhel, Lalitpur 44600',
     phone: '+977 9803171819',
@@ -53,14 +61,6 @@ const locations = [
     hours: 'Mon-Fri: 7:00 AM - 9:00 PM',
     status: 'Reserved'
   },
-  {
-    name: 'Baluwatar Studios',
-    address: 'Baluwatar, Kathmandu 44600',
-    phone: '+977 9851357889',
-    email: 'baluwatar@creatrixspace.com',
-    hours: 'Coming Soon',
-    status: 'Coming Soon'
-  }
 ]
 
 const faqs = [
@@ -233,8 +233,8 @@ export function ContactPage() {
                         >
                           <option value="">Select a location</option>
                           <option value="dhobighat-hub">Dhobighat (WashingTown) Hub</option>
+                          <option value="kausimaa">Kausimaa Co-working</option>
                           <option value="jhamsikhel-loft">Jhamsikhel Loft</option>
-                          <option value="baluwatar-studios">Baluwatar Studios</option>
                         </select>
                       </div>
                     </div>
