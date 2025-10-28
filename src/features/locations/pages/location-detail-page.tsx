@@ -1,4 +1,5 @@
 import { useParams, Link } from 'react-router-dom'
+import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { MapPin, Users, Star, Clock, Wifi, Coffee, Car, Shield, ArrowLeft, Calendar, Phone, Mail, ExternalLink } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -6,6 +7,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { ROUTES } from '@/lib/constants'
 import { Location } from '@/lib/types'
+import { Gallery, ImageModal } from '@/components/ui/react-tailwind-image-gallery'
 
 const locationData: Record<string, Location> = {
   'dhobighat-hub': {
@@ -13,7 +15,7 @@ const locationData: Record<string, Location> = {
     name: 'Dhobighat (WashingTown) Hub',
     address: 'Dhobighat, Kathmandu',
     fullAddress: 'Dhobighat Chowk, Kathmandu 44600, Nepal',
-    image: 'https://images.unsplash.com/photo-1497366412874-3415097a27e7?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+    image: '/dhobighat-office-space1.png',
     capacity: 120,
     rating: 4.9,
     features: ['24/7 Access', 'Meeting Rooms', 'Event Space', 'High-Speed WiFi', 'Parking'],
@@ -94,9 +96,127 @@ const locationData: Record<string, Location> = {
   }
 }
 
+const getLocationGalleryImages = (locationId: string) => {
+  const galleries: Record<string, Array<{ id: number; src: string; alt: string; title: string; span?: string }>> = {
+    'dhobighat-hub': [
+      {
+        id: 1,
+        src: '/dining-area.png',
+        alt: 'Dining area',
+        title: 'Dining Area',
+        span: 'col-span-1'
+      },
+      {
+        id: 2,
+        src: '/dhobighat-office-back.png',
+        alt: 'office back',
+        title: 'Office Back',
+        span: 'sm:col-span-2'
+      },
+      {
+        id: 3,
+        src: '/espresso.png',
+        alt: 'espresso',
+        title: 'Espresso',
+        span: 'col-span-1'
+      },
+      {
+        id: 4,
+        src: '/dhobighat-kitchen.png',
+        alt: 'kitchen',
+        title: 'Kitchen',
+        span: 'col-span-1'
+      },
+      {
+        id: 5,
+        src: '/dhobighat-office-front.png',
+        alt: 'office front',
+        title: 'Office Front',
+        span: 'col-span-1'
+      },
+      {
+        id: 6,
+        src: '/dhobighat-office-space2.png',
+        alt: 'office space',
+        title: 'office space',
+        span: 'sm:col-span-2'
+      }
+    ],
+    'jhamsikhel-loft': [
+      {
+        id: 1,
+        src: 'https://images.unsplash.com/photo-1524758631624-e2822e304c36?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+        alt: 'Loft space',
+        title: 'Loft Space',
+        span: 'col-span-1'
+      },
+      {
+        id: 2,
+        src: 'https://images.unsplash.com/photo-1497366811353-6870744d04b2?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+        alt: 'Rooftop terrace',
+        title: 'Rooftop Terrace',
+        span: 'sm:col-span-2'
+      },
+      {
+        id: 3,
+        src: 'https://images.unsplash.com/photo-1560185127-6ed189bf02f4?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+        alt: 'Natural lighting',
+        title: 'Natural Lighting',
+        span: 'col-span-1'
+      },
+      {
+        id: 4,
+        src: 'https://images.unsplash.com/photo-1487088678257-3a541e6e3922?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+        alt: 'Outdoor seating',
+        title: 'Outdoor Seating',
+        span: 'col-span-1'
+      }
+    ],
+    'baluwatar-studios': [
+      {
+        id: 1,
+        src: 'https://images.unsplash.com/photo-1556761175-b413da4baf72?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+        alt: 'Creative space',
+        title: 'Creative Space',
+        span: 'col-span-1'
+      },
+      {
+        id: 2,
+        src: 'https://images.unsplash.com/photo-1504384308090-c894fdcc538d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+        alt: 'Tech hub',
+        title: 'Tech Hub',
+        span: 'col-span-1'
+      },
+      {
+        id: 3,
+        src: 'https://images.unsplash.com/photo-1581092160562-40aa08e78837?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+        alt: 'Modern design',
+        title: 'Modern Design',
+        span: 'sm:col-span-2'
+      }
+    ]
+  };
+
+  return galleries[locationId] || [];
+};
+
 export function LocationDetailPage() {
   const { id } = useParams<{ id: string }>()
   const location = id ? locationData[id as keyof typeof locationData] : null
+  const [modalImage, setModalImage] = useState<string | null>(null)
+
+  const galleryImages = id ? getLocationGalleryImages(id) : []
+
+  const openModal = (src: string) => setModalImage(src)
+  const closeModal = () => setModalImage(null)
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') closeModal()
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [])
 
   if (!location) {
     return (
@@ -129,7 +249,7 @@ export function LocationDetailPage() {
   return (
     <div className="overflow-hidden">
       {/* Hero Section */}
-      <section className="section-padding bg-gradient-to-br from-background via-background to-primary/5">
+      <section className="py-8 bg-gradient-to-br from-background via-background to-primary/5">
         <div className="container">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -192,7 +312,7 @@ export function LocationDetailPage() {
                           Book Now
                         </Link>
                       </Button>
-                      <Button size="lg" variant="outline" asChild>
+                      <Button size="lg" asChild>
                         <Link to={ROUTES.CONTACT}>
                           Schedule Tour
                         </Link>
@@ -218,6 +338,22 @@ export function LocationDetailPage() {
           </motion.div>
         </div>
       </section>
+
+      {/* Gallery Section */}
+      {galleryImages.length > 0 && (
+        <section className="bg-white">
+          <div className="container">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+              viewport={{ once: true }}
+            >
+              <Gallery data={galleryImages} onImageClick={openModal} />
+            </motion.div>
+          </div>
+        </section>
+      )}
 
       {/* Features & Amenities */}
       <section className="section-padding">
@@ -366,7 +502,12 @@ export function LocationDetailPage() {
                     Book Your Space
                   </Link>
                 </Button>
-                <Button size="lg" variant="outline" className="border-primary-foreground/20 text-primary-foreground hover:bg-primary-foreground hover:text-primary" asChild>
+                <Button 
+                  size="lg" 
+                  variant="outline" 
+                  className="border-2 border-white/30 bg-white/10 text-white hover:bg-white hover:text-primary backdrop-blur-sm" 
+                  asChild
+                >
                   <Link to={ROUTES.CONTACT}>
                     Schedule a Tour
                   </Link>
@@ -376,6 +517,9 @@ export function LocationDetailPage() {
           </div>
         </section>
       )}
+
+      {/* Image Modal */}
+      <ImageModal src={modalImage} onClose={closeModal} />
     </div>
   )
 }
