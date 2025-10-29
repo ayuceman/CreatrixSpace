@@ -1,7 +1,7 @@
 import { useParams, Link } from 'react-router-dom'
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { MapPin, Users, Star, Clock, Wifi, Coffee, Car, Shield, ArrowLeft, Calendar, Phone, Mail, ExternalLink } from 'lucide-react'
+import { MapPin, Users, Star, Clock, Wifi, Coffee, Car, Shield, ArrowLeft, Calendar, Phone, MessageCircle, ExternalLink } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -34,7 +34,7 @@ const locationData: Record<string, Location> = {
     description: 'Our flagship location in the heart of Dhobighat, featuring modern amenities and 24/7 access. Perfect for entrepreneurs, freelancers, and remote workers.',
     contact: {
       phone: '+977 9851357889',
-      email: 'dhobighat@creatrixspace.com'
+      email: ''
     },
     googleMapsUrl: 'https://maps.app.goo.gl/Pw4KLyfjaj2Wdrsw9?g_st=ipc'
   },
@@ -91,7 +91,7 @@ const locationData: Record<string, Location> = {
     description: 'A beautiful loft space with rooftop terrace and natural lighting. Currently reserved for a long-term client.',
     contact: {
       phone: '+977 9803171819',
-      email: 'jhamsikhel@creatrixspace.com'
+      email: ''
     }
   },
   // Baluwatar Studios temporarily hidden
@@ -137,10 +137,31 @@ const getLocationGalleryImages = (locationId: string) => {
       },
       {
         id: 6,
-        src: '/dhobighat-office-space2.png',
+        src: '/office-meeting-room.png',
         alt: 'office space',
         title: 'office space',
         span: 'sm:col-span-2'
+      },
+      {
+        id: 7,
+        src: '/office-desk2.png',
+        alt: 'Office desk',
+        title: 'Office Desk',
+        span: 'col-span-1'
+      },
+      {
+        id: 8,
+        src: '/creatrix-space-productivity.png',
+        alt: 'Boost Your Productivity',
+        title: 'Boost Your Productivity',
+        span: 'sm:col-span-2'
+      },
+      {
+        id: 9,
+        src: '/office-room-desk1.png',
+        alt: 'Private desk room',
+        title: 'Private Desk Room',
+        span: 'col-span-1'
       }
     ],
     'kausimaa': [
@@ -429,11 +450,18 @@ export function LocationDetailPage() {
                   </div>
                   <div className="flex items-center space-x-3">
                     <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
-                      <Mail className="h-5 w-5 text-primary" />
+                      <MessageCircle className="h-5 w-5 text-primary" />
                     </div>
                     <div>
-                      <p className="font-medium">Email</p>
-                      <p className="text-muted-foreground">{location.contact?.email}</p>
+                      <p className="font-medium">WhatsApp</p>
+                      <a 
+                        href="https://wa.me/9779803171819"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-primary hover:underline"
+                      >
+                        +977 9803171819
+                      </a>
                     </div>
                   </div>
                   {location.googleMapsUrl && (

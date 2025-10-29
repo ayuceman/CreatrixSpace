@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { MapPin, Phone, Mail, Clock, MessageCircle, Calendar, ExternalLink } from 'lucide-react'
+import { MapPin, Phone, Clock, MessageCircle, Calendar, ExternalLink } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { ROUTES } from '@/lib/constants'
@@ -13,10 +13,10 @@ const contactInfo = [
     description: 'Call us for immediate assistance'
   },
   {
-    icon: Mail,
-    title: 'Email',
-    content: 'hello@creatrixspace.com',
-    description: 'Send us an email anytime'
+    icon: MessageCircle,
+    title: 'WhatsApp',
+    content: '+977 9803171819',
+    description: 'Message us anytime on WhatsApp'
   },
   {
     icon: MapPin,
@@ -80,6 +80,13 @@ const faqs = [
 ]
 
 export function ContactPage() {
+  const getWhatsAppLink = (rawPhone: string) => {
+    const digits = (rawPhone || '').replace(/\D/g, '')
+    if (!digits) return undefined
+    const withCountry = digits.startsWith('977') ? digits : `977${digits}`
+    return `https://wa.me/${withCountry}`
+  }
+
   useEffect(() => {
     const src = 'https://js.hsforms.net/forms/embed/44777363.js'
     const existing = document.querySelector(`script[src="${src}"]`)
@@ -215,8 +222,19 @@ export function ContactPage() {
                               <span>{location.phone}</span>
                             </div>
                             <div className="flex items-center">
-                              <Mail className="h-4 w-4 mr-2" />
-                              <span>{location.email}</span>
+                              <MessageCircle className="h-4 w-4 mr-2" />
+                              {location.phone ? (
+                                <a
+                                  href={getWhatsAppLink(location.phone)}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="text-primary hover:underline"
+                                >
+                                  WhatsApp
+                                </a>
+                              ) : (
+                                <span>WhatsApp</span>
+                              )}
                             </div>
                             <div className="flex items-center">
                               <Clock className="h-4 w-4 mr-2" />

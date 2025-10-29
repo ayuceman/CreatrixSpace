@@ -108,18 +108,17 @@ const mockLocations = [
     available: true,
   },
   {
+    id: 'kausimaa-coworking',
+    name: 'Kausimaa Co-working',
+    address: 'Jwagal/Kupondole, Lalitpur',
+    available: true,
+  },
+  {
     id: 'jhamsikhel-loft',
     name: 'Jhamsikhel Loft', 
     address: 'Jhamsikhel, Lalitpur',
     available: false,
     status: 'Reserved for 6 months',
-  },
-  {
-    id: 'baluwatar-studios',
-    name: 'Baluwatar Studios',
-    address: 'Baluwatar, Kathmandu',
-    available: false,
-    status: 'Coming Soon',
   },
 ]
 
@@ -128,7 +127,7 @@ const mockPlans = [
     id: 'explorer',
     name: 'Explorer',
     type: 'day_pass',
-    pricing: { daily: 70000 }, // NPR 700
+    pricing: { daily: 50000 }, // NPR 500 (promotional price)
   },
   {
     id: 'professional',

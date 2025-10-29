@@ -121,6 +121,14 @@ export function LocationPlanStep() {
                         </p>
                       </div>
                       <div className="text-right">
+                        {plan.id === 'explorer' && plan.pricing.daily && (
+                          <div className="mb-1 flex items-center justify-end gap-2">
+                            <Badge variant="secondary">Promo</Badge>
+                            <span className="text-xs text-muted-foreground line-through">
+                              {formatCurrency(100000, 'NPR')}
+                            </span>
+                          </div>
+                        )}
                         <div className="font-bold text-lg">
                           {formatCurrency(price || 0, 'NPR')}
                         </div>

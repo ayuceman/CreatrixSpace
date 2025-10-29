@@ -111,7 +111,7 @@ export function AboutPage() {
                   network of premium coworking spaces across Nepal.
                 </p>
                 <p>
-                  Our founders, Sarah and Michael, were frustrated with traditional office 
+                  Our founder Ayushman Bajracharya was frustrated with traditional office 
                   environments that stifled creativity and isolated workers. They envisioned 
                   spaces that would break down barriers, encourage collaboration, and provide 
                   the flexibility that modern professionals need.
