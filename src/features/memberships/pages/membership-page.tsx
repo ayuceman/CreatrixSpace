@@ -104,6 +104,7 @@ const membershipPlans = [
     price: 35000,
     period: 'month',
     originalPrice: 40000,
+    annualPrice: 336000, // NPR 336,000 (20% discount)
     popular: false,
     description: 'Complete privacy and control for established teams',
     features: [
