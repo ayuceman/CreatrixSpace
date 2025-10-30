@@ -1,11 +1,8 @@
-import { useState } from 'react'
+import { useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { MapPin, Phone, Mail, Clock, Send, MessageCircle, Calendar, ExternalLink } from 'lucide-react'
+import { MapPin, Phone, Clock, MessageCircle, Calendar, ExternalLink } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
 import { ROUTES } from '@/lib/constants'
 
 const contactInfo = [
@@ -16,10 +13,10 @@ const contactInfo = [
     description: 'Call us for immediate assistance'
   },
   {
-    icon: Mail,
-    title: 'Email',
-    content: 'hello@creatrixspace.com',
-    description: 'Send us an email anytime'
+    icon: MessageCircle,
+    title: 'WhatsApp',
+    content: '+977 9803171819',
+    description: 'Message us anytime on WhatsApp'
   },
   {
     icon: MapPin,
@@ -46,6 +43,14 @@ const locations = [
     googleMapsUrl: 'https://maps.app.goo.gl/Pw4KLyfjaj2Wdrsw9?g_st=ipc'
   },
   {
+    name: 'Kausimaa Co-working',
+    address: 'Jwagal/Kupondole, Lalitpur',
+    phone: '9823900033',
+    email: '',
+    hours: 'Mon-Sun: 10:00 AM - 6:00 PM',
+    status: 'Available'
+  },
+  {
     name: 'Jhamsikhel Loft',
     address: 'Jhamsikhel, Lalitpur 44600',
     phone: '+977 9803171819',
@@ -53,14 +58,6 @@ const locations = [
     hours: 'Mon-Fri: 7:00 AM - 9:00 PM',
     status: 'Reserved'
   },
-  {
-    name: 'Baluwatar Studios',
-    address: 'Baluwatar, Kathmandu 44600',
-    phone: '+977 9851357889',
-    email: 'baluwatar@creatrixspace.com',
-    hours: 'Coming Soon',
-    status: 'Coming Soon'
-  }
 ]
 
 const faqs = [
@@ -83,36 +80,23 @@ const faqs = [
 ]
 
 export function ContactPage() {
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    phone: '',
-    subject: '',
-    message: '',
-    location: ''
-  })
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    // Handle form submission here
-    console.log('Form submitted:', formData)
-    // Reset form
-    setFormData({
-      name: '',
-      email: '',
-      phone: '',
-      subject: '',
-      message: '',
-      location: ''
-    })
+  const getWhatsAppLink = (rawPhone: string) => {
+    const digits = (rawPhone || '').replace(/\D/g, '')
+    if (!digits) return undefined
+    const withCountry = digits.startsWith('977') ? digits : `977${digits}`
+    return `https://wa.me/${withCountry}`
   }
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    })
-  }
+  useEffect(() => {
+    const src = 'https://js.hsforms.net/forms/embed/44777363.js'
+    const existing = document.querySelector(`script[src="${src}"]`)
+    if (!existing) {
+      const script = document.createElement('script')
+      script.src = src
+      script.defer = true
+      document.body.appendChild(script)
+    }
+  }, [])
 
   return (
     <div className="overflow-hidden">
@@ -184,91 +168,14 @@ export function ContactPage() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <form onSubmit={handleSubmit} className="space-y-6">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="name">Full Name *</Label>
-                        <Input
-                          id="name"
-                          name="name"
-                          value={formData.name}
-                          onChange={handleChange}
-                          placeholder="Your full name"
-                          required
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="email">Email *</Label>
-                        <Input
-                          id="email"
-                          name="email"
-                          type="email"
-                          value={formData.email}
-                          onChange={handleChange}
-                          placeholder="your@email.com"
-                          required
-                        />
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="phone">Phone</Label>
-                        <Input
-                          id="phone"
-                          name="phone"
-                          value={formData.phone}
-                          onChange={handleChange}
-                          placeholder="+977-XXXXXXXXX"
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="location">Preferred Location</Label>
-                        <select
-                          id="location"
-                          name="location"
-                          value={formData.location}
-                          onChange={handleChange}
-                          className="w-full px-3 py-2 border border-input bg-background rounded-md text-sm"
-                        >
-                          <option value="">Select a location</option>
-                          <option value="dhobighat-hub">Dhobighat (WashingTown) Hub</option>
-                          <option value="jhamsikhel-loft">Jhamsikhel Loft</option>
-                          <option value="baluwatar-studios">Baluwatar Studios</option>
-                        </select>
-                      </div>
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="subject">Subject *</Label>
-                      <Input
-                        id="subject"
-                        name="subject"
-                        value={formData.subject}
-                        onChange={handleChange}
-                        placeholder="What's this about?"
-                        required
-                      />
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="message">Message *</Label>
-                      <Textarea
-                        id="message"
-                        name="message"
-                        value={formData.message}
-                        onChange={handleChange}
-                        placeholder="Tell us more about your inquiry..."
-                        rows={5}
-                        required
-                      />
-                    </div>
-
-                    <Button type="submit" className="w-full" size="lg">
-                      <Send className="mr-2 h-4 w-4" />
-                      Send Message
-                    </Button>
-                  </form>
+                  <div className="space-y-6">
+                    <div
+                      className="hs-form-frame"
+                      data-region="na1"
+                      data-form-id="29e4175e-1983-4c51-9887-74bd94d8c42d"
+                      data-portal-id="44777363"
+                    />
+                  </div>
                 </CardContent>
               </Card>
             </motion.div>
@@ -315,8 +222,19 @@ export function ContactPage() {
                               <span>{location.phone}</span>
                             </div>
                             <div className="flex items-center">
-                              <Mail className="h-4 w-4 mr-2" />
-                              <span>{location.email}</span>
+                              <MessageCircle className="h-4 w-4 mr-2" />
+                              {location.phone ? (
+                                <a
+                                  href={getWhatsAppLink(location.phone)}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="text-primary hover:underline"
+                                >
+                                  WhatsApp
+                                </a>
+                              ) : (
+                                <span>WhatsApp</span>
+                              )}
                             </div>
                             <div className="flex items-center">
                               <Clock className="h-4 w-4 mr-2" />

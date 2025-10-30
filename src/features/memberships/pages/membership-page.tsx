@@ -24,7 +24,7 @@ const membershipPlans = [
     id: 'explorer',
     name: 'Explorer',
     subtitle: 'Perfect for trying us out',
-    price: 400,
+    price: 500,
     period: 'day',
     originalPrice: 1000,
     popular: false,
