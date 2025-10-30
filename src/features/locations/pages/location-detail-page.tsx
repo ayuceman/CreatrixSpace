@@ -1,11 +1,13 @@
 import { useParams, Link } from 'react-router-dom'
+import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { MapPin, Users, Star, Clock, Wifi, Coffee, Car, Shield, ArrowLeft, Calendar, Phone, Mail, ExternalLink } from 'lucide-react'
+import { MapPin, Users, Star, Clock, Wifi, Coffee, Car, Shield, ArrowLeft, Calendar, Phone, MessageCircle, ExternalLink } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { ROUTES } from '@/lib/constants'
 import { Location } from '@/lib/types'
+import { Gallery, ImageModal } from '@/components/ui/react-tailwind-image-gallery'
 
 const locationData: Record<string, Location> = {
   'dhobighat-hub': {
@@ -13,8 +15,8 @@ const locationData: Record<string, Location> = {
     name: 'Dhobighat (WashingTown) Hub',
     address: 'Dhobighat, Kathmandu',
     fullAddress: 'Dhobighat Chowk, Kathmandu 44600, Nepal',
-    image: 'https://images.unsplash.com/photo-1497366412874-3415097a27e7?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-    capacity: 120,
+    image: '/dhobighat-office-space1.png',
+    capacity: 30,
     rating: 4.9,
     features: ['24/7 Access', 'Meeting Rooms', 'Event Space', 'High-Speed WiFi', 'Parking'],
     amenities: ['Coffee Bar', 'Printing Services', 'Phone Booths', 'Lounge Areas'],
@@ -32,9 +34,37 @@ const locationData: Record<string, Location> = {
     description: 'Our flagship location in the heart of Dhobighat, featuring modern amenities and 24/7 access. Perfect for entrepreneurs, freelancers, and remote workers.',
     contact: {
       phone: '+977 9851357889',
-      email: 'dhobighat@creatrixspace.com'
+      email: ''
     },
     googleMapsUrl: 'https://maps.app.goo.gl/Pw4KLyfjaj2Wdrsw9?g_st=ipc'
+  },
+  'kausimaa': {
+    id: 'kausimaa',
+    name: 'Kausimaa Co-working',
+    address: 'Kupondole, Lalitpur',
+    fullAddress: 'Jwagal/Kupondole, Lalitpur, Nepal',
+    image: 'https://coworker.imgix.net/photos/nepal/lalitpur/kausimaa/2-1639371534.jpg?w=800&h=0&q=90&auto=format,compress&fit=crop&mark=/template/img/wm_icon.png&markscale=5&markalign=center,middle',
+    capacity: 40,
+    rating: 4.6,
+    features: ['WiFi', 'Outdoor Terrace', 'Phone Booths', 'Lounge Areas'],
+    amenities: ['WiFi', 'Lounge Area', 'Outdoor Terrace', 'Kitchen', 'Phone Booths', 'Event Space For Rent', 'Free Drinking Water', 'Parking'],
+    openingHours: {
+      monday: { open: '10:00', close: '18:00' },
+      tuesday: { open: '10:00', close: '18:00' },
+      wednesday: { open: '10:00', close: '18:00' },
+      thursday: { open: '10:00', close: '18:00' },
+      friday: { open: '10:00', close: '18:00' },
+      saturday: { open: '10:00', close: '18:00' },
+      sunday: { open: '10:00', close: '18:00' }
+    },
+    available: true,
+    popular: false,
+    description: 'Set on an airy terrace, Kausimaa provides a quiet, green workspace ideal for freelancers, students, and creative minds — with steady WiFi, unlimited tea/coffee, and basic printing services.',
+    contact: {
+      phone: '',
+      email: ''
+    },
+    googleMapsUrl: ''
   },
   'jhamsikhel-loft': {
     id: 'jhamsikhel-loft',
@@ -61,42 +91,137 @@ const locationData: Record<string, Location> = {
     description: 'A beautiful loft space with rooftop terrace and natural lighting. Currently reserved for a long-term client.',
     contact: {
       phone: '+977 9803171819',
-      email: 'jhamsikhel@creatrixspace.com'
+      email: ''
     }
   },
-  'baluwatar-studios': {
-    id: 'baluwatar-studios',
-    name: 'Baluwatar Studios',
-    address: 'Baluwatar, Kathmandu',
-    fullAddress: 'Baluwatar, Kathmandu 44600, Nepal',
-    image: 'https://images.unsplash.com/photo-1556761175-b413da4baf72?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-    capacity: 60,
-    rating: 4.7,
-    features: ['Creative Spaces', 'Tech Hub', 'Modern Design', 'Quiet Zones'],
-    amenities: ['Recording Studio', 'Photography Studio', '3D Printing', 'VR Lab'],
-    openingHours: {
-      monday: { open: '08:00', close: '20:00' },
-      tuesday: { open: '08:00', close: '20:00' },
-      wednesday: { open: '08:00', close: '20:00' },
-      thursday: { open: '08:00', close: '20:00' },
-      friday: { open: '08:00', close: '20:00' },
-      saturday: { open: '10:00', close: '18:00' },
-      sunday: { open: '10:00', close: '18:00' }
-    },
-    available: false,
-    status: 'Coming Soon',
-    popular: false,
-    description: 'A cutting-edge creative hub designed for artists, designers, and tech innovators. Opening soon with state-of-the-art facilities.',
-    contact: {
-      phone: '+977 9851357889',
-      email: 'baluwatar@creatrixspace.com'
-    }
-  }
+  // Baluwatar Studios temporarily hidden
 }
+
+const getLocationGalleryImages = (locationId: string) => {
+  const galleries: Record<string, Array<{ id: number; src: string; alt: string; title: string; span?: string }>> = {
+    'dhobighat-hub': [
+      {
+        id: 1,
+        src: '/dining-area.png',
+        alt: 'Dining area',
+        title: 'Dining Area',
+        span: 'col-span-1'
+      },
+      {
+        id: 2,
+        src: '/dhobighat-office-back.png',
+        alt: 'office back',
+        title: 'Office Back',
+        span: 'sm:col-span-2'
+      },
+      {
+        id: 3,
+        src: '/espresso.png',
+        alt: 'espresso',
+        title: 'Espresso',
+        span: 'col-span-1'
+      },
+      {
+        id: 4,
+        src: '/dhobighat-kitchen.png',
+        alt: 'kitchen',
+        title: 'Kitchen',
+        span: 'col-span-1'
+      },
+      {
+        id: 5,
+        src: '/dhobighat-office-front.png',
+        alt: 'office front',
+        title: 'Office Front',
+        span: 'col-span-1'
+      },
+      {
+        id: 6,
+        src: '/office-meeting-room.png',
+        alt: 'office space',
+        title: 'office space',
+        span: 'sm:col-span-2'
+      },
+      {
+        id: 7,
+        src: '/office-desk2.png',
+        alt: 'Office desk',
+        title: 'Office Desk',
+        span: 'col-span-1'
+      },
+      {
+        id: 8,
+        src: '/creatrix-space-productivity.png',
+        alt: 'Boost Your Productivity',
+        title: 'Boost Your Productivity',
+        span: 'sm:col-span-2'
+      },
+      {
+        id: 9,
+        src: '/office-room-desk1.png',
+        alt: 'Private desk room',
+        title: 'Private Desk Room',
+        span: 'col-span-1'
+      }
+    ],
+    'kausimaa': [
+      { id: 1, src: 'https://coworker.imgix.net/photos/nepal/lalitpur/kausimaa/1-1639371534.JPG?w=800&h=0&q=90&auto=format,compress&fit=crop&mark=/template/img/wm_icon.png&markscale=5&markalign=center,middle', alt: 'Kausimaa interior', title: 'Kausimaa Interior', span: 'col-span-1' },
+      { id: 2, src: 'https://coworker.imgix.net/photos/nepal/lalitpur/kausimaa/2-1639371534.jpg?w=800&h=0&q=90&auto=format,compress&fit=crop&mark=/template/img/wm_icon.png&markscale=5&markalign=center,middle', alt: 'Kausimaa workspace', title: 'Kausimaa Workspace', span: 'sm:col-span-2' },
+      { id: 3, src: 'https://coworker.imgix.net/photos/nepal/lalitpur/kausimaa/main.jpg?w=800&h=0&q=90&auto=format,compress&fit=crop&mark=/template/img/wm_icon.png&markscale=5&markalign=center,middle', alt: 'Kausimaa main area', title: 'Kausimaa Main Area', span: 'col-span-1' }
+    ],
+    'jhamsikhel-loft': [
+      {
+        id: 1,
+        src: 'https://images.unsplash.com/photo-1524758631624-e2822e304c36?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+        alt: 'Loft space',
+        title: 'Loft Space',
+        span: 'col-span-1'
+      },
+      {
+        id: 2,
+        src: 'https://images.unsplash.com/photo-1497366811353-6870744d04b2?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+        alt: 'Rooftop terrace',
+        title: 'Rooftop Terrace',
+        span: 'sm:col-span-2'
+      },
+      {
+        id: 3,
+        src: 'https://images.unsplash.com/photo-1560185127-6ed189bf02f4?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+        alt: 'Natural lighting',
+        title: 'Natural Lighting',
+        span: 'col-span-1'
+      },
+      {
+        id: 4,
+        src: 'https://images.unsplash.com/photo-1487088678257-3a541e6e3922?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+        alt: 'Outdoor seating',
+        title: 'Outdoor Seating',
+        span: 'col-span-1'
+      }
+    ],
+    // Baluwatar gallery temporarily hidden
+  };
+
+  return galleries[locationId] || [];
+};
 
 export function LocationDetailPage() {
   const { id } = useParams<{ id: string }>()
   const location = id ? locationData[id as keyof typeof locationData] : null
+  const [modalImage, setModalImage] = useState<string | null>(null)
+
+  const galleryImages = id ? getLocationGalleryImages(id) : []
+
+  const openModal = (src: string) => setModalImage(src)
+  const closeModal = () => setModalImage(null)
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') closeModal()
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [])
 
   if (!location) {
     return (
@@ -129,7 +254,7 @@ export function LocationDetailPage() {
   return (
     <div className="overflow-hidden">
       {/* Hero Section */}
-      <section className="section-padding bg-gradient-to-br from-background via-background to-primary/5">
+      <section className="py-8 bg-gradient-to-br from-background via-background to-primary/5">
         <div className="container">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -192,7 +317,7 @@ export function LocationDetailPage() {
                           Book Now
                         </Link>
                       </Button>
-                      <Button size="lg" variant="outline" asChild>
+                      <Button size="lg" asChild>
                         <Link to={ROUTES.CONTACT}>
                           Schedule Tour
                         </Link>
@@ -218,6 +343,22 @@ export function LocationDetailPage() {
           </motion.div>
         </div>
       </section>
+
+      {/* Gallery Section */}
+      {galleryImages.length > 0 && (
+        <section className="bg-white">
+          <div className="container">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+              viewport={{ once: true }}
+            >
+              <Gallery data={galleryImages} onImageClick={openModal} />
+            </motion.div>
+          </div>
+        </section>
+      )}
 
       {/* Features & Amenities */}
       <section className="section-padding">
@@ -309,11 +450,18 @@ export function LocationDetailPage() {
                   </div>
                   <div className="flex items-center space-x-3">
                     <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
-                      <Mail className="h-5 w-5 text-primary" />
+                      <MessageCircle className="h-5 w-5 text-primary" />
                     </div>
                     <div>
-                      <p className="font-medium">Email</p>
-                      <p className="text-muted-foreground">{location.contact?.email}</p>
+                      <p className="font-medium">WhatsApp</p>
+                      <a 
+                        href="https://wa.me/9779803171819"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-primary hover:underline"
+                      >
+                        +977 9803171819
+                      </a>
                     </div>
                   </div>
                   {location.googleMapsUrl && (
@@ -366,7 +514,12 @@ export function LocationDetailPage() {
                     Book Your Space
                   </Link>
                 </Button>
-                <Button size="lg" variant="outline" className="border-primary-foreground/20 text-primary-foreground hover:bg-primary-foreground hover:text-primary" asChild>
+                <Button 
+                  size="lg" 
+                  variant="outline" 
+                  className="border-2 border-white/30 bg-white/10 text-white hover:bg-white hover:text-primary backdrop-blur-sm" 
+                  asChild
+                >
                   <Link to={ROUTES.CONTACT}>
                     Schedule a Tour
                   </Link>
@@ -376,6 +529,9 @@ export function LocationDetailPage() {
           </div>
         </section>
       )}
+
+      {/* Image Modal */}
+      <ImageModal src={modalImage} onClose={closeModal} />
     </div>
   )
 }

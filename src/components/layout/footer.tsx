@@ -1,5 +1,23 @@
 import { Link } from 'react-router-dom'
-import { MapPin, Mail, Phone, Facebook, Twitter, Instagram, Linkedin } from 'lucide-react'
+import { MapPin, MessageCircle, Phone, Twitter, Linkedin } from 'lucide-react'
+
+// Minimal TikTok icon (fallback because current lucide-react version lacks Tiktok export)
+const TikTokIcon = (props: React.SVGProps<SVGSVGElement>) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 24 24"
+    width="24"
+    height="24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    {...props}
+  >
+    <path d="M10 3v12.5a3.5 3.5 0 1 1-3.5-3.5c.5 0 1 .08 1.46.23V9.5c-1.29-.26-2.38-.97-3.21-2.01M13 3a6 6 0 0 0 6 6" />
+  </svg>
+)
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { ROUTES, APP_NAME } from '@/lib/constants'
@@ -24,10 +42,9 @@ const footerLinks = {
 }
 
 const socialLinks = [
-  { name: 'Facebook', icon: Facebook, href: '#' },
-  { name: 'Twitter', icon: Twitter, href: '#' },
-  { name: 'Instagram', icon: Instagram, href: '#' },
-  { name: 'LinkedIn', icon: Linkedin, href: '#' },
+  { name: 'Twitter', icon: Twitter, href: 'https://x.com/creatrix_tech' },
+  { name: 'TikTok', iconPath: '/tiktok.svg', href: 'https://www.tiktok.com/@creatrixtechnologies' },
+  { name: 'LinkedIn', icon: Linkedin, href: 'https://www.linkedin.com/company/creatrixtechnologies' },
 ]
 
 export function Footer() {
@@ -108,8 +125,15 @@ export function Footer() {
               <h4 className="font-semibold">Connect</h4>
               <div className="space-y-2 text-sm text-muted-foreground">
                 <div className="flex items-center space-x-2">
-                  <Mail className="h-4 w-4" />
-                  <span>hello@creatrixspace.com</span>
+                  <MessageCircle className="h-4 w-4" />
+                  <a 
+                    href="https://wa.me/9779803171819"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="hover:underline"
+                  >
+                    WhatsApp: +977 9803171819
+                  </a>
                 </div>
                 <div className="flex items-center space-x-2">
                   <Phone className="h-4 w-4" />
@@ -119,15 +143,21 @@ export function Footer() {
               
               <div className="flex space-x-3">
                 {socialLinks.map((social) => {
-                  const Icon = social.icon
+                  const Icon = social.icon as any
                   return (
                     <a
                       key={social.name}
                       href={social.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
                       className="text-muted-foreground hover:text-foreground transition-colors"
                       aria-label={social.name}
                     >
-                      <Icon className="h-5 w-5" />
+                      {social.iconPath ? (
+                        <img src={social.iconPath} alt={social.name} className="h-5 w-5" />
+                      ) : (
+                        <Icon className="h-5 w-5" />
+                      )}
                     </a>
                   )
                 })}
