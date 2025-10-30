@@ -24,6 +24,11 @@ import { TermsPage } from '@/features/legal/pages/terms-page'
 import { PrivacyPage } from '@/features/legal/pages/privacy-page'
 import { NotFoundPage } from '@/features/error/pages/not-found-page'
 import { ROUTES } from '@/lib/constants'
+import { AdminLoginPage } from '@/features/admin/pages/admin-login-page'
+import { AdminProtectedRoute } from '@/features/admin/components/protected-route'
+import { AdminLayout } from '@/features/admin/components/admin-layout'
+import { AdminDashboardPage } from '@/features/admin/pages/admin-dashboard-page'
+import { AdminBookingsPage } from '@/features/admin/pages/admin-bookings-page'
 
 const router = createBrowserRouter([
   {
@@ -105,6 +110,23 @@ const router = createBrowserRouter([
       {
         path: ROUTES.PRIVACY,
         element: <PrivacyPage />,
+      },
+    ],
+  },
+  {
+    path: ROUTES.ADMIN_LOGIN,
+    element: <AdminLoginPage />,
+  },
+  {
+    element: <AdminProtectedRoute />,
+    children: [
+      {
+        path: ROUTES.ADMIN,
+        element: <AdminLayout />,
+        children: [
+          { index: true, element: <AdminDashboardPage /> },
+          { path: ROUTES.ADMIN_BOOKINGS, element: <AdminBookingsPage /> },
+        ],
       },
     ],
   },

@@ -239,6 +239,11 @@ export function PricingPage() {
                             </Badge>
                           </div>
                         )}
+                        {plan.id === 'explorer' && (
+                          <p className="text-xs text-amber-600 mt-1">
+                            Promotional price — limited time only
+                          </p>
+                        )}
                         {billingPeriod === 'annual' && plan.pricing.annual && (
                           <p className="text-xs text-green-600 mt-1">
                             Save {formatCurrency((plan.pricing.monthly * 12) - plan.pricing.annual, 'NPR')} per year

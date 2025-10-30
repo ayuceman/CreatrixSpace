@@ -22,6 +22,10 @@ export const ROUTES = {
   DASHBOARD_BILLING: '/dashboard/billing',
   TERMS: '/terms',
   PRIVACY: '/privacy',
+  // Admin
+  ADMIN_LOGIN: '/admin/login',
+  ADMIN: '/admin',
+  ADMIN_BOOKINGS: '/admin/bookings',
 } as const
 
 export const AMENITIES = [

@@ -11,6 +11,7 @@ import { paymentService } from '@/services/payment-service'
 import { PaymentMethod, PaymentData } from '@/lib/payment-config'
 import { formatCurrency } from '@/lib/utils'
 import { useBookingStore } from '@/store/booking-store'
+import { notifyNewBooking } from '@/lib/booking-events'
 
 type PaymentStatus = 'selecting' | 'processing' | 'success' | 'error' | 'pending' | 'qr_payment'
 
@@ -57,7 +58,20 @@ export function PaymentPage() {
       if (result?.success) {
         setPaymentStatus('success')
         setPaymentResult(result)
-        // In real app, you'd update the booking status in your backend
+        // Emit booking notification (frontend-only)
+        try {
+          notifyNewBooking({
+            id: result.paymentId || `BK-${Date.now()}`,
+            customerName: bookingData.contactInfo?.firstName && bookingData.contactInfo?.lastName ? `${bookingData.contactInfo.firstName} ${bookingData.contactInfo.lastName}` : 'Customer',
+            email: bookingData.contactInfo?.email,
+            phone: bookingData.contactInfo?.phone,
+            locationName: bookingData.locationId || 'Location',
+            planName: bookingData.planId || 'Plan',
+            amount: result.amount,
+            status: 'confirmed',
+            createdAt: new Date().toISOString(),
+          })
+        } catch {}
       } else {
         setPaymentStatus('error')
         setError(result?.error || 'Payment verification failed')
@@ -102,12 +116,38 @@ export function PaymentPage() {
       } else if (method === 'bank_transfer') {
         setPaymentStatus('success')
         setPaymentResult(result)
+        try {
+          notifyNewBooking({
+            id: result.paymentId || `BK-${Date.now()}`,
+            customerName: paymentData.customerInfo.name,
+            email: paymentData.customerInfo.email,
+            phone: paymentData.customerInfo.phone,
+            locationName: paymentData.metadata?.locationId,
+            planName: paymentData.metadata?.planId,
+            amount: result.amount,
+            status: 'pending_verification',
+            createdAt: new Date().toISOString(),
+          })
+        } catch {}
       } else if (method === 'qr_payment') {
         setPaymentStatus('qr_payment')
         setPaymentResult(result)
       } else if (result.success) {
         setPaymentStatus('success')
         setPaymentResult(result)
+        try {
+          notifyNewBooking({
+            id: result.paymentId || `BK-${Date.now()}`,
+            customerName: paymentData.customerInfo.name,
+            email: paymentData.customerInfo.email,
+            phone: paymentData.customerInfo.phone,
+            locationName: paymentData.metadata?.locationId,
+            planName: paymentData.metadata?.planId,
+            amount: result.amount,
+            status: 'confirmed',
+            createdAt: new Date().toISOString(),
+          })
+        } catch {}
       } else {
         setPaymentStatus('error')
         setError(result.error || 'Payment failed')
@@ -126,6 +166,19 @@ export function PaymentPage() {
     if (result.success) {
       setPaymentStatus('success')
       setPaymentResult(result)
+      try {
+        notifyNewBooking({
+          id: result.paymentId || `BK-${Date.now()}`,
+          customerName: bookingData.contactInfo?.firstName && bookingData.contactInfo?.lastName ? `${bookingData.contactInfo.firstName} ${bookingData.contactInfo.lastName}` : 'Customer',
+          email: bookingData.contactInfo?.email,
+          phone: bookingData.contactInfo?.phone,
+          locationName: bookingData.locationId,
+          planName: bookingData.planId,
+          amount: result.amount,
+          status: 'pending_verification',
+          createdAt: new Date().toISOString(),
+        })
+      } catch {}
     } else {
       setPaymentStatus('error')
       setError(result.error || 'QR payment verification failed')

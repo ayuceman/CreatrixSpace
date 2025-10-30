@@ -120,6 +120,11 @@ export function PricingPreview() {
                         </Badge>
                       </div>
                     )}
+                    {plan.name === 'Explorer' && (
+                      <p className="text-xs text-amber-600 mt-1">
+                        Promotional price — limited time only
+                      </p>
+                    )}
                   </div>
                 </CardHeader>
 
