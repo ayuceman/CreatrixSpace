@@ -134,19 +134,19 @@ const mockPlans = [
     id: 'professional',
     name: 'Professional',
     type: 'hot_desk', 
-    pricing: { monthly: 899900, annual: 9719000 }, // NPR 8,999/month
+    pricing: { monthly: 950000, annual: 9120000 }, // NPR 9,500/month
   },
   {
     id: 'enterprise',
     name: 'Enterprise',
     type: 'dedicated_desk',
-    pricing: { monthly: 1899900, annual: 20519000 }, // NPR 18,999/month
+    pricing: { monthly: 1850000, annual: 17760000 }, // NPR 18,500/month
   },
   {
     id: 'private-office',
     name: 'Private Office',
     type: 'private_office',
-    pricing: { monthly: 3200000, annual: 34560000 }, // NPR 32,000/month
+    pricing: { monthly: 3500000, annual: 33600000 }, // NPR 35,000/month
   },
 ]
 

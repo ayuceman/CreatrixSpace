@@ -40,7 +40,7 @@ const plans = [
     icon: Star,
     pricing: {
       monthly: 950000, // NPR 9,500 (20% reduction for competitiveness)
-      annual: 10260000, // NPR 102,600 (10% discount)
+      annual: 9120000, // NPR 91,200 (20% discount)
     },
     features: [
       'Unlimited access to all locations',
@@ -64,7 +64,7 @@ const plans = [
     icon: Crown,
     pricing: {
       monthly: 1850000, // NPR 18,500 (15% reduction for competitiveness)
-      annual: 19980000, // NPR 199,800 (10% discount)
+      annual: 17760000, // NPR 177,600 (20% discount)
     },
     features: [
       'Dedicated desk at your chosen location',
@@ -88,8 +88,8 @@ const plans = [
     description: 'Ultimate privacy and productivity',
     icon: Crown,
     pricing: {
-      monthly: 5850000, // NPR 58,500 (10% reduction for competitiveness)
-      annual: 63180000, // NPR 631,800 (10% discount)
+      monthly: 3500000, // NPR 35,000 (more competitive pricing)
+      annual: 33600000, // NPR 336,000 (20% discount)
     },
     features: [
       'Private locked office (2-4 people)',
@@ -177,7 +177,7 @@ export function PricingPage() {
                 }`}
               >
                 Annual
-                <Badge variant="secondary" className="ml-2">Save 10%</Badge>
+                <Badge variant="secondary" className="ml-2">Save 20%</Badge>
               </button>
             </div>
           </motion.div>
