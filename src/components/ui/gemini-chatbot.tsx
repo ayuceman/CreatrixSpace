@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { GoogleGenAI } from '@google/genai'
+import { GoogleGenerativeAI } from '@google/generative-ai'
 import { MessageSquare, X, Send } from 'lucide-react'
 
 type ChatMessage = {
@@ -39,7 +39,7 @@ export function GeminiChatbot() {
   const getClient = () => {
     const key = import.meta.env.VITE_GEMINI_API_KEY as string | undefined
     if (!key) return null
-    return new GoogleGenAI({ apiKey: key })
+    return new GoogleGenerativeAI(key)
   }
 
   useEffect(() => {
@@ -72,14 +72,14 @@ export function GeminiChatbot() {
       const maxRetries = 2
       for (let attempt = 0; attempt <= maxRetries; attempt++) {
         try {
-          response = await ai.models.generateContent({
-            model: 'gemini-2.5-flash',
-            contents: [
+          const model = ai.getGenerativeModel({ model: 'gemini-1.5-flash' })
+          const chat = model.startChat({
+            history: [
               { role: 'user', parts: [{ text: BRAND_CONTEXT }] },
-              ...messages.map((m) => ({ role: m.role === 'user' ? 'user' : 'model', parts: [{ text: m.text }] })),
-              { role: 'user', parts: [{ text: trimmed }] }
-            ] as any,
+              ...messages.map((m) => ({ role: m.role === 'user' ? 'user' : 'model', parts: [{ text: m.text }] }))
+            ]
           })
+          response = await chat.sendMessage(trimmed)
           break
         } catch (err: any) {
           const status = err?.error?.status || err?.status || err?.code
@@ -92,7 +92,7 @@ export function GeminiChatbot() {
           throw err
         }
       }
-      const modelText = (response as any).text
+      const modelText = response.response.text()
       setMessages((m) => [...m, { id: crypto.randomUUID(), role: 'model', text: modelText || 'Sorry, I could not generate a response.' }])
     } catch (err: any) {
       const status = err?.error?.status || err?.status || err?.code
