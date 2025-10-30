@@ -53,6 +53,7 @@ const locations = [
     id: 'jhamsikhel-loft',
     name: 'Jhamsikhel Loft',
     address: 'Jhamsikhel, Lalitpur',
+    status: 'reserved',
     image: 'https://images.unsplash.com/photo-1524758631624-e2822e304c36?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
     capacity: 80,
     rating: 4.8,
@@ -114,7 +115,13 @@ export function LocationsPage() {
                   </Badge>
                 )}
                 
-                {!location.available && location.status && (
+                {location.status === 'reserved' && (
+                  <Badge variant="secondary" className="absolute top-4 left-4 bg-orange-100 text-orange-800 border-orange-200">
+                    🔒 Reserved
+                  </Badge>
+                )}
+                
+                {!location.available && location.status && location.status !== 'reserved' && (
                   <Badge variant="destructive" className="absolute top-4 left-4">
                     {location.status}
                   </Badge>

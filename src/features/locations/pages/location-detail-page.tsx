@@ -71,6 +71,7 @@ const locationData: Record<string, Location> = {
     name: 'Jhamsikhel Loft',
     address: 'Jhamsikhel, Lalitpur',
     fullAddress: 'Jhamsikhel, Lalitpur 44600, Nepal',
+    status: 'reserved',
     image: 'https://images.unsplash.com/photo-1524758631624-e2822e304c36?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
     capacity: 80,
     rating: 4.8,
@@ -278,7 +279,12 @@ export function LocationDetailPage() {
                         🔥 Most Popular
                       </Badge>
                     )}
-                    {!location.available && location.status && (
+                    {location.status === 'reserved' && (
+                      <Badge variant="secondary" className="bg-orange-100 text-orange-800 border-orange-200">
+                        🔒 Reserved
+                      </Badge>
+                    )}
+                    {!location.available && location.status && location.status !== 'reserved' && (
                       <Badge variant="destructive">{location.status}</Badge>
                     )}
                   </div>
