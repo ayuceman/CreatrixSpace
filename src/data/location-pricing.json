@@ -1,0 +1,75 @@
+{
+  "dhobighat-hub": {
+    "locationId": "dhobighat-hub",
+    "locationName": "Dhobighat (WashingTown) Hub",
+    "prices": {
+      "explorer": {
+        "daily": 50000
+      },
+      "professional": {
+        "weekly": 250000,
+        "monthly": 950000,
+        "annual": 10260000
+      },
+      "enterprise": {
+        "weekly": 450000,
+        "monthly": 1850000,
+        "annual": 19980000
+      },
+      "private-office": {
+        "weekly": 900000,
+        "monthly": 3500000,
+        "annual": 37800000
+      }
+    }
+  },
+  "kausimaa-coworking": {
+    "locationId": "kausimaa-coworking",
+    "locationName": "Kausimaa Co-working",
+    "prices": {
+      "explorer": {
+        "daily": 40000
+      },
+      "professional": {
+        "weekly": 200000,
+        "monthly": 800000,
+        "annual": 8640000
+      },
+      "enterprise": {
+        "weekly": 200000,
+        "monthly": 800000,
+        "annual": 8640000
+      },
+      "private-office": {
+        "weekly": 200000,
+        "monthly": 800000,
+        "annual": 8640000
+      }
+    }
+  },
+  "jhamsikhel-loft": {
+    "locationId": "jhamsikhel-loft",
+    "locationName": "Jhamsikhel Loft",
+    "prices": {
+      "explorer": {
+        "daily": 50000
+      },
+      "professional": {
+        "weekly": 250000,
+        "monthly": 950000,
+        "annual": 10260000
+      },
+      "enterprise": {
+        "weekly": 450000,
+        "monthly": 1850000,
+        "annual": 19980000
+      },
+      "private-office": {
+        "weekly": 900000,
+        "monthly": 3500000,
+        "annual": 37800000
+      }
+    }
+  }
+}
+

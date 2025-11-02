@@ -109,8 +109,8 @@ export function HeroSection() {
               className="absolute -left-4 bottom-8 bg-white dark:bg-card rounded-xl p-4 shadow-lg border"
             >
               <div className="text-center">
-                <div className="text-2xl font-bold text-primary">1Gbps</div>
-                <div className="text-sm text-muted-foreground">Internet Speed</div>
+                <div className="text-lg font-bold text-primary">High Speed</div>
+                <div className="text-sm text-muted-foreground">Reliable Internet</div>
               </div>
             </motion.div>
           </motion.div>

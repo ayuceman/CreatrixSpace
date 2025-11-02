@@ -20,13 +20,25 @@ export function Header() {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container flex h-16 items-center justify-between">
+      <div className="container flex h-24 items-center justify-between">
         {/* Logo */}
-        <Link to={ROUTES.HOME} className="flex items-center space-x-2">
-          <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center">
-            <MapPin className="h-5 w-5 text-primary-foreground" />
+        <Link to={ROUTES.HOME} className="flex items-center space-x-2 hover:opacity-90 transition-opacity">
+          <img 
+            src="/creatrix-logo.png" 
+            alt="CreatrixSpace Logo" 
+            className="h-16 md:h-20 w-auto"
+            onError={(e) => {
+              e.currentTarget.style.display = 'none'
+              const fallback = e.currentTarget.nextElementSibling
+              if (fallback) fallback.classList.remove('hidden')
+            }}
+          />
+          <div className="hidden flex items-center space-x-2">
+            <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-purple-600 to-purple-800 flex items-center justify-center">
+              <span className="text-white font-bold text-lg">CS</span>
+            </div>
+            <span className="font-display font-bold text-xl">{APP_NAME}</span>
           </div>
-          <span className="font-display font-bold text-xl">{APP_NAME}</span>
         </Link>
 
         {/* Desktop Navigation */}

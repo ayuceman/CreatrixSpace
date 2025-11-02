@@ -1,3 +1,5 @@
+import locationPricingData from '@/data/location-pricing.json'
+
 export type LocationPricing = {
   locationId: string
   locationName: string
@@ -10,6 +12,9 @@ export type LocationPricing = {
 }
 
 const LOCATION_PRICING_KEY = 'location_pricing'
+
+// Load pricing from JSON file
+const staticLocationPricing: Record<string, LocationPricing> = locationPricingData as Record<string, LocationPricing>
 
 // Default pricing (fallback)
 const defaultPricing: LocationPricing['prices'] = {
@@ -37,9 +42,21 @@ export function saveLocationPricings(pricings: LocationPricing[]) {
 }
 
 export function getLocationPricing(locationId: string): LocationPricing['prices'] {
+  // First check localStorage for admin overrides
   const pricings = getLocationPricings()
-  const found = pricings.find((p) => p.locationId === locationId)
-  return found ? found.prices : defaultPricing
+  const localStorageOverride = pricings.find((p) => p.locationId === locationId)
+  if (localStorageOverride) {
+    return localStorageOverride.prices
+  }
+  
+  // Then check static JSON file
+  const staticPricing = staticLocationPricing[locationId]
+  if (staticPricing) {
+    return staticPricing.prices
+  }
+  
+  // Finally fall back to default
+  return defaultPricing
 }
 
 export function updateLocationPricing(locationId: string, locationName: string, prices: LocationPricing['prices']) {

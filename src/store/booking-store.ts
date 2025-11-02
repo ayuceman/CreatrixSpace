@@ -57,6 +57,8 @@ interface BookingStore {
       monthly?: number
       annual?: number
     }
+    available?: boolean
+    status?: string
   }>
   
   addOns: Array<{
@@ -162,6 +164,8 @@ function getPlansForLocation(locationId: string) {
         monthly: locationPricing['private-office'].monthly, 
         annual: locationPricing['private-office'].annual 
       },
+      available: false,
+      status: 'Reserved',
     },
   ]
 }
@@ -170,13 +174,13 @@ const mockAddOns = [
   {
     id: 'meeting-room-hours',
     name: 'Extra Meeting Room Hours',
-    price: 50000, // NPR 500/hour
+    price: 80000, // NPR 800/hour
     description: 'Additional meeting room access beyond your plan',
   },
   {
     id: 'guest-passes',
     name: 'Guest Day Passes',
-    price: 50000, // NPR 500/day
+    price: 30000, // NPR 300/day (promotional price)
     description: 'Bring colleagues for a day',
   },
   {
@@ -199,17 +203,18 @@ export const useBookingStore = create<BookingStore>()(
       currentStep: 1,
       bookingData: initialBookingData,
       locations: mockLocations,
-      plans: [],
+      plans: getPlansForLocation('dhobighat-hub'), // Initialize with default location
       addOns: mockAddOns,
       
       setCurrentStep: (step) => set({ currentStep: step }),
       
       updateBookingData: (data) => {
+        const currentLocationId = get().bookingData.locationId
         set((state) => ({
           bookingData: { ...state.bookingData, ...data }
         }))
         // If location changed, update plans with location-specific pricing
-        if (data.locationId && data.locationId !== get().bookingData.locationId) {
+        if (data.locationId && data.locationId !== currentLocationId) {
           set({ plans: getPlansForLocation(data.locationId) })
         }
         get().calculateTotal()

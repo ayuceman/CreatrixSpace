@@ -114,12 +114,12 @@ const plans = [
 const addOns = [
   {
     name: 'Extra Meeting Room Hours',
-    price: 120000, // NPR 1,200/hour (20% reduction)
+    price: 80000, // NPR 800/hour
     description: 'Additional meeting room access',
   },
   {
     name: 'Guest Day Passes',
-    price: 45000, // NPR 450/day (25% discount from regular day pass)
+    price: 30000, // NPR 300/day (promotional price)
     description: 'Bring colleagues for a day',
   },
   {
