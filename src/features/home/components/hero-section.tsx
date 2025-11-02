@@ -14,8 +14,225 @@ const stats = [
 
 export function HeroSection() {
   return (
-    <section className="relative section-padding bg-gradient-to-br from-background via-background to-primary/5">
-      <div className="container">
+    <section className="relative section-padding bg-gradient-to-br from-background via-background to-primary/5 overflow-hidden">
+      {/* Purple Stars and Planets Background */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        {/* Small Stars - Purple star shapes */}
+        {[...Array(80)].map((_, i) => {
+          const size = Math.random() * 3 + 1
+          const left = Math.random() * 100
+          const top = Math.random() * 100
+          const delay = Math.random() * 3
+          const duration = 2 + Math.random() * 2
+          
+          return (
+            <motion.div
+              key={`star-${i}`}
+              className="absolute"
+              style={{
+                width: `${size}px`,
+                height: `${size}px`,
+                left: `${left}%`,
+                top: `${top}%`,
+                opacity: 0.4 + Math.random() * 0.4,
+              }}
+              animate={{
+                opacity: [0.2, 0.8, 0.2],
+                scale: [1, 1.2, 1],
+                rotate: [0, 180, 360],
+              }}
+              transition={{
+                duration,
+                repeat: Infinity,
+                ease: "easeInOut",
+                delay,
+              }}
+            >
+              <div 
+                className="w-full h-full bg-purple-500"
+                style={{
+                  clipPath: 'polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%)',
+                WebkitClipPath: 'polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%)',
+              }}
+              />
+            </motion.div>
+          )
+        })}
+        
+        {/* Medium Stars - Brighter purple star shapes */}
+        {[...Array(20)].map((_, i) => {
+          const size = 3 + Math.random() * 3
+          const left = Math.random() * 100
+          const top = Math.random() * 100
+          const delay = Math.random() * 2
+          
+          return (
+            <motion.div
+              key={`bright-star-${i}`}
+              className="absolute"
+              style={{
+                width: `${size}px`,
+                height: `${size}px`,
+                left: `${left}%`,
+                top: `${top}%`,
+                opacity: 0.6,
+              }}
+              animate={{
+                opacity: [0.4, 0.9, 0.4],
+                scale: [1, 1.3, 1],
+                rotate: [0, 180, 360],
+              }}
+              transition={{
+                duration: 2 + Math.random(),
+                repeat: Infinity,
+                ease: "easeInOut",
+                delay,
+              }}
+            >
+              <div 
+                className="w-full h-full bg-purple-600"
+                style={{
+                  clipPath: 'polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%)',
+                  WebkitClipPath: 'polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%)',
+                  boxShadow: `0 0 ${size}px rgba(147, 51, 234, 0.5)`,
+                }}
+              />
+            </motion.div>
+          )
+        })}
+        
+        {/* Saturn - Purple with realistic rings */}
+        <motion.div
+          className="absolute top-10 right-10 flex items-center justify-center"
+          style={{
+            opacity: 0.7,
+            width: '120px',
+            height: '120px',
+          }}
+          animate={{
+            opacity: [0.6, 0.8, 0.6],
+          }}
+          transition={{
+            duration: 6,
+            repeat: Infinity,
+            ease: "easeInOut",
+          }}
+        >
+          {/* Saturn Rings - Multiple elliptical rings */}
+          <div className="absolute inset-0 flex items-center justify-center">
+            {/* Outer ring */}
+            <div 
+              className="absolute border-2 border-purple-500/50" 
+              style={{ 
+                width: '100px', 
+                height: '8px',
+                borderRadius: '50%',
+                transform: 'rotate(25deg)',
+              }} 
+            />
+            {/* Middle ring - brighter */}
+            <div 
+              className="absolute border border-purple-500/60" 
+              style={{ 
+                width: '90px', 
+                height: '6px',
+                borderRadius: '50%',
+                transform: 'rotate(25deg)',
+              }} 
+            />
+            {/* Inner ring */}
+            <div 
+              className="absolute border border-purple-400/40" 
+              style={{ 
+                width: '80px', 
+                height: '5px',
+                borderRadius: '50%',
+                transform: 'rotate(25deg)',
+              }} 
+            />
+            {/* Gap ring */}
+            <div 
+              className="absolute border border-purple-500/30" 
+              style={{ 
+                width: '70px', 
+                height: '4px',
+                borderRadius: '50%',
+                transform: 'rotate(25deg)',
+              }} 
+            />
+          </div>
+          
+          {/* Saturn Planet - with gradient for realism */}
+          <div 
+            className="relative rounded-full bg-purple-600 mx-auto z-10" 
+            style={{
+              width: '36px',
+              height: '36px',
+              background: 'radial-gradient(circle at 35% 35%, rgba(167, 139, 250, 0.9), rgba(139, 92, 246, 0.8), rgba(124, 58, 237, 0.7))',
+              boxShadow: '0 0 40px rgba(147, 51, 234, 0.5), inset -5px -5px 10px rgba(79, 70, 229, 0.3)',
+            }} 
+          >
+            {/* Planet surface detail */}
+            <div 
+              className="absolute inset-0 rounded-full opacity-20" 
+              style={{
+                background: 'radial-gradient(circle at 30% 30%, rgba(255,255,255,0.1), transparent 60%)',
+              }} 
+            />
+          </div>
+        </motion.div>
+        
+        {/* Planets - Purple dots of different sizes */}
+        
+        <motion.div
+          className="absolute bottom-32 left-1/3 w-10 h-10 rounded-full bg-purple-500"
+          style={{
+            opacity: 0.4,
+            boxShadow: '0 0 25px rgba(147, 51, 234, 0.25)',
+          }}
+          animate={{
+            opacity: [0.3, 0.5, 0.3],
+          }}
+          transition={{
+            duration: 5,
+            repeat: Infinity,
+            ease: "easeInOut",
+          }}
+        />
+        
+        <motion.div
+          className="absolute top-1/2 left-16 w-8 h-8 rounded-full bg-purple-400"
+          style={{
+            opacity: 0.5,
+            boxShadow: '0 0 20px rgba(147, 51, 234, 0.2)',
+          }}
+        />
+        
+        {/* Additional small planets */}
+        <motion.div
+          className="absolute top-1/3 left-1/4 w-6 h-6 rounded-full bg-purple-500"
+          style={{
+            opacity: 0.4,
+          }}
+        />
+        
+        <motion.div
+          className="absolute bottom-1/4 right-1/3 w-7 h-7 rounded-full bg-purple-600"
+          style={{
+            opacity: 0.45,
+          }}
+          animate={{
+            opacity: [0.3, 0.5, 0.3],
+          }}
+          transition={{
+            duration: 7,
+            repeat: Infinity,
+            ease: "easeInOut",
+          }}
+        />
+      </div>
+      
+      <div className="container relative z-10">
         <div className="grid lg:grid-cols-2 gap-12 items-center">
           {/* Content */}
           <motion.div
