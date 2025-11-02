@@ -30,7 +30,7 @@ const plans = [
     period: 'month',
     features: [
       'Hot desk workstation',
-      '4 hours meeting room/month',
+      '8 hours meeting room/month',
       'Premium printing (100 pages)',
       'Personal storage locker',
       '24/7 access',

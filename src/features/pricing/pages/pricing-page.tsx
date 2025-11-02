@@ -46,7 +46,7 @@ const plans = [
     features: [
       'Unlimited access to all locations',
       'Hot desk workstation',
-      '4 hours meeting room per month',
+      '8 hours meeting room per month',
       'Premium printing (100 pages)',
       'Coffee, tea & snacks',
       'Personal storage locker',
