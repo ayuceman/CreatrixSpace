@@ -342,13 +342,13 @@ export function HeroSection() {
           >
             <div className="relative aspect-[4/3] rounded-2xl overflow-hidden group">
               {/* Image Carousel */}
-              <AnimatePresence mode="wait">
+              <AnimatePresence initial={false}>
                 <motion.div
                   key={currentImageIndex}
-                  initial={{ opacity: 0, x: 100 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -100 }}
-                  transition={{ duration: 0.5 }}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.8, ease: "easeInOut" }}
                   className="absolute inset-0"
                 >
                   <img
