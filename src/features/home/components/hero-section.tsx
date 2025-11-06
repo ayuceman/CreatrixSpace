@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
-import { motion } from 'framer-motion'
-import { ArrowRight, MapPin, Users, Wifi, Coffee } from 'lucide-react'
+import { motion, AnimatePresence } from 'framer-motion'
+import { useState, useEffect } from 'react'
+import { ArrowRight, MapPin, Users, Wifi, Coffee, ChevronLeft, ChevronRight } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { ROUTES } from '@/lib/constants'
@@ -12,7 +13,49 @@ const stats = [
   { icon: Coffee, label: 'Cups/Day', value: '200+' },
 ]
 
+const heroImages = [
+  {
+    src: '/office-meeting-room.png',
+    alt: 'Modern meeting room with conference table'
+  },
+  {
+    src: '/dhobighat-office-front.png',
+    alt: 'Modern office workspace'
+  },
+  {
+    src: '/office-room-desk1.png',
+    alt: 'Professional workspace with desk'
+  },
+  {
+    src: '/dhobighat-office-space1.png',
+    alt: 'Spacious coworking area'
+  },
+  {
+    src: '/office-desk2.png',
+    alt: 'Modern desk setup'
+  },
+]
+
 export function HeroSection() {
+  const [currentImageIndex, setCurrentImageIndex] = useState(0)
+
+  // Auto-scroll images every 5 seconds
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentImageIndex((prev) => (prev + 1) % heroImages.length)
+    }, 5000)
+
+    return () => clearInterval(interval)
+  }, [])
+
+  const nextImage = () => {
+    setCurrentImageIndex((prev) => (prev + 1) % heroImages.length)
+  }
+
+  const prevImage = () => {
+    setCurrentImageIndex((prev) => (prev - 1 + heroImages.length) % heroImages.length)
+  }
+
   return (
     <section className="relative section-padding bg-gradient-to-br from-background via-background to-primary/5 overflow-hidden">
       {/* Purple Stars and Planets Background */}
@@ -297,13 +340,58 @@ export function HeroSection() {
             transition={{ duration: 0.6, delay: 0.2 }}
             className="relative"
           >
-            <div className="relative aspect-[4/3] rounded-2xl overflow-hidden">
-              <img
-                src="/dhobighat-office-space1.png"
-                alt="Modern coworking space"
-                className="w-full h-full object-cover"
-              />
+            <div className="relative aspect-[4/3] rounded-2xl overflow-hidden group">
+              {/* Image Carousel */}
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={currentImageIndex}
+                  initial={{ opacity: 0, x: 100 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -100 }}
+                  transition={{ duration: 0.5 }}
+                  className="absolute inset-0"
+                >
+                  <img
+                    src={heroImages[currentImageIndex].src}
+                    alt={heroImages[currentImageIndex].alt}
+                    className="w-full h-full object-cover"
+                  />
+                </motion.div>
+              </AnimatePresence>
+              
               <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
+              
+              {/* Navigation Arrows */}
+              <button
+                onClick={prevImage}
+                className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white rounded-full p-2 opacity-0 group-hover:opacity-100 transition-opacity shadow-lg"
+                aria-label="Previous image"
+              >
+                <ChevronLeft className="h-5 w-5 text-gray-800" />
+              </button>
+              <button
+                onClick={nextImage}
+                className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white rounded-full p-2 opacity-0 group-hover:opacity-100 transition-opacity shadow-lg"
+                aria-label="Next image"
+              >
+                <ChevronRight className="h-5 w-5 text-gray-800" />
+              </button>
+              
+              {/* Image Indicators */}
+              <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex space-x-2">
+                {heroImages.map((_, index) => (
+                  <button
+                    key={index}
+                    onClick={() => setCurrentImageIndex(index)}
+                    className={`h-2 rounded-full transition-all ${
+                      index === currentImageIndex
+                        ? 'w-8 bg-white'
+                        : 'w-2 bg-white/50 hover:bg-white/75'
+                    }`}
+                    aria-label={`Go to image ${index + 1}`}
+                  />
+                ))}
+              </div>
             </div>
             
             {/* Floating Cards */}
