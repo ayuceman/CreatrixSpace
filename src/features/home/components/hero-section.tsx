@@ -19,7 +19,7 @@ const heroImages = [
     alt: 'Modern meeting room with conference table'
   },
   {
-    src: '/dhobighat-office-front.png',
+    src: '/dhobighat-office-back.png',
     alt: 'Modern office workspace'
   },
   {
