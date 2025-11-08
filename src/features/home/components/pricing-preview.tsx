@@ -24,9 +24,9 @@ const plans = [
     popular: false,
   },
   {
-    name: 'Hot Desk',
-    description: 'Flexible workspace solution',
-    price: 950000, // in paisa (NPR 9,500) - 20% reduction for competitiveness
+    name: 'Professional',
+    description: 'Most popular choice',
+    price: 950000, // in paisa (NPR 9,500)
     period: 'month',
     features: [
       'Hot desk workstation',
@@ -39,9 +39,9 @@ const plans = [
     popular: true,
   },
   {
-    name: 'Dedicated Desk',
-    description: 'Your personal workspace',
-    price: 1850000, // in paisa (NPR 18,500) - 15% reduction for competitiveness
+    name: 'Enterprise',
+    description: 'For teams and businesses',
+    price: 1150000, // in paisa (NPR 11,500)
     period: 'month',
     features: [
       'Dedicated desk',
