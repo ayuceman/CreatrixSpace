@@ -50,9 +50,9 @@ const membershipPlans = [
     id: 'professional',
     name: 'Professional',
     subtitle: 'Most popular choice',
-    price: 6500,
+    price: 9500,
     period: 'month',
-    originalPrice: 9500,
+    originalPrice: 12000,
     popular: true,
     description: 'Perfect for growing professionals and small teams',
     features: [

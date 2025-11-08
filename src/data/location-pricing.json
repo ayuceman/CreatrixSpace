@@ -7,8 +7,8 @@
         "daily": 50000
       },
       "professional": {
-        "weekly": 180000,
-        "monthly": 650000,
+        "weekly": 250000,
+        "monthly": 950000,
         "annual": 6000000
       },
       "enterprise": {
@@ -31,8 +31,8 @@
         "daily": 40000
       },
       "professional": {
-        "weekly": 150000,
-        "monthly": 550000,
+        "weekly": 200000,
+        "monthly": 800000,
         "annual": 5000000
       },
       "enterprise": {
@@ -55,8 +55,8 @@
         "daily": 50000
       },
       "professional": {
-        "weekly": 180000,
-        "monthly": 650000,
+        "weekly": 250000,
+        "monthly": 950000,
         "annual": 6000000
       },
       "enterprise": {
