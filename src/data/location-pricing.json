@@ -7,19 +7,19 @@
         "daily": 50000
       },
       "professional": {
-        "weekly": 250000,
-        "monthly": 950000,
-        "annual": 10260000
+        "weekly": 180000,
+        "monthly": 650000,
+        "annual": 6000000
       },
       "enterprise": {
-        "weekly": 450000,
-        "monthly": 1850000,
-        "annual": 19980000
+        "weekly": 320000,
+        "monthly": 1150000,
+        "annual": 10800000
       },
       "private-office": {
-        "weekly": 900000,
-        "monthly": 3500000,
-        "annual": 37800000
+        "weekly": 600000,
+        "monthly": 2200000,
+        "annual": 21000000
       }
     }
   },
@@ -31,19 +31,19 @@
         "daily": 40000
       },
       "professional": {
-        "weekly": 200000,
-        "monthly": 800000,
-        "annual": 8640000
+        "weekly": 150000,
+        "monthly": 550000,
+        "annual": 5000000
       },
       "enterprise": {
-        "weekly": 200000,
-        "monthly": 800000,
-        "annual": 8640000
+        "weekly": 260000,
+        "monthly": 950000,
+        "annual": 9000000
       },
       "private-office": {
-        "weekly": 200000,
-        "monthly": 800000,
-        "annual": 8640000
+        "weekly": 500000,
+        "monthly": 1800000,
+        "annual": 17500000
       }
     }
   },
@@ -55,19 +55,19 @@
         "daily": 50000
       },
       "professional": {
-        "weekly": 250000,
-        "monthly": 950000,
-        "annual": 10260000
+        "weekly": 180000,
+        "monthly": 650000,
+        "annual": 6000000
       },
       "enterprise": {
-        "weekly": 450000,
-        "monthly": 1850000,
-        "annual": 19980000
+        "weekly": 320000,
+        "monthly": 1150000,
+        "annual": 10800000
       },
       "private-office": {
-        "weekly": 900000,
-        "monthly": 3500000,
-        "annual": 37800000
+        "weekly": 600000,
+        "monthly": 2200000,
+        "annual": 21000000
       }
     }
   }

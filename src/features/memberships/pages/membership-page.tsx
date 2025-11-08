@@ -50,9 +50,9 @@ const membershipPlans = [
     id: 'professional',
     name: 'Professional',
     subtitle: 'Most popular choice',
-    price: 8999,
+    price: 6500,
     period: 'month',
-    originalPrice: 12000,
+    originalPrice: 9500,
     popular: true,
     description: 'Perfect for growing professionals and small teams',
     features: [
@@ -75,9 +75,9 @@ const membershipPlans = [
     id: 'enterprise',
     name: 'Enterprise',
     subtitle: 'For teams and businesses',
-    price: 18999,
+    price: 11500,
     period: 'month',
-    originalPrice: 25000,
+    originalPrice: 18500,
     popular: false,
     description: 'Comprehensive solution for established businesses',
     features: [
@@ -101,10 +101,10 @@ const membershipPlans = [
     id: 'private-office',
     name: 'Private Office',
     subtitle: 'Ultimate privacy and productivity',
-    price: 35000,
+    price: 22000,
     period: 'month',
-    originalPrice: 40000,
-    annualPrice: 336000, // NPR 336,000 (20% discount)
+    originalPrice: 35000,
+    annualPrice: 210000, // NPR 210,000 (~20% discount)
     popular: false,
     description: 'Complete privacy and control for established teams',
     features: [

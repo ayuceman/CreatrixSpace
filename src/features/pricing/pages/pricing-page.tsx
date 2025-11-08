@@ -40,8 +40,9 @@ const plans = [
     description: 'Most popular choice',
     icon: Star,
     pricing: {
-      monthly: 950000, // NPR 9,500 (20% reduction for competitiveness)
-      annual: 10260000, // NPR 102,600 (10% discount)
+      weekly: 180000, // NPR 1,800/week
+      monthly: 650000, // NPR 6,500/month
+      annual: 6000000, // NPR 60,000/year (~23% savings)
     },
     features: [
       'Unlimited access to all locations',
@@ -64,8 +65,9 @@ const plans = [
     description: 'For teams and businesses',
     icon: Crown,
     pricing: {
-      monthly: 1850000, // NPR 18,500 (15% reduction for competitiveness)
-      annual: 19980000, // NPR 199,800 (10% discount)
+      weekly: 320000, // NPR 3,200/week
+      monthly: 1150000, // NPR 11,500/month
+      annual: 10800000, // NPR 108,000/year (~22% savings)
     },
     features: [
       'Dedicated desk at your chosen location',
@@ -89,8 +91,9 @@ const plans = [
     description: 'Ultimate privacy and productivity',
     icon: Crown,
     pricing: {
-      monthly: 3500000, // NPR 35,000
-      annual: 37800000, // NPR 378,000 (10% discount)
+      weekly: 600000, // NPR 6,000/week
+      monthly: 2200000, // NPR 22,000/month
+      annual: 21000000, // NPR 210,000/year (~20% savings)
     },
     features: [
       'Private locked office (2-4 people)',
@@ -135,7 +138,7 @@ const addOns = [
 ]
 
 export function PricingPage() {
-  const [billingPeriod, setBillingPeriod] = useState<'monthly' | 'annual'>('monthly')
+  const [billingPeriod, setBillingPeriod] = useState<'weekly' | 'monthly' | 'annual'>('monthly')
 
   return (
     <div className="overflow-hidden">
@@ -160,6 +163,16 @@ export function PricingPage() {
             {/* Billing Toggle */}
             <div className="flex items-center justify-center space-x-4 bg-muted rounded-lg p-1 w-fit mx-auto">
               <button
+                onClick={() => setBillingPeriod('weekly')}
+                className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                  billingPeriod === 'weekly'
+                    ? 'bg-background shadow-sm'
+                    : 'text-muted-foreground hover:text-foreground'
+                }`}
+              >
+                Weekly
+              </button>
+              <button
                 onClick={() => setBillingPeriod('monthly')}
                 className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
                   billingPeriod === 'monthly'
@@ -178,7 +191,7 @@ export function PricingPage() {
                 }`}
               >
                 Annual
-                <Badge variant="secondary" className="ml-2">Save 10%</Badge>
+                <Badge variant="secondary" className="ml-2">Save up to 23%</Badge>
               </button>
             </div>
           </motion.div>
@@ -192,7 +205,13 @@ export function PricingPage() {
             {plans.map((plan, index) => {
               const Icon = plan.icon
               const price = plan.pricing[billingPeriod] || plan.pricing.daily
-              const period = plan.id === 'explorer' ? 'day' : billingPeriod === 'annual' ? 'year' : billingPeriod === 'monthly' ? 'month' : 'day'
+              const period = plan.id === 'explorer' 
+                ? 'day' 
+                : billingPeriod === 'annual' 
+                  ? 'year' 
+                  : billingPeriod === 'weekly' 
+                    ? 'week' 
+                    : 'month'
               
               return (
                 <motion.div
@@ -244,9 +263,14 @@ export function PricingPage() {
                             Promotional price — limited time only
                           </p>
                         )}
-                        {billingPeriod === 'annual' && plan.pricing.annual && (
+                        {billingPeriod === 'annual' && plan.pricing.annual && plan.pricing.monthly && (
                           <p className="text-xs text-green-600 mt-1">
                             Save {formatCurrency((plan.pricing.monthly * 12) - plan.pricing.annual, 'NPR')} per year
+                          </p>
+                        )}
+                        {billingPeriod === 'weekly' && plan.pricing.weekly && plan.pricing.monthly && (
+                          <p className="text-xs text-muted-foreground mt-1">
+                            Monthly: {formatCurrency(plan.pricing.monthly, 'NPR')}
                           </p>
                         )}
                       </div>
