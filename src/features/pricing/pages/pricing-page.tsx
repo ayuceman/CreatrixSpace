@@ -40,7 +40,7 @@ const plans = [
     description: 'Most popular choice',
     icon: Star,
     pricing: {
-      weekly: 250000, // NPR 2,500/week
+      weekly: 220000, // NPR 2,200/week
       monthly: 950000, // NPR 9,500/month
       annual: 6000000, // NPR 60,000/year (~37% savings)
     },
