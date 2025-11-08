@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { Check, Star, Zap, Crown } from 'lucide-react'
+import { Check, Star, Zap, Crown, Phone, MessageCircle } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -286,19 +286,47 @@ export function PricingPage() {
                         ))}
                       </ul>
 
-                      <Button 
-                        className="w-full" 
-                        variant={plan.popular ? 'default' : 'outline'}
-                        asChild
-                      >
-                        <Link to={`${ROUTES.BOOKING}?plan=${plan.id}`}>
-                          {plan.cta}
-                        </Link>
-                      </Button>
+                      {plan.id === 'private-office' ? (
+                        <div className="space-y-3">
+                          <div className="bg-gradient-to-r from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20 rounded-lg p-4 space-y-3">
+                            <p className="text-sm font-semibold text-center">Enquire Now for Private Office</p>
+                            <div className="flex flex-col gap-2">
+                              <a
+                                href="https://wa.me/9779803171819?text=Hi!%20I'm%20interested%20in%20the%20Private%20Office%20plan."
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors"
+                              >
+                                <MessageCircle className="h-4 w-4" />
+                                WhatsApp: +977 9803171819
+                              </a>
+                              <a
+                                href="tel:+9779851357889"
+                                className="flex items-center justify-center gap-2 bg-primary hover:bg-primary/90 text-primary-foreground px-4 py-2 rounded-md text-sm font-medium transition-colors"
+                              >
+                                <Phone className="h-4 w-4" />
+                                Call: +977 9851357889
+                              </a>
+                            </div>
+                          </div>
+                        </div>
+                      ) : (
+                        <>
+                          <Button 
+                            className="w-full" 
+                            variant={plan.popular ? 'default' : 'outline'}
+                            asChild
+                          >
+                            <Link to={`${ROUTES.BOOKING}?plan=${plan.id}`}>
+                              {plan.cta}
+                            </Link>
+                          </Button>
 
-                      <p className="text-xs text-muted-foreground text-center">
-                        No setup fees • Cancel anytime
-                      </p>
+                          <p className="text-xs text-muted-foreground text-center">
+                            No setup fees • Cancel anytime
+                          </p>
+                        </>
+                      )}
                     </CardContent>
                   </Card>
                 </motion.div>
