@@ -418,8 +418,75 @@ export function HeroSection() {
                 <div className="text-sm text-muted-foreground">Reliable Internet</div>
               </div>
             </motion.div>
+
+            {/* Free Coffee & Tea Chip */}
+            <motion.div
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 1.4 }}
+              className="absolute -left-4 top-1/3 bg-amber-50 dark:bg-amber-900/20 rounded-xl p-3 shadow-lg border border-amber-200 dark:border-amber-800"
+            >
+              <div className="flex items-center space-x-2">
+                <Coffee className="h-4 w-4 text-amber-600 dark:text-amber-400" />
+                <div>
+                  <div className="text-xs font-bold text-amber-800 dark:text-amber-200">Free</div>
+                  <div className="text-xs text-amber-700 dark:text-amber-300">Coffee & Tea</div>
+                </div>
+              </div>
+            </motion.div>
+
+            {/* Cozy Quiet Environment Chip */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 1.6 }}
+              className="absolute -right-4 bottom-1/3 bg-emerald-50 dark:bg-emerald-900/20 rounded-xl p-3 shadow-lg border border-emerald-200 dark:border-emerald-800"
+            >
+              <div className="flex items-center space-x-2">
+                <span className="text-lg">🌿</span>
+                <div>
+                  <div className="text-xs font-bold text-emerald-800 dark:text-emerald-200">Cozy</div>
+                  <div className="text-xs text-emerald-700 dark:text-emerald-300">Quiet Space</div>
+                </div>
+              </div>
+            </motion.div>
           </motion.div>
         </div>
+
+        {/* Facility Chips Section */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.4 }}
+          className="mt-12"
+        >
+          <div className="flex flex-wrap justify-center gap-3">
+            {[
+              { icon: Wifi, label: 'High Speed Internet', color: 'bg-blue-100 text-blue-800 border-blue-200' },
+              { icon: Coffee, label: 'Free Coffee & Tea', color: 'bg-amber-100 text-amber-800 border-amber-200' },
+              { icon: MapPin, label: 'Ample Parking Space', color: 'bg-green-100 text-green-800 border-green-200' },
+              { icon: '🌿', label: 'Cozy Quiet Environment', color: 'bg-emerald-100 text-emerald-800 border-emerald-200' },
+              { icon: '🍽️', label: 'Nearby Restaurants & Stores', color: 'bg-purple-100 text-purple-800 border-purple-200' },
+              { icon: '🔒', label: '24/7 Secure Access', color: 'bg-indigo-100 text-indigo-800 border-indigo-200' },
+            ].map((facility, index) => (
+              <motion.div
+                key={facility.label}
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.3, delay: 0.5 + index * 0.1 }}
+              >
+                <div className={`flex items-center space-x-2 px-4 py-2 rounded-full border ${facility.color} shadow-sm hover:shadow-md transition-shadow`}>
+                  {typeof facility.icon === 'string' ? (
+                    <span className="text-lg">{facility.icon}</span>
+                  ) : (
+                    <facility.icon className="h-4 w-4" />
+                  )}
+                  <span className="text-sm font-medium whitespace-nowrap">{facility.label}</span>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </motion.div>
       </div>
     </section>
   )
