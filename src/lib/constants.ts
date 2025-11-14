@@ -26,6 +26,8 @@ export const ROUTES = {
   ADMIN_LOGIN: '/admin/login',
   ADMIN: '/admin',
   ADMIN_BOOKINGS: '/admin/bookings',
+  ADMIN_MEMBERSHIPS: '/admin/memberships',
+  ADMIN_PRICING: '/admin/pricing',
 } as const
 
 export const AMENITIES = [
@@ -61,6 +63,21 @@ export const BOOKING_STATUS = {
 export const USER_ROLES = {
   USER: 'user',
   ADMIN: 'admin',
+} as const
+
+export const MEMBERSHIP_STATUS = {
+  ACTIVE: 'active',
+  EXPIRED: 'expired',
+  CANCELLED: 'cancelled',
+  PENDING: 'pending',
+  SUSPENDED: 'suspended',
+} as const
+
+export const MEMBERSHIP_TYPES = {
+  EXPLORER: 'explorer',
+  PROFESSIONAL: 'professional',
+  ENTERPRISE: 'enterprise',
+  PRIVATE_OFFICE: 'private-office',
 } as const
 
 export const BREAKPOINTS = {

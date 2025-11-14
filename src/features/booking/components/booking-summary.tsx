@@ -25,12 +25,12 @@ export function BookingSummary() {
 
   // Meeting room hours
   if (bookingData.meetingRoomHours > 0) {
-    addOnsTotal += 150000 * bookingData.meetingRoomHours
+    addOnsTotal += 80000 * bookingData.meetingRoomHours
   }
 
   // Guest passes
   if (bookingData.guestPasses > 0) {
-    addOnsTotal += 60000 * bookingData.guestPasses
+    addOnsTotal += 30000 * bookingData.guestPasses
   }
 
   const totalAmount = basePrice + addOnsTotal
@@ -166,7 +166,7 @@ export function BookingSummary() {
                       Meeting Room ({bookingData.meetingRoomHours}h)
                     </span>
                     <span className="font-medium">
-                      {formatCurrency(150000 * bookingData.meetingRoomHours, 'NPR')}
+                      {formatCurrency(80000 * bookingData.meetingRoomHours, 'NPR')}
                     </span>
                   </div>
                 )}
@@ -177,7 +177,7 @@ export function BookingSummary() {
                       Guest Passes ({bookingData.guestPasses})
                     </span>
                     <span className="font-medium">
-                      {formatCurrency(60000 * bookingData.guestPasses, 'NPR')}
+                      {formatCurrency(30000 * bookingData.guestPasses, 'NPR')}
                     </span>
                   </div>
                 )}

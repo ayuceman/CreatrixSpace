@@ -119,7 +119,7 @@ export function AddOnsStep() {
               </div>
               <div className="text-right">
                 <div className="font-bold">
-                  {formatCurrency(150000, 'NPR')}
+                  {formatCurrency(80000, 'NPR')}
                 </div>
                 <div className="text-sm text-muted-foreground">
                   /hour
@@ -164,7 +164,7 @@ export function AddOnsStep() {
               </div>
               <div className="text-right">
                 <div className="font-bold">
-                  {formatCurrency(60000, 'NPR')}
+                  {formatCurrency(30000, 'NPR')}
                 </div>
                 <div className="text-sm text-muted-foreground">
                   /day per guest
@@ -243,7 +243,7 @@ export function AddOnsStep() {
                     Meeting Room Hours ({bookingData.meetingRoomHours}):
                   </span>
                   <span className="font-medium">
-                    {formatCurrency(150000 * bookingData.meetingRoomHours, 'NPR')}
+                    {formatCurrency(80000 * bookingData.meetingRoomHours, 'NPR')}
                   </span>
                 </div>
               )}
@@ -254,7 +254,7 @@ export function AddOnsStep() {
                     Guest Passes ({bookingData.guestPasses}):
                   </span>
                   <span className="font-medium">
-                    {formatCurrency(60000 * bookingData.guestPasses, 'NPR')}
+                    {formatCurrency(30000 * bookingData.guestPasses, 'NPR')}
                   </span>
                 </div>
               )}

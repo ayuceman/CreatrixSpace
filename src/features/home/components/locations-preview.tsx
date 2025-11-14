@@ -104,7 +104,13 @@ export function LocationsPreview() {
                     </Badge>
                   )}
                   
-                  {!location.available && location.status && (
+                  {location.status === 'reserved' && (
+                    <Badge variant="secondary" className="absolute top-4 left-4 bg-orange-100 text-orange-800 border-orange-200">
+                      🔒 Reserved
+                    </Badge>
+                  )}
+                  
+                  {!location.available && location.status && location.status !== 'reserved' && (
                     <Badge variant="destructive" className="absolute top-4 left-4">
                       {location.status}
                     </Badge>

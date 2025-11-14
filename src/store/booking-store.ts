@@ -1,4 +1,5 @@
 import { create } from 'zustand'
+import { getLocationPricing } from '@/lib/location-pricing'
 import { devtools } from 'zustand/middleware'
 
 export interface BookingData {
@@ -56,6 +57,8 @@ interface BookingStore {
       monthly?: number
       annual?: number
     }
+    available?: boolean
+    status?: string
   }>
   
   addOns: Array<{
@@ -122,44 +125,62 @@ const mockLocations = [
   },
 ]
 
-const mockPlans = [
-  {
-    id: 'explorer',
-    name: 'Explorer',
-    type: 'day_pass',
-    pricing: { daily: 50000 }, // NPR 500 (promotional price)
-  },
-  {
-    id: 'professional',
-    name: 'Professional',
-    type: 'hot_desk', 
-    pricing: { monthly: 899900, annual: 9719000 }, // NPR 8,999/month
-  },
-  {
-    id: 'enterprise',
-    name: 'Enterprise',
-    type: 'dedicated_desk',
-    pricing: { monthly: 1899900, annual: 20519000 }, // NPR 18,999/month
-  },
-  {
-    id: 'private-office',
-    name: 'Private Office',
-    type: 'private_office',
-    pricing: { monthly: 3500000, annual: 37800000 }, // NPR 35,000/month
-  },
-]
+function getPlansForLocation(locationId: string) {
+  const locationPricing = getLocationPricing(locationId)
+  
+  return [
+    {
+      id: 'explorer',
+      name: 'Explorer',
+      type: 'day_pass' as const,
+      pricing: { daily: locationPricing.explorer.daily },
+    },
+    {
+      id: 'professional',
+      name: 'Professional',
+      type: 'hot_desk' as const,
+      pricing: { 
+        weekly: locationPricing.professional.weekly,
+        monthly: locationPricing.professional.monthly, 
+        annual: locationPricing.professional.annual 
+      },
+    },
+    {
+      id: 'enterprise',
+      name: 'Enterprise',
+      type: 'dedicated_desk' as const,
+      pricing: { 
+        weekly: locationPricing.enterprise.weekly,
+        monthly: locationPricing.enterprise.monthly, 
+        annual: locationPricing.enterprise.annual 
+      },
+    },
+    {
+      id: 'private-office',
+      name: 'Private Office',
+      type: 'private_office' as const,
+      pricing: { 
+        weekly: locationPricing['private-office'].weekly,
+        monthly: locationPricing['private-office'].monthly, 
+        annual: locationPricing['private-office'].annual 
+      },
+      available: false,
+      status: 'Reserved',
+    },
+  ]
+}
 
 const mockAddOns = [
   {
     id: 'meeting-room-hours',
     name: 'Extra Meeting Room Hours',
-    price: 50000, // NPR 500/hour
+    price: 80000, // NPR 800/hour
     description: 'Additional meeting room access beyond your plan',
   },
   {
     id: 'guest-passes',
     name: 'Guest Day Passes',
-    price: 50000, // NPR 500/day
+    price: 30000, // NPR 300/day (promotional price)
     description: 'Bring colleagues for a day',
   },
   {
@@ -182,15 +203,20 @@ export const useBookingStore = create<BookingStore>()(
       currentStep: 1,
       bookingData: initialBookingData,
       locations: mockLocations,
-      plans: mockPlans,
+      plans: getPlansForLocation('dhobighat-hub'), // Initialize with default location
       addOns: mockAddOns,
       
       setCurrentStep: (step) => set({ currentStep: step }),
       
       updateBookingData: (data) => {
+        const currentLocationId = get().bookingData.locationId
         set((state) => ({
           bookingData: { ...state.bookingData, ...data }
         }))
+        // If location changed, update plans with location-specific pricing
+        if (data.locationId && data.locationId !== currentLocationId) {
+          set({ plans: getPlansForLocation(data.locationId) })
+        }
         get().calculateTotal()
       },
       

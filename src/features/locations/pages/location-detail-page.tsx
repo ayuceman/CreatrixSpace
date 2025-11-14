@@ -278,7 +278,12 @@ export function LocationDetailPage() {
                         🔥 Most Popular
                       </Badge>
                     )}
-                    {!location.available && location.status && (
+                    {location.status === 'reserved' && (
+                      <Badge variant="secondary" className="bg-orange-100 text-orange-800 border-orange-200">
+                        🔒 Reserved
+                      </Badge>
+                    )}
+                    {!location.available && location.status && location.status !== 'reserved' && (
                       <Badge variant="destructive">{location.status}</Badge>
                     )}
                   </div>
