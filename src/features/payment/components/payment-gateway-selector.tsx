@@ -1,12 +1,8 @@
 import { useState, useEffect } from 'react'
-import { CreditCard, Smartphone, Building, ArrowRight } from 'lucide-react'
+import { Smartphone } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
-import { Label } from '@/components/ui/label'
 import { Badge } from '@/components/ui/badge'
 import { PaymentMethod } from '@/lib/payment-config'
-import { formatCurrency } from '@/lib/utils'
 
 interface PaymentGatewaySelectorProps {
   amount: number
@@ -16,39 +12,6 @@ interface PaymentGatewaySelectorProps {
 }
 
 const paymentMethods = [
-  {
-    id: 'esewa' as PaymentMethod,
-    name: 'eSewa',
-    description: 'Pay securely with Nepal\'s most popular digital wallet',
-    icon: Smartphone,
-    features: ['Instant payment', 'Mobile banking', 'Digital wallet'],
-    fees: 'No additional fees',
-    processingTime: 'Instant',
-    popular: true,
-    logo: '🟢', // In production, use actual eSewa logo
-  },
-  {
-    id: 'khalti' as PaymentMethod,
-    name: 'Khalti',
-    description: 'Digital payments made simple and secure',
-    icon: Smartphone,
-    features: ['Mobile banking', 'Connect IPS', 'E-banking'],
-    fees: 'No additional fees',
-    processingTime: 'Instant',
-    popular: true,
-    logo: '🟣', // In production, use actual Khalti logo
-  },
-  {
-    id: 'stripe' as PaymentMethod,
-    name: 'Credit/Debit Card',
-    description: 'Pay with Visa, Mastercard, or other international cards',
-    icon: CreditCard,
-    features: ['Visa', 'Mastercard', 'International cards'],
-    fees: '3.5% + NPR 10',
-    processingTime: 'Instant',
-    popular: false,
-    logo: '💳',
-  },
   {
     id: 'qr_payment' as PaymentMethod,
     name: 'QR Payment',
@@ -60,17 +23,6 @@ const paymentMethods = [
     popular: false,
     logo: '📱',
   },
-  {
-    id: 'bank_transfer' as PaymentMethod,
-    name: 'Bank Transfer',
-    description: 'Direct bank transfer - manual verification required',
-    icon: Building,
-    features: ['All major banks', 'RTGS/NEFT', 'Manual verification'],
-    fees: 'Bank charges may apply',
-    processingTime: '1-2 business days',
-    popular: false,
-    logo: '🏦',
-  },
 ]
 
 export function PaymentGatewaySelector({
@@ -79,7 +31,7 @@ export function PaymentGatewaySelector({
   isProcessing = false,
   showSummary = true,
 }: PaymentGatewaySelectorProps) {
-  const [selectedMethod, setSelectedMethod] = useState<PaymentMethod>('esewa')
+  const [selectedMethod, setSelectedMethod] = useState<PaymentMethod>('qr_payment')
 
   // Fire initial event on component mount
   useEffect(() => {
@@ -138,57 +90,43 @@ export function PaymentGatewaySelector({
           </p>
         </CardHeader>
         <CardContent>
-          <RadioGroup
-            value={selectedMethod}
-            onValueChange={handleMethodChange}
-            className="space-y-3"
-          >
-            {paymentMethods.map((method) => (
-              <div
-                key={method.id}
-                className={`relative border rounded-lg p-3 transition-all ${
-                  selectedMethod === method.id
-                    ? 'border-primary bg-primary/5'
-                    : 'border-border hover:bg-muted/50'
-                }`}
-              >
-                <div className="flex items-center space-x-3">
-                  <RadioGroupItem
-                    value={method.id}
-                    id={method.id}
-                  />
-                  <Label htmlFor={method.id} className="flex-1 cursor-pointer">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-3">
-                        <div className="text-xl">{method.logo}</div>
-                        <div>
-                          <h3 className="font-medium flex items-center text-sm">
-                            {method.name}
-                            {method.popular && (
-                              <Badge variant="secondary" className="ml-2 text-xs">
-                                Popular
-                              </Badge>
-                            )}
-                          </h3>
-                          <p className="text-xs text-muted-foreground">
-                            {method.description}
-                          </p>
-                        </div>
-                      </div>
-                      <div className="text-right">
-                        <div className="text-xs text-muted-foreground">
-                          {method.fees}
-                        </div>
-                        <div className="text-xs text-muted-foreground">
-                          {method.processingTime}
-                        </div>
+          {paymentMethods.map((method) => (
+            <div
+              key={method.id}
+              className="relative border rounded-lg p-3 border-primary bg-primary/5"
+            >
+              <div className="flex items-center space-x-3">
+                <div className="text-xl">{method.logo}</div>
+                <div className="flex-1">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-3">
+                      <div>
+                        <h3 className="font-medium flex items-center text-sm">
+                          {method.name}
+                          {method.popular && (
+                            <Badge variant="secondary" className="ml-2 text-xs">
+                              Popular
+                            </Badge>
+                          )}
+                        </h3>
+                        <p className="text-xs text-muted-foreground">
+                          {method.description}
+                        </p>
                       </div>
                     </div>
-                  </Label>
+                    <div className="text-right">
+                      <div className="text-xs text-muted-foreground">
+                        {method.fees}
+                      </div>
+                      <div className="text-xs text-muted-foreground">
+                        {method.processingTime}
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
-            ))}
-          </RadioGroup>
+            </div>
+          ))}
         </CardContent>
       </Card>
 
