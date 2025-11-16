@@ -17,9 +17,9 @@
         "annual": 10800000
       },
       "private-office": {
-        "weekly": 600000,
-        "monthly": 2200000,
-        "annual": 21000000
+        "weekly": 680000,
+        "monthly": 2500000,
+        "annual": 30000000
       }
     }
   },
@@ -65,9 +65,9 @@
         "annual": 10800000
       },
       "private-office": {
-        "weekly": 600000,
-        "monthly": 2200000,
-        "annual": 21000000
+        "weekly": 680000,
+        "monthly": 2500000,
+        "annual": 30000000
       }
     }
   }

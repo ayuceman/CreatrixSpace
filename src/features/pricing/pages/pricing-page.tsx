@@ -91,9 +91,10 @@ const plans = [
     description: 'Ultimate privacy and productivity',
     icon: Crown,
     pricing: {
-      weekly: 600000, // NPR 6,000/week
-      monthly: 2200000, // NPR 22,000/month
-      annual: 21000000, // NPR 210,000/year (~20% savings)
+      weekly: 680000, // NPR 6,800/week
+      monthly: 2500000, // NPR 25,000/month (offer price)
+      originalMonthly: 3500000, // NPR 35,000/month (actual price)
+      annual: 30000000, // NPR 300,000/year
     },
     features: [
       'Private locked office (2-4 people)',
@@ -258,9 +259,24 @@ export function PricingPage() {
                             </Badge>
                           </div>
                         )}
+                        {plan.id === 'private-office' && plan.pricing.originalMonthly && billingPeriod === 'monthly' && (
+                          <div className="flex items-center justify-center gap-2 mt-1">
+                            <span className="text-sm text-muted-foreground line-through">
+                              {formatCurrency(plan.pricing.originalMonthly, 'NPR')}
+                            </span>
+                            <Badge variant="destructive" className="text-xs">
+                              Save {formatCurrency(plan.pricing.originalMonthly - (price || 0), 'NPR')}
+                            </Badge>
+                          </div>
+                        )}
                         {plan.id === 'explorer' && (
                           <p className="text-xs text-amber-600 mt-1">
                             Promotional price — limited time only
+                          </p>
+                        )}
+                        {plan.id === 'private-office' && billingPeriod === 'monthly' && (
+                          <p className="text-xs text-amber-600 mt-1">
+                            Special offer — limited time only
                           </p>
                         )}
                         {billingPeriod === 'annual' && plan.pricing.annual && plan.pricing.monthly && (

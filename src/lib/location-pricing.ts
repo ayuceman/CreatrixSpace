@@ -21,7 +21,7 @@ const defaultPricing: LocationPricing['prices'] = {
   explorer: { daily: 50000 }, // NPR 500
   professional: { weekly: 250000, monthly: 950000, annual: 10260000 }, // NPR 2,500 / 9,500 / 102,600
   enterprise: { weekly: 450000, monthly: 1850000, annual: 19980000 }, // NPR 4,500 / 18,500 / 199,800
-  'private-office': { weekly: 900000, monthly: 3500000, annual: 37800000 }, // NPR 9,000 / 35,000 / 378,000
+  'private-office': { weekly: 680000, monthly: 2500000, annual: 30000000 }, // NPR 6,800 / 25,000 (offer) / 300,000
 }
 
 export function getLocationPricings(): LocationPricing[] {
