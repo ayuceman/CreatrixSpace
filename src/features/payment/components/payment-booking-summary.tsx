@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { ArrowRight, MapPin, Calendar, Clock, Users } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -6,6 +6,8 @@ import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
 import { PaymentMethod } from '@/lib/payment-config'
 import { formatCurrency } from '@/lib/utils'
+import { useBookingStore } from '@/store/booking-store'
+import { format } from 'date-fns'
 
 interface PaymentBookingSummaryProps {
   bookingData: any
@@ -15,34 +17,10 @@ interface PaymentBookingSummaryProps {
 
 const paymentMethods = [
   {
-    id: 'esewa' as PaymentMethod,
-    name: 'eSewa',
-    logo: '🟢',
-    fees: 'No additional fees',
-  },
-  {
-    id: 'khalti' as PaymentMethod,
-    name: 'Khalti',
-    logo: '🟣',
-    fees: 'No additional fees',
-  },
-  {
-    id: 'stripe' as PaymentMethod,
-    name: 'Credit/Debit Card',
-    logo: '💳',
-    fees: '3.5% + NPR 10',
-  },
-  {
     id: 'qr_payment' as PaymentMethod,
     name: 'QR Payment',
     logo: '📱',
     fees: 'No additional fees',
-  },
-  {
-    id: 'bank_transfer' as PaymentMethod,
-    name: 'Bank Transfer',
-    logo: '🏦',
-    fees: 'Bank charges may apply',
   },
 ]
 
@@ -51,7 +29,8 @@ export function PaymentBookingSummary({
   onPaymentMethodSelect,
   isProcessing = false,
 }: PaymentBookingSummaryProps) {
-  const [selectedMethod, setSelectedMethod] = useState<PaymentMethod>('esewa')
+  const [selectedMethod, setSelectedMethod] = useState<PaymentMethod>('qr_payment')
+  const { locations, plans, addOns: availableAddOns } = useBookingStore()
 
   // Listen to parent payment method selection
   useEffect(() => {
@@ -89,16 +68,78 @@ export function PaymentBookingSummary({
     onPaymentMethodSelect(selectedMethod)
   }
 
-  // Mock data for demo - in real app this would come from bookingData
-  const mockBookingData = {
-    locationName: 'Thamel Hub',
-    planName: 'Hot Desk',
-    duration: '1 Month',
-    startDate: 'Jan 15, 2024',
-    endDate: 'Feb 15, 2024',
-    features: ['High-speed internet', 'Meeting room credits', 'Coffee & tea', 'Locker access'],
-    addOns: ['Extra Meeting Room (2 hours)', 'Guest Day Pass (2 days)'],
-  }
+  // Get actual booking data from store
+  const location = useMemo(() => {
+    return locations.find(l => l.id === bookingData.locationId)
+  }, [locations, bookingData.locationId])
+
+  const plan = useMemo(() => {
+    return plans.find(p => p.id === bookingData.planId)
+  }, [plans, bookingData.planId])
+
+  // Format dates
+  const formattedStartDate = bookingData.startDate
+    ? format(new Date(bookingData.startDate), 'MMM d, yyyy')
+    : 'Not set'
+  
+  const formattedEndDate = bookingData.endDate
+    ? format(new Date(bookingData.endDate), 'MMM d, yyyy')
+    : 'Not set'
+
+  // Calculate duration
+  const duration = useMemo(() => {
+    if (!bookingData.startDate || !bookingData.endDate) return 'Not set'
+    const start = new Date(bookingData.startDate)
+    const end = new Date(bookingData.endDate)
+    const diffTime = Math.abs(end.getTime() - start.getTime())
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+    
+    if (diffDays < 7) {
+      return `${diffDays} ${diffDays === 1 ? 'Day' : 'Days'}`
+    } else if (diffDays < 30) {
+      const weeks = Math.floor(diffDays / 7)
+      return `${weeks} ${weeks === 1 ? 'Week' : 'Weeks'}`
+    } else if (diffDays < 365) {
+      const months = Math.floor(diffDays / 30)
+      return `${months} ${months === 1 ? 'Month' : 'Months'}`
+    } else {
+      const years = Math.floor(diffDays / 365)
+      return `${years} ${years === 1 ? 'Year' : 'Years'}`
+    }
+  }, [bookingData.startDate, bookingData.endDate])
+
+  // Get add-ons details
+  const selectedAddOns = useMemo(() => {
+    const addOnDetails: string[] = []
+    
+    // Meeting room hours
+    if (bookingData.meetingRoomHours > 0) {
+      addOnDetails.push(`Extra Meeting Room (${bookingData.meetingRoomHours} ${bookingData.meetingRoomHours === 1 ? 'hour' : 'hours'})`)
+    }
+    
+    // Guest passes
+    if (bookingData.guestPasses > 0) {
+      addOnDetails.push(`Guest Day Pass (${bookingData.guestPasses} ${bookingData.guestPasses === 1 ? 'day' : 'days'})`)
+    }
+    
+    // Other add-ons
+    bookingData.addOns?.forEach((addOnId: string) => {
+      const addOn = availableAddOns.find(a => a.id === addOnId)
+      if (addOn) {
+        addOnDetails.push(addOn.name)
+      }
+    })
+    
+    return addOnDetails
+  }, [bookingData.addOns, bookingData.meetingRoomHours, bookingData.guestPasses, availableAddOns])
+
+  // Default features
+  const defaultFeatures = [
+    'High-speed internet',
+    'Meeting room credits',
+    'Coffee & tea',
+    'Locker access',
+  ]
 
   return (
     <div className="space-y-4">
@@ -116,9 +157,9 @@ export function PaymentBookingSummary({
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-2">
                 <MapPin className="h-4 w-4 text-muted-foreground" />
-                <span className="font-medium">{mockBookingData.locationName}</span>
+                <span className="font-medium">{location?.name || 'Location not selected'}</span>
               </div>
-              <Badge variant="outline">{mockBookingData.planName}</Badge>
+              <Badge variant="outline">{plan?.name || 'Plan not selected'}</Badge>
             </div>
 
             <div className="flex items-center justify-between">
@@ -126,7 +167,7 @@ export function PaymentBookingSummary({
                 <Clock className="h-4 w-4 text-muted-foreground" />
                 <span className="text-sm text-muted-foreground">Duration</span>
               </div>
-              <span className="text-sm font-medium">{mockBookingData.duration}</span>
+              <span className="text-sm font-medium">{duration}</span>
             </div>
 
             <div className="flex items-center justify-between">
@@ -135,7 +176,7 @@ export function PaymentBookingSummary({
                 <span className="text-sm text-muted-foreground">Period</span>
               </div>
               <span className="text-sm font-medium">
-                {mockBookingData.startDate} - {mockBookingData.endDate}
+                {formattedStartDate} - {formattedEndDate}
               </span>
             </div>
           </div>
@@ -146,7 +187,7 @@ export function PaymentBookingSummary({
           <div>
             <h4 className="font-medium mb-1 text-sm">Included Features</h4>
             <div className="grid grid-cols-2 gap-1">
-              {mockBookingData.features.map((feature, index) => (
+              {defaultFeatures.map((feature, index) => (
                 <div key={index} className="flex items-center space-x-1">
                   <div className="w-1 h-1 bg-green-500 rounded-full" />
                   <span className="text-xs text-muted-foreground">{feature}</span>
@@ -156,13 +197,13 @@ export function PaymentBookingSummary({
           </div>
 
           {/* Add-ons */}
-          {mockBookingData.addOns.length > 0 && (
+          {selectedAddOns.length > 0 && (
             <>
               <Separator />
               <div>
                 <h4 className="font-medium mb-1 text-sm">Add-ons</h4>
                 <div className="space-y-0.5">
-                  {mockBookingData.addOns.map((addOn, index) => (
+                  {selectedAddOns.map((addOn, index) => (
                     <div key={index} className="flex items-center space-x-1">
                       <div className="w-1 h-1 bg-blue-500 rounded-full" />
                       <span className="text-xs text-muted-foreground">{addOn}</span>

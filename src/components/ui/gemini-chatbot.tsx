@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { GoogleGenerativeAI } from '@google/generative-ai'
+import { GoogleGenAI } from '@google/genai'
 import { MessageSquare, X, Send } from 'lucide-react'
 
 type ChatMessage = {
@@ -39,7 +39,7 @@ export function GeminiChatbot() {
   const getClient = () => {
     const key = import.meta.env.VITE_GEMINI_API_KEY as string | undefined
     if (!key) return null
-    return new GoogleGenerativeAI(key)
+    return new GoogleGenAI({ apiKey: key })
   }
 
   useEffect(() => {
@@ -67,36 +67,49 @@ export function GeminiChatbot() {
         ])
         return
       }
-      // lightweight retry with backoff for transient rate limits
-      let response: any
-      const maxRetries = 2
-      for (let attempt = 0; attempt <= maxRetries; attempt++) {
-        try {
-          const model = ai.getGenerativeModel({ model: 'gemini-1.5-flash' })
-          const chat = model.startChat({
-            history: [
-              { role: 'user', parts: [{ text: BRAND_CONTEXT }] },
-              ...messages.map((m) => ({ role: m.role === 'user' ? 'user' : 'model', parts: [{ text: m.text }] }))
-            ]
-          })
-          response = await chat.sendMessage(trimmed)
-          break
-        } catch (err: any) {
-          const status = err?.error?.status || err?.status || err?.code
-          if (status === 'RESOURCE_EXHAUSTED' || status === 429 || /RATE_LIMIT/i.test(err?.message || '')) {
-            if (attempt < maxRetries) {
-              await sleep(500 * Math.pow(2, attempt))
-              continue
-            }
-          }
-          throw err
+      const historyContents = [
+        { role: 'user', parts: [{ text: BRAND_CONTEXT }] },
+        ...messages.map((m) => ({
+          role: m.role === 'user' ? 'user' : 'model',
+          parts: [{ text: m.text }]
+        })),
+        { role: 'user', parts: [{ text: trimmed }] }
+      ]
+      const response = await ai.models.generateContent({
+        model: 'gemini-2.5-flash',
+        contents: historyContents
+      })
+      const modelText = response.text ?? ''
+      setMessages((m) => [
+        ...m,
+        {
+          id: crypto.randomUUID(),
+          role: 'model',
+          text: modelText || 'Sorry, I could not generate a response.'
         }
-      }
-      const modelText = response.response.text()
-      setMessages((m) => [...m, { id: crypto.randomUUID(), role: 'model', text: modelText || 'Sorry, I could not generate a response.' }])
+      ])
     } catch (err: any) {
       const status = err?.error?.status || err?.status || err?.code
-      if (status === 'RESOURCE_EXHAUSTED' || status === 429 || /RATE_LIMIT/i.test(err?.message || '')) {
+      if (status === 404 || status === 'NOT_FOUND') {
+        setFallbackMode(true)
+        setMessages((m) => [
+          ...m,
+          {
+            id: crypto.randomUUID(),
+            role: 'model',
+            text: [
+              'I’m unable to reach the Gemini service right now.',
+              'Please confirm your `VITE_GEMINI_API_KEY` has access to the `gemini-2.5-flash` model (try running ListModels in Google AI Studio).',
+              'Until that’s resolved I’ll answer with the built-in knowledge base.'
+            ].join(' ')
+          }
+        ])
+        const local = localAnswer(trimmed)
+        setMessages((m) => [
+          ...m,
+          { id: crypto.randomUUID(), role: 'model', text: `${local}\n\n(note: waiting for Gemini access to be enabled)` }
+        ])
+      } else if (status === 'RESOURCE_EXHAUSTED' || status === 429 || /RATE_LIMIT/i.test(err?.message || '')) {
         const cooldownMs = 15000
         setCooldownUntil(Date.now() + cooldownMs)
         // Fallback to local knowledge base so the assistant still works
