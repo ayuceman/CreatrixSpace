@@ -7,9 +7,10 @@ import { Separator } from '@/components/ui/separator'
 import { PaymentMethod } from '@/lib/payment-config'
 import { formatCurrency } from '@/lib/utils'
 import { useBookingStore } from '@/store/booking-store'
+import type { BookingData } from '@/store/booking-store'
 
 interface PaymentBookingSummaryProps {
-  bookingData: any
+  bookingData: BookingData
   onPaymentMethodSelect: (method: PaymentMethod) => void
   isProcessing?: boolean
 }
@@ -99,7 +100,7 @@ export function PaymentBookingSummary({
     const addOnsList: string[] = []
     
     // Regular add-ons
-    bookingData.addOns.forEach(addonId => {
+    bookingData.addOns.forEach((addonId: string) => {
       const addon = addOns.find(a => a.id === addonId)
       if (addon) addOnsList.push(addon.name)
     })

@@ -8,6 +8,7 @@ type Plan = Database['public']['Tables']['plans']['Row']
 type AddOn = Database['public']['Tables']['add_ons']['Row']
 type Booking = Database['public']['Tables']['bookings']['Row']
 type BookingInsert = Database['public']['Tables']['bookings']['Insert']
+type ProfileUpdate = Database['public']['Tables']['profiles']['Update']
 type Payment = Database['public']['Tables']['payments']['Row']
 type PaymentInsert = Database['public']['Tables']['payments']['Insert']
 
@@ -95,7 +96,7 @@ export const profileService = {
     return this.getProfile(user.id)
   },
 
-  async updateProfile(userId: string, updates: Partial<Profile>): Promise<Profile> {
+  async updateProfile(userId: string, updates: ProfileUpdate): Promise<Profile> {
     const { data, error } = await supabase
       .from('profiles')
       .update(updates)
@@ -107,7 +108,7 @@ export const profileService = {
     return data
   },
 
-  async updateCurrentProfile(updates: Partial<Profile>): Promise<Profile> {
+  async updateCurrentProfile(updates: ProfileUpdate): Promise<Profile> {
     const user = await authService.getCurrentUser()
     if (!user) throw new Error('No user logged in')
     return this.updateProfile(user.id, updates)

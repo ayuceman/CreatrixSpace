@@ -3,7 +3,11 @@ import { getLocationPricing } from '@/lib/location-pricing'
 import { devtools } from 'zustand/middleware'
 import { locationService, planService, addOnService, bookingService, authService } from '@/services/supabase-service'
 import { calculatePricing, PRICING_CONSTANTS } from '@/lib/pricing-calculator'
-import type { Location, Plan, AddOn } from '@/lib/database.types'
+import type { Database } from '@/lib/database.types'
+
+type Location = Database['public']['Tables']['locations']['Row']
+type Plan = Database['public']['Tables']['plans']['Row']
+type AddOn = Database['public']['Tables']['add_ons']['Row']
 
 export interface BookingData {
   // Step 1: Location & Plan

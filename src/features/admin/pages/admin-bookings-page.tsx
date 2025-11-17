@@ -7,7 +7,6 @@ import { Label } from '@/components/ui/label'
 import { Badge } from '@/components/ui/badge'
 import { Loader2 } from 'lucide-react'
 import { bookingService, addOnService } from '@/services/supabase-service'
-import type { Booking } from '@/lib/database.types'
 
 type AdminBooking = {
   id: string
