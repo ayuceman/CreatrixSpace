@@ -1,12 +1,8 @@
 import { useState, useEffect } from 'react'
-import { CreditCard, Smartphone, Building, ArrowRight } from 'lucide-react'
+import { Smartphone } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
-import { Label } from '@/components/ui/label'
 import { Badge } from '@/components/ui/badge'
 import { PaymentMethod } from '@/lib/payment-config'
-import { formatCurrency } from '@/lib/utils'
 
 interface PaymentGatewaySelectorProps {
   amount: number
@@ -17,39 +13,6 @@ interface PaymentGatewaySelectorProps {
 
 const paymentMethods = [
   {
-    id: 'esewa' as PaymentMethod,
-    name: 'eSewa',
-    description: 'Pay securely with Nepal\'s most popular digital wallet',
-    icon: Smartphone,
-    features: ['Instant payment', 'Mobile banking', 'Digital wallet'],
-    fees: 'No additional fees',
-    processingTime: 'Instant',
-    popular: true,
-    logo: '🟢', // In production, use actual eSewa logo
-  },
-  {
-    id: 'khalti' as PaymentMethod,
-    name: 'Khalti',
-    description: 'Digital payments made simple and secure',
-    icon: Smartphone,
-    features: ['Mobile banking', 'Connect IPS', 'E-banking'],
-    fees: 'No additional fees',
-    processingTime: 'Instant',
-    popular: true,
-    logo: '🟣', // In production, use actual Khalti logo
-  },
-  {
-    id: 'stripe' as PaymentMethod,
-    name: 'Credit/Debit Card',
-    description: 'Pay with Visa, Mastercard, or other international cards',
-    icon: CreditCard,
-    features: ['Visa', 'Mastercard', 'International cards'],
-    fees: '3.5% + NPR 10',
-    processingTime: 'Instant',
-    popular: false,
-    logo: '💳',
-  },
-  {
     id: 'qr_payment' as PaymentMethod,
     name: 'QR Payment',
     description: 'Scan QR code with your banking app and upload receipt',
@@ -59,17 +22,6 @@ const paymentMethods = [
     processingTime: '2-5 minutes verification',
     popular: false,
     logo: '📱',
-  },
-  {
-    id: 'bank_transfer' as PaymentMethod,
-    name: 'Bank Transfer',
-    description: 'Direct bank transfer - manual verification required',
-    icon: Building,
-    features: ['All major banks', 'RTGS/NEFT', 'Manual verification'],
-    fees: 'Bank charges may apply',
-    processingTime: '1-2 business days',
-    popular: false,
-    logo: '🏦',
   },
 ]
 
@@ -187,11 +139,19 @@ export function PaymentGatewaySelector({
                         </div>
                       </div>
                     </div>
-                  </Label>
+                    <div className="text-right">
+                      <div className="text-xs text-muted-foreground">
+                        {method.fees}
+                      </div>
+                      <div className="text-xs text-muted-foreground">
+                        {method.processingTime}
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
-            ))}
-          </RadioGroup>
+            </div>
+          ))}
         </CardContent>
       </Card>
 

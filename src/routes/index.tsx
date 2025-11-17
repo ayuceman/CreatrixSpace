@@ -29,6 +29,8 @@ import { AdminProtectedRoute } from '@/features/admin/components/protected-route
 import { AdminLayout } from '@/features/admin/components/admin-layout'
 import { AdminDashboardPage } from '@/features/admin/pages/admin-dashboard-page'
 import { AdminBookingsPage } from '@/features/admin/pages/admin-bookings-page'
+import { AdminMembershipsPage } from '@/features/admin/pages/admin-memberships-page'
+import { AdminPricingPage } from '@/features/admin/pages/admin-pricing-page'
 
 const router = createBrowserRouter([
   {
@@ -126,6 +128,8 @@ const router = createBrowserRouter([
         children: [
           { index: true, element: <AdminDashboardPage /> },
           { path: ROUTES.ADMIN_BOOKINGS, element: <AdminBookingsPage /> },
+          { path: ROUTES.ADMIN_MEMBERSHIPS, element: <AdminMembershipsPage /> },
+          { path: ROUTES.ADMIN_PRICING, element: <AdminPricingPage /> },
         ],
       },
     ],

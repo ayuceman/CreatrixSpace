@@ -1,4 +1,5 @@
 import { create } from 'zustand'
+import { getLocationPricing } from '@/lib/location-pricing'
 import { devtools } from 'zustand/middleware'
 import { locationService, planService, addOnService, bookingService, authService } from '@/services/supabase-service'
 import { calculatePricing, PRICING_CONSTANTS } from '@/lib/pricing-calculator'
@@ -62,6 +63,8 @@ interface BookingStore {
       monthly?: number
       annual?: number
     }
+    available?: boolean
+    status?: string
   }>
   
   addOns: Array<{
@@ -164,9 +167,14 @@ export const useBookingStore = create<BookingStore>()(
       setCurrentStep: (step) => set({ currentStep: step }),
       
       updateBookingData: (data) => {
+        const currentLocationId = get().bookingData.locationId
         set((state) => ({
           bookingData: { ...state.bookingData, ...data }
         }))
+        // If location changed, update plans with location-specific pricing
+        if (data.locationId && data.locationId !== currentLocationId) {
+          set({ plans: getPlansForLocation(data.locationId) })
+        }
         get().calculateTotal()
       },
       

@@ -4,31 +4,38 @@ import { Button } from '@/components/ui/button'
 import { logoutAdmin, getAdminSession } from '@/lib/admin-auth'
 import { useEffect, useState } from 'react'
 import { onNewBooking, NewBookingEvent } from '@/lib/booking-events'
+import { onNewMembership, type MembershipEvent } from '@/lib/membership-events'
 
 export function AdminLayout() {
   const { pathname } = useLocation()
   const session = typeof window !== 'undefined' ? getAdminSession() : null
-  const [toast, setToast] = useState<NewBookingEvent | null>(null)
+  const [bookingToast, setBookingToast] = useState<NewBookingEvent | null>(null)
+  const [membershipToast, setMembershipToast] = useState<MembershipEvent | null>(null)
 
   useEffect(() => {
     if (typeof window === 'undefined') return
-    const off = onNewBooking((b) => {
-      setToast(b)
-      const t = setTimeout(() => setToast(null), 6000)
-      return () => clearTimeout(t)
+    const offBooking = onNewBooking((b) => {
+      setBookingToast(b)
+      setTimeout(() => setBookingToast(null), 6000)
     })
-    return () => { off() }
+    const offMembership = onNewMembership((m) => {
+      setMembershipToast(m)
+      setTimeout(() => setMembershipToast(null), 6000)
+    })
+    return () => { 
+      offBooking()
+      offMembership()
+    }
   }, [])
 
   return (
     <div className="min-h-screen grid grid-rows-[auto_1fr]">
-      {toast && (
+      {bookingToast && (
         <div className="fixed top-4 right-4 z-50 bg-green-600 text-white rounded-md shadow-lg p-4 w-80">
           <div className="font-semibold">New booking confirmed</div>
           <div className="text-xs opacity-90 mt-1">
             {toast.customerName} — {toast.planName || 'Plan'} — NPR {(toast.amount/100).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
           </div>
-          <div className="text-[10px] opacity-70 mt-1">{new Date(toast.createdAt).toLocaleString()}</div>
         </div>
       )}
       <header className="border-b bg-background/50 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -38,6 +45,8 @@ export function AdminLayout() {
             <nav className="flex items-center gap-3 text-sm">
               <Link to={ROUTES.ADMIN} className={pathname === ROUTES.ADMIN ? 'text-primary' : 'text-muted-foreground'}>Dashboard</Link>
               <Link to={ROUTES.ADMIN_BOOKINGS} className={pathname === ROUTES.ADMIN_BOOKINGS ? 'text-primary' : 'text-muted-foreground'}>Bookings</Link>
+              <Link to={ROUTES.ADMIN_MEMBERSHIPS} className={pathname === ROUTES.ADMIN_MEMBERSHIPS ? 'text-primary' : 'text-muted-foreground'}>Memberships</Link>
+              <Link to={ROUTES.ADMIN_PRICING} className={pathname === ROUTES.ADMIN_PRICING ? 'text-primary' : 'text-muted-foreground'}>Pricing</Link>
             </nav>
           </div>
           <div className="flex items-center gap-3">

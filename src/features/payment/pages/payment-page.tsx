@@ -11,6 +11,7 @@ import { PaymentMethod, PaymentData } from '@/lib/payment-config'
 import { formatCurrency } from '@/lib/utils'
 import { useBookingStore } from '@/store/booking-store'
 import { notifyNewBooking } from '@/lib/booking-events'
+import { notifyNewMembership, type MembershipEvent } from '@/lib/membership-events'
 
 type PaymentStatus = 'selecting' | 'processing' | 'success' | 'error' | 'pending' | 'qr_payment'
 
@@ -91,6 +92,32 @@ export function PaymentPage() {
             status: 'confirmed',
             createdAt: new Date().toISOString(),
           })
+          // Create membership for non-day-pass plans
+          if (bookingData.planId && bookingData.planId !== 'explorer') {
+            const startDate = bookingData.startDate || new Date()
+            const billingCycle = bookingData.planId === 'explorer' ? 'daily' : 'monthly'
+            const endDate = new Date(startDate)
+            if (billingCycle === 'monthly') {
+              endDate.setMonth(endDate.getMonth() + 1)
+            } else {
+              endDate.setDate(endDate.getDate() + 1)
+            }
+            notifyNewMembership({
+              id: `MEM-${Date.now()}`,
+              customerName: bookingData.contactInfo?.firstName && bookingData.contactInfo?.lastName ? `${bookingData.contactInfo.firstName} ${bookingData.contactInfo.lastName}` : 'Customer',
+              email: bookingData.contactInfo?.email,
+              phone: bookingData.contactInfo?.phone,
+              membershipType: bookingData.planId,
+              status: 'active',
+              startDate: startDate.toISOString(),
+              endDate: endDate.toISOString(),
+              amount: result.amount,
+              billingCycle,
+              locationId: bookingData.locationId,
+              autoRenew: false,
+              createdAt: new Date().toISOString(),
+            })
+          }
         } catch {}
       } else {
         setPaymentStatus('error')

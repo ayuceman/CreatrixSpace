@@ -16,7 +16,7 @@ const features = [
   {
     icon: Wifi,
     title: 'High-Speed Internet',
-    description: 'Lightning-fast 1Gbps fiber internet with 99.9% uptime guarantee.',
+    description: 'High speed and reliable internet with 99.9% uptime guarantee.',
     highlight: true,
   },
   {

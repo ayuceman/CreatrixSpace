@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { ArrowRight, MapPin, Calendar, Clock, Users } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -16,34 +16,10 @@ interface PaymentBookingSummaryProps {
 
 const paymentMethods = [
   {
-    id: 'esewa' as PaymentMethod,
-    name: 'eSewa',
-    logo: '🟢',
-    fees: 'No additional fees',
-  },
-  {
-    id: 'khalti' as PaymentMethod,
-    name: 'Khalti',
-    logo: '🟣',
-    fees: 'No additional fees',
-  },
-  {
-    id: 'stripe' as PaymentMethod,
-    name: 'Credit/Debit Card',
-    logo: '💳',
-    fees: '3.5% + NPR 10',
-  },
-  {
     id: 'qr_payment' as PaymentMethod,
     name: 'QR Payment',
     logo: '📱',
     fees: 'No additional fees',
-  },
-  {
-    id: 'bank_transfer' as PaymentMethod,
-    name: 'Bank Transfer',
-    logo: '🏦',
-    fees: 'Bank charges may apply',
   },
 ]
 

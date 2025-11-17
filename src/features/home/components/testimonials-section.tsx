@@ -9,7 +9,7 @@ const testimonials = [
     role: 'Startup Founder',
     company: 'TechNepal',
     content: 'CreatrixSpace has been instrumental in our startup journey. The networking opportunities and professional environment have helped us grow exponentially.',
-    avatar: 'https://images.unsplash.com/photo-1494790108755-2616b612b1e9?ixlib=rb-4.0.3&auto=format&fit=crop&w=150&q=80',
+    avatar: 'https://ui-avatars.com/api/?name=Priya+Sharma&background=6366f1&color=fff&size=150&bold=true',
     rating: 5,
   },
   {
@@ -18,7 +18,7 @@ const testimonials = [
     role: 'Digital Marketer',
     company: 'Freelancer',
     content: 'The flexibility of hot desking combined with premium amenities makes this the perfect workspace for digital nomads like me.',
-    avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=150&q=80',
+    avatar: 'https://ui-avatars.com/api/?name=Rajesh+Khadka&background=8b5cf6&color=fff&size=150&bold=true',
     rating: 5,
   },
   {
@@ -27,7 +27,7 @@ const testimonials = [
     role: 'UX Designer',
     company: 'Design Studio',
     content: 'The creative atmosphere and modern facilities inspire me every day. The meeting rooms are perfect for client presentations.',
-    avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-4.0.3&auto=format&fit=crop&w=150&q=80',
+    avatar: 'https://ui-avatars.com/api/?name=Samiksha+Adhikari&background=a855f7&color=fff&size=150&bold=true',
     rating: 5,
   },
   {
@@ -36,7 +36,7 @@ const testimonials = [
     role: 'Software Developer',
     company: 'Remote Worker',
     content: 'Fast internet, comfortable seating, and a great community. Everything I need to be productive while working remotely.',
-    avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-4.0.3&auto=format&fit=crop&w=150&q=80',
+    avatar: 'https://ui-avatars.com/api/?name=Arjun+Thapa&background=7c3aed&color=fff&size=150&bold=true',
     rating: 5,
   },
   {
@@ -45,7 +45,7 @@ const testimonials = [
     role: 'Business Consultant',
     company: 'Independent',
     content: 'The professional environment and excellent facilities have significantly improved my productivity and work-life balance.',
-    avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?ixlib=rb-4.0.3&auto=format&fit=crop&w=150&q=80',
+    avatar: 'https://ui-avatars.com/api/?name=Binita+Maharjan&background=9333ea&color=fff&size=150&bold=true',
     rating: 5,
   },
   {
@@ -54,7 +54,7 @@ const testimonials = [
     role: 'Content Creator',
     company: 'YouTube Channel',
     content: 'The community events and networking opportunities have opened doors to amazing collaborations and partnerships.',
-    avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-4.0.3&auto=format&fit=crop&w=150&q=80',
+    avatar: 'https://ui-avatars.com/api/?name=Kiran+Shrestha&background=6d28d9&color=fff&size=150&bold=true',
     rating: 5,
   },
 ]

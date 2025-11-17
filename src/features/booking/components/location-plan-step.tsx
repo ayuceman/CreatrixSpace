@@ -162,14 +162,24 @@ export function LocationPlanStep() {
               const isMonthly = plan.pricing.monthly
               const price = isMonthly ? plan.pricing.monthly : plan.pricing.daily
               const period = isMonthly ? 'month' : 'day'
+              const isAvailable = plan.available !== false
               
               return (
                 <div 
                   key={plan.id}
-                  className="flex items-center space-x-3 p-4 border rounded-lg hover:bg-muted/50 transition-colors"
+                  className={`flex items-center space-x-3 p-4 border rounded-lg transition-colors ${
+                    isAvailable ? 'hover:bg-muted/50' : 'opacity-60 bg-muted/30'
+                  }`}
                 >
-                  <RadioGroupItem value={plan.id} id={plan.id} />
-                  <Label htmlFor={plan.id} className="flex-1 cursor-pointer">
+                  <RadioGroupItem 
+                    value={plan.id} 
+                    id={plan.id} 
+                    disabled={!isAvailable}
+                  />
+                  <Label 
+                    htmlFor={plan.id} 
+                    className={`flex-1 ${isAvailable ? 'cursor-pointer' : 'cursor-not-allowed'}`}
+                  >
                     <div className="flex items-center justify-between">
                       <div>
                         <h3 className="font-medium">{plan.name}</h3>
@@ -181,9 +191,14 @@ export function LocationPlanStep() {
                         </p>
                       </div>
                       <div className="text-right">
+                        {!isAvailable && plan.status && (
+                          <Badge className="mb-2 bg-orange-500 hover:bg-orange-600 text-white">
+                            {plan.status}
+                          </Badge>
+                        )}
                         {plan.id === 'explorer' && plan.pricing.daily && (
                           <div className="mb-1 flex items-center justify-end gap-2">
-                            <Badge variant="secondary">Promo</Badge>
+                            <Badge className="bg-green-500 hover:bg-green-600 text-white">Promo</Badge>
                             <span className="text-xs text-muted-foreground line-through">
                               {formatCurrency(100000, 'NPR')}
                             </span>

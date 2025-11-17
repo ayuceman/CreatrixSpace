@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
-import { Menu, X, MapPin, Calendar } from 'lucide-react'
+import { Menu, X, MapPin, Calendar, Phone, MessageCircle } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { ROUTES, APP_NAME } from '@/lib/constants'
@@ -18,15 +18,61 @@ export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const location = useLocation()
 
+  const phoneNumber = "+977 9851357889"
+  const whatsappNumber = "9779803171819" // Format for WhatsApp link (no + or -)
+  const whatsappMessage = encodeURIComponent("Hi! I'm interested in learning more about CreatrixSpace.")
+
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container flex h-16 items-center justify-between">
-        {/* Logo */}
-        <Link to={ROUTES.HOME} className="flex items-center space-x-2">
-          <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center">
-            <MapPin className="h-5 w-5 text-primary-foreground" />
+    <>
+      {/* Top Contact Bar */}
+      <div className="bg-gradient-to-r from-purple-600 to-purple-800 text-white py-2">
+        <div className="container flex items-center justify-between text-sm">
+          <div className="flex items-center gap-6">
+            <a 
+              href={`tel:${phoneNumber}`}
+              className="flex items-center gap-2 hover:opacity-80 transition-opacity"
+            >
+              <Phone className="h-4 w-4" />
+              <span className="hidden sm:inline font-medium">{phoneNumber}</span>
+            </a>
+            <a 
+              href={`https://wa.me/${whatsappNumber}?text=${whatsappMessage}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-2 hover:opacity-80 transition-opacity"
+            >
+              <MessageCircle className="h-4 w-4" />
+              <span className="hidden sm:inline font-medium">WhatsApp Us</span>
+            </a>
           </div>
-          <span className="font-display font-bold text-xl">{APP_NAME}</span>
+          <div className="text-xs sm:text-sm">
+            <span className="hidden md:inline">🎉 Special Offer: </span>
+            <span className="font-semibold">Explorer Pass @ Rs 500/day!</span>
+          </div>
+        </div>
+      </div>
+      
+      {/* Main Header */}
+      <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <div className="container flex h-24 items-center justify-between">
+        {/* Logo */}
+        <Link to={ROUTES.HOME} className="flex items-center space-x-2 hover:opacity-90 transition-opacity">
+          <img 
+            src="/creatrix-logo.png" 
+            alt="CreatrixSpace Logo" 
+            className="h-16 md:h-20 w-auto"
+            onError={(e) => {
+              e.currentTarget.style.display = 'none'
+              const fallback = e.currentTarget.nextElementSibling
+              if (fallback) fallback.classList.remove('hidden')
+            }}
+          />
+          <div className="hidden flex items-center space-x-2">
+            <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-purple-600 to-purple-800 flex items-center justify-center">
+              <span className="text-white font-bold text-lg">CS</span>
+            </div>
+            <span className="font-display font-bold text-xl">{APP_NAME}</span>
+          </div>
         </Link>
 
         {/* Desktop Navigation */}
@@ -104,5 +150,6 @@ export function Header() {
         </div>
       )}
     </header>
+    </>
   )
 }
