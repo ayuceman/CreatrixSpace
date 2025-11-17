@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react'
 import { Smartphone } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
+import { Label } from '@/components/ui/label'
 import { PaymentMethod } from '@/lib/payment-config'
 
 interface PaymentGatewaySelectorProps {
@@ -139,19 +141,11 @@ export function PaymentGatewaySelector({
                         </div>
                       </div>
                     </div>
-                    <div className="text-right">
-                      <div className="text-xs text-muted-foreground">
-                        {method.fees}
-                      </div>
-                      <div className="text-xs text-muted-foreground">
-                        {method.processingTime}
-                      </div>
-                    </div>
-                  </div>
+                  </Label>
                 </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </RadioGroup>
         </CardContent>
       </Card>
 

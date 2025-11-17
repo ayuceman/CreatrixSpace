@@ -15,9 +15,6 @@ export function ContactStep() {
     updateBookingData,
     prevStep,
     canProceed,
-    createBooking,
-    loading,
-    error,
   } = useBookingStore()
 
   // Pre-fill contact info from profile if user is authenticated (optional)
@@ -60,28 +57,13 @@ export function ContactStep() {
     })
   }
 
-  const handleSubmit = async () => {
+  const handleSubmit = () => {
     if (!canProceed()) return
-    
-    try {
-      // Ensure total is recalculated before creating booking
-      // This ensures all add-ons, meeting room hours, and guest passes are included
-      useBookingStore.getState().calculateTotal()
-      
-      // Create booking in Supabase (works for both authenticated and guest users)
-      const bookingId = await createBooking()
-      
-      if (bookingId) {
-        // Redirect to payment page with booking ID
-        navigate(`/payment?bookingId=${bookingId}`)
-      } else {
-        // Error is already set in the store, just show it
-        console.error('Failed to create booking')
-      }
-    } catch (error) {
-      console.error('Error creating booking:', error)
-      // Error is already handled in the store
-    }
+
+    // Just navigate to the payment page.
+    // Booking will be created only after QR payment is verified.
+    useBookingStore.getState().calculateTotal()
+    navigate('/payment')
   }
 
   return (
@@ -247,21 +229,12 @@ export function ContactStep() {
         </Button>
         <Button 
           onClick={handleSubmit}
-          disabled={!canProceed() || loading}
+          disabled={!canProceed()}
           size="lg"
           className="bg-green-600 hover:bg-green-700"
         >
-          {loading ? 'Creating Booking...' : 'Proceed to Payment'}
+          Proceed to Payment
         </Button>
-        {error && (
-          <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-md">
-            <p className="text-sm font-medium text-red-800">Error creating booking</p>
-            <p className="text-sm text-red-600 mt-1">{error}</p>
-            <p className="text-xs text-red-500 mt-2">
-              Please check that you've selected a location and plan, and that all required fields are filled.
-            </p>
-          </div>
-        )}
       </div>
     </div>
   )

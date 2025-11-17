@@ -168,13 +168,21 @@ export const useBookingStore = create<BookingStore>()(
       
       updateBookingData: (data) => {
         const currentLocationId = get().bookingData.locationId
+        
+        // First update booking data with incoming changes
         set((state) => ({
           bookingData: { ...state.bookingData, ...data }
         }))
-        // If location changed, update plans with location-specific pricing
+
+        // If location changed, clear the selected plan so user can choose a valid one
+        // Plans themselves are loaded from Supabase via loadPlans, so we don't
+        // need a getPlansForLocation helper here anymore.
         if (data.locationId && data.locationId !== currentLocationId) {
-          set({ plans: getPlansForLocation(data.locationId) })
+          set((state) => ({
+            bookingData: { ...state.bookingData, planId: '' }
+          }))
         }
+
         get().calculateTotal()
       },
       

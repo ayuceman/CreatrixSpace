@@ -18,7 +18,7 @@ type PaymentStatus = 'selecting' | 'processing' | 'success' | 'error' | 'pending
 export function PaymentPage() {
   const [searchParams] = useSearchParams()
   const navigate = useNavigate()
-  const { bookingData } = useBookingStore()
+  const { bookingData, createBooking } = useBookingStore()
   
   const [paymentStatus, setPaymentStatus] = useState<PaymentStatus>('selecting')
   const [selectedMethod, setSelectedMethod] = useState<PaymentMethod | null>(null)
@@ -212,13 +212,17 @@ export function PaymentPage() {
     navigate('/booking')
   }
 
-  const handleQRPaymentComplete = (result: any) => {
+  const handleQRPaymentComplete = async (result: any) => {
     if (result.success) {
-      setPaymentStatus('success')
-      setPaymentResult(result)
       try {
+        // Create booking in database only after QR payment verification
+        const bookingId = await createBooking()
+
+        setPaymentStatus('success')
+        setPaymentResult({ ...result, bookingId })
+
         notifyNewBooking({
-          id: result.paymentId || `BK-${Date.now()}`,
+          id: bookingId || result.paymentId || `BK-${Date.now()}`,
           customerName: bookingData.contactInfo?.firstName && bookingData.contactInfo?.lastName ? `${bookingData.contactInfo.firstName} ${bookingData.contactInfo.lastName}` : 'Customer',
           email: bookingData.contactInfo?.email,
           phone: bookingData.contactInfo?.phone,
@@ -228,7 +232,11 @@ export function PaymentPage() {
           status: 'pending_verification',
           createdAt: new Date().toISOString(),
         })
-      } catch {}
+      } catch (err) {
+        console.error('Failed to create booking after QR verification:', err)
+        setPaymentStatus('error')
+        setError('Booking could not be created after payment verification. Please try again.')
+      }
     } else {
       setPaymentStatus('error')
       setError(result.error || 'QR payment verification failed')
