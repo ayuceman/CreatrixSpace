@@ -26,7 +26,7 @@ export function AdminDashboardPage() {
       <h1 className="text-2xl font-semibold">Dashboard</h1>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <Metric label="Total Bookings" value={metrics.totalBookings} />
-        <Metric label="Revenue (NPR)" value={metrics.revenueNpr.toLocaleString()} />
+        <Metric label="Revenue (NPR)" value={metrics.revenueNpr.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} />
         <Metric label="Pending Payments" value={metrics.pendingPayments} />
       </div>
     </div>

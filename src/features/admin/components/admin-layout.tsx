@@ -34,19 +34,7 @@ export function AdminLayout() {
         <div className="fixed top-4 right-4 z-50 bg-green-600 text-white rounded-md shadow-lg p-4 w-80">
           <div className="font-semibold">New booking confirmed</div>
           <div className="text-xs opacity-90 mt-1">
-            {bookingToast.customerName} — {bookingToast.planName || 'Plan'} — NPR {(bookingToast.amount/100).toLocaleString()}
-          </div>
-          <div className="text-[10px] opacity-70 mt-1">{new Date(bookingToast.createdAt).toLocaleString()}</div>
-        </div>
-      )}
-      {membershipToast && (
-        <div className="fixed top-16 right-4 z-50 bg-blue-600 text-white rounded-md shadow-lg p-4 w-80">
-          <div className="font-semibold">New membership created</div>
-          <div className="text-xs opacity-90 mt-1">
-            {membershipToast.customerName} — {membershipToast.membershipType.replace('-', ' ')} — NPR {(membershipToast.amount/100).toLocaleString()}
-          </div>
-          <div className="text-[10px] opacity-70 mt-1">
-            Ends: {new Date(membershipToast.endDate).toLocaleDateString()}
+            {toast.customerName} — {toast.planName || 'Plan'} — NPR {(toast.amount/100).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
           </div>
         </div>
       )}

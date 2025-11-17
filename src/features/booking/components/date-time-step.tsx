@@ -20,7 +20,14 @@ export function DateTimeStep() {
 
   const handleDateChange = (field: 'startDate' | 'endDate', value: string) => {
     const date = value ? new Date(value) : null
-    updateBookingData({ [field]: date })
+    const updates: Partial<typeof bookingData> = { [field]: date }
+    
+    // For day passes, automatically set endDate to the same as startDate
+    if (field === 'startDate' && isDayPass && date) {
+      updates.endDate = date
+    }
+    
+    updateBookingData(updates)
   }
 
   const handleTimeChange = (field: 'startTime' | 'endTime', value: string) => {

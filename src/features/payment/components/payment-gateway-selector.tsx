@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react'
 import { Smartphone } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
+import { Label } from '@/components/ui/label'
 import { PaymentMethod } from '@/lib/payment-config'
 
 interface PaymentGatewaySelectorProps {
@@ -32,6 +34,9 @@ export function PaymentGatewaySelector({
   showSummary = true,
 }: PaymentGatewaySelectorProps) {
   const [selectedMethod, setSelectedMethod] = useState<PaymentMethod>('qr_payment')
+  
+  // Filter to only show QR Payment
+  const availablePaymentMethods = paymentMethods.filter(method => method.id === 'qr_payment')
 
   // Fire initial event on component mount
   useEffect(() => {
@@ -90,43 +95,57 @@ export function PaymentGatewaySelector({
           </p>
         </CardHeader>
         <CardContent>
-          {paymentMethods.map((method) => (
-            <div
-              key={method.id}
-              className="relative border rounded-lg p-3 border-primary bg-primary/5"
-            >
-              <div className="flex items-center space-x-3">
-                <div className="text-xl">{method.logo}</div>
-                <div className="flex-1">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-3">
-                      <div>
-                        <h3 className="font-medium flex items-center text-sm">
-                          {method.name}
-                          {method.popular && (
-                            <Badge variant="secondary" className="ml-2 text-xs">
-                              Popular
-                            </Badge>
-                          )}
-                        </h3>
-                        <p className="text-xs text-muted-foreground">
-                          {method.description}
-                        </p>
+          <RadioGroup
+            value={selectedMethod}
+            onValueChange={handleMethodChange}
+            className="space-y-3"
+          >
+            {availablePaymentMethods.map((method) => (
+              <div
+                key={method.id}
+                className={`relative border rounded-lg p-3 transition-all ${
+                  selectedMethod === method.id
+                    ? 'border-primary bg-primary/5'
+                    : 'border-border hover:bg-muted/50'
+                }`}
+              >
+                <div className="flex items-center space-x-3">
+                  <RadioGroupItem
+                    value={method.id}
+                    id={method.id}
+                  />
+                  <Label htmlFor={method.id} className="flex-1 cursor-pointer">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-3">
+                        <div className="text-xl">{method.logo}</div>
+                        <div>
+                          <h3 className="font-medium flex items-center text-sm">
+                            {method.name}
+                            {method.popular && (
+                              <Badge variant="secondary" className="ml-2 text-xs">
+                                Popular
+                              </Badge>
+                            )}
+                          </h3>
+                          <p className="text-xs text-muted-foreground">
+                            {method.description}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-xs text-muted-foreground">
+                          {method.fees}
+                        </div>
+                        <div className="text-xs text-muted-foreground">
+                          {method.processingTime}
+                        </div>
                       </div>
                     </div>
-                    <div className="text-right">
-                      <div className="text-xs text-muted-foreground">
-                        {method.fees}
-                      </div>
-                      <div className="text-xs text-muted-foreground">
-                        {method.processingTime}
-                      </div>
-                    </div>
-                  </div>
+                  </Label>
                 </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </RadioGroup>
         </CardContent>
       </Card>
 

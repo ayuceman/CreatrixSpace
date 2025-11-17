@@ -1,10 +1,12 @@
 import { User, Mail, Phone, Building } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
+import { useEffect } from 'react'
 import { useBookingStore } from '@/store/booking-store'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { authService, profileService } from '@/services/supabase-service'
 
 export function ContactStep() {
   const navigate = useNavigate()
@@ -14,6 +16,37 @@ export function ContactStep() {
     prevStep,
     canProceed,
   } = useBookingStore()
+
+  // Pre-fill contact info from profile if user is authenticated (optional)
+  useEffect(() => {
+    const prefillContactInfo = async () => {
+      try {
+        const user = await authService.getCurrentUser()
+        if (user) {
+          const profile = await profileService.getCurrentProfile()
+          if (profile && !bookingData.contactInfo.email) {
+            updateBookingData({
+              contactInfo: {
+                firstName: profile.first_name || bookingData.contactInfo.firstName,
+                lastName: profile.last_name || bookingData.contactInfo.lastName,
+                email: profile.email || bookingData.contactInfo.email,
+                phone: profile.phone || bookingData.contactInfo.phone,
+                company: profile.company || bookingData.contactInfo.company,
+              }
+            })
+          }
+        }
+      } catch {
+        // Not authenticated - that's fine, user can fill manually
+      }
+    }
+    prefillContactInfo()
+  }, [])
+
+  // Recalculate total when component mounts (ensures add-ons are included)
+  useEffect(() => {
+    useBookingStore.getState().calculateTotal()
+  }, [])
 
   const handleContactInfoChange = (field: string, value: string) => {
     updateBookingData({
@@ -26,14 +59,10 @@ export function ContactStep() {
 
   const handleSubmit = () => {
     if (!canProceed()) return
-    
-    // Calculate total and redirect to payment
-    const bookingId = `BK-${Date.now()}`
-    
-    // Here you would typically save the booking to your backend
-    console.log('Booking prepared for payment:', { ...bookingData, bookingId })
-    
-    // Redirect to payment page
+
+    // Just navigate to the payment page.
+    // Booking will be created only after QR payment is verified.
+    useBookingStore.getState().calculateTotal()
     navigate('/payment')
   }
 

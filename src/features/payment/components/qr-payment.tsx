@@ -7,6 +7,8 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { PAYMENT_CONFIG } from '@/lib/payment-config'
 import { formatCurrency } from '@/lib/utils'
+import { useBookingStore } from '@/store/booking-store'
+import { sendBookingEmail } from '@/services/email-service'
 
 interface QRPaymentProps {
   amount: number
@@ -24,6 +26,7 @@ export function QRPayment({ amount, bookingId, onPaymentComplete, onCancel }: QR
   const [verificationResult, setVerificationResult] = useState<any>(null)
   const [timeRemaining, setTimeRemaining] = useState(300) // 5 minutes
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const { bookingData, locations, plans, addOns } = useBookingStore()
 
   const qrConfig = PAYMENT_CONFIG.qrPayment
 
@@ -82,6 +85,49 @@ export function QRPayment({ amount, bookingId, onPaymentComplete, onCancel }: QR
       
       if (mockResult.success && mockResult.confidence > 0.8) {
         setVerificationStatus('success')
+        
+        // Send email notification to admin when payment is verified
+        try {
+          // Get location and plan names for email
+          const location = locations.find(l => l.id === bookingData.locationId)
+          const plan = plans.find(p => p.id === bookingData.planId)
+          const selectedAddOnNames = bookingData.addOns
+            .map(addOnId => {
+              const addOn = addOns.find(a => a.id === addOnId)
+              return addOn?.name || 'Unknown Add-on'
+            })
+            .filter(Boolean)
+          
+          // Send email asynchronously (don't block payment completion)
+          sendBookingEmail({
+            customerName: `${bookingData.contactInfo.firstName} ${bookingData.contactInfo.lastName}`.trim(),
+            customerEmail: bookingData.contactInfo.email,
+            customerPhone: bookingData.contactInfo.phone,
+            company: bookingData.contactInfo.company || undefined,
+            bookingId: bookingData.bookingId || bookingId,
+            locationName: location?.name || 'Unknown Location',
+            planName: plan?.name || 'Unknown Plan',
+            planType: plan?.type || 'unknown',
+            startDate: bookingData.startDate ? bookingData.startDate.toISOString() : '',
+            endDate: bookingData.endDate ? bookingData.endDate.toISOString() : '',
+            startTime: bookingData.startTime || undefined,
+            endTime: bookingData.endTime || undefined,
+            selectedAddOns: selectedAddOnNames,
+            meetingRoomHours: bookingData.meetingRoomHours,
+            guestPasses: bookingData.guestPasses,
+            totalAmount: bookingData.totalAmount,
+            currency: bookingData.currency,
+            notes: bookingData.notes || undefined,
+            status: 'pending',
+          }).catch(error => {
+            // Log error but don't fail the payment
+            console.error('Failed to send booking email:', error)
+          })
+        } catch (error) {
+          // Log error but don't fail the payment
+          console.error('Error preparing email data:', error)
+        }
+        
         setTimeout(() => {
           onPaymentComplete({
             success: true,

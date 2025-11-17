@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react'
+import { Loader2 } from 'lucide-react'
 import { useSearchParams } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { useBookingStore } from '@/store/booking-store'
@@ -11,7 +12,7 @@ import { BookingSummary } from '../components/booking-summary'
 
 export function BookingPage() {
   const [searchParams] = useSearchParams()
-  const { currentStep, updateBookingData } = useBookingStore()
+  const { currentStep, updateBookingData, loadAllData, loading } = useBookingStore()
   const stepContentRef = useRef<HTMLDivElement>(null)
   
   const stepTitles = [
@@ -21,11 +22,23 @@ export function BookingPage() {
     'Contact Information'
   ]
   
+  // Load data from Supabase on mount
+  useEffect(() => {
+    loadAllData()
+  }, [loadAllData])
+
   // Pre-select plan from URL params (from pricing page links)
+  // Note: Only works if planId is a valid UUID from Supabase
   useEffect(() => {
     const planId = searchParams.get('plan')
     if (planId) {
-      updateBookingData({ planId })
+      // Validate it's a UUID before setting (to avoid using string IDs)
+      const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+      if (uuidRegex.test(planId)) {
+        updateBookingData({ planId })
+      } else {
+        console.warn('Plan ID from URL is not a valid UUID, ignoring:', planId)
+      }
     }
   }, [searchParams, updateBookingData])
 
@@ -99,20 +112,27 @@ export function BookingPage() {
         <div className="mt-8 grid lg:grid-cols-3 gap-8" id="booking-content">
           {/* Main Content */}
             <div className="lg:col-span-2">
-              <motion.div
-                ref={stepContentRef}
-                key={currentStep}
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -20 }}
-                transition={{ duration: 0.3 }}
-                tabIndex={-1}
-                className="focus:outline-none scroll-mt-8"
-                aria-live="polite"
-                aria-label={`Step ${currentStep} of 4: ${stepTitles[currentStep - 1]}`}
-              >
-                {renderStep()}
-              </motion.div>
+              {loading ? (
+                <div className="flex items-center justify-center py-12">
+                  <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                  <span className="ml-2 text-muted-foreground">Loading booking options...</span>
+                </div>
+              ) : (
+                <motion.div
+                  ref={stepContentRef}
+                  key={currentStep}
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -20 }}
+                  transition={{ duration: 0.3 }}
+                  tabIndex={-1}
+                  className="focus:outline-none scroll-mt-8"
+                  aria-live="polite"
+                  aria-label={`Step ${currentStep} of 4: ${stepTitles[currentStep - 1]}`}
+                >
+                  {renderStep()}
+                </motion.div>
+              )}
             </div>
 
           {/* Sidebar Summary */}

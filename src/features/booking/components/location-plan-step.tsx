@@ -1,4 +1,4 @@
-import { MapPin, Star, Clock, Users } from 'lucide-react'
+import { MapPin, Star, Clock, Users, Loader2, AlertCircle } from 'lucide-react'
 import { useBookingStore } from '@/store/booking-store'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -15,6 +15,9 @@ export function LocationPlanStep() {
     updateBookingData,
     nextStep,
     canProceed,
+    loading,
+    error,
+    loadAllData,
   } = useBookingStore()
 
   const handleLocationChange = (locationId: string) => {
@@ -28,6 +31,44 @@ export function LocationPlanStep() {
   const selectedLocation = locations.find(l => l.id === bookingData.locationId)
   const selectedPlan = plans.find(p => p.id === bookingData.planId)
 
+  // Show loading state
+  if (loading) {
+    return (
+      <div className="space-y-8">
+        <Card>
+          <CardContent className="p-12">
+            <div className="flex flex-col items-center justify-center space-y-4">
+              <Loader2 className="h-8 w-8 animate-spin text-primary" />
+              <p className="text-muted-foreground">Loading locations and plans...</p>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    )
+  }
+
+  // Show error state
+  if (error) {
+    return (
+      <div className="space-y-8">
+        <Card>
+          <CardContent className="p-12">
+            <div className="flex flex-col items-center justify-center space-y-4">
+              <AlertCircle className="h-8 w-8 text-destructive" />
+              <div className="text-center">
+                <h3 className="font-medium mb-2">Failed to load data</h3>
+                <p className="text-sm text-muted-foreground mb-4">{error}</p>
+                <Button onClick={loadAllData} variant="outline">
+                  Try Again
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    )
+  }
+
   return (
     <div className="space-y-8">
       {/* Location Selection */}
@@ -39,12 +80,21 @@ export function LocationPlanStep() {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <RadioGroup 
-            value={bookingData.locationId} 
-            onValueChange={handleLocationChange}
-            className="space-y-4"
-          >
-            {locations.map((location) => (
+          {locations.length === 0 ? (
+            <div className="p-8 text-center">
+              <MapPin className="h-12 w-12 mx-auto mb-4 text-muted-foreground opacity-50" />
+              <p className="text-muted-foreground mb-2">No locations available</p>
+              <p className="text-sm text-muted-foreground">
+                Please add locations in your Supabase database or check your connection.
+              </p>
+            </div>
+          ) : (
+            <RadioGroup 
+              value={bookingData.locationId} 
+              onValueChange={handleLocationChange}
+              className="space-y-4"
+            >
+              {locations.map((location) => (
               <div 
                 key={location.id}
                 className="flex items-center space-x-3 p-4 border rounded-lg hover:bg-muted/50 transition-colors"
@@ -80,7 +130,8 @@ export function LocationPlanStep() {
                 </Label>
               </div>
             ))}
-          </RadioGroup>
+            </RadioGroup>
+          )}
         </CardContent>
       </Card>
 
@@ -93,12 +144,21 @@ export function LocationPlanStep() {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <RadioGroup 
-            value={bookingData.planId} 
-            onValueChange={handlePlanChange}
-            className="space-y-4"
-          >
-            {plans.map((plan) => {
+          {plans.length === 0 ? (
+            <div className="p-8 text-center">
+              <Users className="h-12 w-12 mx-auto mb-4 text-muted-foreground opacity-50" />
+              <p className="text-muted-foreground mb-2">No plans available</p>
+              <p className="text-sm text-muted-foreground">
+                Please add plans in your Supabase database or check your connection.
+              </p>
+            </div>
+          ) : (
+            <RadioGroup 
+              value={bookingData.planId} 
+              onValueChange={handlePlanChange}
+              className="space-y-4"
+            >
+              {plans.map((plan) => {
               const isMonthly = plan.pricing.monthly
               const price = isMonthly ? plan.pricing.monthly : plan.pricing.daily
               const period = isMonthly ? 'month' : 'day'
@@ -156,7 +216,8 @@ export function LocationPlanStep() {
                 </div>
               )
             })}
-          </RadioGroup>
+            </RadioGroup>
+          )}
         </CardContent>
       </Card>
 

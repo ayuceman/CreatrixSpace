@@ -4,24 +4,46 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { loginAdmin, getAdminEnvCreds } from '@/lib/admin-auth'
+import { authService } from '@/services/supabase-service'
 import { ROUTES } from '@/lib/constants'
 
 export function AdminLoginPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
+  const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
 
   const creds = getAdminEnvCreds()
 
-  const onSubmit = (e: React.FormEvent) => {
+  const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError(null)
-    const ok = loginAdmin(email.trim(), password)
-    if (ok) {
+    setLoading(true)
+    
+    try {
+      // First verify credentials match env vars
+      const ok = loginAdmin(email.trim(), password)
+      if (!ok) {
+        setError('Invalid credentials')
+        setLoading(false)
+        return
+      }
+      
+      // Also sign in via Supabase auth so RLS policies work
+      try {
+        await authService.signIn(email.trim(), password)
+      } catch (supabaseError: any) {
+        // If Supabase sign-in fails, still allow admin login but warn
+        console.warn('Supabase auth sign-in failed:', supabaseError)
+        // Continue anyway - the localStorage session will work for UI, but DB updates might fail
+      }
+      
       navigate(ROUTES.ADMIN, { replace: true })
-    } else {
-      setError('Invalid credentials')
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to login')
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -43,7 +65,9 @@ export function AdminLoginPage() {
           <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
         </div>
         {error ? <p className="text-sm text-red-600">{error}</p> : null}
-        <Button type="submit" className="w-full">Login</Button>
+        <Button type="submit" className="w-full" disabled={loading}>
+          {loading ? 'Logging in...' : 'Login'}
+        </Button>
       </form>
     </div>
   )
