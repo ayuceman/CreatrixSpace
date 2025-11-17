@@ -26,7 +26,7 @@ export function AdminLayout() {
         <div className="fixed top-4 right-4 z-50 bg-green-600 text-white rounded-md shadow-lg p-4 w-80">
           <div className="font-semibold">New booking confirmed</div>
           <div className="text-xs opacity-90 mt-1">
-            {toast.customerName} — {toast.planName || 'Plan'} — NPR {(toast.amount/100).toLocaleString()}
+            {toast.customerName} — {toast.planName || 'Plan'} — NPR {(toast.amount/100).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
           </div>
           <div className="text-[10px] opacity-70 mt-1">{new Date(toast.createdAt).toLocaleString()}</div>
         </div>

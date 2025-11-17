@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>New Booking - Creatrix Space</title>
+</head>
+<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #f5f5f5;">
+  <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #f5f5f5; padding: 40px 20px;">
+    <tr>
+      <td align="center">
+        <!-- Main Container -->
+        <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="600" style="max-width: 600px; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+          
+          <!-- Header -->
+          <tr>
+            <td style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 40px 30px; text-align: center;">
+              <h1 style="margin: 0; color: #ffffff; font-size: 28px; font-weight: 700; letter-spacing: -0.5px;">
+                🎉 New Booking Received
+              </h1>
+              <p style="margin: 10px 0 0 0; color: rgba(255, 255, 255, 0.9); font-size: 16px;">
+                Creatrix Space Booking System
+              </p>
+            </td>
+          </tr>
+
+          <!-- Booking ID & Status Banner -->
+          <tr>
+            <td style="padding: 25px 30px; background: linear-gradient(135deg, #fff3cd 0%, #ffe69c 100%); border-left: 4px solid #ffc107;">
+              <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+                <tr>
+                  <td>
+                    <p style="margin: 0 0 8px 0; font-size: 12px; color: #856404; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">
+                      Booking ID
+                    </p>
+                    <p style="margin: 0; font-size: 20px; color: #856404; font-weight: 700; font-family: 'Courier New', monospace;">
+                      {{booking_id}}
+                    </p>
+                  </td>
+                  <td align="right">
+                    <p style="margin: 0 0 8px 0; font-size: 12px; color: #856404; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">
+                      Status
+                    </p>
+                    <p style="margin: 0; font-size: 18px; color: #856404; font-weight: 700;">
+                      {{status}}
+                    </p>
+                  </td>
+                </tr>
+                <tr>
+                  <td colspan="2" style="padding-top: 12px;">
+                    <p style="margin: 0; font-size: 13px; color: #856404;">
+                      📅 Received: {{date}}
+                    </p>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- Customer Information Section -->
+          <tr>
+            <td style="padding: 30px;">
+              <div style="border-left: 4px solid #667eea; padding-left: 20px; margin-bottom: 30px;">
+                <h2 style="margin: 0 0 20px 0; font-size: 20px; color: #667eea; font-weight: 700;">
+                  👤 Customer Information
+                </h2>
+                <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+                  <tr>
+                    <td style="padding: 8px 0; width: 140px;">
+                      <span style="font-size: 14px; color: #666666; font-weight: 600;">Name:</span>
+                    </td>
+                    <td style="padding: 8px 0;">
+                      <span style="font-size: 14px; color: #333333; font-weight: 500;">{{customer_name}}</span>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 8px 0;">
+                      <span style="font-size: 14px; color: #666666; font-weight: 600;">Email:</span>
+                    </td>
+                    <td style="padding: 8px 0;">
+                      <a href="mailto:{{customer_email}}" style="font-size: 14px; color: #667eea; text-decoration: none; font-weight: 500;">{{customer_email}}</a>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 8px 0;">
+                      <span style="font-size: 14px; color: #666666; font-weight: 600;">Phone:</span>
+                    </td>
+                    <td style="padding: 8px 0;">
+                      <a href="tel:{{customer_phone}}" style="font-size: 14px; color: #667eea; text-decoration: none; font-weight: 500;">{{customer_phone}}</a>
+                    </td>
+                  </tr>
+                  {{#company}}
+                  <tr>
+                    <td style="padding: 8px 0;">
+                      <span style="font-size: 14px; color: #666666; font-weight: 600;">Company:</span>
+                    </td>
+                    <td style="padding: 8px 0;">
+                      <span style="font-size: 14px; color: #333333; font-weight: 500;">{{company}}</span>
+                    </td>
+                  </tr>
+                  {{/company}}
+                </table>
+              </div>
+            </td>
+          </tr>
+
+          <!-- Booking Details Section -->
+          <tr>
+            <td style="padding: 0 30px 30px 30px;">
+              <div style="border-left: 4px solid #28a745; padding-left: 20px; margin-bottom: 30px;">
+                <h2 style="margin: 0 0 20px 0; font-size: 20px; color: #28a745; font-weight: 700;">
+                  📋 Booking Details
+                </h2>
+                <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+                  <tr>
+                    <td style="padding: 8px 0; width: 140px;">
+                      <span style="font-size: 14px; color: #666666; font-weight: 600;">Location:</span>
+                    </td>
+                    <td style="padding: 8px 0;">
+                      <span style="font-size: 14px; color: #333333; font-weight: 500;">{{location_name}}</span>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 8px 0;">
+                      <span style="font-size: 14px; color: #666666; font-weight: 600;">Plan:</span>
+                    </td>
+                    <td style="padding: 8px 0;">
+                      <span style="font-size: 14px; color: #333333; font-weight: 500;">{{plan_name}}</span>
+                      <span style="font-size: 12px; color: #999999; margin-left: 8px;">({{plan_type}})</span>
+                    </td>
+                  </tr>
+                  {{#start_date}}
+                  <tr>
+                    <td style="padding: 8px 0;">
+                      <span style="font-size: 14px; color: #666666; font-weight: 600;">Start Date:</span>
+                    </td>
+                    <td style="padding: 8px 0;">
+                      <span style="font-size: 14px; color: #333333; font-weight: 500;">{{start_date}}</span>
+                    </td>
+                  </tr>
+                  {{/start_date}}
+                  {{#end_date}}
+                  <tr>
+                    <td style="padding: 8px 0;">
+                      <span style="font-size: 14px; color: #666666; font-weight: 600;">End Date:</span>
+                    </td>
+                    <td style="padding: 8px 0;">
+                      <span style="font-size: 14px; color: #333333; font-weight: 500;">{{end_date}}</span>
+                    </td>
+                  </tr>
+                  {{/end_date}}
+                  {{#start_time}}
+                  <tr>
+                    <td style="padding: 8px 0;">
+                      <span style="font-size: 14px; color: #666666; font-weight: 600;">Start Time:</span>
+                    </td>
+                    <td style="padding: 8px 0;">
+                      <span style="font-size: 14px; color: #333333; font-weight: 500;">{{start_time}}</span>
+                    </td>
+                  </tr>
+                  {{/start_time}}
+                  {{#end_time}}
+                  <tr>
+                    <td style="padding: 8px 0;">
+                      <span style="font-size: 14px; color: #666666; font-weight: 600;">End Time:</span>
+                    </td>
+                    <td style="padding: 8px 0;">
+                      <span style="font-size: 14px; color: #333333; font-weight: 500;">{{end_time}}</span>
+                    </td>
+                  </tr>
+                  {{/end_time}}
+                </table>
+              </div>
+            </td>
+          </tr>
+
+          <!-- Add-ons & Extras Section -->
+          <tr>
+            <td style="padding: 0 30px 30px 30px;">
+              <div style="border-left: 4px solid #ff6b6b; padding-left: 20px; margin-bottom: 30px;">
+                <h2 style="margin: 0 0 20px 0; font-size: 20px; color: #ff6b6b; font-weight: 700;">
+                  ✨ Add-ons & Extras
+                </h2>
+                <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+                  {{#add_ons}}
+                  {{#if add_ons}}
+                  <tr>
+                    <td style="padding: 8px 0;">
+                      <span style="font-size: 14px; color: #666666; font-weight: 600;">Selected Add-ons:</span>
+                    </td>
+                    <td style="padding: 8px 0;">
+                      <span style="display: inline-block; background-color: #f0f0f0; color: #333333; padding: 4px 12px; border-radius: 20px; font-size: 13px; margin: 2px 4px 2px 0; font-weight: 500;">
+                        {{add_ons}}
+                      </span>
+                    </td>
+                  </tr>
+                  {{/if}}
+                  {{/add_ons}}
+                  {{#meeting_room_hours}}
+                  {{#if meeting_room_hours}}
+                  <tr>
+                    <td style="padding: 8px 0;">
+                      <span style="font-size: 14px; color: #666666; font-weight: 600;">Meeting Room:</span>
+                    </td>
+                    <td style="padding: 8px 0;">
+                      <span style="font-size: 14px; color: #333333; font-weight: 500;">{{meeting_room_hours}}</span>
+                    </td>
+                  </tr>
+                  {{/if}}
+                  {{/meeting_room_hours}}
+                  {{#guest_passes}}
+                  {{#if guest_passes}}
+                  <tr>
+                    <td style="padding: 8px 0;">
+                      <span style="font-size: 14px; color: #666666; font-weight: 600;">Guest Passes:</span>
+                    </td>
+                    <td style="padding: 8px 0;">
+                      <span style="font-size: 14px; color: #333333; font-weight: 500;">{{guest_passes}}</span>
+                    </td>
+                  </tr>
+                  {{/if}}
+                  {{/guest_passes}}
+                  {{^add_ons}}
+                  {{^meeting_room_hours}}
+                  {{^guest_passes}}
+                  <tr>
+                    <td colspan="2" style="padding: 8px 0;">
+                      <span style="font-size: 14px; color: #999999; font-style: italic;">No add-ons or extras selected</span>
+                    </td>
+                  </tr>
+                  {{/guest_passes}}
+                  {{/meeting_room_hours}}
+                  {{/add_ons}}
+                </table>
+              </div>
+            </td>
+          </tr>
+
+          <!-- Pricing Section -->
+          <tr>
+            <td style="padding: 0 30px 30px 30px;">
+              <div style="background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); border-radius: 8px; padding: 25px; border: 2px solid #667eea;">
+                <h2 style="margin: 0 0 15px 0; font-size: 20px; color: #667eea; font-weight: 700;">
+                  💰 Pricing Information
+                </h2>
+                <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+                  <tr>
+                    <td style="padding: 12px 0;">
+                      <span style="font-size: 16px; color: #666666; font-weight: 600;">Total Amount:</span>
+                    </td>
+                    <td align="right" style="padding: 12px 0;">
+                      <span style="font-size: 24px; color: #667eea; font-weight: 700;">{{total_amount}}</span>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 8px 0;">
+                      <span style="font-size: 14px; color: #666666; font-weight: 600;">Payment Status:</span>
+                    </td>
+                    <td align="right" style="padding: 8px 0;">
+                      <span style="display: inline-block; background-color: #fff3cd; color: #856404; padding: 6px 14px; border-radius: 20px; font-size: 13px; font-weight: 600;">
+                        Pending
+                      </span>
+                    </td>
+                  </tr>
+                </table>
+              </div>
+            </td>
+          </tr>
+
+          <!-- Notes Section (if exists) -->
+          {{#notes}}
+          {{#if notes}}
+          <tr>
+            <td style="padding: 0 30px 30px 30px;">
+              <div style="border-left: 4px solid #17a2b8; padding-left: 20px; background-color: #f8f9fa; padding: 20px; border-radius: 8px;">
+                <h2 style="margin: 0 0 15px 0; font-size: 20px; color: #17a2b8; font-weight: 700;">
+                  📝 Customer Notes
+                </h2>
+                <p style="margin: 0; font-size: 14px; color: #333333; line-height: 1.6; white-space: pre-wrap;">{{notes}}</p>
+              </div>
+            </td>
+          </tr>
+          {{/if}}
+          {{/notes}}
+
+          <!-- Footer -->
+          <tr>
+            <td style="padding: 30px; background-color: #f8f9fa; text-align: center; border-top: 1px solid #e9ecef;">
+              <p style="margin: 0 0 10px 0; font-size: 13px; color: #666666;">
+                This is an automated email from <strong style="color: #667eea;">Creatrix Space</strong> booking system.
+              </p>
+              <p style="margin: 0; font-size: 12px; color: #999999;">
+                Please do not reply to this email. For inquiries, contact the customer directly.
+              </p>
+              <p style="margin: 15px 0 0 0; font-size: 11px; color: #999999;">
+                © ${new Date().getFullYear()} Creatrix Space. All rights reserved.
+              </p>
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
+

@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
 import { PaymentMethod } from '@/lib/payment-config'
 import { formatCurrency } from '@/lib/utils'
+import { useBookingStore } from '@/store/booking-store'
 
 interface PaymentBookingSummaryProps {
   bookingData: any
@@ -51,7 +52,8 @@ export function PaymentBookingSummary({
   onPaymentMethodSelect,
   isProcessing = false,
 }: PaymentBookingSummaryProps) {
-  const [selectedMethod, setSelectedMethod] = useState<PaymentMethod>('esewa')
+  const [selectedMethod, setSelectedMethod] = useState<PaymentMethod>('qr_payment')
+  const { locations, plans, addOns } = useBookingStore()
 
   // Listen to parent payment method selection
   useEffect(() => {
@@ -60,6 +62,7 @@ export function PaymentBookingSummary({
     }
 
     window.addEventListener('paymentMethodChanged', handlePaymentMethodChange as EventListener)
+    
     return () => {
       window.removeEventListener('paymentMethodChanged', handlePaymentMethodChange as EventListener)
     }
@@ -89,15 +92,64 @@ export function PaymentBookingSummary({
     onPaymentMethodSelect(selectedMethod)
   }
 
-  // Mock data for demo - in real app this would come from bookingData
-  const mockBookingData = {
-    locationName: 'Thamel Hub',
-    planName: 'Hot Desk',
-    duration: '1 Month',
-    startDate: 'Jan 15, 2024',
-    endDate: 'Feb 15, 2024',
-    features: ['High-speed internet', 'Meeting room credits', 'Coffee & tea', 'Locker access'],
-    addOns: ['Extra Meeting Room (2 hours)', 'Guest Day Pass (2 days)'],
+  // Get actual booking data from store
+  const selectedLocation = locations.find(l => l.id === bookingData.locationId)
+  const selectedPlan = plans.find(p => p.id === bookingData.planId)
+  
+  // Format dates
+  const formatDate = (date: Date | null) => {
+    if (!date) return 'Not set'
+    return new Intl.DateTimeFormat('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+    }).format(date)
+  }
+
+  // Calculate duration
+  const getDuration = () => {
+    if (!bookingData.startDate || !bookingData.endDate) return 'Not set'
+    const diffTime = Math.abs(bookingData.endDate.getTime() - bookingData.startDate.getTime())
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+    
+    if (diffDays < 7) return `${diffDays} Day${diffDays > 1 ? 's' : ''}`
+    if (diffDays < 30) return `${Math.floor(diffDays / 7)} Week${Math.floor(diffDays / 7) > 1 ? 's' : ''}`
+    if (diffDays < 365) return `${Math.floor(diffDays / 30)} Month${Math.floor(diffDays / 30) > 1 ? 's' : ''}`
+    return `${Math.floor(diffDays / 365)} Year${Math.floor(diffDays / 365) > 1 ? 's' : ''}`
+  }
+
+  // Get add-ons names
+  const getAddOnsList = () => {
+    const addOnsList: string[] = []
+    
+    // Regular add-ons
+    bookingData.addOns.forEach(addonId => {
+      const addon = addOns.find(a => a.id === addonId)
+      if (addon) addOnsList.push(addon.name)
+    })
+    
+    // Meeting room hours
+    if (bookingData.meetingRoomHours > 0) {
+      addOnsList.push(`Extra Meeting Room (${bookingData.meetingRoomHours} hour${bookingData.meetingRoomHours > 1 ? 's' : ''})`)
+    }
+    
+    // Guest passes
+    if (bookingData.guestPasses > 0) {
+      addOnsList.push(`Guest Day Pass (${bookingData.guestPasses} day${bookingData.guestPasses > 1 ? 's' : ''})`)
+    }
+    
+    return addOnsList
+  }
+
+  // Plan features (based on plan type)
+  const getPlanFeatures = () => {
+    const features: string[] = ['High-speed internet', 'Coffee & tea']
+    
+    if (selectedPlan?.type === 'hot_desk' || selectedPlan?.type === 'dedicated_desk') {
+      features.push('Meeting room credits', 'Locker access')
+    }
+    
+    return features
   }
 
   return (
@@ -116,9 +168,9 @@ export function PaymentBookingSummary({
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-2">
                 <MapPin className="h-4 w-4 text-muted-foreground" />
-                <span className="font-medium">{mockBookingData.locationName}</span>
+                <span className="font-medium">{selectedLocation?.name || 'Location not selected'}</span>
               </div>
-              <Badge variant="outline">{mockBookingData.planName}</Badge>
+              <Badge variant="outline">{selectedPlan?.name || 'Plan not selected'}</Badge>
             </div>
 
             <div className="flex items-center justify-between">
@@ -126,7 +178,7 @@ export function PaymentBookingSummary({
                 <Clock className="h-4 w-4 text-muted-foreground" />
                 <span className="text-sm text-muted-foreground">Duration</span>
               </div>
-              <span className="text-sm font-medium">{mockBookingData.duration}</span>
+              <span className="text-sm font-medium">{getDuration()}</span>
             </div>
 
             <div className="flex items-center justify-between">
@@ -135,7 +187,7 @@ export function PaymentBookingSummary({
                 <span className="text-sm text-muted-foreground">Period</span>
               </div>
               <span className="text-sm font-medium">
-                {mockBookingData.startDate} - {mockBookingData.endDate}
+                {formatDate(bookingData.startDate)} - {formatDate(bookingData.endDate)}
               </span>
             </div>
           </div>
@@ -146,7 +198,7 @@ export function PaymentBookingSummary({
           <div>
             <h4 className="font-medium mb-1 text-sm">Included Features</h4>
             <div className="grid grid-cols-2 gap-1">
-              {mockBookingData.features.map((feature, index) => (
+              {getPlanFeatures().map((feature, index) => (
                 <div key={index} className="flex items-center space-x-1">
                   <div className="w-1 h-1 bg-green-500 rounded-full" />
                   <span className="text-xs text-muted-foreground">{feature}</span>
@@ -156,13 +208,13 @@ export function PaymentBookingSummary({
           </div>
 
           {/* Add-ons */}
-          {mockBookingData.addOns.length > 0 && (
+          {getAddOnsList().length > 0 && (
             <>
               <Separator />
               <div>
                 <h4 className="font-medium mb-1 text-sm">Add-ons</h4>
                 <div className="space-y-0.5">
-                  {mockBookingData.addOns.map((addOn, index) => (
+                  {getAddOnsList().map((addOn, index) => (
                     <div key={index} className="flex items-center space-x-1">
                       <div className="w-1 h-1 bg-blue-500 rounded-full" />
                       <span className="text-xs text-muted-foreground">{addOn}</span>

@@ -1,5 +1,8 @@
 import { create } from 'zustand'
 import { devtools } from 'zustand/middleware'
+import { locationService, planService, addOnService, bookingService, authService } from '@/services/supabase-service'
+import { calculatePricing, PRICING_CONSTANTS } from '@/lib/pricing-calculator'
+import type { Location, Plan, AddOn } from '@/lib/database.types'
 
 export interface BookingData {
   // Step 1: Location & Plan
@@ -30,6 +33,9 @@ export interface BookingData {
   // Pricing
   totalAmount: number
   currency: string
+  
+  // Booking ID (set after creation)
+  bookingId?: string
 }
 
 interface BookingStore {
@@ -65,11 +71,24 @@ interface BookingStore {
     description: string
   }>
   
+  // Loading states
+  loading: boolean
+  error: string | null
+  
   // Actions
   setCurrentStep: (step: number) => void
   updateBookingData: (data: Partial<BookingData>) => void
   resetBooking: () => void
   calculateTotal: () => void
+  
+  // Data loading
+  loadLocations: () => Promise<void>
+  loadPlans: () => Promise<void>
+  loadAddOns: () => Promise<void>
+  loadAllData: () => Promise<void>
+  
+  // Booking operations
+  createBooking: () => Promise<string | null> // Returns booking ID or null
   
   // Navigation
   nextStep: () => void
@@ -99,91 +118,48 @@ const initialBookingData: BookingData = {
   currency: 'NPR',
 }
 
-// Mock data - in real app this would come from API
-const mockLocations = [
-  {
-    id: 'dhobighat-hub',
-    name: 'Dhobighat (WashingTown) Hub',
-    address: 'Dhobighat, Kathmandu',
-    available: true,
-  },
-  {
-    id: 'kausimaa-coworking',
-    name: 'Kausimaa Co-working',
-    address: 'Jwagal/Kupondole, Lalitpur',
-    available: true,
-  },
-  {
-    id: 'jhamsikhel-loft',
-    name: 'Jhamsikhel Loft', 
-    address: 'Jhamsikhel, Lalitpur',
-    available: false,
-    status: 'Reserved for 6 months',
-  },
-]
+// Helper function to convert Supabase Location to store format
+const convertLocation = (loc: Location) => ({
+  id: loc.id,
+  name: loc.name,
+  address: loc.address,
+  available: loc.available,
+})
 
-const mockPlans = [
-  {
-    id: 'explorer',
-    name: 'Explorer',
-    type: 'day_pass',
-    pricing: { daily: 50000 }, // NPR 500 (promotional price)
-  },
-  {
-    id: 'professional',
-    name: 'Professional',
-    type: 'hot_desk', 
-    pricing: { monthly: 899900, annual: 9719000 }, // NPR 8,999/month
-  },
-  {
-    id: 'enterprise',
-    name: 'Enterprise',
-    type: 'dedicated_desk',
-    pricing: { monthly: 1899900, annual: 20519000 }, // NPR 18,999/month
-  },
-  {
-    id: 'private-office',
-    name: 'Private Office',
-    type: 'private_office',
-    pricing: { monthly: 3500000, annual: 37800000 }, // NPR 35,000/month
-  },
-]
+// Helper function to convert Supabase Plan to store format
+const convertPlan = (plan: Plan) => {
+  const pricing = plan.pricing as any
+  return {
+    id: plan.id,
+    name: plan.name,
+    type: plan.type,
+    pricing: {
+      daily: pricing.daily,
+      monthly: pricing.monthly,
+      annual: pricing.annual,
+      hourly: pricing.hourly,
+    },
+  }
+}
 
-const mockAddOns = [
-  {
-    id: 'meeting-room-hours',
-    name: 'Extra Meeting Room Hours',
-    price: 50000, // NPR 500/hour
-    description: 'Additional meeting room access beyond your plan',
-  },
-  {
-    id: 'guest-passes',
-    name: 'Guest Day Passes',
-    price: 50000, // NPR 500/day
-    description: 'Bring colleagues for a day',
-  },
-  {
-    id: 'virtual-office',
-    name: 'Virtual Office Address',
-    price: 300000, // NPR 3,000/month
-    description: 'Use our address for your business registration',
-  },
-  {
-    id: 'mail-handling',
-    name: 'Mail Handling Service',
-    price: 200000, // NPR 2,000/month
-    description: 'Mail receiving and forwarding service',
-  },
-]
+// Helper function to convert Supabase AddOn to store format
+const convertAddOn = (addon: AddOn) => ({
+  id: addon.id,
+  name: addon.name,
+  price: Number(addon.price),
+  description: addon.description || '',
+})
 
 export const useBookingStore = create<BookingStore>()(
   devtools(
     (set, get) => ({
       currentStep: 1,
       bookingData: initialBookingData,
-      locations: mockLocations,
-      plans: mockPlans,
-      addOns: mockAddOns,
+      locations: [],
+      plans: [],
+      addOns: [],
+      loading: false,
+      error: null,
       
       setCurrentStep: (step) => set({ currentStep: step }),
       
@@ -203,42 +179,158 @@ export const useBookingStore = create<BookingStore>()(
         const { bookingData, plans, addOns } = get()
         const selectedPlan = plans.find(p => p.id === bookingData.planId)
         
-        if (!selectedPlan) return
-        
-        let total = 0
-        
-        // Base plan cost
-        if (selectedPlan.type === 'day_pass') {
-          total += selectedPlan.pricing.daily || 0
-        } else {
-          total += selectedPlan.pricing.monthly || 0
+        if (!selectedPlan) {
+          console.warn('Cannot calculate total: No plan selected')
+          return
         }
         
-        // Add-ons cost
-        bookingData.addOns.forEach(addonId => {
-          const addon = addOns.find(a => a.id === addonId)
-          if (addon) total += addon.price
+        // Get selected add-ons with their prices
+        const selectedAddOnsWithPrices = bookingData.addOns
+          .map(addonId => {
+            const addon = addOns.find(a => a.id === addonId)
+            return addon ? { id: addon.id, price: addon.price } : null
+          })
+          .filter((addon): addon is { id: string; price: number } => addon !== null)
+        
+        // Use centralized pricing calculator
+        const pricing = calculatePricing({
+          planPricing: selectedPlan.pricing,
+          planType: selectedPlan.type,
+          selectedAddOns: selectedAddOnsWithPrices,
+          meetingRoomHours: bookingData.meetingRoomHours,
+          guestPasses: bookingData.guestPasses,
         })
         
-        // Meeting room hours
-        if (bookingData.meetingRoomHours > 0) {
-          const meetingRoomAddon = addOns.find(a => a.id === 'meeting-room-hours')
-          if (meetingRoomAddon) {
-            total += meetingRoomAddon.price * bookingData.meetingRoomHours
-          }
-        }
-        
-        // Guest passes
-        if (bookingData.guestPasses > 0) {
-          const guestPassAddon = addOns.find(a => a.id === 'guest-passes')
-          if (guestPassAddon) {
-            total += guestPassAddon.price * bookingData.guestPasses
-          }
-        }
+        console.log('Pricing calculation:', {
+          basePrice: pricing.basePrice,
+          addOnsPrice: pricing.addOnsPrice,
+          meetingRoomHoursPrice: pricing.meetingRoomHoursPrice,
+          guestPassesPrice: pricing.guestPassesPrice,
+          total: pricing.total,
+        })
         
         set((state) => ({
-          bookingData: { ...state.bookingData, totalAmount: total }
+          bookingData: { ...state.bookingData, totalAmount: pricing.total }
         }))
+      },
+      
+      loadLocations: async () => {
+        set({ loading: true, error: null })
+        try {
+          const locations = await locationService.getAllLocations()
+          // Always use data from Supabase (even if empty)
+          // Don't use fallback mock data - user should add real data to Supabase
+          set({ 
+            locations: locations.map(convertLocation),
+            loading: false 
+          })
+        } catch (error) {
+          // On error, show error but don't use mock data
+          set({ 
+            locations: [],
+            loading: false,
+            error: error instanceof Error ? error.message : 'Failed to load locations from Supabase. Please check your connection and ensure locations are added to the database.'
+          })
+        }
+      },
+      
+      loadPlans: async () => {
+        set({ loading: true, error: null })
+        try {
+          const plans = await planService.getAllPlans()
+          // Always use data from Supabase (even if empty)
+          // Don't use fallback mock data - user should add real data to Supabase
+          set({ 
+            plans: plans.map(convertPlan),
+            loading: false 
+          })
+        } catch (error) {
+          // On error, show error but don't use mock data
+          set({ 
+            plans: [],
+            loading: false,
+            error: error instanceof Error ? error.message : 'Failed to load plans from Supabase. Please check your connection and ensure plans are added to the database.'
+          })
+        }
+      },
+      
+      loadAddOns: async () => {
+        set({ loading: true, error: null })
+        try {
+          const addOns = await addOnService.getAllAddOns()
+          // Always use data from Supabase (even if empty)
+          // Don't use fallback mock data - user should add real data to Supabase
+          set({ 
+            addOns: addOns.map(convertAddOn),
+            loading: false 
+          })
+        } catch (error) {
+          // On error, show error but don't use mock data
+          set({ 
+            addOns: [],
+            loading: false,
+            error: error instanceof Error ? error.message : 'Failed to load add-ons from Supabase. Please check your connection and ensure add-ons are added to the database.'
+          })
+        }
+      },
+      
+      loadAllData: async () => {
+        set({ loading: true, error: null })
+        try {
+          await Promise.all([
+            get().loadLocations(),
+            get().loadPlans(),
+            get().loadAddOns(),
+          ])
+        } catch (error) {
+          set({ 
+            error: error instanceof Error ? error.message : 'Failed to load data',
+            loading: false 
+          })
+        }
+      },
+      
+      createBooking: async () => {
+        const { bookingData, locations, plans, addOns } = get()
+        set({ loading: true, error: null })
+        
+        try {
+          // Recalculate total before creating booking to ensure it's accurate
+          get().calculateTotal()
+          
+          // Get the updated booking data with recalculated total
+          const updatedBookingData = get().bookingData
+          
+          // Try to get current user, but allow guest bookings (null user_id)
+          let userId: string | null = null
+          try {
+            const user = await authService.getCurrentUser()
+            userId = user?.id || null
+          } catch {
+            // Not authenticated - allow guest booking
+            userId = null
+          }
+          
+          // Create booking in Supabase (with or without user_id)
+          const booking = await bookingService.createBooking(updatedBookingData, userId)
+          
+          // Update booking data with the created booking ID
+          set((state) => ({
+            bookingData: { ...state.bookingData, bookingId: booking.id },
+            loading: false
+          }))
+          
+          // Email will be sent when user verifies payment on QR payment page
+          
+          return booking.id
+        } catch (error) {
+          const errorMessage = error instanceof Error ? error.message : 'Failed to create booking'
+          set({ 
+            error: errorMessage,
+            loading: false 
+          })
+          return null
+        }
       },
       
       nextStep: () => {
@@ -256,12 +348,19 @@ export const useBookingStore = create<BookingStore>()(
       },
       
       canProceed: () => {
-        const { currentStep, bookingData } = get()
+        const { currentStep, bookingData, plans } = get()
+        const selectedPlan = plans.find(p => p.id === bookingData.planId)
+        const isDayPass = selectedPlan?.type === 'day_pass'
         
         switch (currentStep) {
           case 1:
             return bookingData.locationId && bookingData.planId
           case 2:
+            // For day passes, only startDate is required
+            // For other plans, startDate, startTime, and endTime are required
+            if (isDayPass) {
+              return !!bookingData.startDate
+            }
             return bookingData.startDate && bookingData.startTime && bookingData.endTime
           case 3:
             return true // Optional step

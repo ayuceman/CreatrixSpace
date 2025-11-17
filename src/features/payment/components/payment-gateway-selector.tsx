@@ -79,7 +79,10 @@ export function PaymentGatewaySelector({
   isProcessing = false,
   showSummary = true,
 }: PaymentGatewaySelectorProps) {
-  const [selectedMethod, setSelectedMethod] = useState<PaymentMethod>('esewa')
+  const [selectedMethod, setSelectedMethod] = useState<PaymentMethod>('qr_payment')
+  
+  // Filter to only show QR Payment
+  const availablePaymentMethods = paymentMethods.filter(method => method.id === 'qr_payment')
 
   // Fire initial event on component mount
   useEffect(() => {
@@ -143,7 +146,7 @@ export function PaymentGatewaySelector({
             onValueChange={handleMethodChange}
             className="space-y-3"
           >
-            {paymentMethods.map((method) => (
+            {availablePaymentMethods.map((method) => (
               <div
                 key={method.id}
                 className={`relative border rounded-lg p-3 transition-all ${

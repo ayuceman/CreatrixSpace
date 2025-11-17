@@ -1,10 +1,12 @@
 import { User, Mail, Phone, Building } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
+import { useEffect } from 'react'
 import { useBookingStore } from '@/store/booking-store'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { authService, profileService } from '@/services/supabase-service'
 
 export function ContactStep() {
   const navigate = useNavigate()
@@ -13,7 +15,41 @@ export function ContactStep() {
     updateBookingData,
     prevStep,
     canProceed,
+    createBooking,
+    loading,
+    error,
   } = useBookingStore()
+
+  // Pre-fill contact info from profile if user is authenticated (optional)
+  useEffect(() => {
+    const prefillContactInfo = async () => {
+      try {
+        const user = await authService.getCurrentUser()
+        if (user) {
+          const profile = await profileService.getCurrentProfile()
+          if (profile && !bookingData.contactInfo.email) {
+            updateBookingData({
+              contactInfo: {
+                firstName: profile.first_name || bookingData.contactInfo.firstName,
+                lastName: profile.last_name || bookingData.contactInfo.lastName,
+                email: profile.email || bookingData.contactInfo.email,
+                phone: profile.phone || bookingData.contactInfo.phone,
+                company: profile.company || bookingData.contactInfo.company,
+              }
+            })
+          }
+        }
+      } catch {
+        // Not authenticated - that's fine, user can fill manually
+      }
+    }
+    prefillContactInfo()
+  }, [])
+
+  // Recalculate total when component mounts (ensures add-ons are included)
+  useEffect(() => {
+    useBookingStore.getState().calculateTotal()
+  }, [])
 
   const handleContactInfoChange = (field: string, value: string) => {
     updateBookingData({
@@ -24,17 +60,28 @@ export function ContactStep() {
     })
   }
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!canProceed()) return
     
-    // Calculate total and redirect to payment
-    const bookingId = `BK-${Date.now()}`
-    
-    // Here you would typically save the booking to your backend
-    console.log('Booking prepared for payment:', { ...bookingData, bookingId })
-    
-    // Redirect to payment page
-    navigate('/payment')
+    try {
+      // Ensure total is recalculated before creating booking
+      // This ensures all add-ons, meeting room hours, and guest passes are included
+      useBookingStore.getState().calculateTotal()
+      
+      // Create booking in Supabase (works for both authenticated and guest users)
+      const bookingId = await createBooking()
+      
+      if (bookingId) {
+        // Redirect to payment page with booking ID
+        navigate(`/payment?bookingId=${bookingId}`)
+      } else {
+        // Error is already set in the store, just show it
+        console.error('Failed to create booking')
+      }
+    } catch (error) {
+      console.error('Error creating booking:', error)
+      // Error is already handled in the store
+    }
   }
 
   return (
@@ -200,12 +247,21 @@ export function ContactStep() {
         </Button>
         <Button 
           onClick={handleSubmit}
-          disabled={!canProceed()}
+          disabled={!canProceed() || loading}
           size="lg"
           className="bg-green-600 hover:bg-green-700"
         >
-          Proceed to Payment
+          {loading ? 'Creating Booking...' : 'Proceed to Payment'}
         </Button>
+        {error && (
+          <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-md">
+            <p className="text-sm font-medium text-red-800">Error creating booking</p>
+            <p className="text-sm text-red-600 mt-1">{error}</p>
+            <p className="text-xs text-red-500 mt-2">
+              Please check that you've selected a location and plan, and that all required fields are filled.
+            </p>
+          </div>
+        )}
       </div>
     </div>
   )

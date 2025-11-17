@@ -6,7 +6,6 @@ import { Button } from '@/components/ui/button'
 import { PaymentGatewaySelector } from '../components/payment-gateway-selector'
 import { PaymentBookingSummary } from '../components/payment-booking-summary'
 import { QRPayment } from '../components/qr-payment'
-import { ESewaDebug } from '../components/esewa-debug'
 import { paymentService } from '@/services/payment-service'
 import { PaymentMethod, PaymentData } from '@/lib/payment-config'
 import { formatCurrency } from '@/lib/utils'
@@ -24,6 +23,27 @@ export function PaymentPage() {
   const [selectedMethod, setSelectedMethod] = useState<PaymentMethod | null>(null)
   const [paymentResult, setPaymentResult] = useState<any>(null)
   const [error, setError] = useState<string | null>(null)
+
+  // Calculate the actual total amount (same logic as payment summary)
+  const calculateTotalAmount = (method: PaymentMethod) => {
+    const baseAmount = bookingData.totalAmount || 0
+    let fees = 0
+    
+    // Calculate fees based on payment method
+    switch (method) {
+      case 'stripe':
+        fees = Math.round(baseAmount * 0.035) + 1000 // 3.5% + NPR 10
+        break
+      case 'esewa':
+      case 'khalti':
+      case 'qr_payment':
+      case 'bank_transfer':
+        fees = 0
+        break
+    }
+    
+    return baseAmount + fees
+  }
 
   // Check if coming from a payment callback
   useEffect(() => {
@@ -88,9 +108,12 @@ export function PaymentPage() {
     setError(null)
 
     try {
+      // Calculate total amount including fees for this payment method
+      const totalAmount = calculateTotalAmount(method)
+      
       // Prepare payment data
       const paymentData: PaymentData = {
-        amount: bookingData.totalAmount || 120000, // Default to NPR 1200 for testing
+        amount: totalAmount,
         currency: 'NPR',
         bookingId: `BK-${Date.now()}`,
         customerInfo: {
@@ -199,8 +222,8 @@ export function PaymentPage() {
             <div className="container py-8">
               <div className="max-w-2xl mx-auto">
                 <QRPayment
-                  amount={bookingData.totalAmount || 120000}
-                  bookingId={paymentResult?.paymentId || `BK-${Date.now()}`}
+                  amount={calculateTotalAmount('qr_payment')}
+                  bookingId={bookingData.bookingId || paymentResult?.paymentId || `BK-${Date.now()}`}
                   onPaymentComplete={handleQRPaymentComplete}
                   onCancel={handleQRPaymentCancel}
                 />
@@ -362,11 +385,6 @@ export function PaymentPage() {
                 />
               </div>
             </div>
-          </div>
-
-          {/* Debug Component - Remove in production */}
-          <div className="max-w-2xl mx-auto mt-8">
-            <ESewaDebug />
           </div>
         </div>
       </div>

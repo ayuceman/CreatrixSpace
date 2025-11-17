@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
 import { formatCurrency } from '@/lib/utils'
+import { calculatePricing, getMeetingRoomHourPrice, getGuestPassPrice } from '@/lib/pricing-calculator'
 
 export function BookingSummary() {
   const { bookingData, locations, plans, addOns } = useBookingStore()
@@ -11,29 +12,31 @@ export function BookingSummary() {
   const selectedLocation = locations.find(l => l.id === bookingData.locationId)
   const selectedPlan = plans.find(p => p.id === bookingData.planId)
 
-  // Calculate base price
-  const basePrice = selectedPlan?.pricing.monthly || selectedPlan?.pricing.daily || 0
+  // Use centralized pricing calculator for consistency
+  const selectedAddOnsWithPrices = bookingData.addOns
+    .map(addonId => {
+      const addon = addOns.find(a => a.id === addonId)
+      return addon ? { id: addon.id, price: addon.price } : null
+    })
+    .filter((addon): addon is { id: string; price: number } => addon !== null)
 
-  // Calculate add-ons cost
-  let addOnsTotal = 0
-  
-  // Regular add-ons
-  bookingData.addOns.forEach(addonId => {
-    const addon = addOns.find(a => a.id === addonId)
-    if (addon) addOnsTotal += addon.price
-  })
-
-  // Meeting room hours
-  if (bookingData.meetingRoomHours > 0) {
-    addOnsTotal += 150000 * bookingData.meetingRoomHours
+  const pricing = selectedPlan ? calculatePricing({
+    planPricing: selectedPlan.pricing,
+    planType: selectedPlan.type,
+    selectedAddOns: selectedAddOnsWithPrices,
+    meetingRoomHours: bookingData.meetingRoomHours,
+    guestPasses: bookingData.guestPasses,
+  }) : {
+    basePrice: 0,
+    addOnsPrice: 0,
+    meetingRoomHoursPrice: 0,
+    guestPassesPrice: 0,
+    total: 0,
   }
 
-  // Guest passes
-  if (bookingData.guestPasses > 0) {
-    addOnsTotal += 60000 * bookingData.guestPasses
-  }
-
-  const totalAmount = basePrice + addOnsTotal
+  const basePrice = pricing.basePrice
+  const addOnsTotal = pricing.addOnsPrice + pricing.meetingRoomHoursPrice + pricing.guestPassesPrice
+  const totalAmount = pricing.total
 
   if (!selectedLocation || !selectedPlan) {
     return (
@@ -166,7 +169,7 @@ export function BookingSummary() {
                       Meeting Room ({bookingData.meetingRoomHours}h)
                     </span>
                     <span className="font-medium">
-                      {formatCurrency(150000 * bookingData.meetingRoomHours, 'NPR')}
+                      {formatCurrency(pricing.meetingRoomHoursPrice, 'NPR')}
                     </span>
                   </div>
                 )}
@@ -177,7 +180,7 @@ export function BookingSummary() {
                       Guest Passes ({bookingData.guestPasses})
                     </span>
                     <span className="font-medium">
-                      {formatCurrency(60000 * bookingData.guestPasses, 'NPR')}
+                      {formatCurrency(pricing.guestPassesPrice, 'NPR')}
                     </span>
                   </div>
                 )}
