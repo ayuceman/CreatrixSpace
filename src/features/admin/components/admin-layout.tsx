@@ -30,14 +30,24 @@ export function AdminLayout() {
 
   return (
     <div className="min-h-screen grid grid-rows-[auto_1fr]">
-      {bookingToast && (
-        <div className="fixed top-4 right-4 z-50 bg-green-600 text-white rounded-md shadow-lg p-4 w-80">
-          <div className="font-semibold">New booking confirmed</div>
-          <div className="text-xs opacity-90 mt-1">
-            {toast.customerName} — {toast.planName || 'Plan'} — NPR {(toast.amount/100).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+      <div className="fixed top-4 right-4 z-50 space-y-2">
+        {bookingToast && (
+          <div className="bg-green-600 text-white rounded-md shadow-lg p-4 w-80">
+            <div className="font-semibold">New booking confirmed</div>
+            <div className="text-xs opacity-90 mt-1">
+              {bookingToast.customerName} — {bookingToast.planName || 'Plan'} — NPR {(bookingToast.amount/100).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+            </div>
           </div>
-        </div>
-      )}
+        )}
+        {membershipToast && (
+          <div className="bg-blue-600 text-white rounded-md shadow-lg p-4 w-80">
+            <div className="font-semibold">New membership</div>
+            <div className="text-xs opacity-90 mt-1">
+              {membershipToast.customerName} — {membershipToast.membershipType}
+            </div>
+          </div>
+        )}
+      </div>
       <header className="border-b bg-background/50 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="container flex items-center justify-between py-3">
           <div className="flex items-center gap-4">
