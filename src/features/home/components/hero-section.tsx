@@ -15,40 +15,44 @@ const stats = [
 
 const heroImages = [
   {
-    src: '/images/hero-slider/office-meeting-room.png',
+    src: '/images/hero-slider/office-meeting-room.webp',
     alt: 'Modern meeting room with conference table'
   },
   {
-    src: '/images/hero-slider/dhobighat-office-back.png',
+    src: '/images/hero-slider/dhobighat-office-back.webp',
     alt: 'Dhobighat office workspace back view'
   },
   {
-    src: '/images/hero-slider/professional-workspace-desk.png',
+    src: '/images/hero-slider/professional-workspace-desk.webp',
     alt: 'Professional workspace with desk'
   },
   {
-    src: '/images/hero-slider/dhobighat-coworking-space.png',
+    src: '/images/hero-slider/dhobighat-coworking-space.webp',
     alt: 'Dhobighat coworking space'
   },
   {
-    src: '/images/hero-slider/modern-workspace-desk.png',
+    src: '/images/hero-slider/modern-workspace-desk.webp',
     alt: 'Modern workspace desk setup'
   },
   {
-    src: '/images/hero-slider/creatrixspace-workspace-interior-1.jpg',
+    src: '/images/hero-slider/creatrixspace-workspace-interior-1.webp',
     alt: 'CreatrixSpace workspace interior'
   },
   {
-    src: '/images/hero-slider/creatrixspace-coworking-area-1.jpg',
+    src: '/images/hero-slider/creatrixspace-coworking-area-1.webp',
     alt: 'CreatrixSpace coworking area'
   },
   {
-    src: '/images/hero-slider/creatrixspace-office-space-1.jpg',
+    src: '/images/hero-slider/creatrixspace-office-space-1.webp',
     alt: 'CreatrixSpace office space'
   },
   {
-    src: '/images/hero-slider/creatrixspace-modern-workspace-1.jpg',
+    src: '/images/hero-slider/creatrixspace-modern-workspace-1.webp',
     alt: 'CreatrixSpace modern workspace'
+  },
+  {
+    src: '/images/hero-slider/dhobighat-workspace-view-1.webp',
+    alt: 'Dhobighat workspace view'
   },
 ]
 

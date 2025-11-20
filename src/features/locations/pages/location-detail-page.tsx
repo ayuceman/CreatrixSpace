@@ -15,7 +15,7 @@ const locationData: Record<string, Location> = {
     name: 'Dhobighat (WashingTown) Hub',
     address: 'Dhobighat, Kathmandu',
     fullAddress: 'Dhobighat Chowk, Kathmandu 44600, Nepal',
-    image: '/images/locations/dhobighat-hub/dhobighat-coworking-space-main.png',
+    image: '/images/locations/dhobighat-hub/dhobighat-coworking-space-main.webp',
     capacity: 30,
     rating: 4.9,
     features: ['24/7 Access', 'Meeting Rooms', 'Event Space', 'High-Speed WiFi', 'Parking'],
@@ -102,93 +102,100 @@ const getLocationGalleryImages = (locationId: string) => {
     'dhobighat-hub': [
       {
         id: 1,
-        src: '/images/locations/dhobighat-hub/dhobighat-dining-area.png',
+        src: '/images/locations/dhobighat-hub/dhobighat-dining-area.webp',
         alt: 'Dhobighat dining area',
         title: 'Dining Area',
         span: 'col-span-1'
       },
       {
         id: 2,
-        src: '/images/locations/dhobighat-hub/dhobighat-productivity-space.png',
+        src: '/images/locations/dhobighat-hub/dhobighat-productivity-space.webp',
         alt: 'Boost Your Productivity',
         title: 'Boost Your Productivity',
         span: 'sm:col-span-2'
       },
       {
         id: 3,
-        src: '/images/locations/dhobighat-hub/dhobighat-office-back-view.png',
+        src: '/images/locations/dhobighat-hub/dhobighat-office-back-view.webp',
         alt: 'Dhobighat office back view',
         title: 'Office Back View',
         span: 'col-span-1'
       },
       {
         id: 4,
-        src: '/images/locations/dhobighat-hub/dhobighat-espresso-bar.png',
+        src: '/images/locations/dhobighat-hub/dhobighat-espresso-bar.webp',
         alt: 'Dhobighat espresso bar',
         title: 'Espresso Bar',
         span: 'col-span-1'
       },
       {
         id: 5,
-        src: '/images/locations/dhobighat-hub/dhobighat-kitchen.png',
+        src: '/images/locations/dhobighat-hub/dhobighat-kitchen.webp',
         alt: 'Dhobighat kitchen',
         title: 'Kitchen',
         span: 'col-span-1'
       },
       {
         id: 6,
-        src: '/images/locations/dhobighat-hub/creatrixspace-coworking-area-1.jpg',
+        src: '/images/locations/dhobighat-hub/creatrixspace-coworking-area-1.webp',
         alt: 'Dhobighat coworking area',
         title: 'Coworking Area',
         span: 'sm:col-span-2'
       },
       {
         id: 7,
-        src: '/images/locations/dhobighat-hub/dhobighat-office-front-entrance.png',
+        src: '/images/locations/dhobighat-hub/dhobighat-office-front-entrance.webp',
         alt: 'Dhobighat office front entrance',
         title: 'Office Front Entrance',
         span: 'col-span-1'
       },
       {
         id: 8,
-        src: '/images/locations/dhobighat-hub/dhobighat-meeting-room.png',
+        src: '/images/locations/dhobighat-hub/dhobighat-meeting-room.webp',
         alt: 'Dhobighat meeting room',
         title: 'Meeting Room',
         span: 'col-span-1'
       },
       {
         id: 9,
-        src: '/images/locations/dhobighat-hub/creatrixspace-workspace-interior-1.jpg',
+        src: '/images/locations/dhobighat-hub/creatrixspace-workspace-interior-1.webp',
         alt: 'Dhobighat workspace interior',
         title: 'Workspace Interior',
         span: 'col-span-1'
       },
       {
         id: 10,
-        src: '/images/locations/dhobighat-hub/dhobighat-modern-workspace-desk.png',
+        src: '/images/locations/dhobighat-hub/dhobighat-modern-workspace-desk.webp',
         alt: 'Dhobighat modern workspace desk',
         title: 'Modern Workspace Desk',
         span: 'col-span-1'
       },
       {
         id: 11,
-        src: '/images/locations/dhobighat-hub/creatrixspace-modern-workspace-1.jpg',
+        src: '/images/locations/dhobighat-hub/creatrixspace-modern-workspace-1.webp',
         alt: 'Dhobighat modern workspace',
         title: 'Modern Workspace',
         span: 'sm:col-span-2'
       },
       {
         id: 12,
-        src: '/images/locations/dhobighat-hub/dhobighat-professional-workspace-desk.png',
+        src: '/images/locations/dhobighat-hub/dhobighat-professional-workspace-desk.webp',
         alt: 'Dhobighat professional workspace desk',
         title: 'Professional Workspace Desk',
         span: 'col-span-1'
       },
       {
         id: 13,
-        src: '/images/locations/dhobighat-hub/creatrixspace-office-space-1.jpg',
+        src: '/images/locations/dhobighat-hub/creatrixspace-office-space-1.webp',
         alt: 'Dhobighat office space',
         title: 'Office Space',
+        span: 'col-span-1'
+      },
+      {
+        id: 14,
+        src: '/images/locations/dhobighat-hub/dhobighat-workspace-view-1.webp',
+        alt: 'Dhobighat workspace view',
+        title: 'Workspace View',
         span: 'col-span-1'
       }
     ],

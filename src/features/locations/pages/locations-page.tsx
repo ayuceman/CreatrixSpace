@@ -11,7 +11,7 @@ const locations = [
     id: 'dhobighat-hub',
     name: 'Dhobighat (WashingTown) Hub',
     address: 'Dhobighat, Kathmandu',
-    image: '/images/locations/dhobighat-hub/dhobighat-coworking-space-main.png',
+    image: '/images/locations/dhobighat-hub/dhobighat-coworking-space-main.webp',
     capacity: 30,
     rating: 4.9,
     features: ['24/7 Access', 'Meeting Rooms', 'Event Space', 'High-Speed WiFi', 'Parking'],

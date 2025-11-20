@@ -33,10 +33,11 @@ export function Gallery({ data, onImageClick }: GalleryProps) {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 md:gap-3 auto-rows-fr">
           {data.map((img) => {
             const spanClass = img.span || 'col-span-1 sm:col-span-1'
+            const isProductivityImage = img.title === 'Boost Your Productivity'
             return (
             <div
               key={img.id}
-              className={`group cursor-pointer relative overflow-hidden rounded-lg md:rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 ${spanClass}`}
+              className={`group cursor-pointer relative overflow-hidden rounded-lg md:rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 ${spanClass} ${isProductivityImage ? 'bg-muted/20' : ''}`}
               style={{ 
                 aspectRatio: img.span?.includes('col-span-2') ? '8/3' : '4/3',
                 minHeight: '200px'
@@ -46,7 +47,7 @@ export function Gallery({ data, onImageClick }: GalleryProps) {
               <img
                 src={img.src}
                 alt={img.alt}
-                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                className={`w-full h-full transition-transform duration-700 group-hover:scale-110 ${isProductivityImage ? 'object-contain' : 'object-cover'}`}
                 loading="lazy"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-end p-4 md:p-6">
