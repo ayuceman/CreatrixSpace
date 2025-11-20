@@ -15,24 +15,40 @@ const stats = [
 
 const heroImages = [
   {
-    src: '/office-meeting-room.png',
+    src: '/images/hero-slider/office-meeting-room.png',
     alt: 'Modern meeting room with conference table'
   },
   {
-    src: '/dhobighat-office-back.png',
-    alt: 'Modern office workspace'
+    src: '/images/hero-slider/dhobighat-office-back.png',
+    alt: 'Dhobighat office workspace back view'
   },
   {
-    src: '/office-room-desk1.png',
+    src: '/images/hero-slider/professional-workspace-desk.png',
     alt: 'Professional workspace with desk'
   },
   {
-    src: '/dhobighat-office-space1.png',
-    alt: 'Spacious coworking area'
+    src: '/images/hero-slider/dhobighat-coworking-space.png',
+    alt: 'Dhobighat coworking space'
   },
   {
-    src: '/office-desk2.png',
-    alt: 'Modern desk setup'
+    src: '/images/hero-slider/modern-workspace-desk.png',
+    alt: 'Modern workspace desk setup'
+  },
+  {
+    src: '/images/hero-slider/creatrixspace-workspace-interior-1.jpg',
+    alt: 'CreatrixSpace workspace interior'
+  },
+  {
+    src: '/images/hero-slider/creatrixspace-coworking-area-1.jpg',
+    alt: 'CreatrixSpace coworking area'
+  },
+  {
+    src: '/images/hero-slider/creatrixspace-office-space-1.jpg',
+    alt: 'CreatrixSpace office space'
+  },
+  {
+    src: '/images/hero-slider/creatrixspace-modern-workspace-1.jpg',
+    alt: 'CreatrixSpace modern workspace'
   },
 ]
 

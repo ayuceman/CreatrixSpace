@@ -24,7 +24,7 @@ export function updateSEO(data: SEOData) {
     ? `${data.title} | ${DEFAULT_SEO.siteName}`
     : DEFAULT_SEO.title
   const description = data.description || DEFAULT_SEO.description
-  const image = data.image || `${baseUrl}/creatrix-space-productivity.png`
+  const image = data.image || `${baseUrl}/creatrix-logo.png`
   const url = data.url || (typeof window !== 'undefined' ? window.location.href : baseUrl)
   const canonical = data.canonical || url
 
@@ -104,7 +104,7 @@ export function generateStructuredData(type: 'Organization' | 'LocalBusiness' | 
       name: 'CreatrixSpace',
       description: DEFAULT_SEO.description,
       url: baseUrl,
-      image: `${baseUrl}/creatrix-space-productivity.png`,
+      image: `${baseUrl}/creatrix-logo.png`,
       address: {
         '@type': 'PostalAddress',
         addressLocality: 'Kathmandu',
