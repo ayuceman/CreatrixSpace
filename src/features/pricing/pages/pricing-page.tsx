@@ -241,6 +241,11 @@ export function PricingPage() {
                       <p className="text-sm text-muted-foreground">{plan.description}</p>
                       
                       <div className="pt-4">
+                        {plan.id === 'private-office' && (
+                          <p className="text-sm text-muted-foreground text-center mb-1">
+                            Starting from
+                          </p>
+                        )}
                         <div className="flex items-baseline justify-center">
                           <span className="text-3xl font-bold">
                             {formatCurrency(price || 0, 'NPR')}

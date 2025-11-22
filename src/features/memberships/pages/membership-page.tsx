@@ -101,10 +101,10 @@ const membershipPlans = [
     id: 'private-office',
     name: 'Private Office',
     subtitle: 'Ultimate privacy and productivity',
-    price: 22000,
+    price: 25000,
     period: 'month',
     originalPrice: 35000,
-    annualPrice: 210000, // NPR 210,000 (~20% discount)
+    annualPrice: 300000, // NPR 300,000/year
     popular: false,
     description: 'Complete privacy and control for established teams',
     features: [
@@ -295,6 +295,11 @@ export function MembershipPage() {
                     
                     <CardContent className="pt-0">
                       <div className="text-center mb-6">
+                        {plan.id === 'private-office' && (
+                          <p className="text-sm text-muted-foreground mb-1">
+                            Starting from
+                          </p>
+                        )}
                         <div className="flex items-center justify-center gap-2 mb-2">
                           <span className="text-3xl font-bold">NPR {plan.price.toLocaleString()}</span>
                           <span className="text-muted-foreground">/{plan.period}</span>
