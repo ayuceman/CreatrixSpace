@@ -23,7 +23,7 @@ export type AdminBookingRecord = {
   endDate?: string
   startTime?: string
   endTime?: string
-  source?: 'supabase' | 'manual' | 'local'
+  source?: 'supabase' | 'manual' | 'local' | 'booking' | 'local_event'
   manualEntryId?: string
 }
 

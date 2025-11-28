@@ -67,6 +67,7 @@ type ManualEntryPayload = {
   amount?: number
   status?: string
   createdAt?: string
+  created_at?: string
   locationName?: string
 }
 

@@ -143,7 +143,6 @@ export function AdminBookingsPage() {
       phone: manualForm.phone || undefined,
       locationName: manualForm.locationName,
       planName: manualForm.planName,
-      roomName: manualForm.roomName || undefined,
       amount: Math.round(Number(manualForm.amountNpr || 0) * 100),
       status: 'manual',
       createdAt: new Date().toISOString(),
@@ -161,7 +160,6 @@ export function AdminBookingsPage() {
       endTime: manualForm.endTime || undefined,
       locationId: undefined,
       planId: undefined,
-      roomName: null,
       source: 'manual',
     }
 
