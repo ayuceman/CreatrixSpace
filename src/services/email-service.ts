@@ -18,6 +18,9 @@ interface BookingEmailData {
   locationName: string
   planName: string
   planType: string
+  roomName?: string
+  roomStatus?: string
+  roomNotes?: string
   
   // Dates & Times
   startDate: string
@@ -36,9 +39,13 @@ interface BookingEmailData {
   
   // Notes
   notes?: string
+  manualNotes?: string
   
   // Booking Status
   status: string
+  paymentStatus?: string
+  paymentMethod?: string
+  bookingSource?: string
 }
 
 /**
@@ -54,6 +61,9 @@ function formatBookingEmail(data: BookingEmailData): string {
     locationName,
     planName,
     planType,
+    roomName,
+    roomStatus,
+    roomNotes,
     startDate,
     endDate,
     startTime,
@@ -65,6 +75,10 @@ function formatBookingEmail(data: BookingEmailData): string {
     currency,
     notes,
     status,
+    paymentMethod,
+    paymentStatus,
+    bookingSource,
+    manualNotes,
   } = data
 
   // Format amount with 2 decimal places
@@ -115,6 +129,15 @@ ${startDate ? `Start Date: ${new Date(startDate).toLocaleDateString()}` : ''}
 ${endDate && endDate !== startDate ? `End Date: ${new Date(endDate).toLocaleDateString()}` : ''}
 ${startTime ? `Start Time: ${startTime}` : ''}
 ${endTime ? `End Time: ${endTime}` : ''}
+${roomName ? `Room: ${roomName}${roomStatus ? ` (${roomStatus})` : ''}` : ''}
+${roomNotes ? `Room Notes: ${roomNotes}` : ''}
+
+───────────────────────────────────────────────────────────
+SOURCE & PAYMENT
+───────────────────────────────────────────────────────────
+Source: ${bookingSource || 'Online Checkout'}
+Payment Method: ${paymentMethod || 'QR Payment'}
+Payment Status: ${(paymentStatus || 'Pending').toUpperCase()}
 
 ───────────────────────────────────────────────────────────
 ADD-ONS & EXTRAS
@@ -135,6 +158,7 @@ Payment Status: Pending
 
 ───────────────────────────────────────────────────────────
 ${notes ? `NOTES\n───────────────────────────────────────────────────────────\n${notes}\n\n` : ''}
+${manualNotes ? `ADMIN NOTES\n───────────────────────────────────────────────────────────\n${manualNotes}\n\n` : ''}
 ═══════════════════════════════════════════════════════════
 This is an automated email from Creatrix Space booking system.
 ═══════════════════════════════════════════════════════════
@@ -156,6 +180,9 @@ function formatBookingEmailHTML(data: BookingEmailData): string {
     locationName,
     planName,
     planType,
+    roomName,
+    roomStatus,
+    roomNotes,
     startDate,
     endDate,
     startTime,
@@ -167,6 +194,10 @@ function formatBookingEmailHTML(data: BookingEmailData): string {
     currency,
     notes,
     status,
+    bookingSource,
+    paymentMethod,
+    paymentStatus,
+    manualNotes,
   } = data
 
   // Format amount with 2 decimal places
@@ -241,6 +272,15 @@ function formatBookingEmailHTML(data: BookingEmailData): string {
         ${endDate && endDate !== startDate ? `<div class="info-row"><span class="label">End Date:</span> <span class="value">${new Date(endDate).toLocaleDateString()}</span></div>` : ''}
         ${startTime ? `<div class="info-row"><span class="label">Start Time:</span> <span class="value">${startTime}</span></div>` : ''}
         ${endTime ? `<div class="info-row"><span class="label">End Time:</span> <span class="value">${endTime}</span></div>` : ''}
+        ${roomName ? `<div class="info-row"><span class="label">Room:</span> <span class="value">${roomName}${roomStatus ? ` (${roomStatus})` : ''}</span></div>` : ''}
+        ${roomNotes ? `<div class="info-row"><span class="label">Room Notes:</span> <span class="value">${roomNotes}</span></div>` : ''}
+      </div>
+
+      <div class="section">
+        <div class="section-title">🔐 Source & Payment</div>
+        <div class="info-row"><span class="label">Source:</span> <span class="value">${bookingSource || 'Online Checkout'}</span></div>
+        <div class="info-row"><span class="label">Payment Method:</span> <span class="value">${paymentMethod || 'QR Payment'}</span></div>
+        <div class="info-row"><span class="label">Payment Status:</span> <span class="value">${paymentStatus || 'Pending'}</span></div>
       </div>
 
       <div class="section">
@@ -264,6 +304,12 @@ function formatBookingEmailHTML(data: BookingEmailData): string {
       <div class="section">
         <div class="section-title">📝 Notes</div>
         <div class="info-row">${notes}</div>
+      </div>
+      ` : ''}
+      ${manualNotes ? `
+      <div class="section">
+        <div class="section-title">📌 Manual Entry Notes</div>
+        <div class="info-row">${manualNotes}</div>
       </div>
       ` : ''}
     </div>
@@ -360,6 +406,12 @@ export async function sendBookingEmail(data: BookingEmailData): Promise<void> {
       meeting_room_hours: data.meetingRoomHours > 0 ? `${data.meetingRoomHours} ${data.meetingRoomHours === 1 ? 'hour' : 'hours'}` : 'None',
       guest_passes: data.guestPasses > 0 ? `${data.guestPasses} ${data.guestPasses === 1 ? 'pass' : 'passes'}` : 'None',
       add_ons: data.selectedAddOns.length > 0 ? data.selectedAddOns.join(', ') : 'None',
+      room_name: data.roomName || 'Not selected',
+      room_status: data.roomStatus || '—',
+      booking_source: data.bookingSource || 'Online Checkout',
+      payment_method: data.paymentMethod || 'QR Payment',
+      payment_status: data.paymentStatus || 'Pending',
+      manual_notes: data.manualNotes || '—',
       notes: data.notes || 'No notes provided',
       date: new Date().toLocaleString('en-US', { 
         year: 'numeric', 

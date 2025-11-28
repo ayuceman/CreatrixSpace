@@ -7,8 +7,7 @@ import { ROUTES, APP_NAME } from '@/lib/constants'
 
 const navigation = [
   { name: 'Locations', href: ROUTES.LOCATIONS },
-  { name: 'Pricing', href: ROUTES.PRICING },
-  { name: 'Membership', href: ROUTES.MEMBERSHIP },
+  { name: 'Membership', href: ROUTES.PRICING },
   { name: 'Blog', href: ROUTES.BLOG },
   { name: 'About', href: ROUTES.ABOUT },
   { name: 'Contact', href: ROUTES.CONTACT },

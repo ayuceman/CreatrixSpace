@@ -1,5 +1,5 @@
-import { useState, useEffect, useMemo } from 'react'
-import { ArrowRight, MapPin, Calendar, Clock, Users } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { ArrowRight, MapPin, Calendar, Clock, DoorOpen } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -30,7 +30,7 @@ export function PaymentBookingSummary({
   isProcessing = false,
 }: PaymentBookingSummaryProps) {
   const [selectedMethod, setSelectedMethod] = useState<PaymentMethod>('qr_payment')
-  const { locations, plans, addOns } = useBookingStore()
+  const { locations, plans, addOns, getRoomsForLocation } = useBookingStore()
 
   // Listen to parent payment method selection
   useEffect(() => {
@@ -72,6 +72,9 @@ export function PaymentBookingSummary({
   // Get actual booking data from store
   const selectedLocation = locations.find(l => l.id === bookingData.locationId)
   const selectedPlan = plans.find(p => p.id === bookingData.planId)
+  const selectedRoom = getRoomsForLocation(bookingData.locationId).find(
+    (room) => room.id === bookingData.roomId
+  )
   
   // Format dates
   const formatDate = (date: Date | null) => {
@@ -149,6 +152,16 @@ export function PaymentBookingSummary({
               </div>
               <Badge variant="outline">{selectedPlan?.name || 'Plan not selected'}</Badge>
             </div>
+
+            {selectedRoom && (
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-2">
+                  <DoorOpen className="h-4 w-4 text-muted-foreground" />
+                  <span className="text-sm text-muted-foreground">Room</span>
+                </div>
+                <span className="text-sm font-medium">{selectedRoom.name}</span>
+              </div>
+            )}
 
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-2">

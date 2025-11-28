@@ -5,37 +5,36 @@ import { Separator } from '@/components/ui/separator'
 import { Switch } from '@/components/ui/switch'
 import { Label } from '@/components/ui/label'
 import { Badge } from '@/components/ui/badge'
-import { Loader2 } from 'lucide-react'
-import { bookingService, addOnService } from '@/services/supabase-service'
-
-type AdminBooking = {
-  id: string
-  customerName: string
-  email?: string
-  phone?: string
-  locationName: string
-  planName: string
-  amount: number // in paisa (multiply by 100 for display)
-  status: string
-  createdAt: string
-  addOns: {
-    selectedAddOns: string[] // Add-on names
-    meetingRoomHours: number
-    guestPasses: number
-  }
-  notes?: string
-  startDate?: string
-  endDate?: string
-  startTime?: string
-  endTime?: string
-}
+import { Loader2, Trash2 } from 'lucide-react'
+import { bookingService, addOnService, manualEntryService } from '@/services/supabase-service'
+import { transformBookingsToAdmin, type AdminBookingRecord } from '@/features/admin/utils/admin-bookings'
+import { Textarea } from '@/components/ui/textarea'
+import { Button } from '@/components/ui/button'
 
 export function AdminBookingsPage() {
   const [query, setQuery] = useState('')
-  const [bookings, setBookings] = useState<AdminBooking[]>([])
+  const [bookings, setBookings] = useState<AdminBookingRecord[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [updatingIds, setUpdatingIds] = useState<Set<string>>(new Set())
+  const [showManualForm, setShowManualForm] = useState(false)
+  const [manualForm, setManualForm] = useState({
+    customerName: '',
+    email: '',
+    phone: '',
+    locationName: '',
+    planName: '',
+    roomName: '',
+    amountNpr: '',
+    startDate: '',
+    endDate: '',
+    startTime: '',
+    endTime: '',
+    addOns: '',
+    meetingRoomHours: '',
+    guestPasses: '',
+    notes: '',
+  })
 
   const loadBookings = async () => {
     try {
@@ -46,50 +45,17 @@ export function AdminBookingsPage() {
         addOnService.getAllAddOns()
       ])
       
-      // Create a map of add-on IDs to names
-      const addOnsMap = new Map(addOnsData.map(addon => [addon.id, addon.name]))
-      
-      // Transform Supabase bookings to AdminBooking format
-      const transformed: AdminBooking[] = bookingsData.map((booking: any) => {
-        // Extract contact info from JSONB field
-        const contactInfo = booking.contact_info as any
-        const firstName = contactInfo?.firstName || ''
-        const lastName = contactInfo?.lastName || ''
-        const customerName = `${firstName} ${lastName}`.trim() || 'Guest User'
-        
-        // Get location and plan names from joined data
-        const locationName = booking.locations?.name || 'Unknown Location'
-        const planName = booking.plans?.name || 'Unknown Plan'
-        
-        // Extract add-ons data from JSONB field
-        const addOnsData = booking.add_ons as any
-        const addOnIds = addOnsData?.addOnIds || []
-        const selectedAddOns = addOnIds.map((id: string) => addOnsMap.get(id) || 'Unknown Add-on').filter(Boolean)
-        
-        return {
-          id: booking.id,
-          customerName,
-          email: contactInfo?.email || undefined,
-          phone: contactInfo?.phone || undefined,
-          locationName,
-          planName,
-          amount: Math.round(booking.total_amount || 0), // Already in paisa from database
-          status: booking.status || 'pending',
-          createdAt: booking.created_at || new Date().toISOString(),
-          addOns: {
-            selectedAddOns,
-            meetingRoomHours: addOnsData?.meetingRoomHours || 0,
-            guestPasses: addOnsData?.guestPasses || 0,
-          },
-          notes: booking.notes || undefined,
-          startDate: booking.start_date,
-          endDate: booking.end_date,
-          startTime: booking.start_time || undefined,
-          endTime: booking.end_time || undefined,
-        }
-      })
-      
-      setBookings(transformed)
+      const transformed = transformBookingsToAdmin(bookingsData, addOnsData)
+
+      const manualEntries = await manualEntryService.getEntries('booking')
+      const manualRows: AdminBookingRecord[] = manualEntries.map((entry) => ({
+        ...(entry.data as AdminBookingRecord),
+        id: entry.id,
+        manualEntryId: entry.id,
+        source: 'manual',
+      }))
+
+      setBookings([...manualRows, ...transformed])
 
       // Update metrics for dashboard
       const total = transformed.length
@@ -120,7 +86,7 @@ export function AdminBookingsPage() {
     )
   }, [bookings, query])
 
-  const handleStatusToggle = async (bookingId: string, currentStatus: string) => {
+  const handleStatusToggle = async (bookingId: string, currentStatus: string, booking: AdminBookingRecord) => {
     const newStatus = currentStatus === 'pending' ? 'confirmed' : 'pending'
     
     setUpdatingIds(prev => new Set(prev).add(bookingId))
@@ -129,7 +95,11 @@ export function AdminBookingsPage() {
       // Clear any previous errors
       setError(null)
       
-      await bookingService.updateBooking(bookingId, { status: newStatus as 'pending' | 'confirmed' })
+      if (booking.source === 'manual' && booking.manualEntryId) {
+        await manualEntryService.updateEntry(booking.manualEntryId, { ...booking, status: newStatus })
+      } else {
+        await bookingService.updateBooking(bookingId, { status: newStatus as 'pending' | 'confirmed' })
+      }
       
       // Reload bookings from database to ensure UI matches database state
       await loadBookings()
@@ -159,10 +129,195 @@ export function AdminBookingsPage() {
     }
   }
 
+  const handleManualSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!manualForm.customerName || !manualForm.locationName || !manualForm.planName) {
+      alert('Please fill in customer, location, and plan information.')
+      return
+    }
+
+    const payload: AdminBookingRecord = {
+      id: '',
+      customerName: manualForm.customerName,
+      email: manualForm.email || undefined,
+      phone: manualForm.phone || undefined,
+      locationName: manualForm.locationName,
+      planName: manualForm.planName,
+      roomName: manualForm.roomName || undefined,
+      amount: Math.round(Number(manualForm.amountNpr || 0) * 100),
+      status: 'manual',
+      createdAt: new Date().toISOString(),
+      addOns: {
+        selectedAddOns: manualForm.addOns
+          ? manualForm.addOns.split(',').map((item) => item.trim()).filter(Boolean)
+          : [],
+        meetingRoomHours: Number(manualForm.meetingRoomHours || 0),
+        guestPasses: Number(manualForm.guestPasses || 0),
+      },
+      notes: manualForm.notes || undefined,
+      startDate: manualForm.startDate || undefined,
+      endDate: manualForm.endDate || undefined,
+      startTime: manualForm.startTime || undefined,
+      endTime: manualForm.endTime || undefined,
+      locationId: undefined,
+      planId: undefined,
+      roomName: null,
+      source: 'manual',
+    }
+
+    const inserted = await manualEntryService.addEntry({ entryType: 'booking', data: payload })
+
+    setBookings((prev) => [{ ...payload, id: inserted.id, manualEntryId: inserted.id, source: 'manual' }, ...prev])
+
+    setManualForm({
+      customerName: '',
+      email: '',
+      phone: '',
+      locationName: '',
+      planName: '',
+      roomName: '',
+      amountNpr: '',
+      startDate: '',
+      endDate: '',
+      startTime: '',
+      endTime: '',
+      addOns: '',
+      meetingRoomHours: '',
+      guestPasses: '',
+      notes: '',
+    })
+    setShowManualForm(false)
+  }
+
+  const handleDeleteBooking = async (booking: AdminBookingRecord) => {
+    if (!confirm('Delete this booking?')) return
+    try {
+      if (booking.source === 'manual' && booking.manualEntryId) {
+        await manualEntryService.deleteEntry(booking.manualEntryId)
+      } else {
+        await bookingService.deleteBooking(booking.id)
+      }
+      await loadBookings()
+    } catch (err) {
+      console.error('Failed to delete booking', err)
+      alert('Failed to delete booking. Please try again.')
+    }
+  }
+
   return (
     <div className="space-y-4">
-      <h1 className="text-2xl font-semibold">Bookings</h1>
-      <div className="max-w-md">
+      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+        <h1 className="text-2xl font-semibold">Bookings</h1>
+        <div className="flex items-center gap-3">
+          <Button variant="outline" onClick={() => setShowManualForm((prev) => !prev)}>
+            {showManualForm ? 'Close Manual Entry' : 'Add Manual Booking'}
+          </Button>
+        </div>
+      </div>
+      {showManualForm && (
+        <Card>
+          <CardContent className="p-4 space-y-4">
+            <h2 className="font-semibold text-lg">Manual Booking Entry</h2>
+            <form className="grid gap-4 md:grid-cols-2" onSubmit={handleManualSubmit}>
+              <Input
+                required
+                placeholder="Customer name"
+                value={manualForm.customerName}
+                onChange={(e) => setManualForm((prev) => ({ ...prev, customerName: e.target.value }))}
+              />
+              <Input
+                placeholder="Email"
+                value={manualForm.email}
+                onChange={(e) => setManualForm((prev) => ({ ...prev, email: e.target.value }))}
+              />
+              <Input
+                placeholder="Phone"
+                value={manualForm.phone}
+                onChange={(e) => setManualForm((prev) => ({ ...prev, phone: e.target.value }))}
+              />
+              <Input
+                required
+                placeholder="Location name"
+                value={manualForm.locationName}
+                onChange={(e) => setManualForm((prev) => ({ ...prev, locationName: e.target.value }))}
+              />
+              <Input
+                required
+                placeholder="Plan name"
+                value={manualForm.planName}
+                onChange={(e) => setManualForm((prev) => ({ ...prev, planName: e.target.value }))}
+              />
+              <Input
+                placeholder="Room name (optional)"
+                value={manualForm.roomName}
+                onChange={(e) => setManualForm((prev) => ({ ...prev, roomName: e.target.value }))}
+              />
+              <Input
+                placeholder="Amount (NPR)"
+                type="number"
+                min="0"
+                value={manualForm.amountNpr}
+                onChange={(e) => setManualForm((prev) => ({ ...prev, amountNpr: e.target.value }))}
+              />
+              <div className="grid grid-cols-2 gap-2">
+                <Input
+                  type="date"
+                  value={manualForm.startDate}
+                  onChange={(e) => setManualForm((prev) => ({ ...prev, startDate: e.target.value }))}
+                />
+                <Input
+                  type="date"
+                  value={manualForm.endDate}
+                  onChange={(e) => setManualForm((prev) => ({ ...prev, endDate: e.target.value }))}
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <Input
+                  type="time"
+                  value={manualForm.startTime}
+                  onChange={(e) => setManualForm((prev) => ({ ...prev, startTime: e.target.value }))}
+                />
+                <Input
+                  type="time"
+                  value={manualForm.endTime}
+                  onChange={(e) => setManualForm((prev) => ({ ...prev, endTime: e.target.value }))}
+                />
+              </div>
+              <Input
+                placeholder="Add-ons (comma separated)"
+                value={manualForm.addOns}
+                onChange={(e) => setManualForm((prev) => ({ ...prev, addOns: e.target.value }))}
+              />
+              <div className="grid grid-cols-2 gap-2">
+                <Input
+                  type="number"
+                  min="0"
+                  placeholder="Meeting room hours"
+                  value={manualForm.meetingRoomHours}
+                  onChange={(e) => setManualForm((prev) => ({ ...prev, meetingRoomHours: e.target.value }))}
+                />
+                <Input
+                  type="number"
+                  min="0"
+                  placeholder="Guest passes"
+                  value={manualForm.guestPasses}
+                  onChange={(e) => setManualForm((prev) => ({ ...prev, guestPasses: e.target.value }))}
+                />
+              </div>
+              <Textarea
+                className="md:col-span-2"
+                placeholder="Notes"
+                value={manualForm.notes}
+                onChange={(e) => setManualForm((prev) => ({ ...prev, notes: e.target.value }))}
+              />
+              <div className="md:col-span-2 flex justify-end">
+                <Button type="submit">Save Manual Booking</Button>
+              </div>
+            </form>
+          </CardContent>
+        </Card>
+      )}
+          <div className="max-w-md">
         <Input placeholder="Search name, email, plan, status..." value={query} onChange={(e) => setQuery(e.target.value)} />
       </div>
       <Separator />
@@ -191,6 +346,9 @@ export function AdminBookingsPage() {
                   <div>
                     <div className="font-medium">{b.locationName}</div>
                     <div className="text-muted-foreground text-xs">{b.planName}</div>
+                    <div className="text-muted-foreground text-xs mt-1">
+                      Room: {b.roomName || 'Not assigned'}
+                    </div>
                     {b.startDate && (
                       <div className="text-muted-foreground text-xs mt-1">
                         {new Date(b.startDate).toLocaleDateString()}
@@ -208,7 +366,7 @@ export function AdminBookingsPage() {
                       id={`status-${b.id}`}
                       checked={b.status === 'confirmed'}
                       disabled={updatingIds.has(b.id)}
-                      onCheckedChange={() => handleStatusToggle(b.id, b.status)}
+                      onCheckedChange={() => handleStatusToggle(b.id, b.status, b)}
                     />
                     <Label 
                       htmlFor={`status-${b.id}`} 
@@ -216,6 +374,14 @@ export function AdminBookingsPage() {
                     >
                       {b.status === 'confirmed' ? 'Verified' : 'Pending'}
                     </Label>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => handleDeleteBooking(b)}
+                      title="Delete booking"
+                    >
+                      <Trash2 className="h-4 w-4 text-destructive" />
+                    </Button>
                   </div>
                   <div className="text-muted-foreground text-xs">
                     Payment: {b.status === 'confirmed' ? 'Completed' : 'Pending'}

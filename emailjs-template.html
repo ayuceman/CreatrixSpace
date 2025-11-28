@@ -129,6 +129,28 @@
                       <span style="font-size: 12px; color: #999999; margin-left: 8px;">({{plan_type}})</span>
                     </td>
                   </tr>
+                {{#room_name}}
+                <tr>
+                  <td style="padding: 8px 0;">
+                    <span style="font-size: 14px; color: #666666; font-weight: 600;">Room:</span>
+                  </td>
+                  <td style="padding: 8px 0;">
+                    <span style="font-size: 14px; color: #333333; font-weight: 500;">{{room_name}}{{#room_status}} ({{room_status}}){{/room_status}}</span>
+                  </td>
+                </tr>
+                {{/room_name}}
+                {{#room_status}}
+                {{/room_status}}
+                {{#room_notes}}
+                <tr>
+                  <td style="padding: 8px 0;">
+                    <span style="font-size: 14px; color: #666666; font-weight: 600;">Room Notes:</span>
+                  </td>
+                  <td style="padding: 8px 0;">
+                    <span style="font-size: 14px; color: #333333; font-weight: 500;">{{room_notes}}</span>
+                  </td>
+                </tr>
+                {{/room_notes}}
                   {{#start_date}}
                   <tr>
                     <td style="padding: 8px 0;">
@@ -183,7 +205,6 @@
                 </h2>
                 <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
                   {{#add_ons}}
-                  {{#if add_ons}}
                   <tr>
                     <td style="padding: 8px 0;">
                       <span style="font-size: 14px; color: #666666; font-weight: 600;">Selected Add-ons:</span>
@@ -194,10 +215,8 @@
                       </span>
                     </td>
                   </tr>
-                  {{/if}}
                   {{/add_ons}}
                   {{#meeting_room_hours}}
-                  {{#if meeting_room_hours}}
                   <tr>
                     <td style="padding: 8px 0;">
                       <span style="font-size: 14px; color: #666666; font-weight: 600;">Meeting Room:</span>
@@ -206,10 +225,8 @@
                       <span style="font-size: 14px; color: #333333; font-weight: 500;">{{meeting_room_hours}}</span>
                     </td>
                   </tr>
-                  {{/if}}
                   {{/meeting_room_hours}}
                   {{#guest_passes}}
-                  {{#if guest_passes}}
                   <tr>
                     <td style="padding: 8px 0;">
                       <span style="font-size: 14px; color: #666666; font-weight: 600;">Guest Passes:</span>
@@ -218,7 +235,6 @@
                       <span style="font-size: 14px; color: #333333; font-weight: 500;">{{guest_passes}}</span>
                     </td>
                   </tr>
-                  {{/if}}
                   {{/guest_passes}}
                   {{^add_ons}}
                   {{^meeting_room_hours}}
@@ -231,6 +247,35 @@
                   {{/guest_passes}}
                   {{/meeting_room_hours}}
                   {{/add_ons}}
+                </table>
+              </div>
+            </td>
+          </tr>
+
+          <!-- Source & Payment Section -->
+          <tr>
+            <td style="padding: 0 30px 30px 30px;">
+              <div style="border-left: 4px solid #0ea5e9; padding-left: 20px; margin-bottom: 30px;">
+                <h2 style="margin: 0 0 20px 0; font-size: 20px; color: #0ea5e9; font-weight: 700;">
+                  🔐 Source & Payment
+                </h2>
+                <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+                  <tr>
+                    <td style="padding: 8px 0;">
+                      <span style="font-size: 14px; color: #666666; font-weight: 600;">Source:</span>
+                    </td>
+                    <td style="padding: 8px 0;">
+                      <span style="font-size: 14px; color: #333333; font-weight: 500;">{{booking_source}}</span>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 8px 0;">
+                      <span style="font-size: 14px; color: #666666; font-weight: 600;">Payment Method:</span>
+                    </td>
+                    <td style="padding: 8px 0;">
+                      <span style="font-size: 14px; color: #333333; font-weight: 500;">{{payment_method}}</span>
+                    </td>
+                  </tr>
                 </table>
               </div>
             </td>
@@ -258,7 +303,7 @@
                     </td>
                     <td align="right" style="padding: 8px 0;">
                       <span style="display: inline-block; background-color: #fff3cd; color: #856404; padding: 6px 14px; border-radius: 20px; font-size: 13px; font-weight: 600;">
-                        Pending
+                        {{payment_status}}
                       </span>
                     </td>
                   </tr>
@@ -269,7 +314,6 @@
 
           <!-- Notes Section (if exists) -->
           {{#notes}}
-          {{#if notes}}
           <tr>
             <td style="padding: 0 30px 30px 30px;">
               <div style="border-left: 4px solid #17a2b8; padding-left: 20px; background-color: #f8f9fa; padding: 20px; border-radius: 8px;">
@@ -280,8 +324,19 @@
               </div>
             </td>
           </tr>
-          {{/if}}
           {{/notes}}
+          {{#manual_notes}}
+          <tr>
+            <td style="padding: 0 30px 30px 30px;">
+              <div style="border-left: 4px solid #f97316; padding-left: 20px; background-color: #fff7ed; padding: 20px; border-radius: 8px;">
+                <h2 style="margin: 0 0 15px 0; font-size: 20px; color: #f97316; font-weight: 700;">
+                  📌 Admin Notes
+                </h2>
+                <p style="margin: 0; font-size: 14px; color: #333333; line-height: 1.6; white-space: pre-wrap;">{{manual_notes}}</p>
+              </div>
+            </td>
+          </tr>
+          {{/manual_notes}}
 
           <!-- Footer -->
           <tr>

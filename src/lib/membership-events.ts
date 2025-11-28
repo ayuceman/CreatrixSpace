@@ -64,6 +64,12 @@ export function notifyNewMembership(membership: MembershipEvent) {
   } catch {}
 }
 
+export function deleteMembership(id: string) {
+  const memberships = getMemberships()
+  const filtered = memberships.filter((m) => m.id !== id)
+  saveMemberships(filtered)
+}
+
 export function onNewMembership(callback: (membership: MembershipEvent) => void) {
   const handler = (e: StorageEvent) => {
     if (e.key === MEMBERSHIP_NEW_KEY && e.newValue) {

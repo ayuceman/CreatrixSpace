@@ -1,16 +1,25 @@
-import { MapPin, Calendar, Clock, Plus } from 'lucide-react'
+import { MapPin, Calendar, Plus, DoorOpen } from 'lucide-react'
 import { useBookingStore } from '@/store/booking-store'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
 import { formatCurrency } from '@/lib/utils'
-import { calculatePricing, getMeetingRoomHourPrice, getGuestPassPrice } from '@/lib/pricing-calculator'
+import { calculatePricing } from '@/lib/pricing-calculator'
 
 export function BookingSummary() {
-  const { bookingData, locations, plans, addOns } = useBookingStore()
+  const {
+    bookingData,
+    locations,
+    plans,
+    addOns,
+    getPlanPricingForLocation,
+    getRoomsForLocation,
+  } = useBookingStore()
 
   const selectedLocation = locations.find(l => l.id === bookingData.locationId)
   const selectedPlan = plans.find(p => p.id === bookingData.planId)
+  const locationRooms = getRoomsForLocation(bookingData.locationId)
+  const selectedRoom = locationRooms.find((room) => room.id === bookingData.roomId)
 
   // Use centralized pricing calculator for consistency
   const selectedAddOnsWithPrices = bookingData.addOns
@@ -20,8 +29,21 @@ export function BookingSummary() {
     })
     .filter((addon): addon is { id: string; price: number } => addon !== null)
 
+  const locationPlanPricing = selectedPlan
+    ? getPlanPricingForLocation(selectedPlan.id, bookingData.locationId, bookingData.roomId)
+    : undefined
+  const planPricingData = selectedPlan ? (locationPlanPricing || selectedPlan.pricing) : undefined
+
+  const billingLabel = planPricingData?.monthly
+    ? 'Monthly'
+    : planPricingData?.weekly
+      ? 'Weekly'
+      : planPricingData?.annual
+        ? 'Annual'
+        : 'Daily'
+
   const pricing = selectedPlan ? calculatePricing({
-    planPricing: selectedPlan.pricing,
+    planPricing: planPricingData || selectedPlan.pricing,
     planType: selectedPlan.type,
     selectedAddOns: selectedAddOnsWithPrices,
     meetingRoomHours: bookingData.meetingRoomHours,
@@ -70,12 +92,32 @@ export function BookingSummary() {
             <p className="text-sm text-muted-foreground">{selectedLocation.address}</p>
           </div>
 
+          {selectedRoom && (
+            <div>
+              <div className="flex items-center text-sm text-muted-foreground mb-1">
+                <DoorOpen className="h-4 w-4 mr-1" />
+                Room
+              </div>
+              <div className="flex items-center justify-between">
+                <p className="font-medium">{selectedRoom.name}</p>
+                <Badge variant={selectedRoom.status === 'available' ? 'secondary' : 'destructive'}>
+                  {selectedRoom.status === 'available' ? 'Reserved' : selectedRoom.status}
+                </Badge>
+              </div>
+              {selectedRoom.description && (
+                <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
+                  {selectedRoom.description}
+                </p>
+              )}
+            </div>
+          )}
+
           <div>
             <div className="text-sm text-muted-foreground mb-1">Plan</div>
-            <div className="flex items-center justify-between">
-              <p className="font-medium">{selectedPlan.name}</p>
-              {selectedPlan.id === 'professional' && <Badge>Popular</Badge>}
-            </div>
+              <div className="flex items-center justify-between">
+                <p className="font-medium">{selectedPlan.name}</p>
+                {selectedPlan.popular && <Badge>Popular</Badge>}
+              </div>
           </div>
         </div>
 
@@ -194,7 +236,7 @@ export function BookingSummary() {
         <div className="space-y-2">
           <div className="flex justify-between text-sm">
             <span className="text-muted-foreground">
-              {selectedPlan.name} ({selectedPlan.pricing.monthly ? 'Monthly' : 'Daily'})
+              {selectedPlan.name} ({billingLabel})
             </span>
             <span className="font-medium">
               {formatCurrency(basePrice, 'NPR')}

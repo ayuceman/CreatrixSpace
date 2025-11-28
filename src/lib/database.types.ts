@@ -132,6 +132,54 @@ export interface Database {
         }
         Relationships: []
       }
+      location_rooms: {
+        Row: {
+          id: string
+          location_id: string
+          name: string
+          slug: string
+          description: string | null
+          image_url: string | null
+          capacity: number | null
+          status: 'available' | 'booked' | 'maintenance'
+          tags: string[] | null
+          amenities: string[] | null
+          size: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          location_id: string
+          name: string
+          slug: string
+          description?: string | null
+          image_url?: string | null
+          capacity?: number | null
+          status?: 'available' | 'booked' | 'maintenance'
+          tags?: string[] | null
+          amenities?: string[] | null
+          size?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          location_id?: string
+          name?: string
+          slug?: string
+          description?: string | null
+          image_url?: string | null
+          capacity?: number | null
+          status?: 'available' | 'booked' | 'maintenance'
+          tags?: string[] | null
+          amenities?: string[] | null
+          size?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       plans: {
         Row: {
           id: string
@@ -177,6 +225,90 @@ export interface Database {
         }
         Relationships: []
       }
+      location_plan_pricing: {
+        Row: {
+          id: string
+          location_id: string
+          plan_id: string
+          pricing: Json
+          currency: string
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          location_id: string
+          plan_id: string
+          pricing: Json
+          currency?: string
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          location_id?: string
+          plan_id?: string
+          pricing?: Json
+          currency?: string
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      room_plan_pricing: {
+        Row: {
+          id: string
+          room_id: string
+          plan_id: string
+          pricing: Json
+          currency: string
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          room_id: string
+          plan_id: string
+          pricing: Json
+          currency?: string
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          room_id?: string
+          plan_id?: string
+          pricing?: Json
+          currency?: string
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      manual_admin_entries: {
+        Row: {
+          id: string
+          entry_type: 'booking' | 'membership'
+          data: Json
+          created_by: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          entry_type: 'booking' | 'membership'
+          data: Json
+          created_by?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          entry_type?: 'booking' | 'membership'
+          data?: Json
+          created_by?: string | null
+          created_at?: string
+        }
+        Relationships: []
+      }
       add_ons: {
         Row: {
           id: string
@@ -218,6 +350,7 @@ export interface Database {
           id: string
           user_id: string | null
           location_id: string
+          room_id: string | null
           plan_id: string
           start_date: string
           end_date: string
@@ -242,6 +375,7 @@ export interface Database {
           id?: string
           user_id?: string | null
           location_id: string
+          room_id?: string | null
           plan_id: string
           start_date: string
           end_date: string
@@ -266,6 +400,7 @@ export interface Database {
           id?: string
           user_id?: string
           location_id?: string
+          room_id?: string | null
           plan_id?: string
           start_date?: string
           end_date?: string

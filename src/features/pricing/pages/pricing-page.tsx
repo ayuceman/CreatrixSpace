@@ -1,16 +1,40 @@
-import { useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { Check, Star, Zap, Crown, Phone, MessageCircle } from 'lucide-react'
+import { Check, Star, Zap, Crown, Phone, MessageCircle, Loader2, MapPin } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { ROUTES } from '@/lib/constants'
 import { formatCurrency } from '@/lib/utils'
+import type { Database } from '@/lib/database.types'
+import { locationService, planService, locationPricingService } from '@/services/supabase-service'
+
+type LocationRow = Database['public']['Tables']['locations']['Row']
+type LocationPlanPricingRow = Database['public']['Tables']['location_plan_pricing']['Row']
+type PlanPricing = {
+  daily?: number
+  weekly?: number
+  monthly?: number
+  annual?: number
+}
+type LocationPricingMap = Record<string, Record<string, PlanPricing>>
+type BillingPeriod = 'weekly' | 'monthly' | 'annual'
+
+const buildLocationPricingMap = (rows: LocationPlanPricingRow[]): LocationPricingMap =>
+  rows.reduce<LocationPricingMap>((acc, row) => {
+    if (!acc[row.location_id]) {
+      acc[row.location_id] = {}
+    }
+    acc[row.location_id][row.plan_id] = row.pricing as PlanPricing
+    return acc
+  }, {})
 
 const plans = [
   {
     id: 'explorer',
+    supabaseName: 'Explorer',
+    planType: 'day_pass' as const,
     name: 'Explorer',
     description: 'Perfect for trying us out',
     icon: Zap,
@@ -36,6 +60,8 @@ const plans = [
   },
   {
     id: 'professional',
+    supabaseName: 'Professional',
+    planType: 'hot_desk' as const,
     name: 'Professional',
     description: 'Most popular choice',
     icon: Star,
@@ -61,6 +87,8 @@ const plans = [
   },
   {
     id: 'enterprise',
+    supabaseName: 'Enterprise',
+    planType: 'dedicated_desk' as const,
     name: 'Enterprise',
     description: 'For teams and businesses',
     icon: Crown,
@@ -87,6 +115,8 @@ const plans = [
   },
   {
     id: 'private-office',
+    supabaseName: 'Private Office',
+    planType: 'private_office' as const,
     name: 'Private Office',
     description: 'Ultimate privacy and productivity',
     icon: Crown,
@@ -138,13 +168,110 @@ const addOns = [
   },
 ]
 
+type PlanMetadata = {
+  id: string
+  pricing: PlanPricing
+  type: string
+  popular?: boolean
+}
+
 export function PricingPage() {
-  const [billingPeriod, setBillingPeriod] = useState<'weekly' | 'monthly' | 'annual'>('monthly')
+  const [billingPeriod, setBillingPeriod] = useState<BillingPeriod>('monthly')
+  const [locations, setLocations] = useState<LocationRow[]>([])
+  const [selectedLocationId, setSelectedLocationId] = useState<string>('')
+  const [locationPricing, setLocationPricing] = useState<LocationPricingMap>({})
+  const [planMetadata, setPlanMetadata] = useState<Record<string, PlanMetadata>>({})
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    let ignore = false
+
+    async function loadPricingData() {
+      setLoading(true)
+      setError(null)
+      try {
+        const [locationRows, planRows, locationPricingRows] = await Promise.all([
+          locationService.getAllLocations(),
+          planService.getAllPlans(),
+          locationPricingService.getAllLocationPricing(),
+        ])
+
+        if (ignore) return
+
+        const availableLocations = locationRows.filter((loc) => loc.available)
+        setLocations(availableLocations)
+        setLocationPricing(buildLocationPricingMap(locationPricingRows))
+
+        const metadata = planRows.reduce<Record<string, PlanMetadata>>((acc, plan) => {
+          acc[plan.name] = {
+            id: plan.id,
+            pricing: (plan.pricing as PlanPricing) || {},
+            type: plan.type,
+            popular: plan.popular,
+          }
+          return acc
+        }, {})
+        setPlanMetadata(metadata)
+      } catch (err) {
+        if (ignore) return
+        console.error(err)
+        setError('Failed to load pricing data. Please refresh the page.')
+      } finally {
+        if (!ignore) {
+          setLoading(false)
+        }
+      }
+    }
+
+    loadPricingData()
+
+    return () => {
+      ignore = true
+    }
+  }, [])
+
+  useEffect(() => {
+    if (!selectedLocationId && locations.length > 0) {
+      setSelectedLocationId(locations[0].id)
+    }
+  }, [locations, selectedLocationId])
+
+  const selectedLocation = useMemo(
+    () => locations.find((loc) => loc.id === selectedLocationId),
+    [locations, selectedLocationId]
+  )
+
+  const getPlanPricingForCard = useCallback(
+    (planConfig: typeof plans[number]): PlanPricing => {
+      const metadata = planMetadata[planConfig.supabaseName]
+      const basePricing = planConfig.pricing
+
+      if (!metadata) {
+        return basePricing
+      }
+
+      if (selectedLocationId) {
+        const locationSpecific = locationPricing[selectedLocationId]?.[metadata.id]
+        if (locationSpecific) {
+          return locationSpecific
+        }
+      }
+
+      return metadata.pricing || basePricing
+    },
+    [planMetadata, locationPricing, selectedLocationId]
+  )
+
+  const getPlanIdForCard = useCallback(
+    (planConfig: typeof plans[number]) => planMetadata[planConfig.supabaseName]?.id,
+    [planMetadata]
+  )
 
   return (
     <div className="overflow-hidden">
       {/* Hero Section */}
-      <section className="section-padding bg-gradient-to-br from-background via-background to-primary/5">
+      <section className="py-12 bg-gradient-to-br from-background via-background to-primary/5">
         <div className="container">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -154,7 +281,7 @@ export function PricingPage() {
           >
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-display font-bold">
               Simple, Transparent
-              <span className="gradient-text block">Pricing</span>
+              <span className="gradient-text block">Memberships</span>
             </h1>
             <p className="text-lg text-muted-foreground">
               Choose the perfect plan for your needs. All plans include our core amenities 
@@ -195,24 +322,66 @@ export function PricingPage() {
                 <Badge variant="secondary" className="ml-2">Save up to 23%</Badge>
               </button>
             </div>
+
+            {/* Location Toggle */}
+            {locations.length > 0 && (
+              <div className="flex flex-wrap items-center justify-center gap-2">
+                {locations.map((location) => (
+                  <Button
+                    key={location.id}
+                    size="sm"
+                    variant={selectedLocationId === location.id ? 'default' : 'outline'}
+                    onClick={() => setSelectedLocationId(location.id)}
+                    className="px-4"
+                  >
+                    {location.name}
+                  </Button>
+                ))}
+              </div>
+            )}
           </motion.div>
         </div>
       </section>
 
       {/* Pricing Plans */}
-      <section className="section-padding">
+      <section className="py-8">
         <div className="container">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {plans.map((plan, index) => {
+          {loading ? (
+            <div className="flex flex-col items-center justify-center py-16 text-center">
+              <Loader2 className="h-10 w-10 animate-spin text-primary mb-4" />
+              <p className="text-muted-foreground">Loading the latest plan and location data…</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+              {plans.map((plan, index) => {
               const Icon = plan.icon
-              const price = plan.pricing[billingPeriod] || plan.pricing.daily
-              const period = plan.id === 'explorer' 
-                ? 'day' 
-                : billingPeriod === 'annual' 
-                  ? 'year' 
-                  : billingPeriod === 'weekly' 
-                    ? 'week' 
-                    : 'month'
+              const planId = getPlanIdForCard(plan)
+              const planPricing = getPlanPricingForCard(plan)
+              const planType = planMetadata[plan.supabaseName]?.type || plan.planType
+              const isPopular = plan.popular || planMetadata[plan.supabaseName]?.popular
+              const priceForSelectedPeriod = planType === 'day_pass'
+                ? planPricing.daily
+                : planPricing[billingPeriod]
+              const fallbackPrice = planType === 'day_pass'
+                ? planPricing.daily
+                : planPricing.monthly || planPricing.weekly || planPricing.annual
+              const price = priceForSelectedPeriod ?? fallbackPrice ?? 0
+              const period = planType === 'day_pass'
+                ? 'day'
+                : priceForSelectedPeriod
+                  ? billingPeriod === 'annual'
+                    ? 'year'
+                    : billingPeriod === 'weekly'
+                      ? 'week'
+                      : 'month'
+                  : planPricing.monthly
+                    ? 'month'
+                    : planPricing.weekly
+                      ? 'week'
+                      : planPricing.annual
+                        ? 'year'
+                        : 'month'
+              const missingSelectedPeriod = planType !== 'day_pass' && !priceForSelectedPeriod && Boolean(fallbackPrice)
               
               return (
                 <motion.div
@@ -222,9 +391,9 @@ export function PricingPage() {
                   transition={{ duration: 0.5, delay: index * 0.1 }}
                 >
                   <Card className={`relative h-full transition-all duration-300 hover:shadow-xl hover:-translate-y-1 ${
-                    plan.popular ? 'ring-2 ring-primary scale-105' : ''
+                    isPopular ? 'ring-2 ring-primary scale-105' : ''
                   }`}>
-                    {plan.popular && (
+                    {isPopular && (
                       <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
                         <Badge className="bg-primary text-primary-foreground">
                           <Star className="h-3 w-3 mr-1 fill-current" />
@@ -243,13 +412,13 @@ export function PricingPage() {
                       <div className="pt-4">
                         <div className="flex items-baseline justify-center">
                           <span className="text-3xl font-bold">
-                            {formatCurrency(price || 0, 'NPR')}
+                            {price > 0 ? formatCurrency(price, 'NPR') : 'Contact'}
                           </span>
                           <span className="text-muted-foreground ml-1">
                             /{period}
                           </span>
                         </div>
-                        {plan.id === 'explorer' && plan.pricing.originalDaily && (
+                        {plan.planType === 'day_pass' && plan.pricing.originalDaily && (
                           <div className="flex items-center justify-center gap-2 mt-1">
                             <span className="text-sm text-muted-foreground line-through">
                               {formatCurrency(plan.pricing.originalDaily, 'NPR')}
@@ -259,7 +428,7 @@ export function PricingPage() {
                             </Badge>
                           </div>
                         )}
-                        {plan.id === 'private-office' && plan.pricing.originalMonthly && billingPeriod === 'monthly' && (
+                        {plan.planType === 'private_office' && plan.pricing.originalMonthly && billingPeriod === 'monthly' && (
                           <div className="flex items-center justify-center gap-2 mt-1">
                             <span className="text-sm text-muted-foreground line-through">
                               {formatCurrency(plan.pricing.originalMonthly, 'NPR')}
@@ -269,24 +438,29 @@ export function PricingPage() {
                             </Badge>
                           </div>
                         )}
-                        {plan.id === 'explorer' && (
+                        {plan.planType === 'day_pass' && (
                           <p className="text-xs text-amber-600 mt-1">
                             Promotional price — limited time only
                           </p>
                         )}
-                        {plan.id === 'private-office' && billingPeriod === 'monthly' && (
+                        {plan.planType === 'private_office' && billingPeriod === 'monthly' && (
                           <p className="text-xs text-amber-600 mt-1">
                             Special offer — limited time only
                           </p>
                         )}
-                        {billingPeriod === 'annual' && plan.pricing.annual && plan.pricing.monthly && (
+                        {billingPeriod === 'annual' && planPricing.annual && planPricing.monthly && (
                           <p className="text-xs text-green-600 mt-1">
-                            Save {formatCurrency((plan.pricing.monthly * 12) - plan.pricing.annual, 'NPR')} per year
+                            Save {formatCurrency((planPricing.monthly * 12) - planPricing.annual, 'NPR')} per year
                           </p>
                         )}
-                        {billingPeriod === 'weekly' && plan.pricing.weekly && plan.pricing.monthly && (
+                        {billingPeriod === 'weekly' && planPricing.weekly && planPricing.monthly && (
                           <p className="text-xs text-muted-foreground mt-1">
-                            Monthly: {formatCurrency(plan.pricing.monthly, 'NPR')}
+                            Monthly: {formatCurrency(planPricing.monthly, 'NPR')}
+                          </p>
+                        )}
+                        {missingSelectedPeriod && (
+                          <p className="text-xs text-amber-600 mt-1">
+                            No {billingPeriod} pricing at {selectedLocation?.name || 'this location'} yet. Showing {period} rate.
                           </p>
                         )}
                       </div>
@@ -302,7 +476,7 @@ export function PricingPage() {
                         ))}
                       </ul>
 
-                      {plan.id === 'private-office' ? (
+                      {plan.planType === 'private_office' ? (
                         <div className="space-y-3">
                           <div className="bg-gradient-to-r from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20 rounded-lg p-4 space-y-3">
                             <p className="text-sm font-semibold text-center">Enquire Now for Private Office</p>
@@ -326,14 +500,14 @@ export function PricingPage() {
                             </div>
                           </div>
                         </div>
-                      ) : (
+                      ) : planId ? (
                         <>
                           <Button 
                             className="w-full" 
-                            variant={plan.popular ? 'default' : 'outline'}
+                            variant={isPopular ? 'default' : 'outline'}
                             asChild
                           >
-                            <Link to={`${ROUTES.BOOKING}?plan=${plan.id}`}>
+                            <Link to={`${ROUTES.BOOKING}?plan=${planId}${selectedLocationId ? `&location=${selectedLocationId}` : ''}`}>
                               {plan.cta}
                             </Link>
                           </Button>
@@ -342,13 +516,26 @@ export function PricingPage() {
                             No setup fees • Cancel anytime
                           </p>
                         </>
+                      ) : (
+                        <>
+                          <Button className="w-full" variant="secondary" disabled>
+                            Plan not available yet
+                          </Button>
+                          <p className="text-xs text-muted-foreground text-center">
+                            Add “{plan.supabaseName}” to Supabase to enable bookings.
+                          </p>
+                        </>
                       )}
                     </CardContent>
                   </Card>
                 </motion.div>
               )
             })}
-          </div>
+            </div>
+          )}
+          {error && (
+            <p className="text-center text-destructive mt-6 text-sm">{error}</p>
+          )}
         </div>
       </section>
 

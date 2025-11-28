@@ -71,6 +71,60 @@ ON CONFLICT (slug) DO UPDATE SET
   popular = EXCLUDED.popular;
 
 -- ============================================
+-- LOCATION ROOMS
+-- ============================================
+INSERT INTO public.location_rooms (id, location_id, name, slug, description, image_url, capacity, status, tags, amenities, size) VALUES
+(
+  'd3eebc99-9c0b-4ef8-bb6d-6bb9bd380a11'::uuid,
+  'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11'::uuid,
+  'Sun',
+  'sun-room',
+  'Corner suite drenched in natural light, ideal for creative sprints or executive calls.',
+  '/images/hero-slider/dhobighat-workspace-view-1.jpg',
+  6,
+  'booked',
+  ARRAY['Full-height windows', 'Acoustic treatment', 'Smart lighting'],
+  ARRAY['Dual 4K displays', 'Standing desk option', 'Wall-mounted whiteboard'],
+  '320 sq.ft'
+),
+(
+  'd3eebc99-9c0b-4ef8-bb6d-6bb9bd380a22'::uuid,
+  'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11'::uuid,
+  'Saturn',
+  'saturn-suite',
+  'Boardroom-style space tailored for hybrid teams and investor updates.',
+  '/images/hero-slider/dhobighat-office-back.png',
+  10,
+  'available',
+  ARRAY['Integrated conferencing', 'Acoustic ceiling', 'Ambient LED'],
+  ARRAY['Glass board', 'Dedicated concierge line', 'Private pantry access'],
+  '410 sq.ft'
+),
+(
+  'd3eebc99-9c0b-4ef8-bb6d-6bb9bd380a33'::uuid,
+  'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11'::uuid,
+  'Earth',
+  'earth-lab',
+  'Biophilic pod with adaptable seating for teams that ideate fast.',
+  '/images/hero-slider/dhobighat-coworking-space.png',
+  8,
+  'available',
+  ARRAY['Modular seating', 'Living wall', 'Skylight'],
+  ARRAY['Focus pods', 'Team huddle system', 'Dedicated storage wall'],
+  '360 sq.ft'
+)
+ON CONFLICT (location_id, slug) DO UPDATE SET
+  name = EXCLUDED.name,
+  description = EXCLUDED.description,
+  image_url = EXCLUDED.image_url,
+  capacity = EXCLUDED.capacity,
+  status = EXCLUDED.status,
+  tags = EXCLUDED.tags,
+  amenities = EXCLUDED.amenities,
+  size = EXCLUDED.size,
+  updated_at = NOW();
+
+-- ============================================
 -- PLANS
 -- ============================================
 -- Using deterministic UUIDs for consistency
@@ -122,6 +176,171 @@ ON CONFLICT (id) DO UPDATE SET
   pricing = EXCLUDED.pricing,
   popular = EXCLUDED.popular,
   active = EXCLUDED.active;
+
+-- ============================================
+-- LOCATION PLAN PRICING
+-- ============================================
+INSERT INTO public.location_plan_pricing (location_id, plan_id, pricing, currency) VALUES
+(
+  'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11'::uuid,
+  'b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a11'::uuid,
+  '{"daily": 50000}'::jsonb,
+  'NPR'
+),
+(
+  'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11'::uuid,
+  'b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a22'::uuid,
+  '{"weekly": 220000, "monthly": 950000, "annual": 6000000}'::jsonb,
+  'NPR'
+),
+(
+  'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11'::uuid,
+  'b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a33'::uuid,
+  '{"weekly": 320000, "monthly": 1150000, "annual": 10800000}'::jsonb,
+  'NPR'
+),
+(
+  'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11'::uuid,
+  'b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a44'::uuid,
+  '{"weekly": 680000, "monthly": 2500000, "annual": 30000000}'::jsonb,
+  'NPR'
+),
+(
+  'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a22'::uuid,
+  'b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a11'::uuid,
+  '{"daily": 40000}'::jsonb,
+  'NPR'
+),
+(
+  'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a22'::uuid,
+  'b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a22'::uuid,
+  '{"weekly": 200000, "monthly": 800000, "annual": 5000000}'::jsonb,
+  'NPR'
+),
+(
+  'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a22'::uuid,
+  'b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a33'::uuid,
+  '{"weekly": 260000, "monthly": 950000, "annual": 9000000}'::jsonb,
+  'NPR'
+),
+(
+  'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a22'::uuid,
+  'b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a44'::uuid,
+  '{"weekly": 500000, "monthly": 1800000, "annual": 17500000}'::jsonb,
+  'NPR'
+),
+(
+  'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a33'::uuid,
+  'b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a11'::uuid,
+  '{"daily": 50000}'::jsonb,
+  'NPR'
+),
+(
+  'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a33'::uuid,
+  'b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a22'::uuid,
+  '{"weekly": 220000, "monthly": 950000, "annual": 6000000}'::jsonb,
+  'NPR'
+),
+(
+  'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a33'::uuid,
+  'b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a33'::uuid,
+  '{"weekly": 320000, "monthly": 1150000, "annual": 10800000}'::jsonb,
+  'NPR'
+),
+(
+  'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a33'::uuid,
+  'b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a44'::uuid,
+  '{"weekly": 680000, "monthly": 2500000, "annual": 30000000}'::jsonb,
+  'NPR'
+)
+ON CONFLICT (location_id, plan_id) DO UPDATE SET
+  pricing = EXCLUDED.pricing,
+  currency = EXCLUDED.currency,
+  updated_at = NOW();
+
+-- ============================================
+-- ROOM PLAN PRICING
+-- ============================================
+INSERT INTO public.room_plan_pricing (room_id, plan_id, pricing, currency) VALUES
+-- Sun Room
+(
+  'd3eebc99-9c0b-4ef8-bb6d-6bb9bd380a11'::uuid,
+  'b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a11'::uuid,
+  '{"daily": 65000}'::jsonb,
+  'NPR'
+),
+(
+  'd3eebc99-9c0b-4ef8-bb6d-6bb9bd380a11'::uuid,
+  'b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a22'::uuid,
+  '{"weekly": 250000, "monthly": 1050000, "annual": 6800000}'::jsonb,
+  'NPR'
+),
+(
+  'd3eebc99-9c0b-4ef8-bb6d-6bb9bd380a11'::uuid,
+  'b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a33'::uuid,
+  '{"weekly": 360000, "monthly": 1220000, "annual": 11200000}'::jsonb,
+  'NPR'
+),
+(
+  'd3eebc99-9c0b-4ef8-bb6d-6bb9bd380a11'::uuid,
+  'b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a44'::uuid,
+  '{"weekly": 720000, "monthly": 2700000, "annual": 32500000}'::jsonb,
+  'NPR'
+),
+-- Saturn Suite
+(
+  'd3eebc99-9c0b-4ef8-bb6d-6bb9bd380a22'::uuid,
+  'b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a11'::uuid,
+  '{"daily": 55000}'::jsonb,
+  'NPR'
+),
+(
+  'd3eebc99-9c0b-4ef8-bb6d-6bb9bd380a22'::uuid,
+  'b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a22'::uuid,
+  '{"weekly": 230000, "monthly": 980000, "annual": 6400000}'::jsonb,
+  'NPR'
+),
+(
+  'd3eebc99-9c0b-4ef8-bb6d-6bb9bd380a22'::uuid,
+  'b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a33'::uuid,
+  '{"weekly": 340000, "monthly": 1180000, "annual": 11000000}'::jsonb,
+  'NPR'
+),
+(
+  'd3eebc99-9c0b-4ef8-bb6d-6bb9bd380a22'::uuid,
+  'b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a44'::uuid,
+  '{"weekly": 700000, "monthly": 2550000, "annual": 31000000}'::jsonb,
+  'NPR'
+),
+-- Earth Lab
+(
+  'd3eebc99-9c0b-4ef8-bb6d-6bb9bd380a33'::uuid,
+  'b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a11'::uuid,
+  '{"daily": 52000}'::jsonb,
+  'NPR'
+),
+(
+  'd3eebc99-9c0b-4ef8-bb6d-6bb9bd380a33'::uuid,
+  'b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a22'::uuid,
+  '{"weekly": 210000, "monthly": 920000, "annual": 6100000}'::jsonb,
+  'NPR'
+),
+(
+  'd3eebc99-9c0b-4ef8-bb6d-6bb9bd380a33'::uuid,
+  'b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a33'::uuid,
+  '{"weekly": 300000, "monthly": 1100000, "annual": 10500000}'::jsonb,
+  'NPR'
+),
+(
+  'd3eebc99-9c0b-4ef8-bb6d-6bb9bd380a33'::uuid,
+  'b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a44'::uuid,
+  '{"weekly": 650000, "monthly": 2400000, "annual": 29500000}'::jsonb,
+  'NPR'
+)
+ON CONFLICT (room_id, plan_id) DO UPDATE SET
+  pricing = EXCLUDED.pricing,
+  currency = EXCLUDED.currency,
+  updated_at = NOW();
 
 -- ============================================
 -- ADD-ONS
