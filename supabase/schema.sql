@@ -113,6 +113,41 @@ CREATE POLICY "Only admins can delete locations"
   USING (public.is_admin());
 
 -- ============================================
+-- LOCATION ROOMS TABLE
+-- ============================================
+CREATE TABLE IF NOT EXISTS public.location_rooms (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  location_id UUID NOT NULL REFERENCES public.locations(id) ON DELETE CASCADE,
+  name TEXT NOT NULL,
+  slug TEXT NOT NULL,
+  description TEXT,
+  image_url TEXT,
+  capacity INTEGER,
+  status TEXT DEFAULT 'available' CHECK (status IN ('available', 'booked', 'maintenance')),
+  tags TEXT[],
+  amenities TEXT[],
+  size TEXT,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW(),
+  UNIQUE(location_id, slug)
+);
+
+-- Enable RLS on location_rooms
+ALTER TABLE public.location_rooms ENABLE ROW LEVEL SECURITY;
+
+-- Allow public read access, admin manage
+DROP POLICY IF EXISTS "Anyone can view rooms" ON public.location_rooms;
+CREATE POLICY "Anyone can view rooms"
+  ON public.location_rooms FOR SELECT
+  USING (true);
+
+DROP POLICY IF EXISTS "Only admins can manage rooms" ON public.location_rooms;
+DROP POLICY IF EXISTS "Anyone can manage rooms" ON public.location_rooms;
+CREATE POLICY "Anyone can manage rooms"
+  ON public.location_rooms FOR ALL
+  USING (true);
+
+-- ============================================
 -- PLANS TABLE
 -- ============================================
 CREATE TABLE IF NOT EXISTS public.plans (
@@ -146,6 +181,90 @@ DROP POLICY IF EXISTS "Only admins can manage plans" ON public.plans;
 CREATE POLICY "Only admins can manage plans"
   ON public.plans FOR ALL
   USING (public.is_admin());
+
+-- ============================================
+-- LOCATION PLAN PRICING TABLE
+-- ============================================
+CREATE TABLE IF NOT EXISTS public.location_plan_pricing (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  location_id UUID NOT NULL REFERENCES public.locations(id) ON DELETE CASCADE,
+  plan_id UUID NOT NULL REFERENCES public.plans(id) ON DELETE CASCADE,
+  pricing JSONB NOT NULL, -- { daily?: number, weekly?: number, monthly?: number, annual?: number }
+  currency TEXT DEFAULT 'NPR',
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW(),
+  UNIQUE (location_id, plan_id)
+);
+
+-- Enable RLS on location_plan_pricing
+ALTER TABLE public.location_plan_pricing ENABLE ROW LEVEL SECURITY;
+
+-- Allow anyone to read pricing (marketing/booking pages are public)
+DROP POLICY IF EXISTS "Anyone can view location pricing" ON public.location_plan_pricing;
+CREATE POLICY "Anyone can view location pricing"
+  ON public.location_plan_pricing FOR SELECT
+  USING (true);
+
+-- Allow public updates (admin panel has separate auth layer)
+DROP POLICY IF EXISTS "Only admins can manage location pricing" ON public.location_plan_pricing;
+DROP POLICY IF EXISTS "Anyone can manage location pricing" ON public.location_plan_pricing;
+CREATE POLICY "Anyone can manage location pricing"
+  ON public.location_plan_pricing FOR ALL
+  USING (true);
+
+-- ============================================
+-- ROOM PLAN PRICING TABLE
+-- ============================================
+CREATE TABLE IF NOT EXISTS public.room_plan_pricing (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  room_id UUID NOT NULL REFERENCES public.location_rooms(id) ON DELETE CASCADE,
+  plan_id UUID NOT NULL REFERENCES public.plans(id) ON DELETE CASCADE,
+  pricing JSONB NOT NULL,
+  currency TEXT DEFAULT 'NPR',
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW(),
+  UNIQUE (room_id, plan_id)
+);
+
+ALTER TABLE public.room_plan_pricing ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Anyone can view room pricing" ON public.room_plan_pricing;
+CREATE POLICY "Anyone can view room pricing"
+  ON public.room_plan_pricing FOR SELECT
+  USING (true);
+
+DROP POLICY IF EXISTS "Only admins can manage room pricing" ON public.room_plan_pricing;
+DROP POLICY IF EXISTS "Anyone can manage room pricing" ON public.room_plan_pricing;
+CREATE POLICY "Anyone can manage room pricing"
+  ON public.room_plan_pricing FOR ALL
+  USING (true);
+
+-- ============================================
+-- MANUAL ADMIN ENTRIES TABLE
+-- ============================================
+CREATE TABLE IF NOT EXISTS public.manual_admin_entries (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  entry_type TEXT NOT NULL CHECK (entry_type IN ('booking', 'membership')),
+  data JSONB NOT NULL,
+  created_by TEXT,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+ALTER TABLE public.manual_admin_entries
+  ADD COLUMN IF NOT EXISTS updated_at TIMESTAMPTZ DEFAULT NOW();
+
+ALTER TABLE public.manual_admin_entries ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Anyone can view manual entries" ON public.manual_admin_entries;
+CREATE POLICY "Anyone can view manual entries"
+  ON public.manual_admin_entries FOR SELECT
+  USING (true);
+
+DROP POLICY IF EXISTS "Anyone can manage manual entries" ON public.manual_admin_entries;
+CREATE POLICY "Anyone can manage manual entries"
+  ON public.manual_admin_entries FOR ALL
+  USING (true);
 
 -- ============================================
 -- ADD-ONS TABLE
@@ -186,6 +305,7 @@ CREATE TABLE IF NOT EXISTS public.bookings (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE, -- NULL for guest bookings
   location_id UUID NOT NULL REFERENCES public.locations(id) ON DELETE RESTRICT,
+  room_id UUID REFERENCES public.location_rooms(id) ON DELETE SET NULL,
   plan_id UUID NOT NULL REFERENCES public.plans(id) ON DELETE RESTRICT,
   start_date DATE NOT NULL,
   end_date DATE NOT NULL,
@@ -209,6 +329,10 @@ CREATE TABLE IF NOT EXISTS public.bookings (
   -- Constraints
   CONSTRAINT valid_date_range CHECK (end_date >= start_date)
 );
+
+-- Ensure new columns exist when upgrading an existing database
+ALTER TABLE public.bookings
+  ADD COLUMN IF NOT EXISTS room_id UUID REFERENCES public.location_rooms(id) ON DELETE SET NULL;
 
 -- Ensure user_id is nullable for guest bookings (in case table was created with NOT NULL)
 ALTER TABLE public.bookings ALTER COLUMN user_id DROP NOT NULL;
@@ -242,10 +366,15 @@ CREATE POLICY "Admins can update all bookings"
   ON public.bookings FOR UPDATE
   USING (public.is_admin());
 
--- Allow public updates to bookings (admin panel has its own login security)
+- Allow public updates & deletes (admin panel has its own login security)
 DROP POLICY IF EXISTS "Public can update bookings" ON public.bookings;
+DROP POLICY IF EXISTS "Public can delete bookings" ON public.bookings;
 CREATE POLICY "Public can update bookings"
   ON public.bookings FOR UPDATE
+  USING (true);
+
+CREATE POLICY "Public can delete bookings"
+  ON public.bookings FOR DELETE
   USING (true);
 
 -- ============================================
@@ -285,6 +414,7 @@ CREATE POLICY "Admins can view all payments"
 -- ============================================
 CREATE INDEX IF NOT EXISTS idx_bookings_user_id ON public.bookings(user_id);
 CREATE INDEX IF NOT EXISTS idx_bookings_location_id ON public.bookings(location_id);
+CREATE INDEX IF NOT EXISTS idx_bookings_room_id ON public.bookings(room_id);
 CREATE INDEX IF NOT EXISTS idx_bookings_plan_id ON public.bookings(plan_id);
 CREATE INDEX IF NOT EXISTS idx_bookings_status ON public.bookings(status);
 CREATE INDEX IF NOT EXISTS idx_bookings_dates ON public.bookings(start_date, end_date);
@@ -314,12 +444,28 @@ DROP TRIGGER IF EXISTS update_locations_updated_at ON public.locations;
 CREATE TRIGGER update_locations_updated_at BEFORE UPDATE ON public.locations
   FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
+DROP TRIGGER IF EXISTS update_location_rooms_updated_at ON public.location_rooms;
+CREATE TRIGGER update_location_rooms_updated_at BEFORE UPDATE ON public.location_rooms
+  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
 DROP TRIGGER IF EXISTS update_plans_updated_at ON public.plans;
 CREATE TRIGGER update_plans_updated_at BEFORE UPDATE ON public.plans
   FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
 DROP TRIGGER IF EXISTS update_add_ons_updated_at ON public.add_ons;
 CREATE TRIGGER update_add_ons_updated_at BEFORE UPDATE ON public.add_ons
+  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+DROP TRIGGER IF EXISTS update_manual_entries_updated_at ON public.manual_admin_entries;
+CREATE TRIGGER update_manual_entries_updated_at BEFORE UPDATE ON public.manual_admin_entries
+  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+DROP TRIGGER IF EXISTS update_location_plan_pricing_updated_at ON public.location_plan_pricing;
+CREATE TRIGGER update_location_plan_pricing_updated_at BEFORE UPDATE ON public.location_plan_pricing
+  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+DROP TRIGGER IF EXISTS update_room_plan_pricing_updated_at ON public.room_plan_pricing;
+CREATE TRIGGER update_room_plan_pricing_updated_at BEFORE UPDATE ON public.room_plan_pricing
   FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
 DROP TRIGGER IF EXISTS update_bookings_updated_at ON public.bookings;

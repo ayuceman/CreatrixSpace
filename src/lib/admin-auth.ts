@@ -1,3 +1,5 @@
+import { supabase } from '@/lib/supabase'
+
 const ADMIN_SESSION_KEY = 'admin_session_v1'
 
 export type AdminSession = {
@@ -35,6 +37,8 @@ export function loginAdmin(email: string, password: string): boolean {
 
 export function logoutAdmin() {
   localStorage.removeItem(ADMIN_SESSION_KEY)
+  // Best-effort sign out of Supabase too
+  supabase.auth.signOut().catch(() => {})
 }
 
 export function getAdminSession(): AdminSession | null {
@@ -46,4 +50,25 @@ export function getAdminSession(): AdminSession | null {
   }
 }
 
+export async function ensureSupabaseAdminSession() {
+  const { data } = await supabase.auth.getSession()
+  if (data.session) return data.session
+
+  const creds = getAdminEnvCreds()
+  if (!creds.email || !creds.password) {
+    throw new Error('Admin credentials are not configured')
+  }
+
+  const { data: authData, error } = await supabase.auth.signInWithPassword({
+    email: creds.email,
+    password: creds.password,
+  })
+
+  if (error) {
+    console.error('Failed to establish Supabase admin session', error)
+    throw error
+  }
+
+  return authData.session
+}
 

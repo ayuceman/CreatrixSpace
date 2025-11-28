@@ -42,6 +42,19 @@ export function BookingPage() {
     }
   }, [searchParams, updateBookingData])
 
+  // Pre-select location from URL params
+  useEffect(() => {
+    const locationId = searchParams.get('location')
+    if (locationId) {
+      const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+      if (uuidRegex.test(locationId)) {
+        updateBookingData({ locationId })
+      } else {
+        console.warn('Location ID from URL is not a valid UUID, ignoring:', locationId)
+      }
+    }
+  }, [searchParams, updateBookingData])
+
   // Initial scroll to content when page loads
   useEffect(() => {
     // Delay to ensure DOM is fully rendered

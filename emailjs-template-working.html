@@ -118,6 +118,37 @@
                   <td style="padding: 8px 0; font-size: 14px; color: #666; font-weight: 600;">End Time:</td>
                   <td style="padding: 8px 0; font-size: 14px; color: #333; font-weight: 500;">{{end_time}}</td>
                 </tr>
+                <tr>
+                  <td style="padding: 8px 0; font-size: 14px; color: #666; font-weight: 600;">Room:</td>
+                  <td style="padding: 8px 0; font-size: 14px; color: #333; font-weight: 500;">{{room_name}}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 8px 0; font-size: 14px; color: #666; font-weight: 600;">Room Status:</td>
+                  <td style="padding: 8px 0; font-size: 14px; color: #333; font-weight: 500;">{{room_status}}</td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- Source & Payment Section -->
+          <tr>
+            <td style="padding: 0 30px 25px 30px;">
+              <h2 style="margin: 0 0 15px 0; font-size: 18px; color: #333; border-bottom: 2px solid #3b82f6; padding-bottom: 10px;">
+                🔐 Source & Payment
+              </h2>
+              <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+                <tr>
+                  <td style="padding: 8px 0; width: 120px; font-size: 14px; color: #666; font-weight: 600;">Source:</td>
+                  <td style="padding: 8px 0; font-size: 14px; color: #333; font-weight: 500;">{{booking_source}}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 8px 0; font-size: 14px; color: #666; font-weight: 600;">Method:</td>
+                  <td style="padding: 8px 0; font-size: 14px; color: #333; font-weight: 500;">{{payment_method}}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 8px 0; font-size: 14px; color: #666; font-weight: 600;">Payment Status:</td>
+                  <td style="padding: 8px 0; font-size: 14px; color: #333; font-weight: 500;">{{payment_status}}</td>
+                </tr>
               </table>
             </td>
           </tr>
@@ -188,6 +219,18 @@
                   📝 Customer Notes
                 </h2>
                 <p style="margin: 0; font-size: 14px; color: #333; line-height: 1.6; white-space: pre-wrap;">{{notes}}</p>
+              </div>
+            </td>
+          </tr>
+
+          <!-- Manual Notes Section -->
+          <tr>
+            <td style="padding: 0 30px 25px 30px;">
+              <div style="background: #fff9eb; padding: 20px; border-radius: 8px; border-left: 4px solid #f97316;">
+                <h2 style="margin: 0 0 10px 0; font-size: 18px; color: #f97316; font-weight: 700;">
+                  📌 Admin Notes
+                </h2>
+                <p style="margin: 0; font-size: 14px; color: #333; line-height: 1.6; white-space: pre-wrap;">{{manual_notes}}</p>
               </div>
             </td>
           </tr>

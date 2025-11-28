@@ -4,7 +4,6 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { loginAdmin, getAdminEnvCreds } from '@/lib/admin-auth'
-import { authService } from '@/services/supabase-service'
 import { ROUTES } from '@/lib/constants'
 
 export function AdminLoginPage() {
@@ -28,15 +27,6 @@ export function AdminLoginPage() {
         setError('Invalid credentials')
         setLoading(false)
         return
-      }
-      
-      // Also sign in via Supabase auth so RLS policies work
-      try {
-        await authService.signIn(email.trim(), password)
-      } catch (supabaseError: any) {
-        // If Supabase sign-in fails, still allow admin login but warn
-        console.warn('Supabase auth sign-in failed:', supabaseError)
-        // Continue anyway - the localStorage session will work for UI, but DB updates might fail
       }
       
       navigate(ROUTES.ADMIN, { replace: true })

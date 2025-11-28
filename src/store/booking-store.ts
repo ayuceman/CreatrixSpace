@@ -1,17 +1,28 @@
 import { create } from 'zustand'
-import { getLocationPricing } from '@/lib/location-pricing'
 import { devtools } from 'zustand/middleware'
-import { locationService, planService, addOnService, bookingService, authService } from '@/services/supabase-service'
-import { calculatePricing, PRICING_CONSTANTS } from '@/lib/pricing-calculator'
+import { locationService, planService, addOnService, bookingService, authService, locationPricingService, roomService, roomPricingService } from '@/services/supabase-service'
+import { calculatePricing } from '@/lib/pricing-calculator'
 import type { Database } from '@/lib/database.types'
 
 type Location = Database['public']['Tables']['locations']['Row']
 type Plan = Database['public']['Tables']['plans']['Row']
 type AddOn = Database['public']['Tables']['add_ons']['Row']
+type LocationPlanPricingRow = Database['public']['Tables']['location_plan_pricing']['Row']
+type Room = Database['public']['Tables']['location_rooms']['Row']
+type RoomPlanPricingRow = Database['public']['Tables']['room_plan_pricing']['Row']
+type PlanPricing = {
+  daily?: number
+  weekly?: number
+  monthly?: number
+  annual?: number
+}
+type LocationPlanPricingMap = Record<string, Record<string, PlanPricing>>
+type RoomPlanPricingMap = Record<string, Record<string, PlanPricing>>
 
 export interface BookingData {
   // Step 1: Location & Plan
   locationId: string
+  roomId: string
   planId: string
   
   // Step 2: Date & Time  
@@ -56,17 +67,33 @@ interface BookingStore {
     name: string
     address: string
     available: boolean
+    city?: string | null
+    popular?: boolean
+    slug?: string | null
+  }>
+
+  rooms: Array<{
+    id: string
+    locationId: string
+    name: string
+    slug?: string | null
+    description?: string | null
+    imageUrl?: string | null
+    capacity?: number | null
+    status: 'available' | 'booked' | 'maintenance'
+    tags?: string[] | null
+    amenities?: string[] | null
+    size?: string | null
   }>
   
   plans: Array<{
     id: string
     name: string
     type: string
-    pricing: {
-      daily?: number
-      monthly?: number
-      annual?: number
-    }
+    description?: string
+    features?: string[]
+    popular?: boolean
+    pricing: PlanPricing
     available?: boolean
     status?: string
   }>
@@ -81,17 +108,19 @@ interface BookingStore {
   // Loading states
   loading: boolean
   error: string | null
+
+  locationPlanPricing: LocationPlanPricingMap
+  roomPlanPricing: RoomPlanPricingMap
   
   // Actions
   setCurrentStep: (step: number) => void
   updateBookingData: (data: Partial<BookingData>) => void
   resetBooking: () => void
   calculateTotal: () => void
+  getPlanPricingForLocation: (planId: string, locationId?: string, roomId?: string) => PlanPricing
+  getRoomsForLocation: (locationId?: string) => BookingStore['rooms']
   
   // Data loading
-  loadLocations: () => Promise<void>
-  loadPlans: () => Promise<void>
-  loadAddOns: () => Promise<void>
   loadAllData: () => Promise<void>
   
   // Booking operations
@@ -105,6 +134,7 @@ interface BookingStore {
 
 const initialBookingData: BookingData = {
   locationId: '',
+  roomId: '',
   planId: '',
   startDate: null,
   endDate: null,
@@ -126,25 +156,48 @@ const initialBookingData: BookingData = {
 }
 
 // Helper function to convert Supabase Location to store format
+const DEFAULT_LOCATION_SLUG = 'dhobighat-hub'
+const DEFAULT_LOCATION_NAME = 'Dhobighat (WashingTown) Hub'
+
 const convertLocation = (loc: Location) => ({
   id: loc.id,
   name: loc.name,
   address: loc.address,
   available: loc.available,
+  city: loc.city,
+  popular: loc.popular,
+  slug: (loc as Location & { slug?: string }).slug ?? null,
+})
+
+const convertRoom = (room: Room) => ({
+  id: room.id,
+  locationId: room.location_id,
+  name: room.name,
+  slug: room.slug,
+  description: room.description,
+  imageUrl: room.image_url,
+  capacity: room.capacity,
+  status: room.status,
+  tags: room.tags,
+  amenities: room.amenities,
+  size: room.size,
 })
 
 // Helper function to convert Supabase Plan to store format
 const convertPlan = (plan: Plan) => {
-  const pricing = plan.pricing as any
+  const pricing = (plan.pricing as PlanPricing) || {}
   return {
     id: plan.id,
     name: plan.name,
     type: plan.type,
+    description: plan.description || '',
+    features: plan.features || [],
+    popular: plan.popular,
     pricing: {
       daily: pricing.daily,
+      weekly: pricing.weekly,
       monthly: pricing.monthly,
       annual: pricing.annual,
-      hourly: pricing.hourly,
     },
   }
 }
@@ -157,35 +210,65 @@ const convertAddOn = (addon: AddOn) => ({
   description: addon.description || '',
 })
 
+const buildLocationPlanPricingMap = (rows: LocationPlanPricingRow[]): LocationPlanPricingMap => {
+  return rows.reduce<LocationPlanPricingMap>((acc, row) => {
+    if (!acc[row.location_id]) {
+      acc[row.location_id] = {}
+    }
+    acc[row.location_id][row.plan_id] = row.pricing as PlanPricing
+    return acc
+  }, {})
+}
+
+const buildRoomPlanPricingMap = (rows: RoomPlanPricingRow[]): RoomPlanPricingMap => {
+  return rows.reduce<RoomPlanPricingMap>((acc, row) => {
+    if (!acc[row.room_id]) {
+      acc[row.room_id] = {}
+    }
+    acc[row.room_id][row.plan_id] = row.pricing as PlanPricing
+    return acc
+  }, {})
+}
+
 export const useBookingStore = create<BookingStore>()(
   devtools(
     (set, get) => ({
       currentStep: 1,
       bookingData: initialBookingData,
       locations: [],
+      rooms: [],
       plans: [],
       addOns: [],
+      locationPlanPricing: {},
+      roomPlanPricing: {},
       loading: false,
       error: null,
       
       setCurrentStep: (step) => set({ currentStep: step }),
       
       updateBookingData: (data) => {
-        const currentLocationId = get().bookingData.locationId
-        
-        // First update booking data with incoming changes
-        set((state) => ({
-          bookingData: { ...state.bookingData, ...data }
-        }))
+        const { locationId: currentLocationId } = get().bookingData
+        const rooms = get().rooms
 
-        // If location changed, clear the selected plan so user can choose a valid one
-        // Plans themselves are loaded from Supabase via loadPlans, so we don't
-        // need a getPlansForLocation helper here anymore.
-        if (data.locationId && data.locationId !== currentLocationId) {
-          set((state) => ({
-            bookingData: { ...state.bookingData, planId: '' }
-          }))
-        }
+        set((state) => {
+          const nextBooking = { ...state.bookingData, ...data }
+
+          if (data.locationId && data.locationId !== currentLocationId) {
+            nextBooking.planId = ''
+            nextBooking.roomId = ''
+          }
+
+          if (nextBooking.roomId) {
+            const isValidRoom = rooms.some(
+              (room) => room.id === nextBooking.roomId && room.locationId === nextBooking.locationId
+            )
+            if (!isValidRoom) {
+              nextBooking.roomId = ''
+            }
+          }
+
+          return { bookingData: nextBooking }
+        })
 
         get().calculateTotal()
       },
@@ -196,7 +279,7 @@ export const useBookingStore = create<BookingStore>()(
       }),
       
       calculateTotal: () => {
-        const { bookingData, plans, addOns } = get()
+        const { bookingData, plans, addOns, getPlanPricingForLocation } = get()
         const selectedPlan = plans.find(p => p.id === bookingData.planId)
         
         if (!selectedPlan) {
@@ -214,7 +297,7 @@ export const useBookingStore = create<BookingStore>()(
         
         // Use centralized pricing calculator
         const pricing = calculatePricing({
-          planPricing: selectedPlan.pricing,
+          planPricing: getPlanPricingForLocation(selectedPlan.id, bookingData.locationId, bookingData.roomId),
           planType: selectedPlan.type,
           selectedAddOns: selectedAddOnsWithPrices,
           meetingRoomHours: bookingData.meetingRoomHours,
@@ -233,75 +316,77 @@ export const useBookingStore = create<BookingStore>()(
           bookingData: { ...state.bookingData, totalAmount: pricing.total }
         }))
       },
-      
-      loadLocations: async () => {
-        set({ loading: true, error: null })
-        try {
-          const locations = await locationService.getAllLocations()
-          // Always use data from Supabase (even if empty)
-          // Don't use fallback mock data - user should add real data to Supabase
-          set({ 
-            locations: locations.map(convertLocation),
-            loading: false 
-          })
-        } catch (error) {
-          // On error, show error but don't use mock data
-          set({ 
-            locations: [],
-            loading: false,
-            error: error instanceof Error ? error.message : 'Failed to load locations from Supabase. Please check your connection and ensure locations are added to the database.'
-          })
+
+      getPlanPricingForLocation: (planId, locationId, roomId) => {
+        const { plans, locationPlanPricing, roomPlanPricing } = get()
+        if (roomId && roomPlanPricing[roomId] && roomPlanPricing[roomId][planId]) {
+          return roomPlanPricing[roomId][planId]
         }
+        if (locationId && locationPlanPricing[locationId] && locationPlanPricing[locationId][planId]) {
+          return locationPlanPricing[locationId][planId]
+        }
+        const plan = plans.find((p) => p.id === planId)
+        return plan?.pricing || {}
       },
-      
-      loadPlans: async () => {
-        set({ loading: true, error: null })
-        try {
-          const plans = await planService.getAllPlans()
-          // Always use data from Supabase (even if empty)
-          // Don't use fallback mock data - user should add real data to Supabase
-          set({ 
-            plans: plans.map(convertPlan),
-            loading: false 
-          })
-        } catch (error) {
-          // On error, show error but don't use mock data
-          set({ 
-            plans: [],
-            loading: false,
-            error: error instanceof Error ? error.message : 'Failed to load plans from Supabase. Please check your connection and ensure plans are added to the database.'
-          })
-        }
-      },
-      
-      loadAddOns: async () => {
-        set({ loading: true, error: null })
-        try {
-          const addOns = await addOnService.getAllAddOns()
-          // Always use data from Supabase (even if empty)
-          // Don't use fallback mock data - user should add real data to Supabase
-          set({ 
-            addOns: addOns.map(convertAddOn),
-            loading: false 
-          })
-        } catch (error) {
-          // On error, show error but don't use mock data
-          set({ 
-            addOns: [],
-            loading: false,
-            error: error instanceof Error ? error.message : 'Failed to load add-ons from Supabase. Please check your connection and ensure add-ons are added to the database.'
-          })
-        }
+
+      getRoomsForLocation: (locationId) => {
+        if (!locationId) return []
+        return get().rooms.filter((room) => room.locationId === locationId)
       },
       
       loadAllData: async () => {
         set({ loading: true, error: null })
         try {
-          await Promise.all([
-            get().loadLocations(),
-            get().loadPlans(),
-            get().loadAddOns(),
+          const [
+            locations,
+            plans,
+            addOns,
+            locationPlanPricing,
+            rooms,
+            roomPlanPricing,
+          ] = await Promise.all([
+            locationService.getAllLocations(),
+            planService.getAllPlans(),
+            addOnService.getAllAddOns(),
+            locationPricingService.getAllLocationPricing(),
+            roomService.getAllRooms(),
+            roomPricingService.getAllRoomPricing(),
           ])
+
+          set((state) => {
+            const convertedLocations = locations.map(convertLocation)
+            const convertedRooms = rooms.map(convertRoom)
+            const convertedPlans = plans.map(convertPlan)
+            const convertedAddOns = addOns.map(convertAddOn)
+            const locationPricingMap = buildLocationPlanPricingMap(locationPlanPricing)
+            const roomPricingMap = buildRoomPlanPricingMap(roomPlanPricing)
+
+            let bookingData = state.bookingData
+            if (!bookingData.locationId && convertedLocations.length) {
+              const preferredLocation =
+                convertedLocations.find(
+                  (loc) =>
+                    (loc.slug && loc.slug.toLowerCase() === DEFAULT_LOCATION_SLUG) ||
+                    loc.name?.toLowerCase() === DEFAULT_LOCATION_NAME.toLowerCase()
+                ) || convertedLocations[0]
+
+              bookingData = {
+                ...bookingData,
+                locationId: preferredLocation.id,
+              }
+            }
+
+            return {
+              bookingData,
+              locations: convertedLocations,
+              rooms: convertedRooms,
+              plans: convertedPlans,
+              addOns: convertedAddOns,
+              locationPlanPricing: locationPricingMap,
+              roomPlanPricing: roomPricingMap,
+              loading: false,
+            }
+          })
         } catch (error) {
           set({ 
             error: error instanceof Error ? error.message : 'Failed to load data',
@@ -311,7 +396,6 @@ export const useBookingStore = create<BookingStore>()(
       },
       
       createBooking: async () => {
-        const { bookingData, locations, plans, addOns } = get()
         set({ loading: true, error: null })
         
         try {
@@ -368,13 +452,20 @@ export const useBookingStore = create<BookingStore>()(
       },
       
       canProceed: () => {
-        const { currentStep, bookingData, plans } = get()
+        const { currentStep, bookingData, plans, rooms } = get()
         const selectedPlan = plans.find(p => p.id === bookingData.planId)
         const isDayPass = selectedPlan?.type === 'day_pass'
+        const requiresRoomSelection =
+          Boolean(bookingData.locationId) &&
+          rooms.some((room) => room.locationId === bookingData.locationId)
         
         switch (currentStep) {
           case 1:
-            return bookingData.locationId && bookingData.planId
+            return (
+              bookingData.locationId &&
+              (!requiresRoomSelection || bookingData.roomId) &&
+              bookingData.planId
+            )
           case 2:
             // For day passes, only startDate is required
             // For other plans, startDate, startTime, and endTime are required

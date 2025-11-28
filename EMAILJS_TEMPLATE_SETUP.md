@@ -43,14 +43,16 @@ In the EmailJS template editor, you need to set up the following variables. Emai
 
 **Optional Variables (will show if provided):**
 - `{{company}}` - Company name
-- `{{start_date}}` - Start date
-- `{{end_date}}` - End date
-- `{{start_time}}` - Start time
-- `{{end_time}}` - End time
+- `{{start_date}}` / `{{end_date}}` - Booking dates
+- `{{start_time}}` / `{{end_time}}` - Booking times
+- `{{room_name}}`, `{{room_status}}`, `{{room_notes}}` - Selected room information
+- `{{booking_source}}` - Where the booking originated (admin/manual/online)
+- `{{payment_method}}` and `{{payment_status}}`
 - `{{add_ons}}` - Selected add-ons
 - `{{meeting_room_hours}}` - Meeting room hours
 - `{{guest_passes}}` - Guest passes
 - `{{notes}}` - Customer notes
+- `{{manual_notes}}` - Admin/internal notes
 
 ### Step 4: Set Email Subject
 
@@ -91,6 +93,9 @@ The template uses these variables that are automatically sent from your applicat
 | `{{location_name}}` | `locationName` | Selected location |
 | `{{plan_name}}` | `planName` | Selected plan |
 | `{{plan_type}}` | `planType` | Plan type (day_pass, hot_desk, etc.) |
+| `{{room_name}}` | `roomName` | Selected room name |
+| `{{room_status}}` | `roomStatus` | Room availability |
+| `{{room_notes}}` | `roomNotes` | Extra room notes/manual comments |
 | `{{start_date}}` | `startDate` | Booking start date |
 | `{{end_date}}` | `endDate` | Booking end date |
 | `{{start_time}}` | `startTime` | Booking start time |
@@ -100,7 +105,11 @@ The template uses these variables that are automatically sent from your applicat
 | `{{guest_passes}}` | `guestPasses` | Number of guest passes |
 | `{{total_amount}}` | `totalAmount` | Formatted total amount |
 | `{{status}}` | `status` | Booking status |
+| `{{booking_source}}` | `bookingSource` | Where the booking was created |
+| `{{payment_method}}` | `paymentMethod` | Payment method |
+| `{{payment_status}}` | `paymentStatus` | Payment status |
 | `{{notes}}` | `notes` | Customer notes (optional) |
+| `{{manual_notes}}` | `manualNotes` | Admin notes (manual entries) |
 | `{{to_email}}` | `VITE_ADMIN_EMAIL` | Your Gmail address |
 | `{{date}}` | Auto-generated | Current date/time |
 

@@ -26,7 +26,7 @@ export function QRPayment({ amount, bookingId, onPaymentComplete, onCancel }: QR
   const [verificationResult, setVerificationResult] = useState<any>(null)
   const [timeRemaining, setTimeRemaining] = useState(300) // 5 minutes
   const fileInputRef = useRef<HTMLInputElement>(null)
-  const { bookingData, locations, plans, addOns } = useBookingStore()
+  const { bookingData, locations, plans, addOns, rooms } = useBookingStore()
 
   const qrConfig = PAYMENT_CONFIG.qrPayment
 
@@ -88,9 +88,10 @@ export function QRPayment({ amount, bookingId, onPaymentComplete, onCancel }: QR
         
         // Send email notification to admin when payment is verified
         try {
-          // Get location and plan names for email
+          // Get location, plan, and room names for email
           const location = locations.find(l => l.id === bookingData.locationId)
           const plan = plans.find(p => p.id === bookingData.planId)
+          const room = rooms.find(r => r.id === bookingData.roomId)
           const selectedAddOnNames = bookingData.addOns
             .map(addOnId => {
               const addOn = addOns.find(a => a.id === addOnId)
@@ -108,6 +109,8 @@ export function QRPayment({ amount, bookingId, onPaymentComplete, onCancel }: QR
             locationName: location?.name || 'Unknown Location',
             planName: plan?.name || 'Unknown Plan',
             planType: plan?.type || 'unknown',
+            roomName: room?.name,
+            roomStatus: room?.status,
             startDate: bookingData.startDate ? bookingData.startDate.toISOString() : '',
             endDate: bookingData.endDate ? bookingData.endDate.toISOString() : '',
             startTime: bookingData.startTime || undefined,
@@ -119,6 +122,9 @@ export function QRPayment({ amount, bookingId, onPaymentComplete, onCancel }: QR
             currency: bookingData.currency,
             notes: bookingData.notes || undefined,
             status: 'pending',
+            bookingSource: room ? 'Online Checkout (Room Selected)' : 'Online Checkout',
+            paymentMethod: 'QR Payment',
+            paymentStatus: 'Pending Verification',
           }).catch(error => {
             // Log error but don't fail the payment
             console.error('Failed to send booking email:', error)

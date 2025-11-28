@@ -1,16 +1,31 @@
 import { supabase } from '@/lib/supabase'
+import { supabaseAdmin } from '@/lib/supabase-admin'
 import type { Database } from '@/lib/database.types'
 import type { BookingData } from '@/store/booking-store'
 
 type Profile = Database['public']['Tables']['profiles']['Row']
 type Location = Database['public']['Tables']['locations']['Row']
+type LocationRoom = Database['public']['Tables']['location_rooms']['Row']
+type LocationRoomUpdate = Database['public']['Tables']['location_rooms']['Update']
 type Plan = Database['public']['Tables']['plans']['Row']
 type AddOn = Database['public']['Tables']['add_ons']['Row']
+type LocationPlanPricing = Database['public']['Tables']['location_plan_pricing']['Row']
+type LocationPlanPricingInsert = Database['public']['Tables']['location_plan_pricing']['Insert']
+type RoomPlanPricing = Database['public']['Tables']['room_plan_pricing']['Row']
+type RoomPlanPricingInsert = Database['public']['Tables']['room_plan_pricing']['Insert']
+type ManualAdminEntry = Database['public']['Tables']['manual_admin_entries']['Row']
+type ManualAdminEntryInsert = Database['public']['Tables']['manual_admin_entries']['Insert']
 type Booking = Database['public']['Tables']['bookings']['Row']
 type BookingInsert = Database['public']['Tables']['bookings']['Insert']
 type ProfileUpdate = Database['public']['Tables']['profiles']['Update']
 type Payment = Database['public']['Tables']['payments']['Row']
 type PaymentInsert = Database['public']['Tables']['payments']['Insert']
+type PlanPricingPayload = {
+  daily?: number
+  weekly?: number
+  monthly?: number
+  annual?: number
+}
 
 // ============================================
 // AUTHENTICATION SERVICES
@@ -167,6 +182,72 @@ export const locationService = {
 }
 
 // ============================================
+// ROOM SERVICES
+// ============================================
+
+export const roomService = {
+  async getAllRooms(): Promise<LocationRoom[]> {
+    try {
+      const { data, error } = await supabase
+        .from('location_rooms')
+        .select('*')
+        .order('name', { ascending: true })
+
+      if (error) {
+        console.warn('Could not load rooms from Supabase:', error.message || error)
+        return []
+      }
+
+      return data || []
+    } catch (error: any) {
+      console.warn('Error loading rooms:', error?.message || error)
+      return []
+    }
+  },
+
+  async getRoomsByLocation(locationId: string): Promise<LocationRoom[]> {
+    try {
+      const { data, error } = await supabase
+        .from('location_rooms')
+        .select('*')
+        .eq('location_id', locationId)
+        .order('name', { ascending: true })
+
+      if (error) {
+        console.warn('Could not load rooms for location:', error.message || error)
+        return []
+      }
+
+      return data || []
+    } catch (error: any) {
+      console.warn('Error loading rooms for location:', error?.message || error)
+      return []
+    }
+  },
+
+  async updateRoom(roomId: string, updates: Partial<LocationRoomUpdate>): Promise<LocationRoom | null> {
+    const client = supabaseAdmin ?? supabase
+    const { data, error } = await client
+      .from('location_rooms')
+      .update({ ...updates, updated_at: new Date().toISOString() })
+      .eq('id', roomId)
+      .select('*')
+      .single()
+
+    if (error) {
+      console.error('Failed to update room:', error)
+      throw error
+    }
+
+    return data
+  },
+
+  async setRoomStatus(roomId: string, status: LocationRoom['status']) {
+    return this.updateRoom(roomId, { status })
+  },
+}
+
+// ============================================
 // PLAN SERVICES
 // ============================================
 
@@ -203,6 +284,139 @@ export const planService = {
     
     if (error) throw error
     return data
+  },
+}
+
+// ============================================
+// LOCATION PLAN PRICING SERVICES
+// ============================================
+
+const transformPlanPricingPayload = (pricing: PlanPricingPayload): PlanPricingPayload => {
+  const sanitized: PlanPricingPayload = {}
+  if (typeof pricing.daily === 'number') sanitized.daily = pricing.daily
+  if (typeof pricing.weekly === 'number') sanitized.weekly = pricing.weekly
+  if (typeof pricing.monthly === 'number') sanitized.monthly = pricing.monthly
+  if (typeof pricing.annual === 'number') sanitized.annual = pricing.annual
+  return sanitized
+}
+
+export const locationPricingService = {
+  async getAllLocationPricing(): Promise<LocationPlanPricing[]> {
+    try {
+      const { data, error } = await supabase
+        .from('location_plan_pricing')
+        .select('*')
+      
+      if (error) {
+        console.warn('Could not load location pricing from Supabase:', error.message || error)
+        return []
+      }
+      
+      return data || []
+    } catch (error: any) {
+      console.warn('Error loading location pricing:', error?.message || error)
+      return []
+    }
+  },
+
+  async getLocationPricingForLocation(locationId: string): Promise<LocationPlanPricing[]> {
+    try {
+      const { data, error } = await supabase
+        .from('location_plan_pricing')
+        .select('*')
+        .eq('location_id', locationId)
+      
+      if (error) {
+        console.warn('Could not load location pricing for location:', error.message || error)
+        return []
+      }
+      
+      return data || []
+    } catch (error: any) {
+      console.warn('Error loading location pricing for location:', error?.message || error)
+      return []
+    }
+  },
+
+  async upsertLocationPricing(params: { locationId: string; planId: string; pricing: PlanPricingPayload; currency?: string }) {
+    const { locationId, planId, pricing, currency = 'NPR' } = params
+    const payload: LocationPlanPricingInsert = {
+      location_id: locationId,
+      plan_id: planId,
+      pricing: transformPlanPricingPayload(pricing),
+      currency,
+      updated_at: new Date().toISOString(),
+    }
+
+    const client = supabaseAdmin ?? supabase
+
+    const { error } = await client
+      .from('location_plan_pricing')
+      .upsert(payload, { onConflict: 'location_id,plan_id' })
+    
+    if (error) throw error
+  },
+}
+
+// ============================================
+// ROOM PLAN PRICING SERVICES
+// ============================================
+
+export const roomPricingService = {
+  async getAllRoomPricing(): Promise<RoomPlanPricing[]> {
+    try {
+      const { data, error } = await supabase
+        .from('room_plan_pricing')
+        .select('*')
+
+      if (error) {
+        console.warn('Could not load room pricing from Supabase:', error.message || error)
+        return []
+      }
+
+      return data || []
+    } catch (error: any) {
+      console.warn('Error loading room pricing:', error?.message || error)
+      return []
+    }
+  },
+
+  async getRoomPricingForRoom(roomId: string): Promise<RoomPlanPricing[]> {
+    try {
+      const { data, error } = await supabase
+        .from('room_plan_pricing')
+        .select('*')
+        .eq('room_id', roomId)
+
+      if (error) {
+        console.warn('Could not load room pricing for room:', error.message || error)
+        return []
+      }
+
+      return data || []
+    } catch (error: any) {
+      console.warn('Error loading room pricing for room:', error?.message || error)
+      return []
+    }
+  },
+
+  async upsertRoomPricing(params: { roomId: string; planId: string; pricing: PlanPricingPayload; currency?: string }) {
+    const { roomId, planId, pricing, currency = 'NPR' } = params
+    const payload: RoomPlanPricingInsert = {
+      room_id: roomId,
+      plan_id: planId,
+      pricing: transformPlanPricingPayload(pricing),
+      currency,
+      updated_at: new Date().toISOString(),
+    }
+
+    const client = supabaseAdmin ?? supabase
+
+    const { error } = await client
+      .from('room_plan_pricing')
+      .upsert(payload, { onConflict: 'room_id,plan_id' })
+
+    if (error) throw error
   },
 }
 
@@ -279,6 +493,11 @@ export const bookingService = {
       throw new Error('Invalid plan selected. Please refresh the page and select a plan again.')
     }
 
+    if (bookingData.roomId && !isValidUUID(bookingData.roomId)) {
+      console.error('Invalid room ID format:', bookingData.roomId)
+      throw new Error('Invalid room selected. Please refresh the page and select a room again.')
+    }
+
     // For day passes, endDate should be the same as startDate
     // For other plans, endDate is required
     let endDate = bookingData.endDate
@@ -300,6 +519,7 @@ export const bookingService = {
     const bookingInsert: BookingInsert = {
       user_id: userId || null, // Allow null for guest bookings
       location_id: bookingData.locationId,
+      room_id: bookingData.roomId || null,
       plan_id: bookingData.planId,
       start_date: startDate,
       end_date: formattedEndDate,
@@ -352,6 +572,7 @@ export const bookingService = {
         code: error.code,
         bookingData: {
           locationId: bookingData.locationId,
+          roomId: bookingData.roomId,
           planId: bookingData.planId,
           startDate,
           formattedEndDate,
@@ -442,6 +663,16 @@ export const bookingService = {
     return this.updateBooking(id, { status: 'confirmed' })
   },
 
+  async deleteBooking(id: string): Promise<void> {
+    const client = supabaseAdmin ?? supabase
+    const { error } = await client
+      .from('bookings')
+      .delete()
+      .eq('id', id)
+
+    if (error) throw error
+  },
+
   async getAllBookings(): Promise<Booking[]> {
     // First, get all bookings
     const { data: bookings, error: bookingsError } = await supabase
@@ -460,11 +691,15 @@ export const bookingService = {
     
     // Get unique location and plan IDs
     const locationIds = [...new Set(bookings.map(b => b.location_id))]
+    const roomIds = [...new Set(bookings.map(b => b.room_id).filter(Boolean))] as string[]
     const planIds = [...new Set(bookings.map(b => b.plan_id))]
     
     // Fetch locations and plans
-    const [locationsResult, plansResult] = await Promise.all([
+    const [locationsResult, roomsResult, plansResult] = await Promise.all([
       supabase.from('locations').select('id, name').in('id', locationIds),
+      roomIds.length
+        ? supabase.from('location_rooms').select('id, name').in('id', roomIds)
+        : Promise.resolve({ data: [], error: null } as { data: LocationRoom[] | null; error: any }),
       supabase.from('plans').select('id, name').in('id', planIds)
     ])
     
@@ -479,6 +714,9 @@ export const bookingService = {
     const locationsMap = new Map(
       (locationsResult.data || []).map(loc => [loc.id, loc.name])
     )
+    const roomsMap = new Map(
+      (roomsResult.data || []).map(room => [room.id, room.name])
+    )
     const plansMap = new Map(
       (plansResult.data || []).map(plan => [plan.id, plan.name])
     )
@@ -487,11 +725,12 @@ export const bookingService = {
     return bookings.map(booking => ({
       ...booking,
       locations: { id: booking.location_id, name: locationsMap.get(booking.location_id) || 'Unknown Location' },
+      rooms: booking.room_id ? { id: booking.room_id, name: roomsMap.get(booking.room_id) || 'Unassigned Room' } : null,
       plans: { id: booking.plan_id, name: plansMap.get(booking.plan_id) || 'Unknown Plan' }
     })) as any
   },
 
-  async getBookingsByDateRange(startDate: string, endDate: string, locationId?: string): Promise<Booking[]> {
+  async getBookingsByDateRange(startDate: string, endDate: string, locationId?: string, roomId?: string): Promise<Booking[]> {
     let query = supabase
       .from('bookings')
       .select('*')
@@ -501,11 +740,91 @@ export const bookingService = {
     if (locationId) {
       query = query.eq('location_id', locationId)
     }
+
+    if (roomId) {
+      query = query.eq('room_id', roomId)
+    }
     
     const { data, error } = await query
     
     if (error) throw error
     return data || []
+  },
+}
+
+// ============================================
+// MANUAL ENTRY SERVICES
+// ============================================
+
+export const manualEntryService = {
+  async getEntries(entryType?: ManualAdminEntry['entry_type']): Promise<ManualAdminEntry[]> {
+    let query = supabase
+      .from('manual_admin_entries')
+      .select('*')
+      .order('created_at', { ascending: false })
+
+    if (entryType) {
+      query = query.eq('entry_type', entryType)
+    }
+
+    const { data, error } = await query
+
+    if (error) {
+      console.error('Failed to load manual entries:', error)
+      throw error
+    }
+
+    return data || []
+  },
+
+  async addEntry(params: { entryType: ManualAdminEntry['entry_type']; data: Record<string, any>; createdBy?: string | null }) {
+    const sanitizedData = JSON.parse(JSON.stringify(params.data ?? {}))
+    const payload: ManualAdminEntryInsert = {
+      entry_type: params.entryType,
+      data: sanitizedData,
+      created_by: params.createdBy ?? null,
+    }
+
+    const client = supabaseAdmin ?? supabase
+    const { data, error } = await client
+      .from('manual_admin_entries')
+      .insert(payload)
+      .select('*')
+      .single()
+
+    if (error) {
+      console.error('Failed to insert manual entry:', error)
+      throw new Error(error.message || 'Failed to insert manual entry')
+    }
+
+    return data
+  },
+
+  async deleteEntry(id: string) {
+    const client = supabaseAdmin ?? supabase
+    const { error } = await client
+      .from('manual_admin_entries')
+      .delete()
+      .eq('id', id)
+
+    if (error) {
+      console.error('Failed to delete manual entry:', error)
+      throw new Error(error.message || 'Failed to delete manual entry')
+    }
+  },
+
+  async updateEntry(id: string, data: Record<string, any>) {
+    const sanitizedData = JSON.parse(JSON.stringify(data ?? {}))
+    const client = supabaseAdmin ?? supabase
+    const { error } = await client
+      .from('manual_admin_entries')
+      .update({ data: sanitizedData, updated_at: new Date().toISOString() })
+      .eq('id', id)
+
+    if (error) {
+      console.error('Failed to update manual entry:', error)
+      throw new Error(error.message || 'Failed to update manual entry')
+    }
   },
 }
 
