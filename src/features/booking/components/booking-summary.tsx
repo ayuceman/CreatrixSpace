@@ -1,4 +1,4 @@
-import { MapPin, Calendar, Plus, DoorOpen, ShieldCheck, Lock } from 'lucide-react'
+import { MapPin, Calendar, Plus, DoorOpen, Shield, Lock } from 'lucide-react'
 import { useBookingStore } from '@/store/booking-store'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -278,7 +278,7 @@ export function BookingSummary() {
         {/* Trust Signals */}
         <div className="flex items-center justify-center gap-4 text-xs text-muted-foreground pb-2">
           <div className="flex items-center gap-1">
-            <ShieldCheck className="h-3 w-3 text-green-600" />
+            <Shield className="h-3 w-3 text-green-600" />
             <span>Instant Confirmation</span>
           </div>
           <div className="flex items-center gap-1">
