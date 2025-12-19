@@ -24,19 +24,19 @@ export interface BookingData {
   locationId: string
   roomId: string
   planId: string
-  
+
   // Step 2: Date & Time  
   startDate: Date | null
   endDate: Date | null
   startTime: string
   endTime: string
-  
+
   // Step 3: Add-ons & Extras
   addOns: string[]
   meetingRoomHours: number
   guestPasses: number
   notes: string
-  
+
   // Step 4: Contact Info
   contactInfo: {
     firstName: string
@@ -45,11 +45,11 @@ export interface BookingData {
     phone: string
     company: string
   }
-  
+
   // Pricing
   totalAmount: number
   currency: string
-  
+
   // Booking ID (set after creation)
   bookingId?: string
 }
@@ -57,10 +57,10 @@ export interface BookingData {
 interface BookingStore {
   // Current step
   currentStep: number
-  
+
   // Booking data
   bookingData: BookingData
-  
+
   // Available options
   locations: Array<{
     id: string
@@ -85,7 +85,7 @@ interface BookingStore {
     amenities?: string[] | null
     size?: string | null
   }>
-  
+
   plans: Array<{
     id: string
     name: string
@@ -97,21 +97,21 @@ interface BookingStore {
     available?: boolean
     status?: string
   }>
-  
+
   addOns: Array<{
     id: string
     name: string
     price: number
     description: string
   }>
-  
+
   // Loading states
   loading: boolean
   error: string | null
 
   locationPlanPricing: LocationPlanPricingMap
   roomPlanPricing: RoomPlanPricingMap
-  
+
   // Actions
   setCurrentStep: (step: number) => void
   updateBookingData: (data: Partial<BookingData>) => void
@@ -119,13 +119,13 @@ interface BookingStore {
   calculateTotal: () => void
   getPlanPricingForLocation: (planId: string, locationId?: string, roomId?: string) => PlanPricing
   getRoomsForLocation: (locationId?: string) => BookingStore['rooms']
-  
+
   // Data loading
   loadAllData: () => Promise<void>
-  
+
   // Booking operations
   createBooking: () => Promise<string | null> // Returns booking ID or null
-  
+
   // Navigation
   nextStep: () => void
   prevStep: () => void
@@ -243,9 +243,9 @@ export const useBookingStore = create<BookingStore>()(
       roomPlanPricing: {},
       loading: false,
       error: null,
-      
+
       setCurrentStep: (step) => set({ currentStep: step }),
-      
+
       updateBookingData: (data) => {
         const { locationId: currentLocationId } = get().bookingData
         const rooms = get().rooms
@@ -272,21 +272,21 @@ export const useBookingStore = create<BookingStore>()(
 
         get().calculateTotal()
       },
-      
+
       resetBooking: () => set({
         currentStep: 1,
         bookingData: initialBookingData,
       }),
-      
+
       calculateTotal: () => {
         const { bookingData, plans, addOns, getPlanPricingForLocation } = get()
         const selectedPlan = plans.find(p => p.id === bookingData.planId)
-        
+
         if (!selectedPlan) {
           console.warn('Cannot calculate total: No plan selected')
           return
         }
-        
+
         // Get selected add-ons with their prices
         const selectedAddOnsWithPrices = bookingData.addOns
           .map(addonId => {
@@ -294,7 +294,7 @@ export const useBookingStore = create<BookingStore>()(
             return addon ? { id: addon.id, price: addon.price } : null
           })
           .filter((addon): addon is { id: string; price: number } => addon !== null)
-        
+
         // Use centralized pricing calculator
         const pricing = calculatePricing({
           planPricing: getPlanPricingForLocation(selectedPlan.id, bookingData.locationId, bookingData.roomId),
@@ -303,7 +303,7 @@ export const useBookingStore = create<BookingStore>()(
           meetingRoomHours: bookingData.meetingRoomHours,
           guestPasses: bookingData.guestPasses,
         })
-        
+
         console.log('Pricing calculation:', {
           basePrice: pricing.basePrice,
           addOnsPrice: pricing.addOnsPrice,
@@ -311,7 +311,7 @@ export const useBookingStore = create<BookingStore>()(
           guestPassesPrice: pricing.guestPassesPrice,
           total: pricing.total,
         })
-        
+
         set((state) => ({
           bookingData: { ...state.bookingData, totalAmount: pricing.total }
         }))
@@ -333,7 +333,7 @@ export const useBookingStore = create<BookingStore>()(
         if (!locationId) return []
         return get().rooms.filter((room) => room.locationId === locationId)
       },
-      
+
       loadAllData: async () => {
         set({ loading: true, error: null })
         try {
@@ -388,23 +388,24 @@ export const useBookingStore = create<BookingStore>()(
             }
           })
         } catch (error) {
-          set({ 
+          console.error('❌ booking-store: loadAllData failed', error)
+          set({
             error: error instanceof Error ? error.message : 'Failed to load data',
-            loading: false 
+            loading: false
           })
         }
       },
-      
+
       createBooking: async () => {
         set({ loading: true, error: null })
-        
+
         try {
           // Recalculate total before creating booking to ensure it's accurate
           get().calculateTotal()
-          
+
           // Get the updated booking data with recalculated total
           const updatedBookingData = get().bookingData
-          
+
           // Try to get current user, but allow guest bookings (null user_id)
           let userId: string | null = null
           try {
@@ -414,43 +415,43 @@ export const useBookingStore = create<BookingStore>()(
             // Not authenticated - allow guest booking
             userId = null
           }
-          
+
           // Create booking in Supabase (with or without user_id)
           const booking = await bookingService.createBooking(updatedBookingData, userId)
-          
+
           // Update booking data with the created booking ID
           set((state) => ({
             bookingData: { ...state.bookingData, bookingId: booking.id },
             loading: false
           }))
-          
+
           // Email will be sent when user verifies payment on QR payment page
-          
+
           return booking.id
         } catch (error) {
           const errorMessage = error instanceof Error ? error.message : 'Failed to create booking'
-          set({ 
+          set({
             error: errorMessage,
-            loading: false 
+            loading: false
           })
           return null
         }
       },
-      
+
       nextStep: () => {
         const { currentStep } = get()
         if (currentStep < 4) {
           set({ currentStep: currentStep + 1 })
         }
       },
-      
+
       prevStep: () => {
         const { currentStep } = get()
         if (currentStep > 1) {
           set({ currentStep: currentStep - 1 })
         }
       },
-      
+
       canProceed: () => {
         const { currentStep, bookingData, plans, rooms } = get()
         const selectedPlan = plans.find(p => p.id === bookingData.planId)
@@ -458,7 +459,7 @@ export const useBookingStore = create<BookingStore>()(
         const requiresRoomSelection =
           Boolean(bookingData.locationId) &&
           rooms.some((room) => room.locationId === bookingData.locationId)
-        
+
         switch (currentStep) {
           case 1:
             return (
