@@ -1,4 +1,4 @@
-import { MapPin, Calendar, Plus, DoorOpen } from 'lucide-react'
+import { MapPin, Calendar, Plus, DoorOpen, ShieldCheck, Lock } from 'lucide-react'
 import { useBookingStore } from '@/store/booking-store'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -114,10 +114,10 @@ export function BookingSummary() {
 
           <div>
             <div className="text-sm text-muted-foreground mb-1">Plan</div>
-              <div className="flex items-center justify-between">
-                <p className="font-medium">{selectedPlan.name}</p>
-                {selectedPlan.popular && <Badge>Popular</Badge>}
-              </div>
+            <div className="flex items-center justify-between">
+              <p className="font-medium">{selectedPlan.name}</p>
+              {selectedPlan.popular && <Badge>Popular</Badge>}
+            </div>
           </div>
         </div>
 
@@ -130,7 +130,7 @@ export function BookingSummary() {
                 <Calendar className="h-4 w-4 mr-1" />
                 Schedule
               </div>
-              
+
               <div className="space-y-1 text-sm">
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">
@@ -179,57 +179,57 @@ export function BookingSummary() {
         )}
 
         {/* Add-ons */}
-        {(bookingData.addOns.length > 0 || 
-          bookingData.meetingRoomHours > 0 || 
+        {(bookingData.addOns.length > 0 ||
+          bookingData.meetingRoomHours > 0 ||
           bookingData.guestPasses > 0) && (
-          <>
-            <Separator />
-            <div className="space-y-2">
-              <div className="flex items-center text-sm text-muted-foreground mb-2">
-                <Plus className="h-4 w-4 mr-1" />
-                Add-ons
-              </div>
-              
-              <div className="space-y-1 text-sm">
-                {bookingData.addOns.map(addonId => {
-                  const addon = addOns.find(a => a.id === addonId)
-                  if (!addon) return null
-                  
-                  return (
-                    <div key={addonId} className="flex justify-between">
-                      <span className="text-muted-foreground">{addon.name}</span>
+            <>
+              <Separator />
+              <div className="space-y-2">
+                <div className="flex items-center text-sm text-muted-foreground mb-2">
+                  <Plus className="h-4 w-4 mr-1" />
+                  Add-ons
+                </div>
+
+                <div className="space-y-1 text-sm">
+                  {bookingData.addOns.map(addonId => {
+                    const addon = addOns.find(a => a.id === addonId)
+                    if (!addon) return null
+
+                    return (
+                      <div key={addonId} className="flex justify-between">
+                        <span className="text-muted-foreground">{addon.name}</span>
+                        <span className="font-medium">
+                          {formatCurrency(addon.price, 'NPR')}
+                        </span>
+                      </div>
+                    )
+                  })}
+
+                  {bookingData.meetingRoomHours > 0 && (
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">
+                        Meeting Room ({bookingData.meetingRoomHours}h)
+                      </span>
                       <span className="font-medium">
-                        {formatCurrency(addon.price, 'NPR')}
+                        {formatCurrency(pricing.meetingRoomHoursPrice, 'NPR')}
                       </span>
                     </div>
-                  )
-                })}
+                  )}
 
-                {bookingData.meetingRoomHours > 0 && (
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">
-                      Meeting Room ({bookingData.meetingRoomHours}h)
-                    </span>
-                    <span className="font-medium">
-                      {formatCurrency(pricing.meetingRoomHoursPrice, 'NPR')}
-                    </span>
-                  </div>
-                )}
-
-                {bookingData.guestPasses > 0 && (
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">
-                      Guest Passes ({bookingData.guestPasses})
-                    </span>
-                    <span className="font-medium">
-                      {formatCurrency(pricing.guestPassesPrice, 'NPR')}
-                    </span>
-                  </div>
-                )}
+                  {bookingData.guestPasses > 0 && (
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">
+                        Guest Passes ({bookingData.guestPasses})
+                      </span>
+                      <span className="font-medium">
+                        {formatCurrency(pricing.guestPassesPrice, 'NPR')}
+                      </span>
+                    </div>
+                  )}
+                </div>
               </div>
-            </div>
-          </>
-        )}
+            </>
+          )}
 
         {/* Pricing */}
         <Separator />
@@ -252,8 +252,17 @@ export function BookingSummary() {
             </div>
           )}
 
+          {pricing.discountAmount && pricing.discountAmount > 0 && (
+            <div className="flex justify-between text-sm text-green-600 font-medium">
+              <span>Online Discount (5%)</span>
+              <span>
+                - {formatCurrency(pricing.discountAmount, 'NPR')}
+              </span>
+            </div>
+          )}
+
           <Separator />
-          
+
           <div className="flex justify-between font-bold text-lg">
             <span>Total</span>
             <span className="text-primary">
@@ -266,10 +275,22 @@ export function BookingSummary() {
           </p>
         </div>
 
+        {/* Trust Signals */}
+        <div className="flex items-center justify-center gap-4 text-xs text-muted-foreground pb-2">
+          <div className="flex items-center gap-1">
+            <ShieldCheck className="h-3 w-3 text-green-600" />
+            <span>Instant Confirmation</span>
+          </div>
+          <div className="flex items-center gap-1">
+            <Lock className="h-3 w-3 text-primary" />
+            <span>Secure Payment</span>
+          </div>
+        </div>
+
         {/* Payment Info */}
-        <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
-          <p className="text-sm text-blue-800">
-            <strong>Next:</strong> Complete your contact information to proceed to secure payment.
+        <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
+          <p className="text-sm text-green-800">
+            <strong>Great choice!</strong> You're saving {formatCurrency(pricing.discountAmount || 0, 'NPR')} by booking online today.
           </p>
         </div>
       </CardContent>

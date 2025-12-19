@@ -74,6 +74,13 @@ export function PricingPreview() {
             Choose the perfect plan for your needs. All plans include our core amenities
             and access to our vibrant community.
           </p>
+
+          <div className="flex justify-center mt-6">
+            <Badge variant="secondary" className="px-4 py-2 text-sm bg-green-100 text-green-800 hover:bg-green-200 border-green-200">
+              <span className="mr-2">🎉</span>
+              Book Online & Save 5% Instantly
+            </Badge>
+          </div>
         </motion.div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
