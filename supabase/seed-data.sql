@@ -146,7 +146,7 @@ INSERT INTO public.plans (id, name, type, description, features, pricing, popula
   'hot_desk',
   'Flexible workspace solution for professionals who value flexibility and community.',
   ARRAY['Access to hot desks', '24/7 access', 'Wi-Fi included', 'Coffee & Tea', 'Common areas', 'Meeting room access (limited)', 'Printing & Scanning', 'Lockers'],
-  '{"monthly": 899900, "annual": 9719000}'::jsonb,
+  '{"weekly": 199900, "monthly": 899900, "annual": 6000000}'::jsonb,
   true,
   true
 ),
@@ -156,7 +156,7 @@ INSERT INTO public.plans (id, name, type, description, features, pricing, popula
   'dedicated_desk',
   'Your personal workspace with all the amenities you need for focused productivity.',
   ARRAY['Dedicated desk', '24/7 access', 'Wi-Fi included', 'Coffee & Tea', 'Common areas', 'Meeting room access (10 hours/month)', 'Printing & Scanning', 'Lockers', 'Phone booths', 'Mail handling'],
-  '{"monthly": 1899900, "annual": 20519000}'::jsonb,
+  '{"weekly": 299900, "monthly": 1099900, "annual": 10800000}'::jsonb,
   false,
   true
 ),
@@ -190,13 +190,13 @@ INSERT INTO public.location_plan_pricing (location_id, plan_id, pricing, currenc
 (
   'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11'::uuid,
   'b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a22'::uuid,
-  '{"weekly": 220000, "monthly": 950000, "annual": 6000000}'::jsonb,
+  '{"weekly": 199900, "monthly": 899900, "annual": 6000000}'::jsonb,
   'NPR'
 ),
 (
   'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11'::uuid,
   'b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a33'::uuid,
-  '{"weekly": 320000, "monthly": 1150000, "annual": 10800000}'::jsonb,
+  '{"weekly": 299900, "monthly": 1099900, "annual": 10800000}'::jsonb,
   'NPR'
 ),
 (
