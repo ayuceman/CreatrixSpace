@@ -66,8 +66,8 @@ const plans = [
     description: 'Most popular choice',
     icon: Star,
     pricing: {
-      weekly: 220000, // NPR 2,200/week
-      monthly: 950000, // NPR 9,500/month
+      weekly: 199900, // NPR 1,999/week
+      monthly: 899900, // NPR 8,999/month
       annual: 6000000, // NPR 60,000/year (~37% savings)
     },
     features: [
@@ -93,8 +93,8 @@ const plans = [
     description: 'For teams and businesses',
     icon: Crown,
     pricing: {
-      weekly: 320000, // NPR 3,200/week
-      monthly: 1150000, // NPR 11,500/month
+      weekly: 299900, // NPR 2,999/week
+      monthly: 1099900, // NPR 10,999/month
       annual: 10800000, // NPR 108,000/year (~22% savings)
     },
     features: [
@@ -127,7 +127,7 @@ const plans = [
       annual: 30000000, // NPR 300,000/year
     },
     features: [
-      'Private locked office (2-4 people)',
+      'Private locked office (4-6 people)',
       'Furniture included',
       'High-speed internet',
       'Unlimited meeting room access',
@@ -284,39 +284,36 @@ export function PricingPage() {
               <span className="gradient-text block">Memberships</span>
             </h1>
             <p className="text-lg text-muted-foreground">
-              Choose the perfect plan for your needs. All plans include our core amenities 
+              Choose the perfect plan for your needs. All plans include our core amenities
               and access to our vibrant community of professionals.
             </p>
-            
+
             {/* Billing Toggle */}
             <div className="flex items-center justify-center space-x-4 bg-muted rounded-lg p-1 w-fit mx-auto">
               <button
                 onClick={() => setBillingPeriod('weekly')}
-                className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-                  billingPeriod === 'weekly'
+                className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${billingPeriod === 'weekly'
                     ? 'bg-background shadow-sm'
                     : 'text-muted-foreground hover:text-foreground'
-                }`}
+                  }`}
               >
                 Weekly
               </button>
               <button
                 onClick={() => setBillingPeriod('monthly')}
-                className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-                  billingPeriod === 'monthly'
+                className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${billingPeriod === 'monthly'
                     ? 'bg-background shadow-sm'
                     : 'text-muted-foreground hover:text-foreground'
-                }`}
+                  }`}
               >
                 Monthly
               </button>
               <button
                 onClick={() => setBillingPeriod('annual')}
-                className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-                  billingPeriod === 'annual'
+                className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${billingPeriod === 'annual'
                     ? 'bg-background shadow-sm'
                     : 'text-muted-foreground hover:text-foreground'
-                }`}
+                  }`}
               >
                 Annual
                 <Badge variant="secondary" className="ml-2">Save up to 23%</Badge>
@@ -354,188 +351,187 @@ export function PricingPage() {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
               {plans.map((plan, index) => {
-              const Icon = plan.icon
-              const planId = getPlanIdForCard(plan)
-              const planPricing = getPlanPricingForCard(plan)
-              const planType = planMetadata[plan.supabaseName]?.type || plan.planType
-              const isPopular = plan.popular || planMetadata[plan.supabaseName]?.popular
-              const priceForSelectedPeriod = planType === 'day_pass'
-                ? planPricing.daily
-                : planPricing[billingPeriod]
-              const fallbackPrice = planType === 'day_pass'
-                ? planPricing.daily
-                : planPricing.monthly || planPricing.weekly || planPricing.annual
-              const price = priceForSelectedPeriod ?? fallbackPrice ?? 0
-              const period = planType === 'day_pass'
-                ? 'day'
-                : priceForSelectedPeriod
-                  ? billingPeriod === 'annual'
-                    ? 'year'
-                    : billingPeriod === 'weekly'
-                      ? 'week'
-                      : 'month'
-                  : planPricing.monthly
-                    ? 'month'
-                    : planPricing.weekly
-                      ? 'week'
-                      : planPricing.annual
-                        ? 'year'
+                const Icon = plan.icon
+                const planId = getPlanIdForCard(plan)
+                const planPricing = getPlanPricingForCard(plan)
+                const planType = planMetadata[plan.supabaseName]?.type || plan.planType
+                const isPopular = plan.popular || planMetadata[plan.supabaseName]?.popular
+                const priceForSelectedPeriod = planType === 'day_pass'
+                  ? planPricing.daily
+                  : planPricing[billingPeriod]
+                const fallbackPrice = planType === 'day_pass'
+                  ? planPricing.daily
+                  : planPricing.monthly || planPricing.weekly || planPricing.annual
+                const price = priceForSelectedPeriod ?? fallbackPrice ?? 0
+                const period = planType === 'day_pass'
+                  ? 'day'
+                  : priceForSelectedPeriod
+                    ? billingPeriod === 'annual'
+                      ? 'year'
+                      : billingPeriod === 'weekly'
+                        ? 'week'
                         : 'month'
-              const missingSelectedPeriod = planType !== 'day_pass' && !priceForSelectedPeriod && Boolean(fallbackPrice)
-              
-              return (
-                <motion.div
-                  key={plan.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: index * 0.1 }}
-                >
-                  <Card className={`relative h-full transition-all duration-300 hover:shadow-xl hover:-translate-y-1 ${
-                    isPopular ? 'ring-2 ring-primary scale-105' : ''
-                  }`}>
-                    {isPopular && (
-                      <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-                        <Badge className="bg-primary text-primary-foreground">
-                          <Star className="h-3 w-3 mr-1 fill-current" />
-                          Most Popular
-                        </Badge>
-                      </div>
-                    )}
+                    : planPricing.monthly
+                      ? 'month'
+                      : planPricing.weekly
+                        ? 'week'
+                        : planPricing.annual
+                          ? 'year'
+                          : 'month'
+                const missingSelectedPeriod = planType !== 'day_pass' && !priceForSelectedPeriod && Boolean(fallbackPrice)
 
-                    <CardHeader className="text-center pb-4">
-                      <div className="mx-auto mb-4 w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center">
-                        <Icon className="h-6 w-6 text-primary" />
-                      </div>
-                      <CardTitle className="text-xl">{plan.name}</CardTitle>
-                      <p className="text-sm text-muted-foreground">{plan.description}</p>
-                      
-                      <div className="pt-4">
-                        {plan.id === 'private-office' && (
-                          <p className="text-sm text-muted-foreground text-center mb-1">
-                            Starting from
-                          </p>
-                        )}
-                        <div className="flex items-baseline justify-center">
-                          <span className="text-3xl font-bold">
-                            {price > 0 ? formatCurrency(price, 'NPR') : 'Contact'}
-                          </span>
-                          <span className="text-muted-foreground ml-1">
-                            /{period}
-                          </span>
+                return (
+                  <motion.div
+                    key={plan.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5, delay: index * 0.1 }}
+                  >
+                    <Card className={`relative h-full transition-all duration-300 hover:shadow-xl hover:-translate-y-1 ${isPopular ? 'ring-2 ring-primary scale-105' : ''
+                      }`}>
+                      {isPopular && (
+                        <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
+                          <Badge className="bg-primary text-primary-foreground">
+                            <Star className="h-3 w-3 mr-1 fill-current" />
+                            Most Popular
+                          </Badge>
                         </div>
-                        {plan.planType === 'day_pass' && plan.pricing.originalDaily && (
-                          <div className="flex items-center justify-center gap-2 mt-1">
-                            <span className="text-sm text-muted-foreground line-through">
-                              {formatCurrency(plan.pricing.originalDaily, 'NPR')}
-                            </span>
-                            <Badge variant="destructive" className="text-xs">
-                              Save {formatCurrency(plan.pricing.originalDaily - (price || 0), 'NPR')}
-                            </Badge>
-                          </div>
-                        )}
-                        {plan.planType === 'private_office' && plan.pricing.originalMonthly && billingPeriod === 'monthly' && (
-                          <div className="flex items-center justify-center gap-2 mt-1">
-                            <span className="text-sm text-muted-foreground line-through">
-                              {formatCurrency(plan.pricing.originalMonthly, 'NPR')}
-                            </span>
-                            <Badge variant="destructive" className="text-xs">
-                              Save {formatCurrency(plan.pricing.originalMonthly - (price || 0), 'NPR')}
-                            </Badge>
-                          </div>
-                        )}
-                        {plan.planType === 'day_pass' && (
-                          <p className="text-xs text-amber-600 mt-1">
-                            Promotional price — limited time only
-                          </p>
-                        )}
-                        {plan.planType === 'private_office' && billingPeriod === 'monthly' && (
-                          <p className="text-xs text-amber-600 mt-1">
-                            Special offer — limited time only
-                          </p>
-                        )}
-                        {billingPeriod === 'annual' && planPricing.annual && planPricing.monthly && (
-                          <p className="text-xs text-green-600 mt-1">
-                            Save {formatCurrency((planPricing.monthly * 12) - planPricing.annual, 'NPR')} per year
-                          </p>
-                        )}
-                        {billingPeriod === 'weekly' && planPricing.weekly && planPricing.monthly && (
-                          <p className="text-xs text-muted-foreground mt-1">
-                            Monthly: {formatCurrency(planPricing.monthly, 'NPR')}
-                          </p>
-                        )}
-                        {missingSelectedPeriod && (
-                          <p className="text-xs text-amber-600 mt-1">
-                            No {billingPeriod} pricing at {selectedLocation?.name || 'this location'} yet. Showing {period} rate.
-                          </p>
-                        )}
-                      </div>
-                    </CardHeader>
+                      )}
 
-                    <CardContent className="space-y-6">
-                      <ul className="space-y-3">
-                        {plan.features.map((feature) => (
-                          <li key={feature} className="flex items-start">
-                            <Check className="h-4 w-4 text-primary mr-3 flex-shrink-0 mt-0.5" />
-                            <span className="text-sm">{feature}</span>
-                          </li>
-                        ))}
-                      </ul>
+                      <CardHeader className="text-center pb-4">
+                        <div className="mx-auto mb-4 w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center">
+                          <Icon className="h-6 w-6 text-primary" />
+                        </div>
+                        <CardTitle className="text-xl">{plan.name}</CardTitle>
+                        <p className="text-sm text-muted-foreground">{plan.description}</p>
 
-                      {plan.planType === 'private_office' ? (
-                        <div className="space-y-3">
-                          <div className="bg-gradient-to-r from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20 rounded-lg p-4 space-y-3">
-                            <p className="text-sm font-semibold text-center">Enquire Now for Private Office</p>
-                            <div className="flex flex-col gap-2">
-                              <a
-                                href="https://wa.me/9779803171819?text=Hi!%20I'm%20interested%20in%20the%20Private%20Office%20plan."
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors"
-                              >
-                                <MessageCircle className="h-4 w-4" />
-                                WhatsApp: +977 9803171819
-                              </a>
-                              <a
-                                href="tel:+9779851357889"
-                                className="flex items-center justify-center gap-2 bg-primary hover:bg-primary/90 text-primary-foreground px-4 py-2 rounded-md text-sm font-medium transition-colors"
-                              >
-                                <Phone className="h-4 w-4" />
-                                Call: +977 9851357889
-                              </a>
+                        <div className="pt-4">
+                          {plan.id === 'private-office' && (
+                            <p className="text-sm text-muted-foreground text-center mb-1">
+                              Starting from
+                            </p>
+                          )}
+                          <div className="flex items-baseline justify-center">
+                            <span className="text-3xl font-bold">
+                              {price > 0 ? formatCurrency(price, 'NPR') : 'Contact'}
+                            </span>
+                            <span className="text-muted-foreground ml-1">
+                              /{period}
+                            </span>
+                          </div>
+                          {plan.planType === 'day_pass' && plan.pricing.originalDaily && (
+                            <div className="flex items-center justify-center gap-2 mt-1">
+                              <span className="text-sm text-muted-foreground line-through">
+                                {formatCurrency(plan.pricing.originalDaily, 'NPR')}
+                              </span>
+                              <Badge variant="destructive" className="text-xs">
+                                Save {formatCurrency(plan.pricing.originalDaily - (price || 0), 'NPR')}
+                              </Badge>
+                            </div>
+                          )}
+                          {plan.planType === 'private_office' && plan.pricing.originalMonthly && billingPeriod === 'monthly' && (
+                            <div className="flex items-center justify-center gap-2 mt-1">
+                              <span className="text-sm text-muted-foreground line-through">
+                                {formatCurrency(plan.pricing.originalMonthly, 'NPR')}
+                              </span>
+                              <Badge variant="destructive" className="text-xs">
+                                Save {formatCurrency(plan.pricing.originalMonthly - (price || 0), 'NPR')}
+                              </Badge>
+                            </div>
+                          )}
+                          {plan.planType === 'day_pass' && (
+                            <p className="text-xs text-amber-600 mt-1">
+                              Promotional price — limited time only
+                            </p>
+                          )}
+                          {plan.planType === 'private_office' && billingPeriod === 'monthly' && (
+                            <p className="text-xs text-amber-600 mt-1">
+                              Special offer — limited time only
+                            </p>
+                          )}
+                          {billingPeriod === 'annual' && planPricing.annual && planPricing.monthly && (
+                            <p className="text-xs text-green-600 mt-1">
+                              Save {formatCurrency((planPricing.monthly * 12) - planPricing.annual, 'NPR')} per year
+                            </p>
+                          )}
+                          {billingPeriod === 'weekly' && planPricing.weekly && planPricing.monthly && (
+                            <p className="text-xs text-muted-foreground mt-1">
+                              Monthly: {formatCurrency(planPricing.monthly, 'NPR')}
+                            </p>
+                          )}
+                          {missingSelectedPeriod && (
+                            <p className="text-xs text-amber-600 mt-1">
+                              No {billingPeriod} pricing at {selectedLocation?.name || 'this location'} yet. Showing {period} rate.
+                            </p>
+                          )}
+                        </div>
+                      </CardHeader>
+
+                      <CardContent className="space-y-6">
+                        <ul className="space-y-3">
+                          {plan.features.map((feature) => (
+                            <li key={feature} className="flex items-start">
+                              <Check className="h-4 w-4 text-primary mr-3 flex-shrink-0 mt-0.5" />
+                              <span className="text-sm">{feature}</span>
+                            </li>
+                          ))}
+                        </ul>
+
+                        {plan.planType === 'private_office' ? (
+                          <div className="space-y-3">
+                            <div className="bg-gradient-to-r from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20 rounded-lg p-4 space-y-3">
+                              <p className="text-sm font-semibold text-center">Enquire Now for Private Office</p>
+                              <div className="flex flex-col gap-2">
+                                <a
+                                  href="https://wa.me/9779803171819?text=Hi!%20I'm%20interested%20in%20the%20Private%20Office%20plan."
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors"
+                                >
+                                  <MessageCircle className="h-4 w-4" />
+                                  WhatsApp: +977 9803171819
+                                </a>
+                                <a
+                                  href="tel:+9779851357889"
+                                  className="flex items-center justify-center gap-2 bg-primary hover:bg-primary/90 text-primary-foreground px-4 py-2 rounded-md text-sm font-medium transition-colors"
+                                >
+                                  <Phone className="h-4 w-4" />
+                                  Call: +977 9851357889
+                                </a>
+                              </div>
                             </div>
                           </div>
-                        </div>
-                      ) : planId ? (
-                        <>
-                          <Button 
-                            className="w-full" 
-                            variant={isPopular ? 'default' : 'outline'}
-                            asChild
-                          >
-                            <Link to={`${ROUTES.BOOKING}?plan=${planId}${selectedLocationId ? `&location=${selectedLocationId}` : ''}`}>
-                              {plan.cta}
-                            </Link>
-                          </Button>
+                        ) : planId ? (
+                          <>
+                            <Button
+                              className="w-full"
+                              variant={isPopular ? 'default' : 'outline'}
+                              asChild
+                            >
+                              <Link to={`${ROUTES.BOOKING}?plan=${planId}${selectedLocationId ? `&location=${selectedLocationId}` : ''}`}>
+                                {plan.cta}
+                              </Link>
+                            </Button>
 
-                          <p className="text-xs text-muted-foreground text-center">
-                            No setup fees • Cancel anytime
-                          </p>
-                        </>
-                      ) : (
-                        <>
-                          <Button className="w-full" variant="secondary" disabled>
-                            Plan not available yet
-                          </Button>
-                          <p className="text-xs text-muted-foreground text-center">
-                            Add “{plan.supabaseName}” to Supabase to enable bookings.
-                          </p>
-                        </>
-                      )}
-                    </CardContent>
-                  </Card>
-                </motion.div>
-              )
-            })}
+                            <p className="text-xs text-muted-foreground text-center">
+                              No setup fees • Cancel anytime
+                            </p>
+                          </>
+                        ) : (
+                          <>
+                            <Button className="w-full" variant="secondary" disabled>
+                              Plan not available yet
+                            </Button>
+                            <p className="text-xs text-muted-foreground text-center">
+                              Add “{plan.supabaseName}” to Supabase to enable bookings.
+                            </p>
+                          </>
+                        )}
+                      </CardContent>
+                    </Card>
+                  </motion.div>
+                )
+              })}
             </div>
           )}
           {error && (

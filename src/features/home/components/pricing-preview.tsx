@@ -26,7 +26,7 @@ const plans = [
   {
     name: 'Professional',
     description: 'Most popular choice',
-    price: 950000, // in paisa (NPR 9,500)
+    price: 899900, // in paisa (NPR 8,999)
     period: 'month',
     features: [
       'Hot desk workstation',
@@ -41,7 +41,7 @@ const plans = [
   {
     name: 'Enterprise',
     description: 'For teams and businesses',
-    price: 1150000, // in paisa (NPR 11,500)
+    price: 1099900, // in paisa (NPR 10,999)
     period: 'month',
     features: [
       'Dedicated desk',
@@ -71,7 +71,7 @@ export function PricingPreview() {
             <span className="gradient-text"> Pricing</span>
           </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Choose the perfect plan for your needs. All plans include our core amenities 
+            Choose the perfect plan for your needs. All plans include our core amenities
             and access to our vibrant community.
           </p>
         </motion.div>
@@ -85,9 +85,8 @@ export function PricingPreview() {
               transition={{ duration: 0.5, delay: index * 0.1 }}
               viewport={{ once: true }}
             >
-              <Card className={`relative h-full transition-all duration-300 hover:shadow-xl hover:-translate-y-1 ${
-                plan.popular ? 'ring-2 ring-primary scale-105' : ''
-              }`}>
+              <Card className={`relative h-full transition-all duration-300 hover:shadow-xl hover:-translate-y-1 ${plan.popular ? 'ring-2 ring-primary scale-105' : ''
+                }`}>
                 {plan.popular && (
                   <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
                     <Badge className="bg-primary text-primary-foreground">
@@ -100,7 +99,7 @@ export function PricingPreview() {
                 <CardHeader className="text-center pb-4">
                   <CardTitle className="text-xl">{plan.name}</CardTitle>
                   <p className="text-sm text-muted-foreground">{plan.description}</p>
-                  
+
                   <div className="pt-4">
                     <div className="flex items-baseline justify-center">
                       <span className="text-3xl font-bold">
@@ -138,8 +137,8 @@ export function PricingPreview() {
                     ))}
                   </ul>
 
-                  <Button 
-                    className="w-full" 
+                  <Button
+                    className="w-full"
                     variant={plan.popular ? 'default' : 'outline'}
                     asChild
                   >

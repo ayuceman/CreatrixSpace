@@ -284,6 +284,21 @@ export function LocationPlanStep() {
               Choose an available room above to unlock plan-specific pricing for this location.
             </p>
           )}
+          {/* Dhobighat availability notice */}
+          {selectedLocation && (
+            (selectedLocation.slug === 'dhobighat-hub' || 
+             selectedLocation.name?.toLowerCase().includes('dhobighat')) && (
+              <div className="mb-4 p-4 bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800 rounded-lg">
+                <p className="text-sm font-medium text-blue-900 dark:text-blue-100 mb-1">
+                  📍 Availability Notice for Dhobighat Hub
+                </p>
+                <p className="text-sm text-blue-800 dark:text-blue-200">
+                  Only <strong>Shared Desk</strong> and <strong>Hot Desk</strong> plans are currently available. 
+                  Dedicated Desk and Private Office are fully booked for the next 6 months.
+                </p>
+              </div>
+            )
+          )}
           {plans.length === 0 ? (
             <div className="p-8 text-center">
               <Users className="h-12 w-12 mx-auto mb-4 text-muted-foreground opacity-50" />
@@ -317,7 +332,18 @@ export function LocationPlanStep() {
                       : locationPricing.annual
                         ? 'year'
                         : 'month'
-                const isAvailable = plan.available !== false
+                
+                // Check if Dhobighat and plan should be unavailable
+                const isDhobighat = selectedLocation && (
+                  selectedLocation.slug === 'dhobighat-hub' || 
+                  selectedLocation.name?.toLowerCase().includes('dhobighat')
+                )
+                const isDhobighatRestrictedPlan = isDhobighat && (
+                  plan.type === 'dedicated_desk' || plan.type === 'private_office'
+                )
+                const dhobighatStatus = isDhobighatRestrictedPlan ? 'Fully booked for 6 months' : null
+                
+                const isAvailable = plan.available !== false && !isDhobighatRestrictedPlan
                 const planDisabled = !isAvailable || (requiresRoomSelection && !bookingData.roomId)
 
                 return (
@@ -346,9 +372,9 @@ export function LocationPlanStep() {
                           </p>
                         </div>
                         <div className="text-right">
-                          {!isAvailable && plan.status && (
+                          {!isAvailable && (dhobighatStatus || plan.status) && (
                             <Badge className="mb-2 bg-orange-500 hover:bg-orange-600 text-white">
-                              {plan.status}
+                              {dhobighatStatus || plan.status}
                             </Badge>
                           )}
                           {plan.type === 'day_pass' && plan.pricing.daily && (
