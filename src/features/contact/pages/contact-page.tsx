@@ -40,7 +40,7 @@ const locations = [
     email: 'dhobighat@creatrixspace.com',
     hours: '24/7 Access',
     status: 'Available',
-    googleMapsUrl: 'https://maps.app.goo.gl/Pw4KLyfjaj2Wdrsw9?g_st=ipc'
+    googleMapsUrl: 'https://maps.app.goo.gl/88JRCRwL5ttdaPpu6'
   },
   {
     name: 'Kausimaa Co-working',

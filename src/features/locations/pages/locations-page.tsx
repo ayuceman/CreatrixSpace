@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion'
-import { MapPin, Users, Star, Clock, Wifi, Coffee, Car, Shield } from 'lucide-react'
+import { MapPin, Users, Star, Clock, Wifi, Coffee, Car, Shield, ExternalLink } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -27,6 +27,7 @@ const locations = [
     },
     available: true,
     popular: true,
+    googleMapsUrl: 'https://maps.app.goo.gl/88JRCRwL5ttdaPpu6',
   },
   {
     id: 'kausimaa',
@@ -135,9 +136,25 @@ export function LocationsPage() {
               <CardContent className="p-6 space-y-4">
                 <div className="space-y-2">
                   <h3 className="font-semibold text-xl">{location.name}</h3>
-                  <div className="flex items-center text-muted-foreground">
-                    <MapPin className="h-4 w-4 mr-1" />
-                    <span className="text-sm">{location.address}</span>
+                  <div className="flex items-center justify-between flex-wrap gap-2">
+                    <div className="flex items-center text-muted-foreground">
+                      <MapPin className="h-4 w-4 mr-1" />
+                      <span className="text-sm">{location.address}</span>
+                    </div>
+                    {location.googleMapsUrl && (
+                      <a
+                        href={location.googleMapsUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center"
+                      >
+                        <Badge className="text-xs font-medium cursor-pointer bg-blue-50 hover:bg-blue-100 text-blue-700 border-blue-200 hover:border-blue-300 transition-all shadow-sm hover:shadow-md">
+                          <MapPin className="h-3.5 w-3.5 mr-1.5" />
+                          Location Map
+                          <ExternalLink className="h-3.5 w-3.5 ml-1.5" />
+                        </Badge>
+                      </a>
+                    )}
                   </div>
                 </div>
 

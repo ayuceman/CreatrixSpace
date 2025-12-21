@@ -36,7 +36,7 @@ const locationData: Record<string, Location> = {
       phone: '+977 9851357889',
       email: ''
     },
-    googleMapsUrl: 'https://maps.app.goo.gl/Pw4KLyfjaj2Wdrsw9?g_st=ipc'
+    googleMapsUrl: 'https://maps.app.goo.gl/88JRCRwL5ttdaPpu6'
   },
   'kausimaa': {
     id: 'kausimaa',
