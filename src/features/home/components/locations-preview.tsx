@@ -11,7 +11,7 @@ const locations = [
     id: 'dhobighat-hub',
     name: 'Dhobighat (WashingTown) Hub',
     address: 'Dhobighat, Kathmandu',
-    image: '/images/locations/dhobighat-hub/dhobighat-coworking-space-main.webp',
+    image: '/images/locations/dhobighat-hub/worshop_hall.jpeg',
     capacity: 30,
     rating: 4.9,
     features: ['24/7 Access', 'Meeting Rooms', 'Event Space'],
@@ -94,9 +94,26 @@ export function LocationsPreview() {
                   <img
                     src={location.image}
                     alt={location.name}
-                    className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                    className={`w-full h-full object-cover transition-transform duration-300 group-hover:scale-105 ${
+                      location.id === 'dhobighat-hub' 
+                        ? 'brightness-110 contrast-105 saturate-110' 
+                        : ''
+                    }`}
+                    style={
+                      location.id === 'dhobighat-hub'
+                        ? { filter: 'brightness(1.15) contrast(1.1) saturate(1.15)' }
+                        : {}
+                    }
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
+                  {location.id === 'dhobighat-hub' ? (
+                    <>
+                      <div className="absolute inset-0 bg-gradient-to-t from-amber-500/20 via-transparent to-transparent" />
+                      <div className="absolute inset-0 bg-gradient-to-br from-amber-200/10 via-transparent to-orange-200/10" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
+                    </>
+                  ) : (
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
+                  )}
                   
                   {location.popular && (
                     <Badge className="absolute top-4 left-4">
