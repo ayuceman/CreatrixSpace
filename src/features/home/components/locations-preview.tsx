@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { ArrowRight, MapPin, Users, Star } from 'lucide-react'
+import { ArrowRight, MapPin, Users, Star, Clock, AlertCircle } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -17,6 +17,8 @@ const locations = [
     features: ['24/7 Access', 'Meeting Rooms', 'Event Space'],
     popular: true,
     available: true,
+    limitedAvailability: true,
+    onlyRoomAvailable: true,
   },
   {
     id: 'kausimaa',
@@ -47,6 +49,44 @@ export function LocationsPreview() {
   return (
     <section className="section-padding">
       <div className="container">
+        {/* Urgency Banner */}
+        {locations.some(loc => loc.onlyRoomAvailable) && (
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            viewport={{ once: true }}
+            className="mb-8"
+          >
+            <div className="bg-gradient-to-r from-red-50 to-orange-50 dark:from-red-950/30 dark:to-orange-950/30 border-2 border-red-200 dark:border-red-800 rounded-xl p-4 md:p-6">
+              <div className="flex flex-col md:flex-row items-start md:items-center gap-4">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-red-100 dark:bg-red-900/50 rounded-lg">
+                    <AlertCircle className="h-6 w-6 text-red-600 dark:text-red-400 animate-pulse" />
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-lg text-red-900 dark:text-red-100">
+                      Limited Availability
+                    </h3>
+                    <p className="text-sm text-red-700 dark:text-red-300">
+                      Only one room available for immediate booking
+                    </p>
+                  </div>
+                </div>
+                <div className="ml-auto">
+                  <Button asChild className="bg-red-600 hover:bg-red-700 text-white">
+                    <Link to={ROUTES.BOOKING}>
+                      <Clock className="h-4 w-4 mr-2" />
+                      Book Now
+                      <ArrowRight className="h-4 w-4 ml-2" />
+                    </Link>
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        )}
+
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-8 mb-12">
           <motion.div
             initial={{ opacity: 0, x: -20 }}
@@ -89,7 +129,9 @@ export function LocationsPreview() {
               transition={{ duration: 0.5, delay: index * 0.1 }}
               viewport={{ once: true }}
             >
-              <Card className="group overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-2">
+              <Card className={`group overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-2 ${
+                location.onlyRoomAvailable ? 'ring-2 ring-red-500 ring-offset-2 shadow-lg' : ''
+              }`}>
                 <div className="relative aspect-[4/3] overflow-hidden">
                   <img
                     src={location.image}
@@ -115,10 +157,37 @@ export function LocationsPreview() {
                     <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
                   )}
                   
-                  {location.popular && (
+                  {/* Only Room Available Badge */}
+                  {location.onlyRoomAvailable && (
+                    <motion.div
+                      initial={{ scale: 0 }}
+                      animate={{ scale: [1, 1.05, 1] }}
+                      transition={{ duration: 2, repeat: Infinity }}
+                      className="absolute top-4 left-4 z-10"
+                    >
+                      <Badge className="bg-red-600 text-white border-red-700 shadow-lg animate-pulse">
+                        <AlertCircle className="h-3 w-3 mr-1" />
+                        Only Room Available
+                      </Badge>
+                    </motion.div>
+                  )}
+                  
+                  {location.popular && !location.onlyRoomAvailable && (
                     <Badge className="absolute top-4 left-4">
                       🔥 Most Popular
                     </Badge>
+                  )}
+                  
+                  {location.onlyRoomAvailable && (
+                    <motion.div
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: [0.5, 1, 0.5] }}
+                      transition={{ duration: 2, repeat: Infinity }}
+                      className="absolute top-4 right-4 bg-red-600/90 backdrop-blur-sm rounded-lg px-3 py-1.5 flex items-center space-x-1.5"
+                    >
+                      <Clock className="h-3 w-3 text-white" />
+                      <span className="text-xs font-bold text-white">Book Now</span>
+                    </motion.div>
                   )}
                   
                   {location.status === 'reserved' && (
@@ -165,12 +234,24 @@ export function LocationsPreview() {
 
                   {location.available ? (
                     <Button 
-                      className="w-full" 
-                      variant="outline"
+                      className={`w-full ${
+                        location.onlyRoomAvailable 
+                          ? 'bg-red-600 hover:bg-red-700 text-white animate-pulse' 
+                          : ''
+                      }`}
+                      variant={location.onlyRoomAvailable ? "default" : "outline"}
                       asChild
                     >
-                      <Link to={`${ROUTES.LOCATIONS}/${location.id}`}>
-                        Explore Location
+                      <Link to={location.onlyRoomAvailable ? ROUTES.BOOKING : `${ROUTES.LOCATIONS}/${location.id}`}>
+                        {location.onlyRoomAvailable ? (
+                          <>
+                            <Clock className="h-4 w-4 mr-2" />
+                            Book Now - Limited Availability
+                            <ArrowRight className="h-4 w-4 ml-2" />
+                          </>
+                        ) : (
+                          'Explore Location'
+                        )}
                       </Link>
                     </Button>
                   ) : (
