@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useState, useEffect } from 'react'
-import { ArrowRight, MapPin, Users, Wifi, Coffee, ChevronLeft, ChevronRight } from 'lucide-react'
+import { ArrowRight, MapPin, Users, Wifi, Coffee, ChevronLeft, ChevronRight, Sparkles } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { ROUTES } from '@/lib/constants'
@@ -77,72 +77,63 @@ export function HeroSection() {
   }
 
   return (
-    <section className="relative section-padding bg-gradient-to-br from-background via-background to-primary/5 overflow-hidden">
-      {/* Purple Stars and Planets Background */}
+    <section className="relative section-padding bg-gradient-to-br from-amber-50 via-red-50 to-rose-100 dark:from-amber-950/30 dark:via-red-950/30 dark:to-rose-950/30 overflow-hidden">
+      {/* Warm Cozy Background with Snowflakes and Sparkles */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        {/* Small Stars - Purple star shapes */}
-        {[...Array(80)].map((_, i) => {
-          const size = Math.random() * 3 + 1
+        {/* Snowflakes */}
+        {[...Array(60)].map((_, i) => {
+          const size = Math.random() * 4 + 2
           const left = Math.random() * 100
           const top = Math.random() * 100
-          const delay = Math.random() * 3
-          const duration = 2 + Math.random() * 2
+          const delay = Math.random() * 5
+          const duration = 3 + Math.random() * 4
           
           return (
             <motion.div
-              key={`star-${i}`}
-              className="absolute"
+              key={`snowflake-${i}`}
+              className="absolute text-white/60"
               style={{
-                width: `${size}px`,
-                height: `${size}px`,
+                fontSize: `${size}px`,
                 left: `${left}%`,
                 top: `${top}%`,
-                opacity: 0.4 + Math.random() * 0.4,
               }}
               animate={{
-                opacity: [0.2, 0.8, 0.2],
-                scale: [1, 1.2, 1],
-                rotate: [0, 180, 360],
+                y: [0, 100],
+                opacity: [0.3, 0.8, 0.3],
+                rotate: [0, 360],
               }}
               transition={{
                 duration,
                 repeat: Infinity,
-                ease: "easeInOut",
+                ease: "linear",
                 delay,
               }}
             >
-              <div 
-                className="w-full h-full bg-purple-500"
-                style={{
-                  clipPath: 'polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%)',
-                WebkitClipPath: 'polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%)',
-              }}
-              />
+              ❄
             </motion.div>
           )
         })}
         
-        {/* Medium Stars - Brighter purple star shapes */}
-        {[...Array(20)].map((_, i) => {
-          const size = 3 + Math.random() * 3
+        {/* Golden Sparkles */}
+        {[...Array(30)].map((_, i) => {
+          const size = Math.random() * 3 + 1
           const left = Math.random() * 100
           const top = Math.random() * 100
           const delay = Math.random() * 2
           
           return (
             <motion.div
-              key={`bright-star-${i}`}
+              key={`sparkle-${i}`}
               className="absolute"
               style={{
                 width: `${size}px`,
                 height: `${size}px`,
                 left: `${left}%`,
                 top: `${top}%`,
-                opacity: 0.6,
               }}
               animate={{
-                opacity: [0.4, 0.9, 0.4],
-                scale: [1, 1.3, 1],
+                opacity: [0.2, 1, 0.2],
+                scale: [0.5, 1.5, 0.5],
                 rotate: [0, 180, 360],
               }}
               transition={{
@@ -152,147 +143,70 @@ export function HeroSection() {
                 delay,
               }}
             >
-              <div 
-                className="w-full h-full bg-purple-600"
-                style={{
-                  clipPath: 'polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%)',
-                  WebkitClipPath: 'polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%)',
-                  boxShadow: `0 0 ${size}px rgba(147, 51, 234, 0.5)`,
-                }}
-              />
+              <Sparkles className="w-full h-full text-amber-400" />
             </motion.div>
           )
         })}
         
-        {/* Saturn - Purple with realistic rings */}
+        {/* Warm Glowing Orbs */}
         <motion.div
-          className="absolute top-10 right-10 flex items-center justify-center"
-          style={{
-            opacity: 0.7,
-            width: '120px',
-            height: '120px',
-          }}
+          className="absolute top-10 right-10 w-32 h-32 rounded-full bg-gradient-to-br from-red-300/30 to-amber-300/30 blur-3xl"
           animate={{
-            opacity: [0.6, 0.8, 0.6],
+            opacity: [0.3, 0.6, 0.3],
+            scale: [1, 1.2, 1],
+          }}
+          transition={{
+            duration: 8,
+            repeat: Infinity,
+            ease: "easeInOut",
+          }}
+        />
+        
+        <motion.div
+          className="absolute bottom-20 left-20 w-24 h-24 rounded-full bg-gradient-to-br from-amber-300/30 to-orange-300/30 blur-2xl"
+          animate={{
+            opacity: [0.3, 0.5, 0.3],
+            scale: [1, 1.3, 1],
           }}
           transition={{
             duration: 6,
             repeat: Infinity,
             ease: "easeInOut",
           }}
-        >
-          {/* Saturn Rings - Multiple elliptical rings */}
-          <div className="absolute inset-0 flex items-center justify-center">
-            {/* Outer ring */}
-            <div 
-              className="absolute border-2 border-purple-500/50" 
-              style={{ 
-                width: '100px', 
-                height: '8px',
-                borderRadius: '50%',
-                transform: 'rotate(25deg)',
-              }} 
-            />
-            {/* Middle ring - brighter */}
-            <div 
-              className="absolute border border-purple-500/60" 
-              style={{ 
-                width: '90px', 
-                height: '6px',
-                borderRadius: '50%',
-                transform: 'rotate(25deg)',
-              }} 
-            />
-            {/* Inner ring */}
-            <div 
-              className="absolute border border-purple-400/40" 
-              style={{ 
-                width: '80px', 
-                height: '5px',
-                borderRadius: '50%',
-                transform: 'rotate(25deg)',
-              }} 
-            />
-            {/* Gap ring */}
-            <div 
-              className="absolute border border-purple-500/30" 
-              style={{ 
-                width: '70px', 
-                height: '4px',
-                borderRadius: '50%',
-                transform: 'rotate(25deg)',
-              }} 
-            />
-          </div>
+        />
+        
+        {/* Decorative Stars */}
+        {[...Array(15)].map((_, i) => {
+          const size = 4 + Math.random() * 4
+          const left = Math.random() * 100
+          const top = Math.random() * 100
+          const delay = Math.random() * 3
           
-          {/* Saturn Planet - with gradient for realism */}
-          <div 
-            className="relative rounded-full bg-purple-600 mx-auto z-10" 
-            style={{
-              width: '36px',
-              height: '36px',
-              background: 'radial-gradient(circle at 35% 35%, rgba(167, 139, 250, 0.9), rgba(139, 92, 246, 0.8), rgba(124, 58, 237, 0.7))',
-              boxShadow: '0 0 40px rgba(147, 51, 234, 0.5), inset -5px -5px 10px rgba(79, 70, 229, 0.3)',
-            }} 
-          >
-            {/* Planet surface detail */}
-            <div 
-              className="absolute inset-0 rounded-full opacity-20" 
+          return (
+            <motion.div
+              key={`star-${i}`}
+              className="absolute text-amber-400/50"
               style={{
-                background: 'radial-gradient(circle at 30% 30%, rgba(255,255,255,0.1), transparent 60%)',
-              }} 
-            />
-          </div>
-        </motion.div>
-        
-        {/* Planets - Purple dots of different sizes */}
-        
-        <motion.div
-          className="absolute bottom-32 left-1/3 w-10 h-10 rounded-full bg-purple-500"
-          style={{
-            opacity: 0.4,
-            boxShadow: '0 0 25px rgba(147, 51, 234, 0.25)',
-          }}
-          animate={{
-            opacity: [0.3, 0.5, 0.3],
-          }}
-          transition={{
-            duration: 5,
-            repeat: Infinity,
-            ease: "easeInOut",
-          }}
-        />
-        
-        <motion.div
-          className="absolute top-1/2 left-16 w-8 h-8 rounded-full bg-purple-400"
-          style={{
-            opacity: 0.5,
-            boxShadow: '0 0 20px rgba(147, 51, 234, 0.2)',
-          }}
-        />
-        
-        {/* Additional small planets */}
-        <motion.div
-          className="absolute top-1/3 left-1/4 w-6 h-6 rounded-full bg-purple-500"
-          style={{
-            opacity: 0.4,
-          }}
-        />
-        
-        <motion.div
-          className="absolute bottom-1/4 right-1/3 w-7 h-7 rounded-full bg-purple-600"
-          style={{
-            opacity: 0.45,
-          }}
-          animate={{
-            opacity: [0.3, 0.5, 0.3],
-          }}
-          transition={{
-            duration: 7,
-            repeat: Infinity,
-            ease: "easeInOut",
-          }}
-        />
+                fontSize: `${size}px`,
+                left: `${left}%`,
+                top: `${top}%`,
+              }}
+              animate={{
+                opacity: [0.3, 0.8, 0.3],
+                rotate: [0, 180, 360],
+                scale: [1, 1.2, 1],
+              }}
+              transition={{
+                duration: 3 + Math.random() * 2,
+                repeat: Infinity,
+                ease: "easeInOut",
+                delay,
+              }}
+            >
+              ✨
+            </motion.div>
+          )
+        })}
       </div>
       
       <div className="container relative z-10">
@@ -305,16 +219,21 @@ export function HeroSection() {
             className="space-y-8"
           >
             <div className="space-y-4">
-              <Badge variant="outline" className="w-fit">
-                ✨ New location opening in Baluwatar
+              <Badge variant="outline" className="w-fit bg-red-50 dark:bg-red-950/30 border-red-200 dark:border-red-800 text-red-700 dark:text-red-300">
+                🎄🎉 Merry Christmas & Happy New Year! 🎉🎄
               </Badge>
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-display font-bold leading-tight">
-                Your Perfect
-                <span className="gradient-text block">Workspace Awaits</span>
+                <span className="bg-gradient-to-r from-red-600 via-amber-600 to-red-600 bg-clip-text text-transparent">
+                  Warm Wishes for the
+                </span>
+                <span className="block bg-gradient-to-r from-amber-600 via-red-600 to-amber-600 bg-clip-text text-transparent">
+                  Holiday Season
+                </span>
               </h1>
-              <p className="text-lg text-muted-foreground max-w-xl">
-                Premium coworking spaces in Kathmandu's prime locations. 
-                Join a community of ambitious professionals and grow your business in inspiring environments.
+              <p className="text-lg text-amber-900/80 dark:text-amber-100/80 max-w-xl leading-relaxed">
+                As we celebrate this festive season, we're grateful for our amazing community. 
+                May your workspace be filled with warmth, creativity, and success in the coming year. 
+                Here's to new beginnings and continued growth together! 🎊
               </p>
             </div>
 
@@ -380,6 +299,7 @@ export function HeroSection() {
               </AnimatePresence>
               
               <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-br from-red-500/10 via-amber-500/10 to-transparent" />
               
               {/* Navigation Arrows */}
               <button
@@ -414,16 +334,19 @@ export function HeroSection() {
               </div>
             </div>
             
-            {/* Floating Cards */}
+            {/* Floating Cards - Holiday Themed */}
             <motion.div
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.5, delay: 1 }}
-              className="absolute -right-4 top-8 bg-white dark:bg-card rounded-xl p-4 shadow-lg border"
+              className="absolute -right-4 top-8 bg-gradient-to-br from-red-50 to-amber-50 dark:from-red-950/50 dark:to-amber-950/50 rounded-xl p-4 shadow-lg border-2 border-red-200 dark:border-red-800"
             >
               <div className="flex items-center space-x-3">
-                <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse" />
-                <span className="text-sm font-medium">24/7 Access</span>
+                <span className="text-2xl">🎁</span>
+                <div>
+                  <div className="text-xs font-bold text-red-700 dark:text-red-300">Holiday</div>
+                  <div className="text-xs text-amber-700 dark:text-amber-300">Special Offers</div>
+                </div>
               </div>
             </motion.div>
 
@@ -431,49 +354,50 @@ export function HeroSection() {
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.5, delay: 1.2 }}
-              className="absolute -left-4 bottom-8 bg-white dark:bg-card rounded-xl p-4 shadow-lg border"
+              className="absolute -left-4 bottom-8 bg-gradient-to-br from-amber-50 to-red-50 dark:from-amber-950/50 dark:to-red-950/50 rounded-xl p-4 shadow-lg border-2 border-amber-200 dark:border-amber-800"
             >
               <div className="text-center">
-                <div className="text-lg font-bold text-primary">High Speed</div>
-                <div className="text-sm text-muted-foreground">Reliable Internet</div>
+                <span className="text-2xl block mb-1">🎊</span>
+                <div className="text-sm font-bold text-amber-800 dark:text-amber-200">New Year</div>
+                <div className="text-xs text-red-700 dark:text-red-300">New Beginnings</div>
               </div>
             </motion.div>
 
-            {/* Free Coffee & Tea Chip */}
+            {/* Free Coffee & Tea Chip - Holiday Style */}
             <motion.div
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 1.4 }}
-              className="absolute -left-4 top-1/3 bg-amber-50 dark:bg-amber-900/20 rounded-xl p-3 shadow-lg border border-amber-200 dark:border-amber-800"
+              className="absolute -left-4 top-1/3 bg-gradient-to-br from-amber-100 to-red-100 dark:from-amber-900/30 dark:to-red-900/30 rounded-xl p-3 shadow-lg border-2 border-amber-300 dark:border-amber-700"
             >
               <div className="flex items-center space-x-2">
-                <Coffee className="h-4 w-4 text-amber-600 dark:text-amber-400" />
+                <span className="text-xl">☕</span>
                 <div>
-                  <div className="text-xs font-bold text-amber-800 dark:text-amber-200">Free</div>
-                  <div className="text-xs text-amber-700 dark:text-amber-300">Coffee & Tea</div>
+                  <div className="text-xs font-bold text-amber-900 dark:text-amber-200">Warm</div>
+                  <div className="text-xs text-red-800 dark:text-red-300">Coffee & Tea</div>
                 </div>
               </div>
             </motion.div>
 
-            {/* Cozy Quiet Environment Chip */}
+            {/* Cozy Environment Chip - Holiday Style */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 1.6 }}
-              className="absolute -right-4 bottom-1/3 bg-emerald-50 dark:bg-emerald-900/20 rounded-xl p-3 shadow-lg border border-emerald-200 dark:border-emerald-800"
+              className="absolute -right-4 bottom-1/3 bg-gradient-to-br from-red-100 to-amber-100 dark:from-red-900/30 dark:to-amber-900/30 rounded-xl p-3 shadow-lg border-2 border-red-300 dark:border-red-700"
             >
               <div className="flex items-center space-x-2">
-                <span className="text-lg">🌿</span>
+                <span className="text-xl">🏠</span>
                 <div>
-                  <div className="text-xs font-bold text-emerald-800 dark:text-emerald-200">Cozy</div>
-                  <div className="text-xs text-emerald-700 dark:text-emerald-300">Quiet Space</div>
+                  <div className="text-xs font-bold text-red-900 dark:text-red-200">Cozy</div>
+                  <div className="text-xs text-amber-800 dark:text-amber-300">Warm Space</div>
                 </div>
               </div>
             </motion.div>
           </motion.div>
         </div>
 
-        {/* Facility Chips Section */}
+        {/* Facility Chips Section - Holiday Themed */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -482,12 +406,12 @@ export function HeroSection() {
         >
           <div className="flex flex-wrap justify-center gap-3">
             {[
-              { icon: Wifi, label: 'High Speed Internet', color: 'bg-blue-100 text-blue-800 border-blue-200' },
-              { icon: Coffee, label: 'Free Coffee & Tea', color: 'bg-amber-100 text-amber-800 border-amber-200' },
-              { icon: MapPin, label: 'Ample Parking Space', color: 'bg-green-100 text-green-800 border-green-200' },
-              { icon: '🌿', label: 'Cozy Quiet Environment', color: 'bg-emerald-100 text-emerald-800 border-emerald-200' },
-              { icon: '🍽️', label: 'Nearby Restaurants & Stores', color: 'bg-purple-100 text-purple-800 border-purple-200' },
-              { icon: '🔒', label: '24/7 Secure Access', color: 'bg-indigo-100 text-indigo-800 border-indigo-200' },
+              { icon: '🎄', label: 'Festive Atmosphere', color: 'bg-red-100 text-red-800 border-red-300 dark:bg-red-900/30 dark:text-red-300 dark:border-red-700' },
+              { icon: '☕', label: 'Warm Coffee & Tea', color: 'bg-amber-100 text-amber-800 border-amber-300 dark:bg-amber-900/30 dark:text-amber-300 dark:border-amber-700' },
+              { icon: '🏠', label: 'Cozy Workspace', color: 'bg-rose-100 text-rose-800 border-rose-300 dark:bg-rose-900/30 dark:text-rose-300 dark:border-rose-700' },
+              { icon: Wifi, label: 'High Speed Internet', color: 'bg-red-50 text-red-700 border-red-200 dark:bg-red-950/30 dark:text-red-400 dark:border-red-800' },
+              { icon: MapPin, label: 'Prime Locations', color: 'bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/30 dark:text-amber-400 dark:border-amber-800' },
+              { icon: '🔒', label: '24/7 Secure Access', color: 'bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-950/30 dark:text-rose-400 dark:border-rose-800' },
             ].map((facility, index) => (
               <motion.div
                 key={facility.label}
@@ -495,7 +419,7 @@ export function HeroSection() {
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.3, delay: 0.5 + index * 0.1 }}
               >
-                <div className={`flex items-center space-x-2 px-4 py-2 rounded-full border ${facility.color} shadow-sm hover:shadow-md transition-shadow`}>
+                <div className={`flex items-center space-x-2 px-4 py-2 rounded-full border-2 ${facility.color} shadow-sm hover:shadow-lg transition-all hover:scale-105`}>
                   {typeof facility.icon === 'string' ? (
                     <span className="text-lg">{facility.icon}</span>
                   ) : (
