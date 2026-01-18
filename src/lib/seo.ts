@@ -19,7 +19,7 @@ const DEFAULT_SEO: Required<Omit<SEOData, 'keywords' | 'image' | 'url' | 'type' 
 }
 
 export function updateSEO(data: SEOData) {
-  const baseUrl = import.meta.env.VITE_APP_URL || 'https://creatrixspace.com'
+  const baseUrl = import.meta.env.VITE_APP_URL || 'https://creatrixventures.space'
   const fullTitle = data.title 
     ? `${data.title} | ${DEFAULT_SEO.siteName}`
     : DEFAULT_SEO.title
@@ -86,7 +86,7 @@ export function updateSEO(data: SEOData) {
 }
 
 export function generateStructuredData(type: 'Organization' | 'LocalBusiness' | 'Article', data: Record<string, any>) {
-  const baseUrl = import.meta.env.VITE_APP_URL || 'https://creatrixspace.com'
+  const baseUrl = import.meta.env.VITE_APP_URL || 'https://creatrixventures.space'
   
   const schemas: Record<string, any> = {
     Organization: {

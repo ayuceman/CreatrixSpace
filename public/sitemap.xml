@@ -6,7 +6,7 @@
   
   <!-- Homepage -->
   <url>
-    <loc>https://creatrixspace.com/</loc>
+    <loc>https://creatrixventures.space/</loc>
     <lastmod>2025-01-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
@@ -14,7 +14,7 @@
   
   <!-- Locations -->
   <url>
-    <loc>https://creatrixspace.com/locations</loc>
+    <loc>https://creatrixventures.space/locations</loc>
     <lastmod>2025-01-18</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
@@ -22,7 +22,7 @@
   
   <!-- Pricing -->
   <url>
-    <loc>https://creatrixspace.com/pricing</loc>
+    <loc>https://creatrixventures.space/pricing</loc>
     <lastmod>2025-01-18</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
@@ -30,7 +30,7 @@
   
   <!-- Membership -->
   <url>
-    <loc>https://creatrixspace.com/membership</loc>
+    <loc>https://creatrixventures.space/membership</loc>
     <lastmod>2025-01-18</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
@@ -38,7 +38,7 @@
   
   <!-- Blog -->
   <url>
-    <loc>https://creatrixspace.com/blog</loc>
+    <loc>https://creatrixventures.space/blog</loc>
     <lastmod>2025-01-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
@@ -46,7 +46,7 @@
   
   <!-- About -->
   <url>
-    <loc>https://creatrixspace.com/about</loc>
+    <loc>https://creatrixventures.space/about</loc>
     <lastmod>2025-01-18</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
@@ -54,7 +54,7 @@
   
   <!-- Careers -->
   <url>
-    <loc>https://creatrixspace.com/careers</loc>
+    <loc>https://creatrixventures.space/careers</loc>
     <lastmod>2025-01-18</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
@@ -62,7 +62,7 @@
   
   <!-- Contact -->
   <url>
-    <loc>https://creatrixspace.com/contact</loc>
+    <loc>https://creatrixventures.space/contact</loc>
     <lastmod>2025-01-18</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
@@ -70,14 +70,14 @@
   
   <!-- Legal -->
   <url>
-    <loc>https://creatrixspace.com/terms</loc>
+    <loc>https://creatrixventures.space/terms</loc>
     <lastmod>2025-01-18</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>
   
   <url>
-    <loc>https://creatrixspace.com/privacy</loc>
+    <loc>https://creatrixventures.space/privacy</loc>
     <lastmod>2025-01-18</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>

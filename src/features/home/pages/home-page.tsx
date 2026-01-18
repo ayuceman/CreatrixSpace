@@ -19,7 +19,7 @@ export function HomePage() {
           '@type': 'LocalBusiness',
           name: 'CreatrixSpace',
           description: 'Premium co working space in Nepal with locations in Kathmandu and Lalitpur',
-          url: 'https://creatrixspace.com',
+          url: 'https://creatrixventures.space',
           telephone: '+977 9851357889',
           address: {
             '@type': 'PostalAddress',
@@ -33,7 +33,7 @@ export function HomePage() {
           ],
           priceRange: '$$',
           openingHours: 'Mo-Su 00:00-23:59',
-          image: 'https://creatrixspace.com/creatrix-logo.png',
+          image: 'https://creatrixventures.space/creatrix-logo.png',
         }}
       />
       <div className="overflow-hidden">

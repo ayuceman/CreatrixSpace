@@ -9,5 +9,5 @@ Disallow: /payment/
 Disallow: /booking
 
 # Sitemap
-Sitemap: https://creatrixspace.com/sitemap.xml
+Sitemap: https://creatrixventures.space/sitemap.xml
 
