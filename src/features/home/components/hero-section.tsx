@@ -219,21 +219,21 @@ export function HeroSection() {
             className="space-y-8"
           >
             <div className="space-y-4">
-              <Badge variant="outline" className="w-fit bg-red-50 dark:bg-red-950/30 border-red-200 dark:border-red-800 text-red-700 dark:text-red-300">
-                🎄🎉 Merry Christmas & Happy New Year! 🎉🎄
+              <Badge variant="outline" className="w-fit bg-primary/10 border-primary/20 text-primary">
+                Premium Co Working Space in Nepal
               </Badge>
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-display font-bold leading-tight">
                 <span className="bg-gradient-to-r from-red-600 via-amber-600 to-red-600 bg-clip-text text-transparent">
-                  Warm Wishes for the
+                  Best Co Working Space
                 </span>
                 <span className="block bg-gradient-to-r from-amber-600 via-red-600 to-amber-600 bg-clip-text text-transparent">
-                  Holiday Season
+                  in Kathmandu & Lalitpur, Nepal
                 </span>
               </h1>
-              <p className="text-lg text-amber-900/80 dark:text-amber-100/80 max-w-xl leading-relaxed">
-                As we celebrate this festive season, we're grateful for our amazing community. 
-                May your workspace be filled with warmth, creativity, and success in the coming year. 
-                Here's to new beginnings and continued growth together! 🎊
+              <p className="text-lg text-muted-foreground max-w-xl leading-relaxed">
+                CreatrixSpace offers premium co working spaces in Nepal with locations in Kathmandu (Dhobighat) and Lalitpur (Kupondole, Jhamsikhel). 
+                Flexible plans, 24/7 access, high-speed internet, meeting rooms, and modern facilities. 
+                Perfect for freelancers, entrepreneurs, startups, and remote workers seeking the best coworking space in Nepal.
               </p>
             </div>
 

@@ -4,6 +4,8 @@ import { LocationsPreview } from '../components/locations-preview'
 import { PricingPreview } from '../components/pricing-preview'
 import { TestimonialsSection } from '../components/testimonials-section'
 import { CTASection } from '../components/cta-section'
+import { SEOContentSection } from '../components/seo-content-section'
+import { FAQSection } from '../components/faq-section'
 import { SEOHead } from '@/components/seo/seo-head'
 
 export function HomePage() {
@@ -38,10 +40,12 @@ export function HomePage() {
       />
       <div className="overflow-hidden">
         <HeroSection />
+        <SEOContentSection />
         <FeaturesSection />
         <LocationsPreview />
         <PricingPreview />
         <TestimonialsSection />
+        <FAQSection />
         <CTASection />
       </div>
     </>
