@@ -27,6 +27,7 @@ const plans = [
     name: 'Professional',
     description: 'Most popular choice',
     price: 899900, // in paisa (NPR 8,999)
+    originalPrice: 1200000, // in paisa (NPR 12,000) - original price
     period: 'month',
     features: [
       'Hot desk workstation',
@@ -42,6 +43,7 @@ const plans = [
     name: 'Enterprise',
     description: 'For teams and businesses',
     price: 1099900, // in paisa (NPR 10,999)
+    originalPrice: 1850000, // in paisa (NPR 18,500) - original price
     period: 'month',
     features: [
       'Dedicated desk',
@@ -116,7 +118,7 @@ export function PricingPreview() {
                         /{plan.period}
                       </span>
                     </div>
-                    {plan.name === 'Explorer' && plan.originalPrice && (
+                    {plan.originalPrice && (
                       <div className="flex items-center justify-center gap-2 mt-1">
                         <span className="text-sm text-muted-foreground line-through">
                           {formatCurrency(plan.originalPrice, 'NPR')}
@@ -126,9 +128,9 @@ export function PricingPreview() {
                         </Badge>
                       </div>
                     )}
-                    {plan.name === 'Explorer' && (
+                    {(plan.name === 'Explorer' || plan.name === 'Professional' || plan.name === 'Enterprise') && plan.originalPrice && (
                       <p className="text-xs text-amber-600 mt-1">
-                        Promotional price — limited time only
+                        {plan.name === 'Explorer' ? 'Promotional price' : 'Special offer'} — limited time only
                       </p>
                     )}
                   </div>
