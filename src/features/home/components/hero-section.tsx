@@ -19,16 +19,16 @@ const heroImages = [
     alt: 'Modern meeting room with conference table'
   },
   {
-    src: '/images/hero-slider/dhobighat-office-back.webp',
-    alt: 'Dhobighat office workspace back view'
+    src: '/images/locations/dhobighat-hub/workshop_hall_plants.jpeg',
+    alt: 'Dhobighat workshop hall with plants'
   },
   {
     src: '/images/hero-slider/professional-workspace-desk.webp',
     alt: 'Professional workspace with desk'
   },
   {
-    src: '/images/hero-slider/dhobighat-coworking-space.webp',
-    alt: 'Dhobighat coworking space'
+    src: '/images/locations/dhobighat-hub/workshop_hall_plants.jpeg',
+    alt: 'Dhobighat workshop hall with plants'
   },
   {
     src: '/images/hero-slider/modern-workspace-desk.webp',
