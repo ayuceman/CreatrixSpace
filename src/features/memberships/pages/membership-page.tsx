@@ -24,9 +24,8 @@ const membershipPlans = [
     id: 'explorer',
     name: 'Explorer',
     subtitle: 'Perfect for trying us out',
-    price: 500,
+    price: 800,
     period: 'day',
-    originalPrice: 1000,
     popular: false,
     description: 'Ideal for freelancers and remote workers who need flexible access',
     features: [

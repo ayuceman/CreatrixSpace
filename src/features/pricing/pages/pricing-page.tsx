@@ -39,8 +39,7 @@ const plans = [
     description: 'Perfect for trying us out',
     icon: Zap,
     pricing: {
-      daily: 50000, // NPR 500 per day (promotional price)
-      originalDaily: 100000, // NPR 1000 original price
+      daily: 80000, // NPR 800 per day (actual price)
     },
     features: [
       'Day pass access to all locations',
@@ -419,16 +418,6 @@ export function PricingPage() {
                               /{period}
                             </span>
                           </div>
-                          {plan.planType === 'day_pass' && plan.pricing.originalDaily && (
-                            <div className="flex items-center justify-center gap-2 mt-1">
-                              <span className="text-sm text-muted-foreground line-through">
-                                {formatCurrency(plan.pricing.originalDaily, 'NPR')}
-                              </span>
-                              <Badge variant="destructive" className="text-xs">
-                                Save {formatCurrency(plan.pricing.originalDaily - (price || 0), 'NPR')}
-                              </Badge>
-                            </div>
-                          )}
                           {plan.planType === 'private_office' && plan.pricing.originalMonthly && billingPeriod === 'monthly' && (
                             <div className="flex items-center justify-center gap-2 mt-1">
                               <span className="text-sm text-muted-foreground line-through">
@@ -438,11 +427,6 @@ export function PricingPage() {
                                 Save {formatCurrency(plan.pricing.originalMonthly - (price || 0), 'NPR')}
                               </Badge>
                             </div>
-                          )}
-                          {plan.planType === 'day_pass' && (
-                            <p className="text-xs text-amber-600 mt-1">
-                              Promotional price — limited time only
-                            </p>
                           )}
                           {plan.planType === 'private_office' && billingPeriod === 'monthly' && (
                             <p className="text-xs text-amber-600 mt-1">

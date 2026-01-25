@@ -11,8 +11,7 @@ const plans = [
   {
     name: 'Explorer',
     description: 'Perfect for trying us out',
-    price: 50000, // in paisa (NPR 500) - promotional price
-    originalPrice: 100000, // in paisa (NPR 1000) - original price
+    price: 80000, // in paisa (NPR 800) - actual price
     period: 'day',
     features: [
       'Day pass access',
@@ -128,9 +127,9 @@ export function PricingPreview() {
                         </Badge>
                       </div>
                     )}
-                    {(plan.name === 'Explorer' || plan.name === 'Professional' || plan.name === 'Enterprise') && plan.originalPrice && (
+                    {(plan.name === 'Professional' || plan.name === 'Enterprise') && plan.originalPrice && (
                       <p className="text-xs text-amber-600 mt-1">
-                        {plan.name === 'Explorer' ? 'Promotional price' : 'Special offer'} — limited time only
+                        Special offer — limited time only
                       </p>
                     )}
                   </div>

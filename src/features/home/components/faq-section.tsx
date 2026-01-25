@@ -19,7 +19,7 @@ const faqs = [
   },
   {
     question: 'How much does it cost to use a coworking space in Nepal?',
-    answer: 'We offer flexible pricing plans starting from NPR 500/day for Explorer passes to NPR 58,500/month for private offices. Professional plans start at NPR 9,500/month. All plans include access to amenities and can be upgraded, downgraded, or cancelled anytime with no setup fees.'
+    answer: 'We offer flexible pricing plans starting from NPR 800/day for Explorer passes to NPR 58,500/month for private offices. Professional plans start at NPR 8,999/month. All plans include access to amenities and can be upgraded, downgraded, or cancelled anytime with no setup fees.'
   },
   {
     question: 'Do you offer meeting rooms in your coworking space?',

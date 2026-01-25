@@ -46,7 +46,7 @@ export function Header() {
           </div>
           <div className="text-xs sm:text-sm">
             <span className="hidden md:inline">🎉 Special Offer: </span>
-            <span className="font-semibold">Explorer Pass @ Rs 500/day!</span>
+            <span className="font-semibold">Explorer Pass @ Rs 800/day!</span>
           </div>
         </div>
       </div>
