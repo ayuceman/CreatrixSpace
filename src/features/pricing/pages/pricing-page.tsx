@@ -246,18 +246,26 @@ export function PricingPage() {
       const metadata = planMetadata[planConfig.supabaseName]
       const basePricing = planConfig.pricing
 
+      // Ensure public pricing stays consistent even if Supabase pricing is stale.
+      const applyOverrides = (pricing: PlanPricing): PlanPricing => {
+        if (planConfig.id === 'explorer') {
+          return { ...pricing, daily: 80000 }
+        }
+        return pricing
+      }
+
       if (!metadata) {
-        return basePricing
+        return applyOverrides(basePricing)
       }
 
       if (selectedLocationId) {
         const locationSpecific = locationPricing[selectedLocationId]?.[metadata.id]
         if (locationSpecific) {
-          return locationSpecific
+          return applyOverrides(locationSpecific)
         }
       }
 
-      return metadata.pricing || basePricing
+      return applyOverrides((metadata.pricing as PlanPricing) || basePricing)
     },
     [planMetadata, locationPricing, selectedLocationId]
   )

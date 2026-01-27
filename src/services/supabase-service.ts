@@ -267,7 +267,23 @@ export const planService = {
         console.warn('Could not load plans from Supabase:', error.message || error)
         return []
       }
-      return data || []
+      const plans = data || []
+
+      // Pricing overrides (keeps the website consistent even if DB is stale)
+      // Note: prices are stored in paisa (e.g. 80000 = NPR 800.00)
+      return plans.map((plan) => {
+        if (plan.type === 'day_pass' && plan.name?.toLowerCase() === 'explorer') {
+          const pricing = (plan.pricing as PlanPricingPayload) || {}
+          return {
+            ...plan,
+            pricing: {
+              ...pricing,
+              daily: 80000,
+            } as any,
+          }
+        }
+        return plan
+      })
     } catch (error: any) {
       // Catch all errors including network errors, 500 errors, etc.
       console.warn('Error loading plans (using fallback):', error?.message || error)

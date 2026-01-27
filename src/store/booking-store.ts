@@ -319,14 +319,24 @@ export const useBookingStore = create<BookingStore>()(
 
       getPlanPricingForLocation: (planId, locationId, roomId) => {
         const { plans, locationPlanPricing, roomPlanPricing } = get()
-        if (roomId && roomPlanPricing[roomId] && roomPlanPricing[roomId][planId]) {
-          return roomPlanPricing[roomId][planId]
-        }
-        if (locationId && locationPlanPricing[locationId] && locationPlanPricing[locationId][planId]) {
-          return locationPlanPricing[locationId][planId]
-        }
         const plan = plans.find((p) => p.id === planId)
-        return plan?.pricing || {}
+        let resolvedPricing: PlanPricing = {}
+
+        if (roomId && roomPlanPricing[roomId] && roomPlanPricing[roomId][planId]) {
+          resolvedPricing = roomPlanPricing[roomId][planId]
+        } else if (locationId && locationPlanPricing[locationId] && locationPlanPricing[locationId][planId]) {
+          resolvedPricing = locationPlanPricing[locationId][planId]
+        } else {
+          resolvedPricing = plan?.pricing || {}
+        }
+
+        // Force Explorer day pass pricing to the correct public price (NPR 800/day).
+        // Prices are stored in paisa (80000 = NPR 800.00).
+        if (plan?.type === 'day_pass' && plan.name?.toLowerCase() === 'explorer') {
+          return { ...resolvedPricing, daily: 80000 }
+        }
+
+        return resolvedPricing
       },
 
       getRoomsForLocation: (locationId) => {
