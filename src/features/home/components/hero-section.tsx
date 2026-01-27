@@ -122,13 +122,13 @@ export function HeroSection() {
                     </p>
                     <div className="flex flex-wrap gap-2 pt-1">
                       <span className="inline-flex items-center rounded-full border bg-background/70 dark:bg-background/40 px-2.5 py-1 text-xs">
-                        Day <span className="ml-1 font-semibold text-foreground">NPR 800</span>
+                        <span className="font-semibold text-foreground">NPR 800.00/day</span>
                       </span>
                       <span className="inline-flex items-center rounded-full border bg-background/70 dark:bg-background/40 px-2.5 py-1 text-xs">
-                        Week <span className="ml-1 font-semibold text-foreground">NPR 3,000</span>
+                        <span className="font-semibold text-foreground">NPR 3,000/week</span>
                       </span>
                       <span className="inline-flex items-center rounded-full border bg-background/70 dark:bg-background/40 px-2.5 py-1 text-xs">
-                        Month <span className="ml-1 font-semibold text-foreground">NPR 8,000</span>
+                        <span className="font-semibold text-foreground">NPR 8,000/month</span>
                       </span>
                     </div>
                   </div>

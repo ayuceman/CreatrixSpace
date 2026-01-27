@@ -74,7 +74,7 @@ export function PricingPreview() {
 
           <div className="flex justify-center mt-6">
             <Badge variant="secondary" className="px-4 py-2 text-sm bg-amber-100 text-amber-900 hover:bg-amber-200 border-amber-200">
-              Membership from NPR 800/day • 3,000/week • 8,000/month
+              Membership from NPR 800.00/day • 3,000/week • 8,000/month
             </Badge>
           </div>
         </motion.div>

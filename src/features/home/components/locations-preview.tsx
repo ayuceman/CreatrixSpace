@@ -66,7 +66,7 @@ export function LocationsPreview() {
                     Private offices are fully booked
                   </h3>
                   <p className="text-sm text-amber-800/90 dark:text-amber-200/90">
-                    Hot desks available — membership from NPR 800/day • 3,000/week • 8,000/month
+                    Hot desks available — membership from NPR 800.00/day • 3,000/week • 8,000/month
                   </p>
                 </div>
               </div>
