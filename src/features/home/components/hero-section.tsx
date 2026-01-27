@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useState, useEffect } from 'react'
-import { ArrowRight, MapPin, Users, Wifi, Coffee, ChevronLeft, ChevronRight, Sparkles } from 'lucide-react'
+import { ArrowRight, MapPin, Users, Wifi, Coffee, ChevronLeft, ChevronRight, AlertCircle } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { ROUTES } from '@/lib/constants'
@@ -77,136 +77,11 @@ export function HeroSection() {
   }
 
   return (
-    <section className="relative section-padding bg-gradient-to-br from-amber-50 via-red-50 to-rose-100 dark:from-amber-950/30 dark:via-red-950/30 dark:to-rose-950/30 overflow-hidden">
-      {/* Warm Cozy Background with Snowflakes and Sparkles */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        {/* Snowflakes */}
-        {[...Array(60)].map((_, i) => {
-          const size = Math.random() * 4 + 2
-          const left = Math.random() * 100
-          const top = Math.random() * 100
-          const delay = Math.random() * 5
-          const duration = 3 + Math.random() * 4
-          
-          return (
-            <motion.div
-              key={`snowflake-${i}`}
-              className="absolute text-white/60"
-              style={{
-                fontSize: `${size}px`,
-                left: `${left}%`,
-                top: `${top}%`,
-              }}
-              animate={{
-                y: [0, 100],
-                opacity: [0.3, 0.8, 0.3],
-                rotate: [0, 360],
-              }}
-              transition={{
-                duration,
-                repeat: Infinity,
-                ease: "linear",
-                delay,
-              }}
-            >
-              ❄
-            </motion.div>
-          )
-        })}
-        
-        {/* Golden Sparkles */}
-        {[...Array(30)].map((_, i) => {
-          const size = Math.random() * 3 + 1
-          const left = Math.random() * 100
-          const top = Math.random() * 100
-          const delay = Math.random() * 2
-          
-          return (
-            <motion.div
-              key={`sparkle-${i}`}
-              className="absolute"
-              style={{
-                width: `${size}px`,
-                height: `${size}px`,
-                left: `${left}%`,
-                top: `${top}%`,
-              }}
-              animate={{
-                opacity: [0.2, 1, 0.2],
-                scale: [0.5, 1.5, 0.5],
-                rotate: [0, 180, 360],
-              }}
-              transition={{
-                duration: 2 + Math.random(),
-                repeat: Infinity,
-                ease: "easeInOut",
-                delay,
-              }}
-            >
-              <Sparkles className="w-full h-full text-amber-400" />
-            </motion.div>
-          )
-        })}
-        
-        {/* Warm Glowing Orbs */}
-        <motion.div
-          className="absolute top-10 right-10 w-32 h-32 rounded-full bg-gradient-to-br from-red-300/30 to-amber-300/30 blur-3xl"
-          animate={{
-            opacity: [0.3, 0.6, 0.3],
-            scale: [1, 1.2, 1],
-          }}
-          transition={{
-            duration: 8,
-            repeat: Infinity,
-            ease: "easeInOut",
-          }}
-        />
-        
-        <motion.div
-          className="absolute bottom-20 left-20 w-24 h-24 rounded-full bg-gradient-to-br from-amber-300/30 to-orange-300/30 blur-2xl"
-          animate={{
-            opacity: [0.3, 0.5, 0.3],
-            scale: [1, 1.3, 1],
-          }}
-          transition={{
-            duration: 6,
-            repeat: Infinity,
-            ease: "easeInOut",
-          }}
-        />
-        
-        {/* Decorative Stars */}
-        {[...Array(15)].map((_, i) => {
-          const size = 4 + Math.random() * 4
-          const left = Math.random() * 100
-          const top = Math.random() * 100
-          const delay = Math.random() * 3
-          
-          return (
-            <motion.div
-              key={`star-${i}`}
-              className="absolute text-amber-400/50"
-              style={{
-                fontSize: `${size}px`,
-                left: `${left}%`,
-                top: `${top}%`,
-              }}
-              animate={{
-                opacity: [0.3, 0.8, 0.3],
-                rotate: [0, 180, 360],
-                scale: [1, 1.2, 1],
-              }}
-              transition={{
-                duration: 3 + Math.random() * 2,
-                repeat: Infinity,
-                ease: "easeInOut",
-                delay,
-              }}
-            >
-              ✨
-            </motion.div>
-          )
-        })}
+    <section className="relative section-padding bg-gradient-to-br from-background via-background to-primary/5 overflow-hidden">
+      {/* Subtle background (no seasonal warm tone) */}
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute inset-0 bg-grid-primary/[0.02]" />
+        <div className="absolute inset-0 bg-gradient-to-br from-transparent via-transparent to-primary/10" />
       </div>
       
       <div className="container relative z-10">
@@ -223,12 +98,8 @@ export function HeroSection() {
                 Premium Co Working Space in Nepal
               </Badge>
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-display font-bold leading-tight">
-                <span className="bg-gradient-to-r from-red-600 via-amber-600 to-red-600 bg-clip-text text-transparent">
-                  Best Co Working Space
-                </span>
-                <span className="block bg-gradient-to-r from-amber-600 via-red-600 to-amber-600 bg-clip-text text-transparent">
-                  in Kathmandu & Lalitpur, Nepal
-                </span>
+                <span className="gradient-text">Best Co Working Space</span>
+                <span className="block gradient-text">in Kathmandu & Lalitpur, Nepal</span>
               </h1>
               <p className="text-lg text-muted-foreground max-w-xl leading-relaxed">
                 CreatrixSpace offers premium co working spaces in Nepal with locations in Kathmandu (Dhobighat) and Lalitpur (Kupondole, Jhamsikhel). 
@@ -237,18 +108,45 @@ export function HeroSection() {
               </p>
             </div>
 
-            <div className="flex flex-col sm:flex-row gap-4">
-              <Button size="lg" asChild>
-                <Link to={ROUTES.BOOKING}>
-                  Book a Tour
-                  <ArrowRight className="ml-2 h-4 w-4" />
-                </Link>
-              </Button>
-              <Button size="lg" variant="outline" asChild>
-                <Link to={ROUTES.PRICING}>
-                  View Pricing
-                </Link>
-              </Button>
+            {/* Availability / Pricing Banner */}
+            <div className="rounded-2xl border bg-background/70 dark:bg-background/40 backdrop-blur p-4 md:p-5 shadow-sm">
+              <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+                <div className="flex items-start gap-3">
+                  <div className="p-2 rounded-lg bg-amber-500/15 text-amber-700 dark:text-amber-300">
+                    <AlertCircle className="h-5 w-5" />
+                  </div>
+                  <div className="space-y-1">
+                    <p className="font-semibold leading-tight">Private offices are fully booked</p>
+                    <p className="text-sm text-muted-foreground">
+                      Hot desks available now. Membership starts at:
+                    </p>
+                    <div className="flex flex-wrap gap-2 pt-1">
+                      <span className="inline-flex items-center rounded-full border bg-background/70 dark:bg-background/40 px-2.5 py-1 text-xs">
+                        Day <span className="ml-1 font-semibold text-foreground">NPR 800</span>
+                      </span>
+                      <span className="inline-flex items-center rounded-full border bg-background/70 dark:bg-background/40 px-2.5 py-1 text-xs">
+                        Week <span className="ml-1 font-semibold text-foreground">NPR 3,000</span>
+                      </span>
+                      <span className="inline-flex items-center rounded-full border bg-background/70 dark:bg-background/40 px-2.5 py-1 text-xs">
+                        Month <span className="ml-1 font-semibold text-foreground">NPR 8,000</span>
+                      </span>
+                    </div>
+                  </div>
+                </div>
+                <div className="sm:ml-auto flex flex-col sm:flex-row gap-2">
+                  <Button size="lg" asChild>
+                    <Link to={ROUTES.BOOKING}>
+                      Book a Hot Desk
+                      <ArrowRight className="ml-2 h-4 w-4" />
+                    </Link>
+                  </Button>
+                  <Button size="lg" variant="outline" asChild>
+                    <Link to={ROUTES.CONTACT}>
+                      Join Waitlist
+                    </Link>
+                  </Button>
+                </div>
+              </div>
             </div>
 
             {/* Stats */}
@@ -299,7 +197,7 @@ export function HeroSection() {
               </AnimatePresence>
               
               <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
-              <div className="absolute inset-0 bg-gradient-to-br from-red-500/10 via-amber-500/10 to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-primary/5 to-transparent" />
               
               {/* Navigation Arrows */}
               <button
@@ -334,70 +232,10 @@ export function HeroSection() {
               </div>
             </div>
             
-            {/* Floating Cards - Holiday Themed */}
-            <motion.div
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.5, delay: 1 }}
-              className="absolute -right-4 top-8 bg-gradient-to-br from-red-50 to-amber-50 dark:from-red-950/50 dark:to-amber-950/50 rounded-xl p-4 shadow-lg border-2 border-red-200 dark:border-red-800"
-            >
-              <div className="flex items-center space-x-3">
-                <span className="text-2xl">🎁</span>
-                <div>
-                  <div className="text-xs font-bold text-red-700 dark:text-red-300">Holiday</div>
-                  <div className="text-xs text-amber-700 dark:text-amber-300">Special Offers</div>
-                </div>
-              </div>
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.5, delay: 1.2 }}
-              className="absolute -left-4 bottom-8 bg-gradient-to-br from-amber-50 to-red-50 dark:from-amber-950/50 dark:to-red-950/50 rounded-xl p-4 shadow-lg border-2 border-amber-200 dark:border-amber-800"
-            >
-              <div className="text-center">
-                <span className="text-2xl block mb-1">🎊</span>
-                <div className="text-sm font-bold text-amber-800 dark:text-amber-200">New Year</div>
-                <div className="text-xs text-red-700 dark:text-red-300">New Beginnings</div>
-              </div>
-            </motion.div>
-
-            {/* Free Coffee & Tea Chip - Holiday Style */}
-            <motion.div
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 1.4 }}
-              className="absolute -left-4 top-1/3 bg-gradient-to-br from-amber-100 to-red-100 dark:from-amber-900/30 dark:to-red-900/30 rounded-xl p-3 shadow-lg border-2 border-amber-300 dark:border-amber-700"
-            >
-              <div className="flex items-center space-x-2">
-                <span className="text-xl">☕</span>
-                <div>
-                  <div className="text-xs font-bold text-amber-900 dark:text-amber-200">Warm</div>
-                  <div className="text-xs text-red-800 dark:text-red-300">Coffee & Tea</div>
-                </div>
-              </div>
-            </motion.div>
-
-            {/* Cozy Environment Chip - Holiday Style */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 1.6 }}
-              className="absolute -right-4 bottom-1/3 bg-gradient-to-br from-red-100 to-amber-100 dark:from-red-900/30 dark:to-amber-900/30 rounded-xl p-3 shadow-lg border-2 border-red-300 dark:border-red-700"
-            >
-              <div className="flex items-center space-x-2">
-                <span className="text-xl">🏠</span>
-                <div>
-                  <div className="text-xs font-bold text-red-900 dark:text-red-200">Cozy</div>
-                  <div className="text-xs text-amber-800 dark:text-amber-300">Warm Space</div>
-                </div>
-              </div>
-            </motion.div>
           </motion.div>
         </div>
 
-        {/* Facility Chips Section - Holiday Themed */}
+        {/* Facility Chips Section */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -406,12 +244,12 @@ export function HeroSection() {
         >
           <div className="flex flex-wrap justify-center gap-3">
             {[
-              { icon: '🎄', label: 'Festive Atmosphere', color: 'bg-red-100 text-red-800 border-red-300 dark:bg-red-900/30 dark:text-red-300 dark:border-red-700' },
-              { icon: '☕', label: 'Warm Coffee & Tea', color: 'bg-amber-100 text-amber-800 border-amber-300 dark:bg-amber-900/30 dark:text-amber-300 dark:border-amber-700' },
-              { icon: '🏠', label: 'Cozy Workspace', color: 'bg-rose-100 text-rose-800 border-rose-300 dark:bg-rose-900/30 dark:text-rose-300 dark:border-rose-700' },
-              { icon: Wifi, label: 'High Speed Internet', color: 'bg-red-50 text-red-700 border-red-200 dark:bg-red-950/30 dark:text-red-400 dark:border-red-800' },
-              { icon: MapPin, label: 'Prime Locations', color: 'bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/30 dark:text-amber-400 dark:border-amber-800' },
-              { icon: '🔒', label: '24/7 Secure Access', color: 'bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-950/30 dark:text-rose-400 dark:border-rose-800' },
+              { icon: Wifi, label: 'High-speed Internet' },
+              { icon: MapPin, label: 'Prime Locations' },
+              { icon: Users, label: 'Vibrant Community' },
+              { icon: Coffee, label: 'Coffee & Tea' },
+              { icon: '🔒', label: 'Secure Access' },
+              { icon: '🏢', label: 'Meeting Rooms' },
             ].map((facility, index) => (
               <motion.div
                 key={facility.label}
@@ -419,7 +257,7 @@ export function HeroSection() {
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.3, delay: 0.5 + index * 0.1 }}
               >
-                <div className={`flex items-center space-x-2 px-4 py-2 rounded-full border-2 ${facility.color} shadow-sm hover:shadow-lg transition-all hover:scale-105`}>
+                <div className="flex items-center space-x-2 px-4 py-2 rounded-full border bg-background/70 dark:bg-background/40 text-foreground shadow-sm hover:shadow-lg transition-all hover:scale-105">
                   {typeof facility.icon === 'string' ? (
                     <span className="text-lg">{facility.icon}</span>
                   ) : (

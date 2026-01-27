@@ -9,12 +9,12 @@ import { formatCurrency } from '@/lib/utils'
 
 const plans = [
   {
-    name: 'Explorer',
-    description: 'Perfect for trying us out',
-    price: 80000, // in paisa (NPR 800) - actual price
+    name: 'Hot Desk — Daily',
+    description: 'Best for trying us out',
+    price: 80000, // in paisa (NPR 800)
     period: 'day',
     features: [
-      'Day pass access',
+      'Hot desk access (day pass)',
       'High-speed WiFi',
       'Coffee & tea',
       'Basic printing (10 pages)',
@@ -23,36 +23,32 @@ const plans = [
     popular: false,
   },
   {
-    name: 'Professional',
-    description: 'Most popular choice',
-    price: 899900, // in paisa (NPR 8,999)
-    originalPrice: 1200000, // in paisa (NPR 12,000) - original price
-    period: 'month',
+    name: 'Hot Desk — Weekly',
+    description: 'Best value for regulars',
+    price: 300000, // in paisa (NPR 3,000)
+    period: 'week',
     features: [
-      'Hot desk workstation',
-      '8 hours meeting room/month',
-      'Premium printing (100 pages)',
-      'Personal storage locker',
-      '24/7 access',
-      'Priority support',
-    ],
-    popular: true,
-  },
-  {
-    name: 'Enterprise',
-    description: 'For teams and businesses',
-    price: 1099900, // in paisa (NPR 10,999)
-    originalPrice: 1850000, // in paisa (NPR 18,500) - original price
-    period: 'month',
-    features: [
-      'Dedicated desk',
-      'Unlimited meeting rooms',
-      'Unlimited printing',
-      'Guest day passes (5/month)',
-      'Dedicated account manager',
-      'Custom billing options',
+      'Hot desk access (weekly)',
+      'High-speed WiFi',
+      'Coffee & tea',
+      'Community events access',
+      'Flexible seating',
     ],
     popular: false,
+  },
+  {
+    name: 'Hot Desk — Monthly',
+    description: 'Most popular (hot desk)',
+    price: 800000, // in paisa (NPR 8,000)
+    period: 'month',
+    features: [
+      'Unlimited hot desk access',
+      'High-speed WiFi',
+      'Coffee & tea',
+      'Community events access',
+      'Priority seating options',
+    ],
+    popular: true,
   },
 ]
 
@@ -68,18 +64,17 @@ export function PricingPreview() {
           className="text-center space-y-4 mb-16"
         >
           <h2 className="text-3xl md:text-4xl font-display font-bold">
-            Simple, Transparent
-            <span className="gradient-text"> Pricing</span>
+            Hot Desk
+            <span className="gradient-text"> Membership</span>
           </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Choose the perfect plan for your needs. All plans include our core amenities
-            and access to our vibrant community.
+            Private offices are fully booked right now — hot desks are available.
+            Choose a plan that fits your schedule.
           </p>
 
           <div className="flex justify-center mt-6">
-            <Badge variant="secondary" className="px-4 py-2 text-sm bg-green-100 text-green-800 hover:bg-green-200 border-green-200">
-              <span className="mr-2">🎉</span>
-              Book Online & Save 5% Instantly
+            <Badge variant="secondary" className="px-4 py-2 text-sm bg-amber-100 text-amber-900 hover:bg-amber-200 border-amber-200">
+              Membership from NPR 800/day • 3,000/week • 8,000/month
             </Badge>
           </div>
         </motion.div>
@@ -117,21 +112,6 @@ export function PricingPreview() {
                         /{plan.period}
                       </span>
                     </div>
-                    {plan.originalPrice && (
-                      <div className="flex items-center justify-center gap-2 mt-1">
-                        <span className="text-sm text-muted-foreground line-through">
-                          {formatCurrency(plan.originalPrice, 'NPR')}
-                        </span>
-                        <Badge variant="destructive" className="text-xs">
-                          Save {formatCurrency(plan.originalPrice - plan.price, 'NPR')}
-                        </Badge>
-                      </div>
-                    )}
-                    {(plan.name === 'Professional' || plan.name === 'Enterprise') && plan.originalPrice && (
-                      <p className="text-xs text-amber-600 mt-1">
-                        Special offer — limited time only
-                      </p>
-                    )}
                   </div>
                 </CardHeader>
 
@@ -151,7 +131,7 @@ export function PricingPreview() {
                     asChild
                   >
                     <Link to={ROUTES.BOOKING}>
-                      Get Started
+                      Book Hot Desk
                     </Link>
                   </Button>
                 </CardContent>
@@ -159,6 +139,28 @@ export function PricingPreview() {
             </motion.div>
           ))}
         </div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.25 }}
+          viewport={{ once: true }}
+          className="mt-10 max-w-5xl mx-auto"
+        >
+          <div className="rounded-2xl border bg-background/70 dark:bg-background/40 backdrop-blur p-5 flex flex-col md:flex-row md:items-center gap-4">
+            <div className="space-y-1">
+              <p className="font-semibold">Need a private office?</p>
+              <p className="text-sm text-muted-foreground">
+                All private offices are currently fully booked. Join the waitlist and we’ll notify you when one opens up.
+              </p>
+            </div>
+            <div className="md:ml-auto">
+              <Button variant="outline" asChild>
+                <Link to={ROUTES.CONTACT}>Join Private Office Waitlist</Link>
+              </Button>
+            </div>
+          </div>
+        </motion.div>
 
         <motion.div
           initial={{ opacity: 0, y: 20 }}

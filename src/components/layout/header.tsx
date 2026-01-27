@@ -45,8 +45,8 @@ export function Header() {
             </a>
           </div>
           <div className="text-xs sm:text-sm">
-            <span className="hidden md:inline">🎉 Special Offer: </span>
-            <span className="font-semibold">Explorer Pass @ Rs 800/day!</span>
+            <span className="hidden md:inline">Hot desks available: </span>
+            <span className="font-semibold">NPR 800/day • 3,000/week • 8,000/month</span>
           </div>
         </div>
       </div>

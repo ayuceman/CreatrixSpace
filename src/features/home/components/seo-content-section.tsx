@@ -16,20 +16,22 @@ export function SEOContentSection() {
             className="prose prose-lg dark:prose-invert max-w-none"
           >
             <h2 className="text-3xl md:text-4xl font-display font-bold mb-6">
-              Premium Co Working Space in Nepal - Kathmandu & Lalitpur
+              Best Co Working Space in Kathmandu - Premium Coworking Spaces
             </h2>
             
             <p className="text-lg text-muted-foreground leading-relaxed mb-6">
-              Looking for the best <strong>co working space in Nepal</strong>? CreatrixSpace is your premier destination for 
-              flexible <strong>coworking spaces in Kathmandu and Lalitpur</strong>. Our modern facilities provide everything 
-              professionals need to thrive, from high-speed internet to professional meeting rooms.
+              Looking for the best <strong>co working space in kathmandu</strong>? CreatrixSpace is your premier destination for 
+              flexible <strong>co working spaces in Kathmandu</strong> and Lalitpur. Our modern facilities provide everything 
+              professionals need to thrive, from high-speed internet to professional meeting rooms. If you're searching for a 
+              <strong> co working space in kathmandu</strong>, our Dhobighat Hub location offers premium amenities and 24/7 access.
             </p>
 
             <p className="text-lg text-muted-foreground leading-relaxed mb-6">
-              Whether you're searching for a <strong>coworking space in Kathmandu</strong> or a <strong>coworking space in Lalitpur</strong>, 
-              we have locations that suit your needs. Our <strong>Dhobighat Hub</strong> in Kathmandu and <strong>Kausimaa Co-working</strong> 
-              in Kupondole, Lalitpur offer premium amenities including 24/7 access, meeting rooms, event spaces, and vibrant communities 
-              of entrepreneurs and remote workers.
+              Whether you're searching for a <strong>co working space in kathmandu</strong> or a coworking space in Lalitpur, 
+              we have locations that suit your needs. Our <strong>Dhobighat Hub</strong> in Kathmandu is the perfect 
+              <strong> co working space in kathmandu</strong> for freelancers, entrepreneurs, and remote workers. Our 
+              <strong> Kausimaa Co-working</strong> in Kupondole, Lalitpur offers premium amenities including 24/7 access, 
+              meeting rooms, event spaces, and vibrant communities of professionals.
             </p>
 
             <h3 className="text-2xl font-semibold mt-8 mb-4">
@@ -122,9 +124,11 @@ export function SEOContentSection() {
 
             <p className="text-lg text-muted-foreground leading-relaxed">
               Each location offers flexible membership plans, from daily passes to private offices, making us the 
-              ideal choice for anyone seeking a <strong>co working space in Nepal</strong>. Whether you need a 
-              <strong> coworking space in Kathmandu</strong> or <strong>coworking space in Lalitpur</strong>, 
-              CreatrixSpace provides the perfect environment for productivity and growth.
+              ideal choice for anyone seeking a <strong>co working space in kathmandu</strong> or anywhere in Nepal. 
+              Whether you need a <strong>co working space in kathmandu</strong> or coworking space in Lalitpur, 
+              CreatrixSpace provides the perfect environment for productivity and growth. Our 
+              <strong> co working space in kathmandu</strong> at Dhobighat Hub is specifically designed for modern 
+              professionals seeking the best workspace experience in Nepal's capital city.
             </p>
           </motion.div>
         </div>

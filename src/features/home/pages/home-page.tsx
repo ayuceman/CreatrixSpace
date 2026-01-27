@@ -13,7 +13,7 @@ export function HomePage() {
     <>
       <SEOHead
         title="Premium Co Working Space in Nepal | Kathmandu & Lalitpur"
-        description="CreatrixSpace offers premium co working spaces in Nepal. Flexible coworking spaces in Kathmandu (Dhobighat) and Lalitpur (Kupondole, Jhamsikhel). 24/7 access, high-speed internet, meeting rooms, event spaces, and modern facilities. Perfect for freelancers, entrepreneurs, startups, and remote workers in Nepal."
+        description="Co working space in kathmandu with hot desks available now. Private offices are fully booked. CreatrixSpace offers premium coworking spaces in Kathmandu (Dhobighat) and Lalitpur with 24/7 access, high-speed internet, meeting rooms, event spaces, and modern facilities. Membership from NPR 800/day, 3,000/week, 8,000/month."
         keywords="co working space, coworking space nepal, coworking space kathmandu, coworking space lalitpur, shared office space nepal, workspace kathmandu, workspace lalitpur, flexible workspace nepal, hot desk nepal, private office kathmandu, meeting room kathmandu, remote work nepal, coworking dhobighat, coworking kupondole, coworking jhamsikhel, event space nepal"
         structuredDataType="LocalBusiness"
         structuredData={{

@@ -1,6 +1,6 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
-import { MapPin, Phone, Clock, MessageCircle, Calendar, ExternalLink } from 'lucide-react'
+import { MapPin, Phone, Clock, MessageCircle, Calendar, ExternalLink, Loader2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { ROUTES } from '@/lib/constants'
@@ -80,6 +80,9 @@ const faqs = [
 ]
 
 export function ContactPage() {
+  const [isFormReady, setIsFormReady] = useState(false)
+  const [formError, setFormError] = useState(false)
+
   const getWhatsAppLink = (rawPhone: string) => {
     const digits = (rawPhone || '').replace(/\D/g, '')
     if (!digits) return undefined
@@ -88,18 +91,73 @@ export function ContactPage() {
   }
 
   useEffect(() => {
-    const src = 'https://js.hsforms.net/forms/embed/44777363.js'
-    const existing = document.querySelector(`script[src="${src}"]`)
+    // HubSpot v2 embed library (exposes window.hbspt.forms.create)
+    const src = 'https://js.hsforms.net/forms/v2.js'
+    const targetId = 'hubspot-contact-form'
+    let readyTimeout: number | undefined
+
+    const createHubspotForm = () => {
+      const hbspt = (window as any)?.hbspt
+      if (!hbspt?.forms?.create) return false
+
+      const target = document.getElementById(targetId)
+      if (!target) return false
+
+      // Ensure re-mount works in SPA navigation
+      target.innerHTML = ''
+
+      hbspt.forms.create({
+        region: 'na1',
+        portalId: '44777363',
+        formId: '29e4175e-1983-4c51-9887-74bd94d8c42d',
+        target: `#${targetId}`,
+        onFormReady: () => {
+          if (readyTimeout) window.clearTimeout(readyTimeout)
+          setIsFormReady(true)
+          setFormError(false)
+        },
+      })
+
+      // If HubSpot loads but the iframe never appears, fail gracefully.
+      if (readyTimeout) window.clearTimeout(readyTimeout)
+      readyTimeout = window.setTimeout(() => setFormError(true), 15000)
+      return true
+    }
+
+    const existing = document.querySelector(`script[src="${src}"]`) as HTMLScriptElement | null
+
+    let attempts = 0
+    const maxAttempts = 100 // ~20s at 200ms interval
+    const interval = window.setInterval(() => {
+      attempts += 1
+      if (createHubspotForm()) {
+        setIsFormReady(true)
+        window.clearInterval(interval)
+      } else if (attempts >= maxAttempts) {
+        setFormError(true)
+        window.clearInterval(interval)
+      }
+    }, 200)
+
     if (!existing) {
       const script = document.createElement('script')
       script.src = src
-      script.defer = true
+      script.async = true
+      script.onerror = () => setFormError(true)
+      script.onload = () => {
+        if (createHubspotForm()) setIsFormReady(true)
+      }
       document.body.appendChild(script)
+    } else {
+      // Script already present; ensure form is created
+      if (createHubspotForm()) setIsFormReady(true)
     }
+
+    return () => window.clearInterval(interval)
   }, [])
 
   return (
-    <div className="overflow-hidden">
+    <div className="overflow-x-hidden">
       {/* Hero Section */}
       <section className="section-padding bg-gradient-to-br from-background via-background to-primary/5">
         <div className="container">
@@ -168,14 +226,20 @@ export function ContactPage() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-6">
-                    <div
-                      className="hs-form-frame"
-                      data-region="na1"
-                      data-form-id="29e4175e-1983-4c51-9887-74bd94d8c42d"
-                      data-portal-id="44777363"
-                    />
-                  </div>
+                  {!isFormReady && !formError && (
+                    <div className="flex items-center gap-3 text-sm text-muted-foreground mb-4">
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      Loading form…
+                    </div>
+                  )}
+
+                  {formError && !isFormReady && (
+                    <div className="text-sm text-muted-foreground mb-4">
+                      The form couldn’t load (often blocked by ad‑blockers/privacy settings). Please use WhatsApp or call us above, or try disabling blockers and refresh.
+                    </div>
+                  )}
+
+                  <div id="hubspot-contact-form" className="min-h-[420px]" />
                 </CardContent>
               </Card>
             </motion.div>
