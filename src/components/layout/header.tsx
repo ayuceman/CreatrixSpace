@@ -17,7 +17,7 @@ export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const location = useLocation()
 
-  const phoneNumber = "+977 9851357889"
+  const phoneNumbers = ["+977 9851357889", "+977 9700045256"]
   const whatsappNumber = "9779803171819" // Format for WhatsApp link (no + or -)
   const whatsappMessage = encodeURIComponent("Hi! I'm interested in learning more about CreatrixSpace.")
 
@@ -26,22 +26,25 @@ export function Header() {
       {/* Top Contact Bar */}
       <div className="bg-gradient-to-r from-purple-600 to-purple-800 text-white py-2">
         <div className="container flex items-center justify-between text-sm">
-          <div className="flex items-center gap-6">
-            <a 
-              href={`tel:${phoneNumber}`}
-              className="flex items-center gap-2 hover:opacity-80 transition-opacity"
-            >
-              <Phone className="h-4 w-4" />
-              <span className="hidden sm:inline font-medium">{phoneNumber}</span>
-            </a>
+          <div className="flex items-center gap-4 md:gap-6 overflow-x-auto">
+            {phoneNumbers.map((phone, index) => (
+              <a 
+                key={index}
+                href={`tel:${phone}`}
+                className="flex items-center gap-2 hover:opacity-80 transition-opacity whitespace-nowrap"
+              >
+                <Phone className="h-4 w-4" />
+                <span className="hidden sm:inline font-medium">{phone}</span>
+              </a>
+            ))}
             <a 
               href={`https://wa.me/${whatsappNumber}?text=${whatsappMessage}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-2 hover:opacity-80 transition-opacity"
+              className="flex items-center gap-2 hover:opacity-80 transition-opacity whitespace-nowrap"
             >
               <MessageCircle className="h-4 w-4" />
-              <span className="hidden sm:inline font-medium">WhatsApp Us</span>
+              <span className="hidden sm:inline font-medium">WhatsApp</span>
             </a>
           </div>
           <div className="text-xs sm:text-sm">

@@ -71,7 +71,7 @@ const features = [
 
 export function FeaturesSection() {
   return (
-    <section className="section-padding bg-muted/30">
+    <section className="py-16 md:py-20 lg:py-24 bg-gradient-to-b from-purple-50/50 via-gray-50 to-white dark:from-primary/5 dark:via-background dark:to-background">
       <div className="container">
         <motion.div
           initial={{ opacity: 0, y: 20 }}

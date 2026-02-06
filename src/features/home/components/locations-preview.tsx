@@ -45,7 +45,7 @@ const locations = [
 
 export function LocationsPreview() {
   return (
-    <section className="section-padding">
+    <section className="py-16 md:py-20 lg:py-24 bg-white dark:bg-background">
       <div className="container">
         {/* Availability Banner */}
         <motion.div

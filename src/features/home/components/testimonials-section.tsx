@@ -61,7 +61,7 @@ const testimonials = [
 
 export function TestimonialsSection() {
   return (
-    <section className="section-padding">
+    <section className="py-16 md:py-20 lg:py-24 bg-white dark:bg-background">
       <div className="container">
         <motion.div
           initial={{ opacity: 0, y: 20 }}

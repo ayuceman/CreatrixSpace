@@ -54,7 +54,7 @@ const plans = [
 
 export function PricingPreview() {
   return (
-    <section className="section-padding bg-muted/30">
+    <section className="py-16 md:py-20 lg:py-24 bg-gradient-to-b from-white via-purple-50/30 to-purple-50 dark:from-background dark:via-primary/5 dark:to-primary/10">
       <div className="container">
         <motion.div
           initial={{ opacity: 0, y: 20 }}

@@ -135,9 +135,12 @@ export function Footer() {
                     WhatsApp: +977 9803171819
                   </a>
                 </div>
-                <div className="flex items-center space-x-2">
-                  <Phone className="h-4 w-4" />
-                  <span>+977 9851357889</span>
+                <div className="flex items-start space-x-2">
+                  <Phone className="h-4 w-4 mt-0.5" />
+                  <div className="flex flex-col space-y-1">
+                    <a href="tel:+9779851357889" className="hover:underline">+977 9851357889</a>
+                    <a href="tel:+9779700045256" className="hover:underline">+977 9700045256</a>
+                  </div>
                 </div>
               </div>
               
@@ -168,9 +171,22 @@ export function Footer() {
 
         {/* Bottom Bar */}
         <div className="py-6 border-t flex flex-col sm:flex-row justify-between items-center space-y-4 sm:space-y-0">
-          <p className="text-sm text-muted-foreground">
-            © 2024 {APP_NAME}. All rights reserved.
-          </p>
+          <div className="flex flex-col items-center sm:items-start space-y-2">
+            <p className="text-sm text-muted-foreground">
+              © 2024 {APP_NAME}. All rights reserved.
+            </p>
+            <p className="text-xs text-muted-foreground">
+              Powered by{' '}
+              <a 
+                href="https://www.creatrixtechnologies.com" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="text-primary hover:text-primary/80 font-medium transition-colors hover:underline"
+              >
+                Creatrix Technologies
+              </a>
+            </p>
+          </div>
           <div className="flex space-x-4">
             {footerLinks.legal.map((link) => (
               <Link

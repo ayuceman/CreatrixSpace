@@ -6,8 +6,13 @@ import { ROUTES } from '@/lib/constants'
 
 export function CTASection() {
   return (
-    <section className="section-padding bg-primary text-primary-foreground">
-      <div className="container">
+    <section className="py-20 md:py-24 lg:py-28 bg-gradient-to-br from-purple-600 via-purple-700 to-purple-800 text-white relative overflow-hidden">
+      {/* Decorative Elements */}
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute top-0 left-0 w-96 h-96 bg-white/5 rounded-full blur-3xl" />
+        <div className="absolute bottom-0 right-0 w-96 h-96 bg-white/5 rounded-full blur-3xl" />
+      </div>
+      <div className="container relative z-10">
         <div className="max-w-4xl mx-auto text-center space-y-8">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
