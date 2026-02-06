@@ -137,9 +137,9 @@ export function LocationsPage() {
                 <div className="space-y-2">
                   <h3 className="font-semibold text-xl">{location.name}</h3>
                   <div className="flex items-center justify-between flex-wrap gap-2">
-                    <div className="flex items-center text-muted-foreground">
-                      <MapPin className="h-4 w-4 mr-1" />
-                      <span className="text-sm">{location.address}</span>
+                  <div className="flex items-center text-muted-foreground">
+                    <MapPin className="h-4 w-4 mr-1" />
+                    <span className="text-sm">{location.address}</span>
                     </div>
                     {location.googleMapsUrl && (
                       <a
