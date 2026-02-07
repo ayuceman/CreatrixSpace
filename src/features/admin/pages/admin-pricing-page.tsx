@@ -1,11 +1,12 @@
 import { useEffect, useMemo, useState } from 'react'
-import { Loader2, AlertCircle } from 'lucide-react'
+import { Loader2, AlertCircle, Plus, Edit, Trash2 } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 import { Separator } from '@/components/ui/separator'
 import { Badge } from '@/components/ui/badge'
+import { Textarea } from '@/components/ui/textarea'
 import { cn } from '@/lib/utils'
 import type { Database } from '@/lib/database.types'
 import { locationService, planService, locationPricingService, roomService, roomPricingService } from '@/services/supabase-service'
@@ -57,6 +58,17 @@ export function AdminPricingPage() {
   const [roomSaving, setRoomSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [roomStatusUpdating, setRoomStatusUpdating] = useState<string | null>(null)
+  const [showRoomForm, setShowRoomForm] = useState(false)
+  const [editingRoom, setEditingRoom] = useState<RoomRow | null>(null)
+  const [roomForm, setRoomForm] = useState({
+    name: '',
+    slug: '',
+    description: '',
+    capacity: '',
+    size: '',
+    tags: '',
+    amenities: '',
+  })
 
   const loadData = async () => {
     setLoading(true)
@@ -290,6 +302,91 @@ export function AdminPricingPage() {
     }
   }
 
+  const handleAddRoom = () => {
+    setEditingRoom(null)
+    setRoomForm({
+      name: '',
+      slug: '',
+      description: '',
+      capacity: '',
+      size: '',
+      tags: '',
+      amenities: '',
+    })
+    setShowRoomForm(true)
+  }
+
+  const handleEditRoom = (room: RoomRow) => {
+    setEditingRoom(room)
+    setRoomForm({
+      name: room.name,
+      slug: room.slug,
+      description: room.description || '',
+      capacity: String(room.capacity || ''),
+      size: room.size || '',
+      tags: (room.tags || []).join(', '),
+      amenities: (room.amenities || []).join(', '),
+    })
+    setShowRoomForm(true)
+  }
+
+  const handleRoomFormSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!selectedLocationId || !roomForm.name || !roomForm.slug) {
+      alert('Please fill in room name and slug.')
+      return
+    }
+
+    try {
+      const payload = {
+        location_id: selectedLocationId,
+        name: roomForm.name,
+        slug: roomForm.slug,
+        description: roomForm.description || null,
+        capacity: roomForm.capacity ? Number(roomForm.capacity) : null,
+        size: roomForm.size || null,
+        status: 'available' as const,
+        tags: roomForm.tags ? roomForm.tags.split(',').map(t => t.trim()).filter(Boolean) : [],
+        amenities: roomForm.amenities ? roomForm.amenities.split(',').map(a => a.trim()).filter(Boolean) : [],
+      }
+
+      if (editingRoom) {
+        const updated = await roomService.updateRoom(editingRoom.id, payload)
+        if (updated) {
+          setRooms(prev => prev.map(r => r.id === editingRoom.id ? updated : r))
+        }
+      } else {
+        const newRoom = await roomService.createRoom(payload)
+        if (newRoom) {
+          setRooms(prev => [...prev, newRoom])
+        }
+      }
+
+      setShowRoomForm(false)
+      setEditingRoom(null)
+      alert(editingRoom ? 'Room updated successfully.' : 'Room added successfully.')
+    } catch (err) {
+      console.error(err)
+      alert('Failed to save room. Please try again.')
+    }
+  }
+
+  const handleDeleteRoom = async (roomId: string) => {
+    if (!confirm('Delete this room? This will also remove all associated pricing.')) return
+    
+    try {
+      await roomService.deleteRoom(roomId)
+      setRooms(prev => prev.filter(r => r.id !== roomId))
+      if (selectedRoomId === roomId) {
+        setSelectedRoomId('')
+      }
+      alert('Room deleted successfully.')
+    } catch (err) {
+      console.error(err)
+      alert('Failed to delete room. Please try again.')
+    }
+  }
+
   return (
     <div className="space-y-6">
       <div>
@@ -330,105 +427,213 @@ export function AdminPricingPage() {
         </CardContent>
       </Card>
       {selectedLocation && (
-        <Card>
-          <CardHeader>
-            <CardTitle>
-              Rooms at {selectedLocation.name}
-            </CardTitle>
-            <p className="text-sm text-muted-foreground">
-              Update availability and select a room to configure plan overrides.
-            </p>
-          </CardHeader>
-          <CardContent>
-            {roomsForSelectedLocation.length === 0 ? (
-              <p className="text-sm text-muted-foreground">
-                No rooms configured for this location yet. Create rooms in Supabase to enable per-room pricing.
-              </p>
-            ) : (
-              <div className="grid gap-4 md:grid-cols-3">
-                {roomsForSelectedLocation.map((room) => {
-                  const isSelected = room.id === selectedRoomId
-                  return (
-                    <div
-                      key={room.id}
-                      className={cn(
-                        'border rounded-lg p-4 space-y-3 transition-all',
-                        isSelected ? 'border-primary shadow-lg' : 'hover:border-primary/40'
-                      )}
-                    >
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <h3 className="font-medium">{room.name}</h3>
-                          {room.size && (
-                            <p className="text-xs text-muted-foreground">{room.size}</p>
-                          )}
-                        </div>
-                        <Badge
-                          variant={
-                            room.status === 'available' ? 'secondary' : room.status === 'booked' ? 'destructive' : 'outline'
-                          }
-                        >
-                          {room.status}
-                        </Badge>
-                      </div>
-                      {room.description && (
-                        <p className="text-sm text-muted-foreground line-clamp-2">{room.description}</p>
-                      )}
-                      <div className="flex flex-wrap gap-1 text-xs">
-                        {(room.tags || room.amenities || []).slice(0, 3).map((tag) => (
-                          <Badge key={tag} variant="outline">
-                            {tag}
-                          </Badge>
-                        ))}
-                      </div>
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <Button
-                          size="sm"
-                          variant={isSelected ? 'default' : 'outline'}
-                          onClick={() => setSelectedRoomId(room.id)}
-                        >
-                          {isSelected ? 'Selected' : 'Select'}
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          disabled={room.status === 'available' || roomStatusUpdating === room.id}
-                          onClick={() => handleRoomStatusChange(room.id, 'available')}
-                          className="flex items-center gap-1"
-                        >
-                          {roomStatusUpdating === room.id && room.status !== 'available' ? (
-                            <>
-                              <Loader2 className="h-3 w-3 animate-spin" />
-                              <span className="text-xs">Updating</span>
-                            </>
-                          ) : (
-                            'Mark Available'
-                          )}
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          disabled={room.status === 'booked' || roomStatusUpdating === room.id}
-                          onClick={() => handleRoomStatusChange(room.id, 'booked')}
-                          className="flex items-center gap-1"
-                        >
-                          {roomStatusUpdating === room.id && room.status !== 'booked' ? (
-                            <>
-                              <Loader2 className="h-3 w-3 animate-spin" />
-                              <span className="text-xs">Updating</span>
-                            </>
-                          ) : (
-                            'Mark Booked'
-                          )}
-                        </Button>
-                      </div>
-                    </div>
-                  )
-                })}
+        <>
+          <Card>
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle>
+                    Rooms at {selectedLocation.name}
+                  </CardTitle>
+                  <p className="text-sm text-muted-foreground">
+                    Update availability and select a room to configure plan overrides.
+                  </p>
+                </div>
+                <Button onClick={handleAddRoom} className="bg-gradient-to-r from-purple-600 to-purple-700">
+                  <Plus className="h-4 w-4 mr-2" />
+                  Add Room
+                </Button>
               </div>
-            )}
-          </CardContent>
-        </Card>
+            </CardHeader>
+            <CardContent>
+              {showRoomForm && (
+                <Card className="mb-6 border-2 border-purple-200">
+                  <div className="bg-gradient-to-r from-purple-600 to-purple-700 p-4 text-white">
+                    <h3 className="font-semibold">{editingRoom ? 'Edit Room' : 'Add New Room'}</h3>
+                  </div>
+                  <CardContent className="p-4">
+                    <form onSubmit={handleRoomFormSubmit} className="space-y-4">
+                      <div className="grid gap-4 md:grid-cols-2">
+                        <div className="space-y-2">
+                          <Label>Room Name *</Label>
+                          <Input
+                            required
+                            value={roomForm.name}
+                            onChange={(e) => setRoomForm(prev => ({ ...prev, name: e.target.value }))}
+                            placeholder="e.g., Jupiter"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label>Slug *</Label>
+                          <Input
+                            required
+                            value={roomForm.slug}
+                            onChange={(e) => setRoomForm(prev => ({ ...prev, slug: e.target.value }))}
+                            placeholder="e.g., jupiter-hall"
+                          />
+                        </div>
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Description</Label>
+                        <Textarea
+                          value={roomForm.description}
+                          onChange={(e) => setRoomForm(prev => ({ ...prev, description: e.target.value }))}
+                          placeholder="Room description..."
+                        />
+                      </div>
+                      <div className="grid gap-4 md:grid-cols-3">
+                        <div className="space-y-2">
+                          <Label>Capacity</Label>
+                          <Input
+                            type="number"
+                            value={roomForm.capacity}
+                            onChange={(e) => setRoomForm(prev => ({ ...prev, capacity: e.target.value }))}
+                            placeholder="e.g., 12"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label>Size</Label>
+                          <Input
+                            value={roomForm.size}
+                            onChange={(e) => setRoomForm(prev => ({ ...prev, size: e.target.value }))}
+                            placeholder="e.g., 500 sq.ft"
+                          />
+                        </div>
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Tags (comma separated)</Label>
+                        <Input
+                          value={roomForm.tags}
+                          onChange={(e) => setRoomForm(prev => ({ ...prev, tags: e.target.value }))}
+                          placeholder="e.g., High ceilings, Flexible layout"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Amenities (comma separated)</Label>
+                        <Input
+                          value={roomForm.amenities}
+                          onChange={(e) => setRoomForm(prev => ({ ...prev, amenities: e.target.value }))}
+                          placeholder="e.g., Large projection screen, Movable furniture"
+                        />
+                      </div>
+                      <div className="flex justify-end gap-3">
+                        <Button type="button" variant="outline" onClick={() => setShowRoomForm(false)}>
+                          Cancel
+                        </Button>
+                        <Button type="submit" className="bg-gradient-to-r from-purple-600 to-purple-700">
+                          {editingRoom ? 'Update Room' : 'Create Room'}
+                        </Button>
+                      </div>
+                    </form>
+                  </CardContent>
+                </Card>
+              )}
+
+              {roomsForSelectedLocation.length === 0 ? (
+                <p className="text-sm text-muted-foreground">
+                  No rooms configured for this location yet. Click "Add Room" to create one.
+                </p>
+              ) : (
+                <div className="grid gap-4 md:grid-cols-3">
+                  {roomsForSelectedLocation.map((room) => {
+                    const isSelected = room.id === selectedRoomId
+                    return (
+                      <div
+                        key={room.id}
+                        className={cn(
+                          'border rounded-lg p-4 space-y-3 transition-all',
+                          isSelected ? 'border-primary shadow-lg' : 'hover:border-primary/40'
+                        )}
+                      >
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <h3 className="font-medium">{room.name}</h3>
+                            {room.size && (
+                              <p className="text-xs text-muted-foreground">{room.size}</p>
+                            )}
+                          </div>
+                          <Badge
+                            variant={
+                              room.status === 'available' ? 'secondary' : room.status === 'booked' ? 'destructive' : 'outline'
+                            }
+                          >
+                            {room.status}
+                          </Badge>
+                        </div>
+                        {room.description && (
+                          <p className="text-sm text-muted-foreground line-clamp-2">{room.description}</p>
+                        )}
+                        <div className="flex flex-wrap gap-1 text-xs">
+                          {(room.tags || room.amenities || []).slice(0, 3).map((tag) => (
+                            <Badge key={tag} variant="outline">
+                              {tag}
+                            </Badge>
+                          ))}
+                        </div>
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <Button
+                            size="sm"
+                            variant={isSelected ? 'default' : 'outline'}
+                            onClick={() => setSelectedRoomId(room.id)}
+                          >
+                            {isSelected ? 'Selected' : 'Select'}
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => handleEditRoom(room)}
+                          >
+                            <Edit className="h-3 w-3" />
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            disabled={room.status === 'available' || roomStatusUpdating === room.id}
+                            onClick={() => handleRoomStatusChange(room.id, 'available')}
+                            className="flex items-center gap-1"
+                          >
+                            {roomStatusUpdating === room.id && room.status !== 'available' ? (
+                              <>
+                                <Loader2 className="h-3 w-3 animate-spin" />
+                                <span className="text-xs">Updating</span>
+                              </>
+                            ) : (
+                              'Available'
+                            )}
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            disabled={room.status === 'booked' || roomStatusUpdating === room.id}
+                            onClick={() => handleRoomStatusChange(room.id, 'booked')}
+                            className="flex items-center gap-1"
+                          >
+                            {roomStatusUpdating === room.id && room.status !== 'booked' ? (
+                              <>
+                                <Loader2 className="h-3 w-3 animate-spin" />
+                                <span className="text-xs">Updating</span>
+                              </>
+                            ) : (
+                              'Booked'
+                            )}
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => handleDeleteRoom(room.id)}
+                            className="text-red-600 hover:text-red-700"
+                          >
+                            <Trash2 className="h-3 w-3" />
+                          </Button>
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </>
       )}
 
       {error && (

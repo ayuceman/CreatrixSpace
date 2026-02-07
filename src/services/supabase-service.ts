@@ -245,6 +245,35 @@ export const roomService = {
   async setRoomStatus(roomId: string, status: LocationRoom['status']) {
     return this.updateRoom(roomId, { status })
   },
+
+  async createRoom(roomData: Omit<LocationRoomInsert, 'id'>): Promise<LocationRoom | null> {
+    const client = supabaseAdmin ?? supabase
+    const { data, error } = await client
+      .from('location_rooms')
+      .insert(roomData)
+      .select('*')
+      .single()
+
+    if (error) {
+      console.error('Failed to create room:', error)
+      throw error
+    }
+
+    return data
+  },
+
+  async deleteRoom(roomId: string): Promise<void> {
+    const client = supabaseAdmin ?? supabase
+    const { error } = await client
+      .from('location_rooms')
+      .delete()
+      .eq('id', roomId)
+
+    if (error) {
+      console.error('Failed to delete room:', error)
+      throw error
+    }
+  },
 }
 
 // ============================================
