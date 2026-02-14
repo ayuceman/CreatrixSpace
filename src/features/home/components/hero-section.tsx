@@ -1,16 +1,17 @@
 import { Link } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useState, useEffect } from 'react'
-import { ArrowRight, MapPin, Users, Wifi, Shield, ChevronLeft, ChevronRight, Building2, Clock, Zap } from 'lucide-react'
+import { ArrowRight, MapPin, Users, Wifi, Coffee, ChevronLeft, ChevronRight, AlertCircle, Loader2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { ROUTES } from '@/lib/constants'
+import { useHotDeskPricing } from '@/features/home/hooks/use-hot-desk-pricing'
 
 const stats = [
-  { icon: Building2, label: 'Locations', value: '3' },
+  { icon: MapPin, label: 'Locations', value: '3+' },
   { icon: Users, label: 'Members', value: '500+' },
   { icon: Wifi, label: 'Uptime', value: '99.9%' },
-  { icon: Clock, label: 'Access', value: '24/7' },
+  { icon: Coffee, label: 'Cups/Day', value: '200+' },
 ]
 
 const heroImages = [
@@ -19,8 +20,16 @@ const heroImages = [
     alt: 'Modern meeting room with conference table'
   },
   {
+    src: '/images/locations/dhobighat-hub/workshop_hall_plants.jpeg',
+    alt: 'Dhobighat workshop hall with plants'
+  },
+  {
     src: '/images/hero-slider/professional-workspace-desk.webp',
     alt: 'Professional workspace with desk'
+  },
+  {
+    src: '/images/locations/dhobighat-hub/workshop_hall_plants.jpeg',
+    alt: 'Dhobighat workshop hall with plants'
   },
   {
     src: '/images/hero-slider/modern-workspace-desk.webp',
@@ -46,23 +55,18 @@ const heroImages = [
     src: '/images/hero-slider/dhobighat-workspace-view-1.webp',
     alt: 'Dhobighat workspace view'
   },
-  {
-    src: '/images/locations/dhobighat-hub/workshop_hall_plants.jpeg',
-    alt: 'Dhobighat workshop hall with plants'
-  },
-]
-
-const trustLogos = [
-  'Trusted by startups and enterprises across Nepal',
 ]
 
 export function HeroSection() {
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
+  const { daily, weekly, monthly, loading, formatted } = useHotDeskPricing()
 
+  // Auto-scroll images every 5 seconds
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentImageIndex((prev) => (prev + 1) % heroImages.length)
     }, 5000)
+
     return () => clearInterval(interval)
   }, [])
 
@@ -75,22 +79,21 @@ export function HeroSection() {
   }
 
   return (
-    <section className="relative pt-8 md:pt-12 pb-16 md:pb-20 lg:pb-24 bg-gradient-to-br from-gray-50 via-white to-purple-50/40 dark:from-background dark:via-background dark:to-primary/5 overflow-hidden">
-      {/* Subtle grid pattern */}
+    <section className="relative pt-6 md:pt-8 pb-12 md:pb-16 lg:pb-20 bg-gradient-to-br from-purple-50 via-white to-purple-50/30 dark:from-background dark:via-background dark:to-primary/5 overflow-hidden">
+      {/* Decorative Elements */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
-        <div className="absolute inset-0 bg-[linear-gradient(rgba(139,92,246,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(139,92,246,0.03)_1px,transparent_1px)] bg-[size:64px_64px]" />
-        <div className="absolute top-20 right-20 w-[500px] h-[500px] bg-purple-200/15 dark:bg-primary/10 rounded-full blur-[100px]" />
-        <div className="absolute -bottom-20 -left-20 w-[400px] h-[400px] bg-blue-200/10 dark:bg-primary/5 rounded-full blur-[80px]" />
+        <div className="absolute top-0 right-0 w-96 h-96 bg-purple-200/20 dark:bg-primary/10 rounded-full blur-3xl" />
+        <div className="absolute bottom-0 left-0 w-96 h-96 bg-blue-200/20 dark:bg-primary/5 rounded-full blur-3xl" />
       </div>
       
       <div className="container relative z-10">
-        <div className="grid lg:grid-cols-[1fr_1.2fr] gap-10 lg:gap-16 items-center">
+        <div className="grid lg:grid-cols-[1fr_1.2fr] gap-8 lg:gap-12 items-center">
           {/* Content */}
           <motion.div
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.7 }}
-            className="space-y-6 lg:space-y-8"
+            className="space-y-5 lg:space-y-6"
           >
             {/* Badge */}
             <motion.div
@@ -98,9 +101,8 @@ export function HeroSection() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.1 }}
             >
-              <Badge className="bg-purple-50 dark:bg-purple-950/30 text-purple-700 dark:text-purple-400 border border-purple-200 dark:border-purple-800 px-4 py-1.5 text-sm font-medium">
-                <Zap className="h-3.5 w-3.5 mr-1.5 fill-purple-500 text-purple-500" />
-                Nepal's Premier Workspace
+              <Badge className="bg-gradient-to-r from-purple-600 to-purple-700 text-white border-0 px-4 py-1.5 text-sm font-medium shadow-lg shadow-purple-500/30">
+                ✨ Premium Co Working Space in Nepal
               </Badge>
             </motion.div>
 
@@ -109,23 +111,20 @@ export function HeroSection() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.2 }}
-              className="space-y-4"
+              className="space-y-3"
             >
-              <h1 className="text-3xl md:text-4xl lg:text-5xl xl:text-[3.5rem] font-display font-bold leading-[1.1] tracking-tight">
-                <span className="text-gray-900 dark:text-white">
-                  Where Ambitious
-                </span>
-                <br />
-                <span className="text-gray-900 dark:text-white">
-                  Teams Do Their
-                </span>
-                <br />
+              <h1 className="text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-display font-bold leading-[1.15] tracking-tight">
                 <span className="bg-gradient-to-r from-purple-600 via-purple-700 to-purple-800 bg-clip-text text-transparent">
-                  Best Work
+                  Best Co Working Space
                 </span>
+                <br />
+                <span className="text-gray-900 dark:text-white">in Kathmandu &</span>
+                <br />
+                <span className="text-gray-900 dark:text-white">Lalitpur, Nepal</span>
               </h1>
-              <p className="text-base md:text-lg text-gray-600 dark:text-muted-foreground leading-relaxed max-w-lg">
-                Professional workspaces in Kathmandu & Lalitpur. Flexible plans, enterprise-grade infrastructure, and a community that accelerates growth.
+              <p className="text-sm md:text-base lg:text-lg text-gray-600 dark:text-muted-foreground leading-relaxed max-w-xl">
+                Premium workspace with flexible plans, 24/7 access, high-speed internet & modern facilities. 
+                Perfect for freelancers, entrepreneurs & remote workers.
               </p>
             </motion.div>
 
@@ -134,37 +133,81 @@ export function HeroSection() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.3 }}
-              className="flex flex-col sm:flex-row gap-3"
+              className="flex flex-col sm:flex-row gap-3 pt-2"
             >
-              <Button size="lg" className="bg-purple-700 hover:bg-purple-800 text-white shadow-lg shadow-purple-700/25 transition-all hover:shadow-xl hover:shadow-purple-700/30 h-12 px-8 text-base" asChild>
+              <Button size="lg" className="bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white shadow-lg shadow-purple-500/30 transition-all hover:shadow-xl hover:shadow-purple-500/40" asChild>
                 <Link to={ROUTES.BOOKING} className="group">
-                  Book a Workspace
+                  Book Hot Desk Now
                   <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
                 </Link>
               </Button>
-              <Button size="lg" variant="outline" className="border-2 border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-900 h-12 px-8 text-base" asChild>
+              <Button size="lg" variant="outline" className="border-2 border-purple-200 dark:border-purple-800 hover:bg-purple-50 dark:hover:bg-purple-950/30" asChild>
                 <Link to={ROUTES.CONTACT}>
-                  Schedule a Tour
+                  Schedule Tour
                 </Link>
               </Button>
+            </motion.div>
+
+            {/* Pricing Info */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.4 }}
+              className="bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-950/20 dark:to-orange-950/20 border border-amber-200 dark:border-amber-800/50 rounded-2xl p-5 shadow-sm"
+            >
+              <div className="flex items-start gap-3">
+                <div className="p-2 rounded-xl bg-amber-100 dark:bg-amber-900/30">
+                  <AlertCircle className="h-5 w-5 text-amber-600 dark:text-amber-500" />
+                </div>
+                <div className="flex-1 space-y-2">
+                  <p className="font-semibold text-gray-900 dark:text-white text-sm">Private offices fully booked</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">Hot desks available starting from:</p>
+                  <div className="flex flex-wrap gap-2">
+                    {loading ? (
+                      <Loader2 className="h-5 w-5 animate-spin text-purple-600" />
+                    ) : (
+                      <>
+                        {daily != null && (
+                          <div className="px-3 py-1.5 bg-white dark:bg-background rounded-full border border-amber-200 dark:border-amber-800/50 shadow-sm">
+                            <span className="text-sm font-bold text-purple-700 dark:text-purple-400">NPR {formatted.daily}/day</span>
+                          </div>
+                        )}
+                        {weekly != null && (
+                          <div className="px-3 py-1.5 bg-white dark:bg-background rounded-full border border-amber-200 dark:border-amber-800/50 shadow-sm">
+                            <span className="text-sm font-bold text-purple-700 dark:text-purple-400">NPR {formatted.weekly}/week</span>
+                          </div>
+                        )}
+                        {monthly != null && (
+                          <div className="px-3 py-1.5 bg-white dark:bg-background rounded-full border border-amber-200 dark:border-amber-800/50 shadow-sm">
+                            <span className="text-sm font-bold text-purple-700 dark:text-purple-400">NPR {formatted.monthly}/month</span>
+                          </div>
+                        )}
+                      </>
+                    )}
+                  </div>
+                </div>
+              </div>
             </motion.div>
 
             {/* Stats */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.4 }}
-              className="grid grid-cols-4 gap-6 pt-4 border-t border-gray-200 dark:border-gray-800"
+              transition={{ duration: 0.5, delay: 0.5 }}
+              className="grid grid-cols-4 gap-4 pt-6"
             >
-              {stats.map((stat) => {
+              {stats.map((stat, index) => {
                 const Icon = stat.icon
                 return (
-                  <div key={stat.label} className="text-center">
-                    <div className="font-bold text-2xl text-gray-900 dark:text-white">{stat.value}</div>
-                    <div className="text-xs text-gray-500 dark:text-muted-foreground mt-0.5 flex items-center justify-center gap-1">
-                      <Icon className="h-3 w-3" />
-                      {stat.label}
+                  <div
+                    key={stat.label}
+                    className="text-center group"
+                  >
+                    <div className="inline-flex items-center justify-center w-10 h-10 rounded-xl bg-purple-100 dark:bg-purple-900/30 mb-2 group-hover:scale-110 transition-transform">
+                      <Icon className="h-5 w-5 text-purple-600 dark:text-purple-400" />
                     </div>
+                    <div className="font-bold text-xl text-gray-900 dark:text-white">{stat.value}</div>
+                    <div className="text-xs text-gray-600 dark:text-muted-foreground">{stat.label}</div>
                   </div>
                 )
               })}
@@ -176,16 +219,19 @@ export function HeroSection() {
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.7, delay: 0.2 }}
-            className="relative"
+            className="relative lg:scale-110"
           >
-            <div className="relative aspect-[16/11] lg:aspect-[4/3] rounded-2xl overflow-hidden group shadow-2xl shadow-black/10">
+            {/* Decorative Ring */}
+            <div className="absolute -inset-4 bg-gradient-to-br from-purple-600/20 to-purple-800/20 rounded-3xl blur-2xl" />
+            
+            <div className="relative aspect-[16/11] lg:aspect-[4/3] rounded-3xl overflow-hidden group shadow-2xl shadow-purple-500/20 border-4 border-white dark:border-gray-800">
               {/* Image Carousel */}
               <AnimatePresence initial={false}>
                 <motion.div
                   key={currentImageIndex}
-                  initial={{ opacity: 0, scale: 1.05 }}
+                  initial={{ opacity: 0, scale: 1.1 }}
                   animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.98 }}
+                  exit={{ opacity: 0, scale: 0.95 }}
                   transition={{ duration: 0.7, ease: "easeInOut" }}
                   className="absolute inset-0"
                 >
@@ -197,34 +243,35 @@ export function HeroSection() {
                 </motion.div>
               </AnimatePresence>
               
-              {/* Subtle overlay */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent" />
+              {/* Overlays */}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-br from-purple-600/10 via-transparent to-transparent" />
               
               {/* Navigation Arrows */}
               <button
                 onClick={prevImage}
-                className="absolute left-3 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white rounded-full p-2 opacity-0 group-hover:opacity-100 transition-all shadow-lg backdrop-blur-sm"
+                className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white rounded-full p-2.5 opacity-0 group-hover:opacity-100 transition-all shadow-lg hover:scale-110 backdrop-blur-sm"
                 aria-label="Previous image"
               >
-                <ChevronLeft className="h-5 w-5 text-gray-700" />
+                <ChevronLeft className="h-5 w-5 text-purple-700" />
               </button>
               <button
                 onClick={nextImage}
-                className="absolute right-3 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white rounded-full p-2 opacity-0 group-hover:opacity-100 transition-all shadow-lg backdrop-blur-sm"
+                className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white rounded-full p-2.5 opacity-0 group-hover:opacity-100 transition-all shadow-lg hover:scale-110 backdrop-blur-sm"
                 aria-label="Next image"
               >
-                <ChevronRight className="h-5 w-5 text-gray-700" />
+                <ChevronRight className="h-5 w-5 text-purple-700" />
               </button>
               
               {/* Image Indicators */}
-              <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5 bg-black/30 backdrop-blur-md px-3 py-1.5 rounded-full">
+              <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2 bg-black/20 backdrop-blur-md px-3 py-2 rounded-full">
                 {heroImages.map((_, index) => (
                   <button
                     key={index}
                     onClick={() => setCurrentImageIndex(index)}
                     className={`h-1.5 rounded-full transition-all ${
                       index === currentImageIndex
-                        ? 'w-6 bg-white'
+                        ? 'w-8 bg-white'
                         : 'w-1.5 bg-white/50 hover:bg-white/75'
                     }`}
                     aria-label={`Go to image ${index + 1}`}
@@ -232,52 +279,39 @@ export function HeroSection() {
                 ))}
               </div>
             </div>
-
-            {/* Floating card */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.6 }}
-              className="absolute -bottom-6 -left-6 bg-white dark:bg-gray-900 rounded-xl shadow-xl border border-gray-100 dark:border-gray-800 p-4 hidden lg:block"
-            >
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
-                  <Shield className="h-5 w-5 text-green-600" />
-                </div>
-                <div>
-                  <div className="text-sm font-semibold text-gray-900 dark:text-white">Enterprise Ready</div>
-                  <div className="text-xs text-gray-500">Secure, scalable, professional</div>
-                </div>
-              </div>
-            </motion.div>
           </motion.div>
         </div>
 
-        {/* Trust bar */}
+        {/* Facility Chips Section */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.7 }}
-          className="mt-16 lg:mt-20"
+          transition={{ duration: 0.6, delay: 0.6 }}
+          className="mt-12 lg:mt-16"
         >
-          <div className="flex flex-wrap justify-center gap-x-8 gap-y-3 items-center">
+          <div className="flex flex-wrap justify-center gap-3">
             {[
-              { icon: Wifi, label: 'Gigabit Internet' },
-              { icon: Shield, label: 'Secure Access' },
+              { icon: Wifi, label: 'High-speed Internet' },
               { icon: MapPin, label: 'Prime Locations' },
-              { icon: Users, label: 'Active Community' },
-              { icon: Building2, label: 'Meeting Rooms' },
-              { icon: Clock, label: '24/7 Operations' },
-            ].map((item, index) => (
+              { icon: Users, label: 'Vibrant Community' },
+              { icon: Coffee, label: 'Coffee & Tea' },
+              { icon: '🔒', label: 'Secure Access' },
+              { icon: '🏢', label: 'Meeting Rooms' },
+            ].map((facility, index) => (
               <motion.div
-                key={item.label}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.3, delay: 0.8 + index * 0.05 }}
-                className="flex items-center gap-2 text-gray-500 dark:text-gray-400"
+                key={facility.label}
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.3, delay: 0.7 + index * 0.05 }}
               >
-                <item.icon className="h-4 w-4 text-purple-500 dark:text-purple-400" />
-                <span className="text-sm font-medium whitespace-nowrap">{item.label}</span>
+                <div className="flex items-center gap-2 px-4 py-2.5 rounded-full bg-white dark:bg-background border border-purple-100 dark:border-purple-900/50 shadow-sm hover:shadow-md hover:border-purple-300 dark:hover:border-purple-700 transition-all hover:-translate-y-0.5 cursor-default">
+                  {typeof facility.icon === 'string' ? (
+                    <span className="text-base">{facility.icon}</span>
+                  ) : (
+                    <facility.icon className="h-4 w-4 text-purple-600 dark:text-purple-400" />
+                  )}
+                  <span className="text-sm font-medium text-gray-700 dark:text-gray-300 whitespace-nowrap">{facility.label}</span>
+                </div>
               </motion.div>
             ))}
           </div>

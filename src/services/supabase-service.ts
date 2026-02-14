@@ -7,6 +7,7 @@ type Profile = Database['public']['Tables']['profiles']['Row']
 type Location = Database['public']['Tables']['locations']['Row']
 type LocationRoom = Database['public']['Tables']['location_rooms']['Row']
 type LocationRoomUpdate = Database['public']['Tables']['location_rooms']['Update']
+type LocationRoomInsert = Database['public']['Tables']['location_rooms']['Insert']
 type Plan = Database['public']['Tables']['plans']['Row']
 type AddOn = Database['public']['Tables']['add_ons']['Row']
 type LocationPlanPricing = Database['public']['Tables']['location_plan_pricing']['Row']
@@ -246,7 +247,7 @@ export const roomService = {
     return this.updateRoom(roomId, { status })
   },
 
-  async createRoom(roomData: Omit<LocationRoomInsert, 'id'>): Promise<LocationRoom | null> {
+  async createRoom(roomData: LocationRoomInsert): Promise<LocationRoom | null> {
     const client = supabaseAdmin ?? supabase
     const { data, error } = await client
       .from('location_rooms')
@@ -307,7 +308,7 @@ export const planService = {
             ...plan,
             pricing: {
               ...pricing,
-              daily: 80000,
+              daily: 50000,
             } as any,
           }
         }

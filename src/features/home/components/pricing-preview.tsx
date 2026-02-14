@@ -1,18 +1,19 @@
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { Check, ArrowRight, Star } from 'lucide-react'
+import { Check, ArrowRight, Star, Loader2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { ROUTES } from '@/lib/constants'
 import { formatCurrency } from '@/lib/utils'
+import { useHotDeskPricing } from '@/features/home/hooks/use-hot-desk-pricing'
 
-const plans = [
+const planConfigs = [
   {
+    key: 'daily',
     name: 'Hot Desk — Daily',
     description: 'Best for trying us out',
-    price: 80000, // in paisa (NPR 800)
-    period: 'day',
+    period: 'day' as const,
     features: [
       'Hot desk access (day pass)',
       'High-speed WiFi',
@@ -23,10 +24,10 @@ const plans = [
     popular: false,
   },
   {
+    key: 'weekly',
     name: 'Hot Desk — Weekly',
     description: 'Best value for regulars',
-    price: 300000, // in paisa (NPR 3,000)
-    period: 'week',
+    period: 'week' as const,
     features: [
       'Hot desk access (weekly)',
       'High-speed WiFi',
@@ -37,10 +38,10 @@ const plans = [
     popular: false,
   },
   {
+    key: 'monthly',
     name: 'Hot Desk — Monthly',
     description: 'Most popular (hot desk)',
-    price: 800000, // in paisa (NPR 8,000)
-    period: 'month',
+    period: 'month' as const,
     features: [
       'Unlimited hot desk access',
       'High-speed WiFi',
@@ -53,6 +54,13 @@ const plans = [
 ]
 
 export function PricingPreview() {
+  const { daily, weekly, monthly, loading, formatted } = useHotDeskPricing()
+
+  const getPrice = (period: 'day' | 'week' | 'month') => {
+    const val = period === 'day' ? daily : period === 'week' ? weekly : monthly
+    return val ?? 0
+  }
+
   return (
     <section className="py-16 md:py-20 lg:py-24 bg-gradient-to-b from-white via-purple-50/30 to-purple-50 dark:from-background dark:via-primary/5 dark:to-primary/10">
       <div className="container">
@@ -74,15 +82,19 @@ export function PricingPreview() {
 
           <div className="flex justify-center mt-6">
             <Badge variant="secondary" className="px-4 py-2 text-sm bg-amber-100 text-amber-900 hover:bg-amber-200 border-amber-200">
-              Membership from NPR 800.00/day • 3,000/week • 8,000/month
+              {loading ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                `Membership from ${formatted.badge}`
+              )}
             </Badge>
           </div>
         </motion.div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-          {plans.map((plan, index) => (
+          {planConfigs.map((plan, index) => (
             <motion.div
-              key={plan.name}
+              key={plan.key}
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: index * 0.1 }}
@@ -105,12 +117,18 @@ export function PricingPreview() {
 
                   <div className="pt-4">
                     <div className="flex items-baseline justify-center">
-                      <span className="text-3xl font-bold">
-                        {formatCurrency(plan.price, 'NPR')}
-                      </span>
-                      <span className="text-muted-foreground ml-1">
-                        /{plan.period}
-                      </span>
+                      {loading ? (
+                        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+                      ) : (
+                        <>
+                          <span className="text-3xl font-bold">
+                            {formatCurrency(getPrice(plan.period), 'NPR')}
+                          </span>
+                          <span className="text-muted-foreground ml-1">
+                            /{plan.period}
+                          </span>
+                        </>
+                      )}
                     </div>
                   </div>
                 </CardHeader>
@@ -151,7 +169,7 @@ export function PricingPreview() {
             <div className="space-y-1">
               <p className="font-semibold">Need a private office?</p>
               <p className="text-sm text-muted-foreground">
-                All private offices are currently fully booked. Join the waitlist and we’ll notify you when one opens up.
+                All private offices are currently fully booked. Join the waitlist and we'll notify you when one opens up.
               </p>
             </div>
             <div className="md:ml-auto">

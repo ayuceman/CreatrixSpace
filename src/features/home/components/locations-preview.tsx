@@ -1,10 +1,11 @@
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { ArrowRight, MapPin, Users, Star, AlertCircle } from 'lucide-react'
+import { ArrowRight, MapPin, Users, Star, AlertCircle, Loader2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { ROUTES } from '@/lib/constants'
+import { useHotDeskPricing } from '@/features/home/hooks/use-hot-desk-pricing'
 
 const locations = [
   {
@@ -44,6 +45,8 @@ const locations = [
 ]
 
 export function LocationsPreview() {
+  const { loading, formatted } = useHotDeskPricing()
+
   return (
     <section className="py-16 md:py-20 lg:py-24 bg-white dark:bg-background">
       <div className="container">
@@ -66,7 +69,14 @@ export function LocationsPreview() {
                     Private offices are fully booked
                   </h3>
                   <p className="text-sm text-amber-800/90 dark:text-amber-200/90">
-                    Hot desks available — membership from NPR 800.00/day • 3,000/week • 8,000/month
+                    {loading ? (
+                      <span className="inline-flex items-center gap-2">
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                        Loading...
+                      </span>
+                    ) : (
+                      `Hot desks available — membership from ${formatted.badge}`
+                    )}
                   </p>
                 </div>
               </div>

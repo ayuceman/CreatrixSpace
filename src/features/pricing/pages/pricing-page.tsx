@@ -39,7 +39,7 @@ const plans = [
     description: 'Perfect for trying us out',
     icon: Zap,
     pricing: {
-      daily: 80000, // NPR 800 per day (actual price)
+      daily: 50000, // NPR 500 per day (actual price)
     },
     features: [
       'Day pass access to all locations',
@@ -249,7 +249,7 @@ export function PricingPage() {
       // Ensure public pricing stays consistent even if Supabase pricing is stale.
       const applyOverrides = (pricing: PlanPricing): PlanPricing => {
         if (planConfig.id === 'explorer') {
-          return { ...pricing, daily: 80000 }
+          return { ...pricing, daily: 50000 }
         }
         return pricing
       }

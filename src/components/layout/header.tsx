@@ -1,9 +1,10 @@
 import { useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
-import { Menu, X, MapPin, Calendar, Phone, MessageCircle } from 'lucide-react'
+import { Menu, X, MapPin, Calendar, Phone, MessageCircle, Loader2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { ROUTES, APP_NAME } from '@/lib/constants'
+import { useHotDeskPricing } from '@/features/home/hooks/use-hot-desk-pricing'
 
 const navigation = [
   { name: 'Locations', href: ROUTES.LOCATIONS },
@@ -16,6 +17,7 @@ const navigation = [
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const location = useLocation()
+  const { loading, formatted } = useHotDeskPricing()
 
   const phoneNumbers = ["+977 9851357889", "+977 9700045256"]
   const whatsappNumber = "9779803171819" // Format for WhatsApp link (no + or -)
@@ -49,7 +51,9 @@ export function Header() {
           </div>
           <div className="text-xs sm:text-sm">
             <span className="hidden md:inline">Hot desks available: </span>
-            <span className="font-semibold">NPR 800.00/day • 3,000/week • 8,000/month</span>
+            <span className="font-semibold">
+              {loading ? <Loader2 className="h-3 w-3 animate-spin inline" /> : formatted.badge}
+            </span>
           </div>
         </div>
       </div>
