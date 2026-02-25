@@ -66,15 +66,26 @@ export function FleaMarketPopup() {
       onClick={handleClose}
     >
       <div
-        className="relative max-w-4xl w-full"
+        className="max-w-4xl w-full flex flex-col items-center"
         onClick={(e) => e.stopPropagation()}
       >
-        <img
-          src="/FleaMarket03-2026.jpg"
-          alt="Saturday Flea Market - March 7, 10AM-6PM at Iku Hiti Marg, Dhobighat"
-          className="w-full h-auto object-contain max-h-[80vh] block rounded-lg shadow-2xl"
-        />
-        <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3 px-4 py-3 mt-3 bg-black/40 backdrop-blur-sm rounded-lg">
+        <div className="relative w-fit max-w-full">
+          <img
+            src="/FleaMarket03-2026.jpg"
+            alt="Saturday Flea Market - March 7, 10AM-6PM at Iku Hiti Marg, Dhobighat"
+            className="w-full h-auto object-contain max-h-[80vh] block rounded-lg shadow-2xl"
+          />
+          <Button
+            variant="secondary"
+            size="icon"
+            className="absolute top-2 right-2 w-9 h-9 rounded-full shadow-lg"
+            onClick={handleClose}
+            aria-label="Close"
+          >
+            <X className="h-4 w-4" />
+          </Button>
+        </div>
+        <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3 px-4 py-3 mt-3 bg-black/40 backdrop-blur-sm rounded-lg w-full">
           <a
             href={`tel:+977${PHONE}`}
             className="inline-flex items-center gap-1.5 px-3 py-2 rounded-full bg-white/95 text-gray-900 text-sm font-medium hover:bg-white transition-colors"
@@ -127,15 +138,6 @@ export function FleaMarketPopup() {
             </button>
           </div>
         </div>
-        <Button
-          variant="secondary"
-          size="icon"
-          className="absolute -top-2 -right-2 md:top-2 md:right-2 w-10 h-10 rounded-full shadow-lg"
-          onClick={handleClose}
-          aria-label="Close"
-        >
-          <X className="h-5 w-5" />
-        </Button>
       </div>
     </div>
   )
