@@ -6,6 +6,7 @@ import { TestimonialsSection } from '../components/testimonials-section'
 import { CTASection } from '../components/cta-section'
 import { SEOContentSection } from '../components/seo-content-section'
 import { FAQSection } from '../components/faq-section'
+import { FleaMarketPopup } from '../components/flea-market-popup'
 import { SEOHead } from '@/components/seo/seo-head'
 
 export function HomePage() {
@@ -14,6 +15,7 @@ export function HomePage() {
       <SEOHead
         title="Premium Co Working Space in Nepal | Kathmandu & Lalitpur"
         description="Co working space in kathmandu with hot desks available now. Private offices are fully booked. CreatrixSpace offers premium coworking spaces in Kathmandu (Dhobighat) and Lalitpur with 24/7 access, high-speed internet, meeting rooms, event spaces, and modern facilities. Membership from NPR 800.00/day, 3,000/week, 8,000/month."
+        image={`${import.meta.env.VITE_APP_URL || 'https://creatrixventures.space'}/FleaMarket03-2026.jpg`}
         keywords="co working space, coworking space nepal, coworking space kathmandu, coworking space lalitpur, shared office space nepal, workspace kathmandu, workspace lalitpur, flexible workspace nepal, hot desk nepal, private office kathmandu, meeting room kathmandu, remote work nepal, coworking dhobighat, coworking kupondole, coworking jhamsikhel, event space nepal"
         structuredDataType="LocalBusiness"
         structuredData={{
@@ -38,6 +40,7 @@ export function HomePage() {
           image: 'https://creatrixventures.space/creatrix-logo.png',
         }}
       />
+      <FleaMarketPopup />
       <div className="overflow-hidden">
         <HeroSection />
         <SEOContentSection />
