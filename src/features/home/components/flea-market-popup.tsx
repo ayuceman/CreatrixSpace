@@ -71,8 +71,8 @@ export function FleaMarketPopup() {
       >
         <div className="relative w-fit max-w-full">
           <img
-            src="/FleaMarket03-2026.jpg"
-            alt="Saturday Flea Market - March 7, 10AM-6PM at Iku Hiti Marg, Dhobighat"
+            src="/postponedd@1x_1.jpg.jpeg"
+            alt="Saturday Flea Market postponed due to upcoming election - new date to be announced"
             className="w-full h-auto object-contain max-h-[80vh] block rounded-lg shadow-2xl"
           />
           <Button
