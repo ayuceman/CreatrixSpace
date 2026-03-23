@@ -6,7 +6,6 @@ import { TestimonialsSection } from '../components/testimonials-section'
 import { CTASection } from '../components/cta-section'
 import { SEOContentSection } from '../components/seo-content-section'
 import { FAQSection } from '../components/faq-section'
-import { FleaMarketPopup } from '../components/flea-market-popup'
 import { SEOHead } from '@/components/seo/seo-head'
 
 export function HomePage() {
@@ -40,7 +39,6 @@ export function HomePage() {
           image: 'https://creatrixventures.space/creatrix-logo.png',
         }}
       />
-      <FleaMarketPopup />
       <div className="overflow-hidden">
         <HeroSection />
         <SEOContentSection />
