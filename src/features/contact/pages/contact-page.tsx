@@ -20,7 +20,7 @@ const contactInfo = [
   {
     icon: MapPin,
     title: 'Head Office',
-    content: 'Dhobighat Chowk, Kathmandu',
+    content: 'Dhobighat, Jhamsikhel, Lalitpur (Near Thado Dhunga)',
     description: 'Visit our main location'
   },
   {
@@ -34,7 +34,7 @@ const contactInfo = [
 const locations = [
   {
     name: 'Dhobighat (WashingTown) Hub',
-    address: 'Dhobighat Chowk, Kathmandu 44600',
+    address: 'Dhobighat, Jhamsikhel, Lalitpur 44600 (Near Thado Dhunga)',
     phone: '+977 9851357889',
     email: 'dhobighat@creatrixspace.com',
     hours: '24/7 Access',

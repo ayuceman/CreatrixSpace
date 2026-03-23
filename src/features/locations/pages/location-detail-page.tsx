@@ -13,8 +13,8 @@ const locationData: Record<string, Location> = {
   'dhobighat-hub': {
     id: 'dhobighat-hub',
     name: 'Dhobighat (WashingTown) Hub',
-    address: 'Dhobighat, Kathmandu',
-    fullAddress: 'Dhobighat Chowk, Kathmandu 44600, Nepal',
+    address: 'Dhobighat, Jhamsikhel, Lalitpur',
+    fullAddress: 'Dhobighat, Jhamsikhel, Lalitpur, Nepal (Near Thado Dhunga)',
     image: '/images/locations/dhobighat-hub/dhobighat-coworking-space-main.webp',
     capacity: 30,
     rating: 4.9,

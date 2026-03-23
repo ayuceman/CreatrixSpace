@@ -11,7 +11,7 @@ const locations = [
   {
     id: 'dhobighat-hub',
     name: 'Dhobighat (WashingTown) Hub',
-    address: 'Dhobighat, Kathmandu',
+    address: 'Dhobighat, Jhamsikhel, Lalitpur (Near Thado Dhunga)',
     image: '/images/locations/dhobighat-hub/workshop_hall_plants.jpeg',
     capacity: 30,
     rating: 4.9,
