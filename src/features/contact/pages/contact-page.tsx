@@ -8,7 +8,7 @@ const contactInfo = [
   {
     icon: Phone,
     title: 'Phone',
-    content: '+977 9851357889 / 9700045256',
+    content: '+977 9700045256',
     description: 'Call us for immediate assistance'
   },
   {
@@ -35,7 +35,7 @@ const locations = [
   {
     name: 'Dhobighat (WashingTown) Hub',
     address: 'Dhobighat, Jhamsikhel, Lalitpur 44600 (Near Thado Dhunga)',
-    phone: '+977 9851357889',
+    phone: '+977 9700045256',
     email: 'dhobighat@creatrixspace.com',
     hours: '24/7 Access',
     status: 'Available',
@@ -190,7 +190,7 @@ export function ContactPage() {
               const Icon = info.icon
               const isClickable = info.title === 'Phone' || info.title === 'WhatsApp'
               const href = info.title === 'Phone' 
-                ? `tel:+9779851357889` 
+                ? `tel:+9779700045256` 
                 : info.title === 'WhatsApp' 
                 ? `https://wa.me/9779803171819` 
                 : undefined
@@ -445,7 +445,7 @@ export function ContactPage() {
                 </a>
               </Button>
               <Button size="lg" variant="outline" className="border-2 border-white/30 bg-white/10 text-white hover:bg-white hover:text-purple-700" asChild>
-                <a href="tel:+9779851357889">
+                <a href="tel:+9779700045256">
                   <Phone className="mr-2 h-5 w-5" />
                   Call Now
                 </a>

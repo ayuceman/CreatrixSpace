@@ -33,7 +33,7 @@ const locationData: Record<string, Location> = {
     popular: true,
     description: 'Our flagship location in the heart of Dhobighat, featuring modern amenities and 24/7 access. Perfect for entrepreneurs, freelancers, and remote workers.',
     contact: {
-      phone: '+977 9851357889',
+      phone: '+977 9700045256',
       email: ''
     },
     googleMapsUrl: 'https://maps.app.goo.gl/88JRCRwL5ttdaPpu6'

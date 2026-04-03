@@ -484,11 +484,11 @@ export function PricingPage() {
                                   WhatsApp: +977 9803171819
                                 </a>
                                 <a
-                                  href="tel:+9779851357889"
+                                  href="tel:+9779700045256"
                                   className="flex items-center justify-center gap-2 bg-primary hover:bg-primary/90 text-primary-foreground px-4 py-2 rounded-md text-sm font-medium transition-colors"
                                 >
                                   <Phone className="h-4 w-4" />
-                                  Call: +977 9851357889
+                                  Call: +977 9700045256
                                 </a>
                               </div>
                             </div>

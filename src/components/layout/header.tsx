@@ -19,7 +19,7 @@ export function Header() {
   const location = useLocation()
   const { loading, formatted } = useHotDeskPricing()
 
-  const phoneNumbers = ["+977 9851357889", "+977 9700045256"]
+  const phoneNumbers = ["+977 9700045256"]
   const whatsappNumber = "9779803171819" // Format for WhatsApp link (no + or -)
   const whatsappMessage = encodeURIComponent("Hi! I'm interested in learning more about CreatrixSpace.")
 
