@@ -1,5 +1,6 @@
 import { HeroSection } from '../components/hero-section'
 import { FeaturesSection } from '../components/features-section'
+import { VirtualOfficeHighlight } from '../components/virtual-office-highlight'
 import { LocationsPreview } from '../components/locations-preview'
 import { PricingPreview } from '../components/pricing-preview'
 import { TestimonialsSection } from '../components/testimonials-section'
@@ -13,9 +14,9 @@ export function HomePage() {
     <>
       <SEOHead
         title="Premium Co Working Space in Nepal | Kathmandu & Lalitpur"
-        description="Co working space in kathmandu with hot desks available now. Private offices are fully booked. CreatrixSpace offers premium coworking spaces in Kathmandu (Dhobighat) and Lalitpur with 24/7 access, high-speed internet, meeting rooms, event spaces, and modern facilities. Membership from NPR 800.00/day, 3,000/week, 8,000/month."
+        description="Co working space in kathmandu with hot desks available now. Private offices are fully booked. CreatrixSpace offers premium coworking spaces in Kathmandu (Dhobighat) and Lalitpur with 24/7 access, high-speed internet, meeting rooms, event spaces, and modern facilities. Membership from NPR 500/day, 1,999/week, 8,999/month. Virtual office package available for business address and mail handling."
         image={`${import.meta.env.VITE_APP_URL || 'https://creatrixventures.space'}/FleaMarket03-2026.jpg`}
-        keywords="co working space, coworking space nepal, coworking space kathmandu, coworking space lalitpur, shared office space nepal, workspace kathmandu, workspace lalitpur, flexible workspace nepal, hot desk nepal, private office kathmandu, meeting room kathmandu, remote work nepal, coworking dhobighat, coworking kupondole, coworking jhamsikhel, event space nepal"
+        keywords="co working space, coworking space nepal, coworking space kathmandu, coworking space lalitpur, shared office space nepal, workspace kathmandu, workspace lalitpur, flexible workspace nepal, hot desk nepal, private office kathmandu, meeting room kathmandu, remote work nepal, coworking dhobighat, coworking kupondole, coworking jhamsikhel, event space nepal, virtual office nepal, business address kathmandu"
         structuredDataType="LocalBusiness"
         structuredData={{
           '@context': 'https://schema.org',
@@ -43,6 +44,7 @@ export function HomePage() {
         <HeroSection />
         <SEOContentSection />
         <FeaturesSection />
+        <VirtualOfficeHighlight />
         <LocationsPreview />
         <PricingPreview />
         <TestimonialsSection />

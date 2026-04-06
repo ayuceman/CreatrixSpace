@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { Check, Star, Zap, Crown, Phone, MessageCircle, Loader2, MapPin } from 'lucide-react'
+import { Check, Star, Zap, Crown, Phone, MessageCircle, Loader2, MapPin, Globe2, Sparkles } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -9,6 +9,7 @@ import { ROUTES } from '@/lib/constants'
 import { formatCurrency } from '@/lib/utils'
 import type { Database } from '@/lib/database.types'
 import { locationService, planService, locationPricingService } from '@/services/supabase-service'
+import { useVirtualOfficeAddon } from '@/features/home/hooks/use-virtual-office-addon'
 
 type LocationRow = Database['public']['Tables']['locations']['Row']
 type LocationPlanPricingRow = Database['public']['Tables']['location_plan_pricing']['Row']
@@ -156,11 +157,6 @@ const addOns = [
     description: 'Bring colleagues for a day',
   },
   {
-    name: 'Virtual Office Address',
-    price: 600000, // NPR 6,000/month (25% reduction)
-    description: 'Use our address for your business',
-  },
-  {
     name: 'Phone Line',
     price: 400000, // NPR 4,000/month (20% reduction)
     description: 'Dedicated phone number',
@@ -172,6 +168,91 @@ type PlanMetadata = {
   pricing: PlanPricing
   type: string
   popular?: boolean
+}
+
+function VirtualOfficeProductSection() {
+  const { pricePaisa, name, description, loading } = useVirtualOfficeAddon()
+
+  return (
+    <div
+      id="virtual-office"
+      className="mb-14 scroll-mt-24 rounded-3xl border border-emerald-500/35 bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 p-6 md:p-10 text-slate-100 shadow-2xl shadow-emerald-950/30 relative overflow-hidden"
+    >
+      <div className="pointer-events-none absolute -right-20 -top-20 h-64 w-64 rounded-full bg-emerald-500/10 blur-3xl" />
+      <div className="relative grid gap-8 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
+        <div className="space-y-4">
+          <Badge className="bg-emerald-500/20 text-emerald-200 border-emerald-500/40">
+            <Sparkles className="h-3 w-3 mr-1" />
+            Distinct from coworking & private office
+          </Badge>
+          <h2 className="text-2xl md:text-3xl font-display font-bold text-white">
+            Virtual office package
+          </h2>
+          <p className="text-slate-400 max-w-xl leading-relaxed">
+            Ideal if you need a credible Kathmandu business address and mail service without a physical desk or private room.
+            This is a <span className="text-emerald-300/95 font-medium">registration & presence</span> product — not a hot desk or private suite.
+          </p>
+          <ul className="grid sm:grid-cols-2 gap-2 text-sm text-slate-300">
+            {[
+              'Business address for company registration',
+              'Mail & package receiving',
+              'Professional image for clients & partners',
+            ].map((t) => (
+              <li key={t} className="flex gap-2">
+                <Check className="h-4 w-4 text-emerald-400 shrink-0 mt-0.5" />
+                {t}
+              </li>
+            ))}
+          </ul>
+        </div>
+        <div className="rounded-2xl border border-slate-700/80 bg-slate-900/60 p-6">
+          <div className="flex items-start gap-3 mb-4">
+            <div className="rounded-xl bg-emerald-500/20 p-2.5">
+              <Globe2 className="h-6 w-6 text-emerald-400" />
+            </div>
+            <div>
+              <p className="font-semibold text-white">{name}</p>
+              <p className="text-sm text-slate-400 mt-1">{description}</p>
+            </div>
+          </div>
+          <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 pt-4 border-t border-slate-700/80">
+            <div>
+              <p className="text-xs text-slate-500 uppercase tracking-wide">From</p>
+              {loading ? (
+                <Loader2 className="h-7 w-7 animate-spin text-emerald-400 mt-1" />
+              ) : (
+                <p className="text-3xl font-bold text-white tabular-nums mt-1">
+                  {formatCurrency(pricePaisa, 'NPR')}
+                  <span className="text-sm font-normal text-slate-400">/month</span>
+                </p>
+              )}
+            </div>
+            <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+              <Button
+                asChild
+                className="bg-emerald-500 hover:bg-emerald-600 text-white border-0"
+              >
+                <a
+                  href="https://wa.me/9779803171819?text=Hi!%20I'm%20interested%20in%20the%20Virtual%20Office%20package."
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <MessageCircle className="h-4 w-4 mr-2" />
+                  Enquire on WhatsApp
+                </a>
+              </Button>
+              <Button asChild variant="outline" className="border-slate-600 text-slate-100 hover:bg-slate-800">
+                <a href="tel:+9779700045256">
+                  <Phone className="h-4 w-4 mr-2" />
+                  Call
+                </a>
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
 }
 
 export function PricingPage() {
@@ -350,6 +431,20 @@ export function PricingPage() {
       {/* Pricing Plans */}
       <section className="py-8">
         <div className="container">
+          <VirtualOfficeProductSection />
+
+          <div className="text-center mb-10">
+            <p className="text-sm font-semibold text-muted-foreground uppercase tracking-[0.2em] mb-2">
+              Workspace memberships
+            </p>
+            <h2 className="text-2xl md:text-3xl font-display font-bold text-foreground">
+              Coworking &amp; private office
+            </h2>
+            <p className="text-muted-foreground mt-2 max-w-2xl mx-auto">
+              Day passes, hot desks, dedicated desks, and private suites — all on-site at our locations.
+            </p>
+          </div>
+
           {loading ? (
             <div className="flex flex-col items-center justify-center py-16 text-center">
               <Loader2 className="h-10 w-10 animate-spin text-primary mb-4" />
@@ -608,6 +703,10 @@ export function PricingPage() {
               {
                 question: "Can I use multiple locations?",
                 answer: "Yes, all plans include access to any of our locations across Kathmandu. Just book your preferred spot through our app."
+              },
+              {
+                question: "How is Virtual Office different from coworking/private office?",
+                answer: "Virtual Office is a business-presence product (professional address + mail handling) without a physical desk or room. Coworking and Private Office are physical workspace products."
               },
               {
                 question: "What happens if I exceed my printing allowance?",

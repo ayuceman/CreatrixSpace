@@ -18,6 +18,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { ROUTES } from '@/lib/constants'
+import { VirtualOfficeHighlight } from '@/features/home/components/virtual-office-highlight'
 
 const membershipPlans = [
   {
@@ -243,6 +244,8 @@ export function MembershipPage() {
         <div className="absolute top-20 left-10 w-20 h-20 bg-primary/10 rounded-full blur-xl -z-10" />
         <div className="absolute bottom-20 right-10 w-32 h-32 bg-primary/5 rounded-full blur-xl -z-10" />
       </section>
+
+      <VirtualOfficeHighlight variant="compact" />
 
       {/* Membership Plans */}
       <section className="section-padding">

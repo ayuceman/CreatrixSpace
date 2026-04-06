@@ -408,7 +408,7 @@ INSERT INTO public.add_ons (id, name, description, price, currency, type, active
   'c2eebc99-9c0b-4ef8-bb6d-6bb9bd380a33'::uuid,
   'Virtual Office Address',
   'Use our professional address for your business registration and correspondence. Includes mail receiving service.',
-  300000,
+  600000,
   'NPR',
   'virtual_office',
   true
