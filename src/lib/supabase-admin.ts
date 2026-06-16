@@ -19,5 +19,3 @@ export const supabaseAdmin = supabaseServiceRoleKey
   : null
 
 export const hasSupabaseAdminClient = Boolean(supabaseAdmin)
-
-

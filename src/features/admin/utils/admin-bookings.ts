@@ -39,7 +39,8 @@ export function transformBookingsToAdmin(
     const contactInfo = booking.contact_info as Record<string, any> | null
     const firstName = contactInfo?.firstName || ''
     const lastName = contactInfo?.lastName || ''
-    const customerName = `${firstName} ${lastName}`.trim() || contactInfo?.name || 'Guest User'
+    const customerName =
+      `${firstName} ${lastName}`.trim() || contactInfo?.name || 'Guest User'
 
     const addOnsPayload = (booking.add_ons as Record<string, any> | null) || {}
     const addOnIds: string[] = addOnsPayload.addOnIds || []
@@ -74,4 +75,3 @@ export function transformBookingsToAdmin(
     }
   })
 }
-

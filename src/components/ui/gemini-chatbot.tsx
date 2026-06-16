@@ -27,8 +27,8 @@ export function GeminiChatbot() {
     {
       id: 'welcome',
       role: 'model',
-      text: 'Hi! I\'m Creatrix Assistant. Ask me about memberships, locations, or bookings.'
-    }
+      text: "Hi! I'm Creatrix Assistant. Ask me about memberships, locations, or bookings.",
+    },
   ])
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
@@ -46,15 +46,27 @@ export function GeminiChatbot() {
     if (open) inputRef.current?.focus()
   }, [open])
 
-  const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms))
+  const [now, setNow] = useState(() => Date.now())
 
-  const remainingCooldownSec = cooldownUntil ? Math.max(0, Math.ceil((cooldownUntil - Date.now()) / 1000)) : 0
+  useEffect(() => {
+    if (!cooldownUntil) return
+    const id = setInterval(() => setNow(Date.now()), 1000)
+    return () => clearInterval(id)
+  }, [cooldownUntil])
+
+  const remainingCooldownSec = cooldownUntil
+    ? Math.max(0, Math.ceil((cooldownUntil - now) / 1000))
+    : 0
 
   const send = async () => {
     const trimmed = input.trim()
     if (!trimmed || loading) return
-    if (cooldownUntil && Date.now() < cooldownUntil) return
-    const userMsg: ChatMessage = { id: crypto.randomUUID(), role: 'user', text: trimmed }
+    if (cooldownUntil && now < cooldownUntil) return
+    const userMsg: ChatMessage = {
+      id: crypto.randomUUID(),
+      role: 'user',
+      text: trimmed,
+    }
     setMessages((m) => [...m, userMsg])
     setInput('')
     setLoading(true)
@@ -63,7 +75,11 @@ export function GeminiChatbot() {
       if (!ai) {
         setMessages((m) => [
           ...m,
-          { id: crypto.randomUUID(), role: 'model', text: 'API key is missing. Please set VITE_GEMINI_API_KEY in your .env and restart the dev server.' }
+          {
+            id: crypto.randomUUID(),
+            role: 'model',
+            text: 'API key is missing. Please set VITE_GEMINI_API_KEY in your .env and restart the dev server.',
+          },
         ])
         return
       }
@@ -71,13 +87,13 @@ export function GeminiChatbot() {
         { role: 'user', parts: [{ text: BRAND_CONTEXT }] },
         ...messages.map((m) => ({
           role: m.role === 'user' ? 'user' : 'model',
-          parts: [{ text: m.text }]
+          parts: [{ text: m.text }],
         })),
-        { role: 'user', parts: [{ text: trimmed }] }
+        { role: 'user', parts: [{ text: trimmed }] },
       ]
       const response = await ai.models.generateContent({
         model: 'gemini-2.5-flash',
-        contents: historyContents
+        contents: historyContents,
       })
       const modelText = response.text ?? ''
       setMessages((m) => [
@@ -85,10 +101,10 @@ export function GeminiChatbot() {
         {
           id: crypto.randomUUID(),
           role: 'model',
-          text: modelText || 'Sorry, I could not generate a response.'
-        }
+          text: modelText || 'Sorry, I could not generate a response.',
+        },
       ])
-    } catch (err: any) {
+    } catch (err: unknown) {
       const status = err?.error?.status || err?.status || err?.code
       if (status === 404 || status === 'NOT_FOUND') {
         setFallbackMode(true)
@@ -100,31 +116,45 @@ export function GeminiChatbot() {
             text: [
               'I’m unable to reach the Gemini service right now.',
               'Please confirm your `VITE_GEMINI_API_KEY` has access to the `gemini-2.5-flash` model (try running ListModels in Google AI Studio).',
-              'Until that’s resolved I’ll answer with the built-in knowledge base.'
-            ].join(' ')
-          }
+              'Until that’s resolved I’ll answer with the built-in knowledge base.',
+            ].join(' '),
+          },
         ])
         const local = localAnswer(trimmed)
         setMessages((m) => [
           ...m,
-          { id: crypto.randomUUID(), role: 'model', text: `${local}\n\n(note: waiting for Gemini access to be enabled)` }
+          {
+            id: crypto.randomUUID(),
+            role: 'model',
+            text: `${local}\n\n(note: waiting for Gemini access to be enabled)`,
+          },
         ])
-      } else if (status === 'RESOURCE_EXHAUSTED' || status === 429 || /RATE_LIMIT/i.test(err?.message || '')) {
+      } else if (
+        status === 'RESOURCE_EXHAUSTED' ||
+        status === 429 ||
+        /RATE_LIMIT/i.test(err?.message || '')
+      ) {
         const cooldownMs = 15000
-        setCooldownUntil(Date.now() + cooldownMs)
+        setCooldownUntil(now + cooldownMs)
         // Fallback to local knowledge base so the assistant still works
         const local = localAnswer(trimmed)
         setFallbackMode(true)
         setMessages((m) => [
           ...m,
-          { id: crypto.randomUUID(), role: 'model', text: `${local}\n\n(note: using offline assistant while the AI service cools down)` }
+          {
+            id: crypto.randomUUID(),
+            role: 'model',
+            text: `${local}\n\n(note: using offline assistant while the AI service cools down)`,
+          },
         ])
       } else {
         const local = localAnswer(trimmed)
         setFallbackMode(true)
-        setMessages((m) => [...m, { id: crypto.randomUUID(), role: 'model', text: local }])
+        setMessages((m) => [
+          ...m,
+          { id: crypto.randomUUID(), role: 'model', text: local },
+        ])
       }
-      // eslint-disable-next-line no-console
       console.error('Gemini error', err)
     } finally {
       setLoading(false)
@@ -133,10 +163,14 @@ export function GeminiChatbot() {
 
   function localAnswer(q: string): string {
     const query = q.toLowerCase()
-    if (/location|where|branch|office|dhobighat|kausimaa|jhamsikhel/.test(query)) {
+    if (
+      /location|where|branch|office|dhobighat|kausimaa|jhamsikhel/.test(query)
+    ) {
       return 'We currently operate in Kathmandu: Dhobighat, Kausimaa, and Jhamsikhel. You can visit any location with applicable memberships and day passes.'
     }
-    if (/price|pricing|cost|membership|plan|day pass|private office/.test(query)) {
+    if (
+      /price|pricing|cost|membership|plan|day pass|private office/.test(query)
+    ) {
       return 'Membership options: Day Pass (flexible daily access), Professional (monthly hot desk with perks), Enterprise (team features), and Private Office (dedicated office). All include high-speed WiFi, meeting rooms (per plan), coffee, printing, and 24/7 access on eligible plans.'
     }
     if (/book|tour|free tour|trial/.test(query)) {
@@ -149,9 +183,9 @@ export function GeminiChatbot() {
       return 'CreatrixSpace is a premium coworking brand in Nepal founded by Ayushman Bajracharya. Our mission is to empower professionals through inspiring, community-driven, flexible workspaces.'
     }
     if (/contact|sales|phone|email/.test(query)) {
-      return 'You can reach our team via the Contact page. We\'ll help with memberships, private offices, or tours.'
+      return "You can reach our team via the Contact page. We'll help with memberships, private offices, or tours."
     }
-    return 'I\'m here to help with CreatrixSpace memberships, locations, pricing, bookings, and amenities. Try asking about plans, locations (Dhobighat, Kausimaa, Jhamsikhel), or booking a tour.'
+    return "I'm here to help with CreatrixSpace memberships, locations, pricing, bookings, and amenities. Try asking about plans, locations (Dhobighat, Kausimaa, Jhamsikhel), or booking a tour."
   }
 
   return (
@@ -160,51 +194,68 @@ export function GeminiChatbot() {
         <button
           aria-label="Open chat"
           onClick={() => setOpen(true)}
-          className="h-12 w-12 rounded-full bg-primary text-primary-foreground shadow-lg flex items-center justify-center hover:bg-primary/90"
+          className="h-12 w-12 rounded-full bg-clay text-fg-on-ink-1 shadow-lg flex items-center justify-center hover:bg-clay/90"
         >
           <MessageSquare className="h-6 w-6" />
         </button>
       )}
 
       {open && (
-        <div className="w-80 sm:w-96 h-96 bg-background border rounded-xl shadow-2xl flex flex-col overflow-hidden">
-          <div className="px-4 py-3 bg-primary text-primary-foreground flex items-center justify-between">
-            <div className="font-semibold">Creatrix Assistant{fallbackMode ? ' (offline)' : ''}</div>
-            <button aria-label="Close chat" onClick={() => setOpen(false)} className="opacity-90 hover:opacity-100">
+        <div className="w-80 sm:w-96 h-96 bg-bg border rounded-xl shadow-2xl flex flex-col overflow-hidden">
+          <div className="px-4 py-3 bg-clay text-fg-on-ink-1 flex items-center justify-between">
+            <div className="font-semibold">
+              Creatrix Assistant{fallbackMode ? ' (offline)' : ''}
+            </div>
+            <button
+              aria-label="Close chat"
+              onClick={() => setOpen(false)}
+              className="opacity-90 hover:opacity-100"
+            >
               <X className="h-5 w-5" />
             </button>
           </div>
           <div className="flex-1 p-4 space-y-3 overflow-y-auto">
             {messages.map((m) => (
-              <div key={m.id} className={m.role === 'user' ? 'text-right' : 'text-left'}>
-                <div className={
-                  'inline-block px-3 py-2 rounded-lg max-w-[85%] whitespace-pre-wrap ' +
-                  (m.role === 'user' ? 'bg-primary text-primary-foreground' : 'bg-muted')
-                }>
+              <div
+                key={m.id}
+                className={m.role === 'user' ? 'text-right' : 'text-left'}
+              >
+                <div
+                  className={
+                    'inline-block px-3 py-2 rounded-lg max-w-[85%] whitespace-pre-wrap ' +
+                    (m.role === 'user'
+                      ? 'bg-clay text-fg-on-ink-1'
+                      : 'bg-bg-band')
+                  }
+                >
                   {m.text}
                 </div>
               </div>
             ))}
-            {loading && <div className="text-sm text-muted-foreground">Thinking…</div>}
+            {loading && <div className="text-sm text-fg-2">Thinking…</div>}
           </div>
           <div className="p-3 border-t flex items-center gap-2">
             <input
               ref={inputRef}
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              onKeyDown={(e) => { if (e.key === 'Enter' && !remainingCooldownSec) send() }}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && !remainingCooldownSec) send()
+              }}
               placeholder="Ask about memberships, locations…"
-              className="flex-1 h-10 px-3 rounded-md border bg-background"
+              className="flex-1 h-10 px-3 rounded-md border bg-bg"
             />
             <button
               onClick={send}
               disabled={loading || !!remainingCooldownSec}
-              className="h-10 px-3 rounded-md bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
+              className="h-10 px-3 rounded-md bg-clay text-fg-on-ink-1 hover:bg-clay/90 disabled:opacity-50"
             >
               <Send className="h-4 w-4" />
             </button>
             {remainingCooldownSec > 0 && (
-              <span className="text-xs text-muted-foreground min-w-[60px] text-right">{remainingCooldownSec}s</span>
+              <span className="text-xs text-fg-2 min-w-[60px] text-right">
+                {remainingCooldownSec}s
+              </span>
             )}
           </div>
         </div>
@@ -214,5 +265,3 @@ export function GeminiChatbot() {
 }
 
 export default GeminiChatbot
-
-

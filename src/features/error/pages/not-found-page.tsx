@@ -5,9 +5,9 @@ import { ROUTES } from '@/lib/constants'
 export function NotFoundPage() {
   return (
     <div className="container section-padding text-center">
-      <h1 className="text-6xl font-display font-bold text-muted-foreground">404</h1>
+      <h1 className="text-6xl font-display font-bold text-fg-2">404</h1>
       <h2 className="text-2xl font-semibold mt-4">Page Not Found</h2>
-      <p className="text-muted-foreground mt-2 mb-8">
+      <p className="text-fg-2 mt-2 mb-8">
         The page you're looking for doesn't exist.
       </p>
       <Button asChild>

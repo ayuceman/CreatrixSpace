@@ -1,6 +1,6 @@
 import { useParams, Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { Calendar, Clock, User, ArrowLeft, Share2, Tag } from 'lucide-react'
+import { Calendar, Clock, User, ArrowLeft, Share2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
@@ -10,8 +10,10 @@ import { ROUTES } from '@/lib/constants'
 const blogPosts = [
   {
     id: 'remote-work-revolution-nepal',
-    title: 'The Remote Work Revolution: How Nepal is Embracing the Future of Work',
-    excerpt: 'Discover how Nepal\'s tech industry is adapting to remote work trends and what it means for professionals in Kathmandu and beyond.',
+    title:
+      'The Remote Work Revolution: How Nepal is Embracing the Future of Work',
+    excerpt:
+      "Discover how Nepal's tech industry is adapting to remote work trends and what it means for professionals in Kathmandu and beyond.",
     content: `The landscape of work in Nepal has undergone a dramatic transformation over the past few years. What started as a necessity during the pandemic has evolved into a permanent shift that's reshaping how Nepali professionals approach their careers.
 
 ## The Rise of Digital Nomadism in Nepal
@@ -73,13 +75,15 @@ The remote work revolution in Nepal is just beginning, and coworking spaces like
     date: '2024-09-20',
     readTime: '5 min read',
     category: 'Remote Work',
-    image: 'https://images.unsplash.com/photo-1521737711867-e3b97375f902?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80',
-    featured: true
+    image:
+      'https://images.unsplash.com/photo-1521737711867-e3b97375f902?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80',
+    featured: true,
   },
   {
     id: 'coworking-productivity-tips',
     title: '10 Productivity Hacks Every Coworking Space User Should Know',
-    excerpt: 'Maximize your efficiency and make the most of your coworking experience with these proven strategies from successful professionals.',
+    excerpt:
+      'Maximize your efficiency and make the most of your coworking experience with these proven strategies from successful professionals.',
     content: `Working in a coworking space offers unique advantages, but it also requires specific strategies to maximize productivity. Here are the top 10 hacks that successful professionals swear by.
 
 ## 1. Establish a Morning Routine
@@ -154,13 +158,15 @@ Remember, productivity in a coworking space isn't just about individual efficien
     date: '2024-09-15',
     readTime: '7 min read',
     category: 'Productivity',
-    image: 'https://images.unsplash.com/photo-1551434678-e076c223a692?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80',
-    featured: false
+    image:
+      'https://images.unsplash.com/photo-1551434678-e076c223a692?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80',
+    featured: false,
   },
   {
     id: 'startup-ecosystem-kathmandu',
-    title: 'Building Nepal\'s Startup Ecosystem: The Role of Coworking Spaces',
-    excerpt: 'How coworking spaces are fostering innovation and entrepreneurship in Nepal\'s capital, creating a thriving startup ecosystem.',
+    title: "Building Nepal's Startup Ecosystem: The Role of Coworking Spaces",
+    excerpt:
+      "How coworking spaces are fostering innovation and entrepreneurship in Nepal's capital, creating a thriving startup ecosystem.",
     content: `Kathmandu's startup ecosystem has experienced remarkable growth, with coworking spaces playing a crucial role in this transformation. These shared workspaces have become the breeding ground for innovation, collaboration, and entrepreneurial success.
 
 ## The Catalyst Effect
@@ -201,13 +207,15 @@ The future of Nepal's startup ecosystem looks bright, with coworking spaces cont
     date: '2024-09-10',
     readTime: '6 min read',
     category: 'Entrepreneurship',
-    image: 'https://images.unsplash.com/photo-1556761175-b413da4baf72?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80',
-    featured: true
+    image:
+      'https://images.unsplash.com/photo-1556761175-b413da4baf72?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80',
+    featured: true,
   },
   {
     id: 'work-life-balance-tips',
     title: 'Maintaining Work-Life Balance in a Coworking Environment',
-    excerpt: 'Learn how to set boundaries and maintain healthy work-life balance while working in shared spaces.',
+    excerpt:
+      'Learn how to set boundaries and maintain healthy work-life balance while working in shared spaces.',
     content: `Working in a coworking space offers flexibility, but it can also blur the lines between work and personal life. Here's how to maintain a healthy balance.
 
 ## Setting Clear Boundaries
@@ -243,13 +251,15 @@ Remember, maintaining work-life balance in a coworking space requires intentiona
     date: '2024-09-05',
     readTime: '4 min read',
     category: 'Work-Life Balance',
-    image: 'https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80',
-    featured: false
+    image:
+      'https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80',
+    featured: false,
   },
   {
     id: 'networking-coworking-spaces',
     title: 'The Art of Networking in Coworking Spaces: A Nepal Perspective',
-    excerpt: 'Master the subtle art of building professional relationships in coworking environments while respecting cultural nuances.',
+    excerpt:
+      'Master the subtle art of building professional relationships in coworking environments while respecting cultural nuances.',
     content: `Networking in Nepal's coworking spaces requires understanding both professional etiquette and cultural sensitivities. Here's how to build meaningful connections.
 
 ## Understanding Nepali Business Culture
@@ -287,13 +297,16 @@ Don't forget online networking. Connect with your coworking space community on L
     date: '2024-08-30',
     readTime: '5 min read',
     category: 'Networking',
-    image: 'https://images.unsplash.com/photo-1515187029135-18ee286d815b?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80',
-    featured: false
+    image:
+      'https://images.unsplash.com/photo-1515187029135-18ee286d815b?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80',
+    featured: false,
   },
   {
     id: 'sustainable-workspace-design',
-    title: 'Sustainable Workspace Design: Green Initiatives in Nepal\'s Coworking Spaces',
-    excerpt: 'Explore how modern coworking spaces in Nepal are incorporating eco-friendly practices and sustainable design principles.',
+    title:
+      "Sustainable Workspace Design: Green Initiatives in Nepal's Coworking Spaces",
+    excerpt:
+      'Explore how modern coworking spaces in Nepal are incorporating eco-friendly practices and sustainable design principles.',
     content: `As environmental consciousness grows in Nepal, coworking spaces are leading by example with sustainable practices and green design initiatives.
 
 ## Solar Power and Energy Efficiency
@@ -339,20 +352,23 @@ These green initiatives not only benefit the environment but also create healthi
     date: '2024-08-25',
     readTime: '6 min read',
     category: 'Sustainability',
-    image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80',
-    featured: false
-  }
+    image:
+      'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80',
+    featured: false,
+  },
 ]
 
 export function BlogPostPage() {
   const { slug } = useParams<{ slug: string }>()
-  const post = blogPosts.find(p => p.id === slug)
+  const post = blogPosts.find((p) => p.id === slug)
 
   if (!post) {
     return (
       <div className="container section-padding text-center">
         <h1 className="text-4xl font-display font-bold mb-4">Post Not Found</h1>
-        <p className="text-muted-foreground mb-8">The blog post you're looking for doesn't exist.</p>
+        <p className="text-fg-2 mb-8">
+          The blog post you're looking for doesn't exist.
+        </p>
         <Button asChild>
           <Link to={ROUTES.BLOG}>
             <ArrowLeft className="mr-2 h-4 w-4" />
@@ -366,7 +382,7 @@ export function BlogPostPage() {
   return (
     <div className="overflow-hidden">
       {/* Hero Section */}
-      <section className="section-padding bg-gradient-to-br from-background via-background to-primary/5">
+      <section className="section-padding bg-gradient-to-br from-bg via-bg to-clay/5">
         <div className="container">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -380,15 +396,15 @@ export function BlogPostPage() {
                 Back to Blog
               </Link>
             </Button>
-            
-            <div className="flex items-center gap-4 text-sm text-muted-foreground mb-6">
+
+            <div className="flex items-center gap-4 text-sm text-fg-2 mb-6">
               <Badge variant="secondary">{post.category}</Badge>
               <div className="flex items-center gap-1">
                 <Calendar className="h-4 w-4" />
-                {new Date(post.date).toLocaleDateString('en-US', { 
-                  month: 'long', 
-                  day: 'numeric', 
-                  year: 'numeric' 
+                {new Date(post.date).toLocaleDateString('en-US', {
+                  month: 'long',
+                  day: 'numeric',
+                  year: 'numeric',
                 })}
               </div>
               <div className="flex items-center gap-1">
@@ -401,21 +417,21 @@ export function BlogPostPage() {
               {post.title}
             </h1>
 
-            <p className="text-xl text-muted-foreground mb-8 leading-relaxed">
+            <p className="text-xl text-fg-2 mb-8 leading-relaxed">
               {post.excerpt}
             </p>
 
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center">
-                  <User className="h-5 w-5 text-primary" />
+                <div className="w-10 h-10 bg-clay/10 rounded-full flex items-center justify-center">
+                  <User className="h-5 w-5 text-clay" />
                 </div>
                 <div>
                   <div className="font-semibold">{post.author}</div>
-                  <div className="text-sm text-muted-foreground">Author</div>
+                  <div className="text-sm text-fg-2">Author</div>
                 </div>
               </div>
-              
+
               <Button variant="outline" size="sm">
                 <Share2 className="h-4 w-4 mr-2" />
                 Share
@@ -455,10 +471,18 @@ export function BlogPostPage() {
               transition={{ duration: 0.6, delay: 0.3 }}
               className="prose prose-lg max-w-none dark:prose-invert"
             >
-              <div 
+              <div
                 className="leading-relaxed"
-                dangerouslySetInnerHTML={{ 
-                  __html: post.content.replace(/\n\n/g, '</p><p>').replace(/\n/g, '<br />').replace(/## (.*)/g, '<h2>$1</h2>').replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/- \*\*(.*?)\*\*: (.*)/g, '<li><strong>$1</strong>: $2</li>') 
+                dangerouslySetInnerHTML={{
+                  __html: post.content
+                    .replace(/\n\n/g, '</p><p>')
+                    .replace(/\n/g, '<br />')
+                    .replace(/## (.*)/g, '<h2>$1</h2>')
+                    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                    .replace(
+                      /- \*\*(.*?)\*\*: (.*)/g,
+                      '<li><strong>$1</strong>: $2</li>'
+                    ),
                 }}
               />
             </motion.div>
@@ -470,24 +494,21 @@ export function BlogPostPage() {
               transition={{ duration: 0.6, delay: 0.4 }}
               className="mt-12"
             >
-              <Card className="bg-gradient-to-r from-primary/10 to-primary/5 border-primary/20">
+              <Card className="bg-gradient-to-r from-clay/10 to-clay/5 border-clay/20">
                 <CardContent className="p-8 text-center">
                   <h3 className="text-2xl font-bold mb-4">
                     Ready to Experience the Future of Work?
                   </h3>
-                  <p className="text-muted-foreground mb-6">
-                    Join CreatrixSpace and become part of Nepal's thriving professional community.
+                  <p className="text-fg-2 mb-6">
+                    Join CreatrixSpace and become part of Nepal's thriving
+                    professional community.
                   </p>
                   <div className="flex flex-col sm:flex-row gap-4 justify-center">
                     <Button size="lg" asChild>
-                      <Link to={ROUTES.MEMBERSHIP}>
-                        View Membership Plans
-                      </Link>
+                      <Link to={ROUTES.MEMBERSHIP}>View Membership Plans</Link>
                     </Button>
                     <Button size="lg" variant="outline" asChild>
-                      <Link to={ROUTES.CONTACT}>
-                        Schedule a Tour
-                      </Link>
+                      <Link to={ROUTES.CONTACT}>Schedule a Tour</Link>
                     </Button>
                   </div>
                 </CardContent>

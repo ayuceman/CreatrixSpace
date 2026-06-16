@@ -7,10 +7,7 @@ import { Label } from '@/components/ui/label'
 import { PaymentMethod } from '@/lib/payment-config'
 
 interface PaymentGatewaySelectorProps {
-  amount: number
   onPaymentMethodSelect: (method: PaymentMethod) => void
-  isProcessing?: boolean
-  showSummary?: boolean
 }
 
 const paymentMethods = [
@@ -28,59 +25,35 @@ const paymentMethods = [
 ]
 
 export function PaymentGatewaySelector({
-  amount,
   onPaymentMethodSelect,
-  isProcessing = false,
-  showSummary = true,
 }: PaymentGatewaySelectorProps) {
-  const [selectedMethod, setSelectedMethod] = useState<PaymentMethod>('qr_payment')
-  
+  const [selectedMethod, setSelectedMethod] =
+    useState<PaymentMethod>('qr_payment')
+
   // Filter to only show QR Payment
-  const availablePaymentMethods = paymentMethods.filter(method => method.id === 'qr_payment')
+  const availablePaymentMethods = paymentMethods.filter(
+    (method) => method.id === 'qr_payment'
+  )
 
   // Fire initial event on component mount
   useEffect(() => {
     const event = new CustomEvent('paymentMethodChanged', {
-      detail: { method: selectedMethod }
+      detail: { method: selectedMethod },
     })
     window.dispatchEvent(event)
-  }, [])
+  }, [selectedMethod])
 
   const handleMethodChange = (method: PaymentMethod) => {
     setSelectedMethod(method)
-    
+
     // Emit event for summary component to listen
     const event = new CustomEvent('paymentMethodChanged', {
-      detail: { method }
+      detail: { method },
     })
     window.dispatchEvent(event)
+
+    onPaymentMethodSelect(method)
   }
-
-  const handleProceed = () => {
-    onPaymentMethodSelect(selectedMethod)
-  }
-
-  // Export selected method for parent component
-  const getSelectedMethod = () => selectedMethod
-
-  const calculateFees = (method: PaymentMethod, amount: number) => {
-    switch (method) {
-      case 'stripe':
-        return Math.round(amount * 0.035) + 1000 // 3.5% + NPR 10
-      case 'esewa':
-      case 'khalti':
-      case 'qr_payment':
-        return 0
-      case 'bank_transfer':
-        return 0 // Bank may charge separately
-      default:
-        return 0
-    }
-  }
-
-  const selectedPaymentMethod = paymentMethods.find(m => m.id === selectedMethod)
-  const fees = calculateFees(selectedMethod, amount)
-  const totalAmount = amount + fees
 
   return (
     <div className="space-y-4">
@@ -90,7 +63,7 @@ export function PaymentGatewaySelector({
           <CardTitle className="flex items-center">
             Select Payment Method
           </CardTitle>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-sm text-fg-2">
             Choose your preferred payment gateway
           </p>
         </CardHeader>
@@ -105,15 +78,12 @@ export function PaymentGatewaySelector({
                 key={method.id}
                 className={`relative border rounded-lg p-3 transition-all ${
                   selectedMethod === method.id
-                    ? 'border-primary bg-primary/5'
-                    : 'border-border hover:bg-muted/50'
+                    ? 'border-clay bg-clay/5'
+                    : 'border-rule hover:bg-bg-band/50'
                 }`}
               >
                 <div className="flex items-center space-x-3">
-                  <RadioGroupItem
-                    value={method.id}
-                    id={method.id}
-                  />
+                  <RadioGroupItem value={method.id} id={method.id} />
                   <Label htmlFor={method.id} className="flex-1 cursor-pointer">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center space-x-3">
@@ -122,21 +92,22 @@ export function PaymentGatewaySelector({
                           <h3 className="font-medium flex items-center text-sm">
                             {method.name}
                             {method.popular && (
-                              <Badge variant="secondary" className="ml-2 text-xs">
+                              <Badge
+                                variant="secondary"
+                                className="ml-2 text-xs"
+                              >
                                 Popular
                               </Badge>
                             )}
                           </h3>
-                          <p className="text-xs text-muted-foreground">
+                          <p className="text-xs text-fg-2">
                             {method.description}
                           </p>
                         </div>
                       </div>
                       <div className="text-right">
-                        <div className="text-xs text-muted-foreground">
-                          {method.fees}
-                        </div>
-                        <div className="text-xs text-muted-foreground">
+                        <div className="text-xs text-fg-2">{method.fees}</div>
+                        <div className="text-xs text-fg-2">
                           {method.processingTime}
                         </div>
                       </div>

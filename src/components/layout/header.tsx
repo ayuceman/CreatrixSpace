@@ -1,90 +1,48 @@
 import { useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
-import { Menu, X, MapPin, Calendar, Phone, MessageCircle } from 'lucide-react'
-import { Button } from '@/components/ui/button'
+import { Menu, MessageCircle, X } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { ROUTES, APP_NAME } from '@/lib/constants'
+import { ROUTES, WHATSAPP } from '@/lib/constants'
+import { Button } from '../ui/button'
+import { useBookTour } from '@/lib/book-tour-context'
 
 const navigation = [
+  { name: 'Amenities', href: '#amenities' },
   { name: 'Locations', href: ROUTES.LOCATIONS },
-  { name: 'Membership', href: ROUTES.PRICING },
-  { name: 'Blog', href: ROUTES.BLOG },
-  { name: 'About', href: ROUTES.ABOUT },
-  { name: 'Contact', href: ROUTES.CONTACT },
+  { name: 'Pricing', href: ROUTES.PRICING },
+  { name: 'FAQ', href: '#faq' },
 ]
 
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const location = useLocation()
-
-  const phoneNumber = "+977 9851357889"
-  const whatsappNumber = "9779803171819" // Format for WhatsApp link (no + or -)
-  const whatsappMessage = encodeURIComponent("Hi! I'm interested in learning more about CreatrixSpace.")
+  const { openTour } = useBookTour()
 
   return (
-    <>
-      {/* Top Contact Bar */}
-      <div className="bg-gradient-to-r from-purple-600 to-purple-800 text-white py-2">
-        <div className="container flex items-center justify-between text-sm">
-          <div className="flex items-center gap-6">
-            <a 
-              href={`tel:${phoneNumber}`}
-              className="flex items-center gap-2 hover:opacity-80 transition-opacity"
-            >
-              <Phone className="h-4 w-4" />
-              <span className="hidden sm:inline font-medium">{phoneNumber}</span>
-            </a>
-            <a 
-              href={`https://wa.me/${whatsappNumber}?text=${whatsappMessage}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-2 hover:opacity-80 transition-opacity"
-            >
-              <MessageCircle className="h-4 w-4" />
-              <span className="hidden sm:inline font-medium">WhatsApp Us</span>
-            </a>
-          </div>
-          <div className="text-xs sm:text-sm">
-            <span className="hidden md:inline">🎉 Special Offer: </span>
-            <span className="font-semibold">Explorer Pass @ Rs 500/day!</span>
-          </div>
-        </div>
-      </div>
-      
-      {/* Main Header */}
-      <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container flex h-24 items-center justify-between">
-        {/* Logo */}
-        <Link to={ROUTES.HOME} className="flex items-center space-x-2 hover:opacity-90 transition-opacity">
-          <img 
-            src="/creatrix-logo.png" 
-            alt="CreatrixSpace Logo" 
-            className="h-16 md:h-20 w-auto"
-            onError={(e) => {
-              e.currentTarget.style.display = 'none'
-              const fallback = e.currentTarget.nextElementSibling
-              if (fallback) fallback.classList.remove('hidden')
-            }}
-          />
-          <div className="hidden flex items-center space-x-2">
-            <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-purple-600 to-purple-800 flex items-center justify-center">
-              <span className="text-white font-bold text-lg">CS</span>
-            </div>
-            <span className="font-display font-bold text-xl">{APP_NAME}</span>
-          </div>
+    <header className="sticky top-0 z-50 w-full bg-bg border-b border-rule">
+      <div className="container flex h-16 items-center justify-between">
+        <Link
+          to={ROUTES.HOME}
+          className="flex items-center space-x-1 hover:opacity-80 transition-opacity"
+        >
+          <span className="font-serif text-xl font-bold text-fg-1">
+            Creatrix
+          </span>
+          <span className="font-serif text-xl italic font-normal text-clay">
+            Space
+          </span>
         </Link>
 
-        {/* Desktop Navigation */}
         <nav className="hidden md:flex items-center space-x-8">
           {navigation.map((item) => (
             <Link
               key={item.name}
               to={item.href}
               className={cn(
-                "text-sm font-medium transition-colors hover:text-primary",
+                'text-sm font-medium transition-colors',
                 location.pathname === item.href
-                  ? "text-primary"
-                  : "text-muted-foreground"
+                  ? 'text-fg-1'
+                  : 'text-fg-2 hover:text-fg-1'
               )}
             >
               {item.name}
@@ -92,20 +50,26 @@ export function Header() {
           ))}
         </nav>
 
-        {/* CTA Buttons */}
-        <div className="hidden md:flex items-center space-x-3">
-          <Button size="sm" asChild>
-            <Link to={ROUTES.BOOKING}>
-              <Calendar className="h-4 w-4 mr-2" />
-              Book Now
-            </Link>
-          </Button>
+        <div className="hidden md:flex items-center gap-4">
+          <Button
+            variant="outline"
+            icon={MessageCircle}
+            text="WhatsApp"
+            className="py-2 px-3.5"
+            href={WHATSAPP.url}
+            target="_blank"
+          />
+          <Button
+            variant="dark"
+            text="Book a tour"
+            className="py-2 px-3.5"
+            onClick={() => openTour()}
+          />
         </div>
 
-        {/* Mobile Menu Button */}
         <button
           type="button"
-          className="md:hidden p-2 rounded-md text-muted-foreground hover:text-foreground hover:bg-accent"
+          className="md:hidden p-2 rounded-md text-fg-2"
           onClick={() => setIsMenuOpen(!isMenuOpen)}
         >
           {isMenuOpen ? (
@@ -116,20 +80,19 @@ export function Header() {
         </button>
       </div>
 
-      {/* Mobile Menu */}
       {isMenuOpen && (
-        <div className="md:hidden border-t bg-background">
+        <div className="md:hidden border-t border-rule bg-bg">
           <div className="container py-4 space-y-4">
-            <nav className="space-y-2">
+            <nav className="space-y-1">
               {navigation.map((item) => (
                 <Link
                   key={item.name}
                   to={item.href}
                   className={cn(
-                    "block px-3 py-2 rounded-md text-sm font-medium transition-colors",
+                    'block px-3 py-2.5 rounded-md text-sm font-medium transition-colors',
                     location.pathname === item.href
-                      ? "bg-primary text-primary-foreground"
-                      : "text-muted-foreground hover:text-foreground hover:bg-accent"
+                      ? 'text-fg-1 bg-bg-band'
+                      : 'text-fg-2 hover:text-fg-1 hover:bg-bg-band'
                   )}
                   onClick={() => setIsMenuOpen(false)}
                 >
@@ -137,18 +100,18 @@ export function Header() {
                 </Link>
               ))}
             </nav>
-            <div className="flex flex-col space-y-2 pt-4 border-t">
-              <Button size="sm" asChild>
-                <Link to={ROUTES.BOOKING} onClick={() => setIsMenuOpen(false)}>
-                  <Calendar className="h-4 w-4 mr-2" />
-                  Book Now
-                </Link>
-              </Button>
+            <div className="pt-3 border-t border-rule">
+              <Link
+                to={ROUTES.BOOKING}
+                onClick={() => setIsMenuOpen(false)}
+                className="block w-full text-center px-5 py-2.5 text-sm font-medium rounded-full bg-clay text-bg"
+              >
+                Book now
+              </Link>
             </div>
           </div>
         </div>
       )}
     </header>
-    </>
   )
 }

@@ -11,7 +11,7 @@ export function ESewaDebug() {
     const testParams = {
       amt: '100.00',
       psc: '0.00',
-      pdc: '0.00', 
+      pdc: '0.00',
       txAmt: '100.00',
       tAmt: '100.00',
       pid: 'TEST-' + Date.now(),
@@ -26,7 +26,7 @@ export function ESewaDebug() {
     const form = document.createElement('form')
     form.method = 'POST'
     form.action = esewaUrl
-    
+
     Object.entries(testParams).forEach(([key, value]) => {
       const input = document.createElement('input')
       input.type = 'hidden'
@@ -45,14 +45,14 @@ export function ESewaDebug() {
       amt: '100.00',
       psc: '0.00',
       pdc: '0.00',
-      txAmt: '100.00', 
+      txAmt: '100.00',
       tAmt: '100.00',
       pid: 'TEST-' + Date.now(),
       scd: 'EPAYTEST',
       su: window.location.origin + '/payment/esewa/success',
       fu: window.location.origin + '/payment/esewa/failure',
     })
-    
+
     const fullUrl = `${esewaUrl}?${params.toString()}`
     setDebugInfo(fullUrl)
     window.open(fullUrl, '_blank')
@@ -60,7 +60,9 @@ export function ESewaDebug() {
 
   const pingESewaServer = async () => {
     try {
-      const response = await fetch('https://uat.esewa.com.np/', { mode: 'no-cors' })
+      await fetch('https://uat.esewa.com.np/', {
+        mode: 'no-cors',
+      })
       setDebugInfo('eSewa server is reachable')
     } catch (error) {
       setDebugInfo(`eSewa server error: ${(error as Error).message}`)
@@ -84,19 +86,27 @@ export function ESewaDebug() {
             Ping eSewa Server
           </Button>
         </div>
-        
+
         {debugInfo && (
-          <div className="p-3 bg-muted rounded-lg">
+          <div className="p-3 bg-bg-band rounded-lg">
             <pre className="text-xs overflow-auto">{debugInfo}</pre>
           </div>
         )}
 
-        <div className="text-sm text-muted-foreground">
+        <div className="text-sm text-fg-2">
           <h4 className="font-medium mb-2">Manual Test URLs:</h4>
           <div className="space-y-1">
-            <div>eSewa UAT: <code>https://uat.esewa.com.np/epay/main</code></div>
-            <div>Success URL: <code>{window.location.origin}/payment/esewa/success</code></div>
-            <div>Failure URL: <code>{window.location.origin}/payment/esewa/failure</code></div>
+            <div>
+              eSewa UAT: <code>https://uat.esewa.com.np/epay/main</code>
+            </div>
+            <div>
+              Success URL:{' '}
+              <code>{window.location.origin}/payment/esewa/success</code>
+            </div>
+            <div>
+              Failure URL:{' '}
+              <code>{window.location.origin}/payment/esewa/failure</code>
+            </div>
           </div>
         </div>
       </CardContent>

@@ -1,5 +1,6 @@
 export const APP_NAME = 'CreatrixSpace'
-export const APP_DESCRIPTION = 'Premium coworking spaces for modern professionals'
+export const APP_DESCRIPTION =
+  'Premium coworking spaces for modern professionals'
 
 export const ROUTES = {
   HOME: '/',
@@ -92,4 +93,12 @@ export const ANIMATION_DURATION = {
   FAST: 150,
   NORMAL: 300,
   SLOW: 500,
+} as const
+
+export const WHATSAPP = {
+  NUMBER: '9779851000000',
+  DEFAULT_MESSAGE: "Hello CreatrixSpace — I'd like to know more.",
+  get url() {
+    return `https://wa.me/${this.NUMBER}?text=${encodeURIComponent(this.DEFAULT_MESSAGE)}`
+  },
 } as const

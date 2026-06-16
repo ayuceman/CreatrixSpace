@@ -1,187 +1,80 @@
 import { Link } from 'react-router-dom'
-import { MapPin, MessageCircle, Phone, Twitter, Linkedin } from 'lucide-react'
-
-// Minimal TikTok icon (fallback because current lucide-react version lacks Tiktok export)
-const TikTokIcon = (props: React.SVGProps<SVGSVGElement>) => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    viewBox="0 0 24 24"
-    width="24"
-    height="24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    {...props}
-  >
-    <path d="M10 3v12.5a3.5 3.5 0 1 1-3.5-3.5c.5 0 1 .08 1.46.23V9.5c-1.29-.26-2.38-.97-3.21-2.01M13 3a6 6 0 0 0 6 6" />
-  </svg>
-)
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { ROUTES, APP_NAME } from '@/lib/constants'
-
-const footerLinks = {
-  company: [
-    { name: 'About', href: ROUTES.ABOUT },
-    { name: 'Careers', href: ROUTES.CAREERS },
-    { name: 'Blog', href: ROUTES.BLOG },
-    { name: 'Contact', href: ROUTES.CONTACT },
-  ],
-  services: [
-    { name: 'Locations', href: ROUTES.LOCATIONS },
-    { name: 'Pricing', href: ROUTES.PRICING },
-    { name: 'Membership', href: ROUTES.MEMBERSHIP },
-    { name: 'Book a Tour', href: ROUTES.BOOKING },
-  ],
-  legal: [
-    { name: 'Terms of Service', href: ROUTES.TERMS },
-    { name: 'Privacy Policy', href: ROUTES.PRIVACY },
-  ],
-}
-
-const socialLinks = [
-  { name: 'Twitter', icon: Twitter, href: 'https://x.com/creatrix_tech' },
-  { name: 'TikTok', iconPath: '/tiktok.svg', href: 'https://www.tiktok.com/@creatrixtechnologies' },
-  { name: 'LinkedIn', icon: Linkedin, href: 'https://www.linkedin.com/company/creatrixtechnologies' },
-]
+import { ROUTES } from '@/lib/constants'
 
 export function Footer() {
   return (
-    <footer className="bg-muted/50 border-t">
-      <div className="container">
-        <div className="py-16">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8">
-            {/* Brand & Newsletter */}
-            <div className="lg:col-span-2 space-y-6">
-              <div>
-                <Link to={ROUTES.HOME} className="flex items-center space-x-2">
-                  <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center">
-                    <MapPin className="h-5 w-5 text-primary-foreground" />
-                  </div>
-                  <span className="font-display font-bold text-xl">{APP_NAME}</span>
-                </Link>
-                <p className="mt-4 text-sm text-muted-foreground max-w-sm">
-                  Premium coworking spaces designed for modern professionals. 
-                  Find your perfect workspace in the heart of the city.
-                </p>
-              </div>
-              
-              <div className="space-y-3">
-                <h4 className="font-semibold">Stay Updated</h4>
-                <div className="flex max-w-sm">
-                  <Input 
-                    type="email" 
-                    placeholder="Enter your email" 
-                    className="rounded-r-none"
-                  />
-                  <Button type="submit" className="rounded-l-none">
-                    Subscribe
-                  </Button>
-                </div>
-                <p className="text-xs text-muted-foreground">
-                  Get the latest updates on new locations and special offers.
-                </p>
-              </div>
-            </div>
-
-            {/* Company Links */}
-            <div className="space-y-4">
-              <h4 className="font-semibold">Company</h4>
-              <ul className="space-y-2">
-                {footerLinks.company.map((link) => (
-                  <li key={link.name}>
-                    <Link
-                      to={link.href}
-                      className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-                    >
-                      {link.name}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            {/* Services Links */}
-            <div className="space-y-4">
-              <h4 className="font-semibold">Services</h4>
-              <ul className="space-y-2">
-                {footerLinks.services.map((link) => (
-                  <li key={link.name}>
-                    <Link
-                      to={link.href}
-                      className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-                    >
-                      {link.name}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            {/* Contact & Social */}
-            <div className="space-y-4">
-              <h4 className="font-semibold">Connect</h4>
-              <div className="space-y-2 text-sm text-muted-foreground">
-                <div className="flex items-center space-x-2">
-                  <MessageCircle className="h-4 w-4" />
-                  <a 
-                    href="https://wa.me/9779803171819"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="hover:underline"
-                  >
-                    WhatsApp: +977 9803171819
-                  </a>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <Phone className="h-4 w-4" />
-                  <span>+977 9851357889</span>
-                </div>
-              </div>
-              
-              <div className="flex space-x-3">
-                {socialLinks.map((social) => {
-                  const Icon = social.icon as any
-                  return (
-                    <a
-                      key={social.name}
-                      href={social.href}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-muted-foreground hover:text-foreground transition-colors"
-                      aria-label={social.name}
-                    >
-                      {social.iconPath ? (
-                        <img src={social.iconPath} alt={social.name} className="h-5 w-5" />
-                      ) : (
-                        <Icon className="h-5 w-5" />
-                      )}
-                    </a>
-                  )
-                })}
-              </div>
-            </div>
-          </div>
+    <footer className="relative overflow-hidden bg-ink text-bg">
+      <div className="container py-20 md:py-28 lg:py-36">
+        <div className="max-w-3xl">
+          <h2 className="font-serif text-4xl md:text-5xl lg:text-6xl font-bold leading-[1.15] tracking-tight text-bg">
+            Come by{' '}
+            <em className="text-clay-soft not-italic italic">tomorrow</em>
+            .
+            <br />
+            Stay{' '}
+            <em className="text-clay-soft not-italic italic">as long as</em>
+            <br />
+            you like.
+          </h2>
         </div>
+      </div>
 
-        {/* Bottom Bar */}
-        <div className="py-6 border-t flex flex-col sm:flex-row justify-between items-center space-y-4 sm:space-y-0">
-          <p className="text-sm text-muted-foreground">
-            © 2024 {APP_NAME}. All rights reserved.
-          </p>
-          <div className="flex space-x-4">
-            {footerLinks.legal.map((link) => (
-              <Link
-                key={link.name}
-                to={link.href}
-                className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-              >
-                {link.name}
-              </Link>
-            ))}
+      <div className="container pb-8 border-t border-rule-on-ink">
+        <div className="pt-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <Link
+            to={ROUTES.HOME}
+            className="flex items-center space-x-1 hover:opacity-80 transition-opacity"
+          >
+            <span className="font-serif text-lg font-bold text-bg">
+              Creatrix
+            </span>
+            <span className="font-serif text-lg italic font-normal text-clay-soft">
+              Space
+            </span>
+          </Link>
+
+          <div className="flex flex-wrap items-center gap-6 text-sm text-fg-on-ink-2">
+            <Link
+              to={ROUTES.LOCATIONS}
+              className="hover:opacity-80 transition-opacity"
+            >
+              Locations
+            </Link>
+            <Link
+              to={ROUTES.PRICING}
+              className="hover:opacity-80 transition-opacity"
+            >
+              Pricing
+            </Link>
+            <Link
+              to={ROUTES.ABOUT}
+              className="hover:opacity-80 transition-opacity"
+            >
+              About
+            </Link>
+            <Link
+              to={ROUTES.CONTACT}
+              className="hover:opacity-80 transition-opacity"
+            >
+              Contact
+            </Link>
+            <Link
+              to={ROUTES.TERMS}
+              className="hover:opacity-80 transition-opacity"
+            >
+              Terms
+            </Link>
+            <Link
+              to={ROUTES.PRIVACY}
+              className="hover:opacity-80 transition-opacity"
+            >
+              Privacy
+            </Link>
           </div>
+
+          <p className="text-xs text-fg-on-ink-2/60">
+            © {new Date().getFullYear()} CreatrixSpace
+          </p>
         </div>
       </div>
     </footer>

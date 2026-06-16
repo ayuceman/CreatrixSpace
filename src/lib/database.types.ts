@@ -184,7 +184,12 @@ export interface Database {
         Row: {
           id: string
           name: string
-          type: 'day_pass' | 'hot_desk' | 'dedicated_desk' | 'private_office' | 'meeting_room'
+          type:
+            | 'day_pass'
+            | 'hot_desk'
+            | 'dedicated_desk'
+            | 'private_office'
+            | 'meeting_room'
           description: string | null
           features: string[] | null
           pricing: Json
@@ -198,7 +203,12 @@ export interface Database {
         Insert: {
           id?: string
           name: string
-          type: 'day_pass' | 'hot_desk' | 'dedicated_desk' | 'private_office' | 'meeting_room'
+          type:
+            | 'day_pass'
+            | 'hot_desk'
+            | 'dedicated_desk'
+            | 'private_office'
+            | 'meeting_room'
           description?: string | null
           features?: string[] | null
           pricing: Json
@@ -212,7 +222,12 @@ export interface Database {
         Update: {
           id?: string
           name?: string
-          type?: 'day_pass' | 'hot_desk' | 'dedicated_desk' | 'private_office' | 'meeting_room'
+          type?:
+            | 'day_pass'
+            | 'hot_desk'
+            | 'dedicated_desk'
+            | 'private_office'
+            | 'meeting_room'
           description?: string | null
           features?: string[] | null
           pricing?: Json
@@ -360,7 +375,12 @@ export interface Database {
           total_amount: number
           currency: string
           payment_method: string | null
-          payment_status: 'pending' | 'processing' | 'completed' | 'failed' | 'refunded'
+          payment_status:
+            | 'pending'
+            | 'processing'
+            | 'completed'
+            | 'failed'
+            | 'refunded'
           stripe_session_id: string | null
           stripe_payment_intent_id: string | null
           esewa_transaction_id: string | null
@@ -385,7 +405,12 @@ export interface Database {
           total_amount: number
           currency?: string
           payment_method?: string | null
-          payment_status?: 'pending' | 'processing' | 'completed' | 'failed' | 'refunded'
+          payment_status?:
+            | 'pending'
+            | 'processing'
+            | 'completed'
+            | 'failed'
+            | 'refunded'
           stripe_session_id?: string | null
           stripe_payment_intent_id?: string | null
           esewa_transaction_id?: string | null
@@ -410,7 +435,12 @@ export interface Database {
           total_amount?: number
           currency?: string
           payment_method?: string | null
-          payment_status?: 'pending' | 'processing' | 'completed' | 'failed' | 'refunded'
+          payment_status?:
+            | 'pending'
+            | 'processing'
+            | 'completed'
+            | 'failed'
+            | 'refunded'
           stripe_session_id?: string | null
           stripe_payment_intent_id?: string | null
           esewa_transaction_id?: string | null
@@ -445,7 +475,12 @@ export interface Database {
           amount: number
           currency?: string
           payment_method: string
-          status?: 'pending' | 'processing' | 'completed' | 'failed' | 'refunded'
+          status?:
+            | 'pending'
+            | 'processing'
+            | 'completed'
+            | 'failed'
+            | 'refunded'
           transaction_id?: string | null
           gateway_response?: Json | null
           metadata?: Json | null
@@ -459,7 +494,12 @@ export interface Database {
           amount?: number
           currency?: string
           payment_method?: string
-          status?: 'pending' | 'processing' | 'completed' | 'failed' | 'refunded'
+          status?:
+            | 'pending'
+            | 'processing'
+            | 'completed'
+            | 'failed'
+            | 'refunded'
           transaction_id?: string | null
           gateway_response?: Json | null
           metadata?: Json | null
@@ -480,4 +520,3 @@ export interface Database {
     }
   }
 }
-

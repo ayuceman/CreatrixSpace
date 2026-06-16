@@ -1,7 +1,13 @@
 import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { Mail, Lock, Loader2 } from 'lucide-react'
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -27,7 +33,11 @@ export function LoginPage() {
         navigate(ROUTES.DASHBOARD, { replace: true })
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to sign in. Please check your credentials.')
+      setError(
+        err instanceof Error
+          ? err.message
+          : 'Failed to sign in. Please check your credentials.'
+      )
     } finally {
       setLoading(false)
     }
@@ -53,7 +63,7 @@ export function LoginPage() {
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
               <div className="relative">
-                <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                <Mail className="absolute left-3 top-3 h-4 w-4 text-fg-2" />
                 <Input
                   id="email"
                   type="email"
@@ -69,7 +79,7 @@ export function LoginPage() {
             <div className="space-y-2">
               <Label htmlFor="password">Password</Label>
               <div className="relative">
-                <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                <Lock className="absolute left-3 top-3 h-4 w-4 text-fg-2" />
                 <Input
                   id="password"
                   type="password"
@@ -85,7 +95,7 @@ export function LoginPage() {
             <div className="flex items-center justify-between">
               <Link
                 to={ROUTES.RESET_PASSWORD}
-                className="text-sm text-primary hover:underline"
+                className="text-sm text-clay hover:underline"
               >
                 Forgot password?
               </Link>
@@ -102,9 +112,9 @@ export function LoginPage() {
               )}
             </Button>
 
-            <div className="text-center text-sm text-muted-foreground">
+            <div className="text-center text-sm text-fg-2">
               Don't have an account?{' '}
-              <Link to={ROUTES.REGISTER} className="text-primary hover:underline">
+              <Link to={ROUTES.REGISTER} className="text-clay hover:underline">
                 Sign up
               </Link>
             </div>

@@ -1,15 +1,26 @@
 import { create } from 'zustand'
 import { devtools } from 'zustand/middleware'
-import { locationService, planService, addOnService, bookingService, authService, locationPricingService, roomService, roomPricingService } from '@/services/supabase-service'
+import {
+  locationService,
+  planService,
+  addOnService,
+  bookingService,
+  authService,
+  locationPricingService,
+  roomService,
+  roomPricingService,
+} from '@/services/supabase-service'
 import { calculatePricing } from '@/lib/pricing-calculator'
 import type { Database } from '@/lib/database.types'
 
 type Location = Database['public']['Tables']['locations']['Row']
 type Plan = Database['public']['Tables']['plans']['Row']
 type AddOn = Database['public']['Tables']['add_ons']['Row']
-type LocationPlanPricingRow = Database['public']['Tables']['location_plan_pricing']['Row']
+type LocationPlanPricingRow =
+  Database['public']['Tables']['location_plan_pricing']['Row']
 type Room = Database['public']['Tables']['location_rooms']['Row']
-type RoomPlanPricingRow = Database['public']['Tables']['room_plan_pricing']['Row']
+type RoomPlanPricingRow =
+  Database['public']['Tables']['room_plan_pricing']['Row']
 type PlanPricing = {
   daily?: number
   weekly?: number
@@ -25,7 +36,7 @@ export interface BookingData {
   roomId: string
   planId: string
 
-  // Step 2: Date & Time  
+  // Step 2: Date & Time
   startDate: Date | null
   endDate: Date | null
   startTime: string
@@ -117,7 +128,11 @@ interface BookingStore {
   updateBookingData: (data: Partial<BookingData>) => void
   resetBooking: () => void
   calculateTotal: () => void
-  getPlanPricingForLocation: (planId: string, locationId?: string, roomId?: string) => PlanPricing
+  getPlanPricingForLocation: (
+    planId: string,
+    locationId?: string,
+    roomId?: string
+  ) => PlanPricing
   getRoomsForLocation: (locationId?: string) => BookingStore['rooms']
 
   // Data loading
@@ -210,7 +225,9 @@ const convertAddOn = (addon: AddOn) => ({
   description: addon.description || '',
 })
 
-const buildLocationPlanPricingMap = (rows: LocationPlanPricingRow[]): LocationPlanPricingMap => {
+const buildLocationPlanPricingMap = (
+  rows: LocationPlanPricingRow[]
+): LocationPlanPricingMap => {
   return rows.reduce<LocationPlanPricingMap>((acc, row) => {
     if (!acc[row.location_id]) {
       acc[row.location_id] = {}
@@ -220,7 +237,9 @@ const buildLocationPlanPricingMap = (rows: LocationPlanPricingRow[]): LocationPl
   }, {})
 }
 
-const buildRoomPlanPricingMap = (rows: RoomPlanPricingRow[]): RoomPlanPricingMap => {
+const buildRoomPlanPricingMap = (
+  rows: RoomPlanPricingRow[]
+): RoomPlanPricingMap => {
   return rows.reduce<RoomPlanPricingMap>((acc, row) => {
     if (!acc[row.room_id]) {
       acc[row.room_id] = {}
@@ -260,7 +279,9 @@ export const useBookingStore = create<BookingStore>()(
 
           if (nextBooking.roomId) {
             const isValidRoom = rooms.some(
-              (room) => room.id === nextBooking.roomId && room.locationId === nextBooking.locationId
+              (room) =>
+                room.id === nextBooking.roomId &&
+                room.locationId === nextBooking.locationId
             )
             if (!isValidRoom) {
               nextBooking.roomId = ''
@@ -273,14 +294,15 @@ export const useBookingStore = create<BookingStore>()(
         get().calculateTotal()
       },
 
-      resetBooking: () => set({
-        currentStep: 1,
-        bookingData: initialBookingData,
-      }),
+      resetBooking: () =>
+        set({
+          currentStep: 1,
+          bookingData: initialBookingData,
+        }),
 
       calculateTotal: () => {
         const { bookingData, plans, addOns, getPlanPricingForLocation } = get()
-        const selectedPlan = plans.find(p => p.id === bookingData.planId)
+        const selectedPlan = plans.find((p) => p.id === bookingData.planId)
 
         if (!selectedPlan) {
           console.warn('Cannot calculate total: No plan selected')
@@ -289,15 +311,21 @@ export const useBookingStore = create<BookingStore>()(
 
         // Get selected add-ons with their prices
         const selectedAddOnsWithPrices = bookingData.addOns
-          .map(addonId => {
-            const addon = addOns.find(a => a.id === addonId)
+          .map((addonId) => {
+            const addon = addOns.find((a) => a.id === addonId)
             return addon ? { id: addon.id, price: addon.price } : null
           })
-          .filter((addon): addon is { id: string; price: number } => addon !== null)
+          .filter(
+            (addon): addon is { id: string; price: number } => addon !== null
+          )
 
         // Use centralized pricing calculator
         const pricing = calculatePricing({
-          planPricing: getPlanPricingForLocation(selectedPlan.id, bookingData.locationId, bookingData.roomId),
+          planPricing: getPlanPricingForLocation(
+            selectedPlan.id,
+            bookingData.locationId,
+            bookingData.roomId
+          ),
           planType: selectedPlan.type,
           selectedAddOns: selectedAddOnsWithPrices,
           meetingRoomHours: bookingData.meetingRoomHours,
@@ -313,16 +341,24 @@ export const useBookingStore = create<BookingStore>()(
         })
 
         set((state) => ({
-          bookingData: { ...state.bookingData, totalAmount: pricing.total }
+          bookingData: { ...state.bookingData, totalAmount: pricing.total },
         }))
       },
 
       getPlanPricingForLocation: (planId, locationId, roomId) => {
         const { plans, locationPlanPricing, roomPlanPricing } = get()
-        if (roomId && roomPlanPricing[roomId] && roomPlanPricing[roomId][planId]) {
+        if (
+          roomId &&
+          roomPlanPricing[roomId] &&
+          roomPlanPricing[roomId][planId]
+        ) {
           return roomPlanPricing[roomId][planId]
         }
-        if (locationId && locationPlanPricing[locationId] && locationPlanPricing[locationId][planId]) {
+        if (
+          locationId &&
+          locationPlanPricing[locationId] &&
+          locationPlanPricing[locationId][planId]
+        ) {
           return locationPlanPricing[locationId][planId]
         }
         const plan = plans.find((p) => p.id === planId)
@@ -358,7 +394,8 @@ export const useBookingStore = create<BookingStore>()(
             const convertedRooms = rooms.map(convertRoom)
             const convertedPlans = plans.map(convertPlan)
             const convertedAddOns = addOns.map(convertAddOn)
-            const locationPricingMap = buildLocationPlanPricingMap(locationPlanPricing)
+            const locationPricingMap =
+              buildLocationPlanPricingMap(locationPlanPricing)
             const roomPricingMap = buildRoomPlanPricingMap(roomPlanPricing)
 
             let bookingData = state.bookingData
@@ -366,8 +403,10 @@ export const useBookingStore = create<BookingStore>()(
               const preferredLocation =
                 convertedLocations.find(
                   (loc) =>
-                    (loc.slug && loc.slug.toLowerCase() === DEFAULT_LOCATION_SLUG) ||
-                    loc.name?.toLowerCase() === DEFAULT_LOCATION_NAME.toLowerCase()
+                    (loc.slug &&
+                      loc.slug.toLowerCase() === DEFAULT_LOCATION_SLUG) ||
+                    loc.name?.toLowerCase() ===
+                      DEFAULT_LOCATION_NAME.toLowerCase()
                 ) || convertedLocations[0]
 
               bookingData = {
@@ -390,8 +429,9 @@ export const useBookingStore = create<BookingStore>()(
         } catch (error) {
           console.error('❌ booking-store: loadAllData failed', error)
           set({
-            error: error instanceof Error ? error.message : 'Failed to load data',
-            loading: false
+            error:
+              error instanceof Error ? error.message : 'Failed to load data',
+            loading: false,
           })
         }
       },
@@ -417,22 +457,26 @@ export const useBookingStore = create<BookingStore>()(
           }
 
           // Create booking in Supabase (with or without user_id)
-          const booking = await bookingService.createBooking(updatedBookingData, userId)
+          const booking = await bookingService.createBooking(
+            updatedBookingData,
+            userId
+          )
 
           // Update booking data with the created booking ID
           set((state) => ({
             bookingData: { ...state.bookingData, bookingId: booking.id },
-            loading: false
+            loading: false,
           }))
 
           // Email will be sent when user verifies payment on QR payment page
 
           return booking.id
         } catch (error) {
-          const errorMessage = error instanceof Error ? error.message : 'Failed to create booking'
+          const errorMessage =
+            error instanceof Error ? error.message : 'Failed to create booking'
           set({
             error: errorMessage,
-            loading: false
+            loading: false,
           })
           return null
         }
@@ -454,7 +498,7 @@ export const useBookingStore = create<BookingStore>()(
 
       canProceed: () => {
         const { currentStep, bookingData, plans, rooms } = get()
-        const selectedPlan = plans.find(p => p.id === bookingData.planId)
+        const selectedPlan = plans.find((p) => p.id === bookingData.planId)
         const isDayPass = selectedPlan?.type === 'day_pass'
         const requiresRoomSelection =
           Boolean(bookingData.locationId) &&
@@ -473,7 +517,11 @@ export const useBookingStore = create<BookingStore>()(
             if (isDayPass) {
               return !!bookingData.startDate
             }
-            return bookingData.startDate && bookingData.startTime && bookingData.endTime
+            return (
+              bookingData.startDate &&
+              bookingData.startTime &&
+              bookingData.endTime
+            )
           case 3:
             return true // Optional step
           case 4:

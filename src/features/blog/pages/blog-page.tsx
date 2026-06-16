@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion'
 import { Link } from 'react-router-dom'
-import { Calendar, Clock, User, ArrowRight, Tag } from 'lucide-react'
+import { Calendar, Clock, User, ArrowRight } from 'lucide-react'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -8,8 +8,10 @@ import { Button } from '@/components/ui/button'
 const blogPosts = [
   {
     id: 'remote-work-revolution-nepal',
-    title: 'The Remote Work Revolution: How Nepal is Embracing the Future of Work',
-    excerpt: 'Discover how Nepal\'s tech industry is adapting to remote work trends and what it means for professionals in Kathmandu and beyond.',
+    title:
+      'The Remote Work Revolution: How Nepal is Embracing the Future of Work',
+    excerpt:
+      "Discover how Nepal's tech industry is adapting to remote work trends and what it means for professionals in Kathmandu and beyond.",
     content: `The landscape of work in Nepal has undergone a dramatic transformation over the past few years. What started as a necessity during the pandemic has evolved into a permanent shift that's reshaping how Nepali professionals approach their careers.
 
 **The Rise of Digital Nomadism in Nepal**
@@ -27,13 +29,15 @@ Government initiatives supporting IT exports and the growing number of tech star
     date: '2024-09-20',
     readTime: '5 min read',
     category: 'Remote Work',
-    image: 'https://images.unsplash.com/photo-1521737711867-e3b97375f902?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-    featured: true
+    image:
+      'https://images.unsplash.com/photo-1521737711867-e3b97375f902?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+    featured: true,
   },
   {
     id: 'coworking-productivity-tips',
     title: '10 Productivity Hacks Every Coworking Space User Should Know',
-    excerpt: 'Maximize your efficiency and make the most of your coworking experience with these proven strategies from successful professionals.',
+    excerpt:
+      'Maximize your efficiency and make the most of your coworking experience with these proven strategies from successful professionals.',
     content: `Working in a coworking space offers unique advantages, but it also requires specific strategies to maximize productivity. Here are the top 10 hacks that successful professionals swear by.
 
 **1. Establish a Morning Routine**
@@ -54,13 +58,15 @@ Engage with other members, but be mindful of their work time. Coffee breaks and 
     date: '2024-09-15',
     readTime: '7 min read',
     category: 'Productivity',
-    image: 'https://images.unsplash.com/photo-1551434678-e076c223a692?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-    featured: false
+    image:
+      'https://images.unsplash.com/photo-1551434678-e076c223a692?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+    featured: false,
   },
   {
     id: 'startup-ecosystem-kathmandu',
-    title: 'Building Nepal\'s Startup Ecosystem: The Role of Coworking Spaces',
-    excerpt: 'How coworking spaces are fostering innovation and entrepreneurship in Nepal\'s capital, creating a thriving startup ecosystem.',
+    title: "Building Nepal's Startup Ecosystem: The Role of Coworking Spaces",
+    excerpt:
+      "How coworking spaces are fostering innovation and entrepreneurship in Nepal's capital, creating a thriving startup ecosystem.",
     content: `Kathmandu's startup ecosystem has experienced remarkable growth, with coworking spaces playing a crucial role in this transformation. These shared workspaces have become the breeding ground for innovation, collaboration, and entrepreneurial success.
 
 **The Catalyst Effect**
@@ -78,13 +84,15 @@ The Nepal government's focus on digital transformation and IT exports has create
     date: '2024-09-10',
     readTime: '6 min read',
     category: 'Entrepreneurship',
-    image: 'https://images.unsplash.com/photo-1556761175-b413da4baf72?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-    featured: true
+    image:
+      'https://images.unsplash.com/photo-1556761175-b413da4baf72?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+    featured: true,
   },
   {
     id: 'work-life-balance-tips',
     title: 'Maintaining Work-Life Balance in a Coworking Environment',
-    excerpt: 'Learn how to set boundaries and maintain healthy work-life balance while working in shared spaces.',
+    excerpt:
+      'Learn how to set boundaries and maintain healthy work-life balance while working in shared spaces.',
     content: `Working in a coworking space offers flexibility, but it can also blur the lines between work and personal life. Here's how to maintain a healthy balance.
 
 **Setting Clear Boundaries**
@@ -106,13 +114,15 @@ The social nature of coworking spaces makes it easy to take meaningful breaks. U
     date: '2024-09-05',
     readTime: '4 min read',
     category: 'Work-Life Balance',
-    image: 'https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-    featured: false
+    image:
+      'https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+    featured: false,
   },
   {
     id: 'networking-coworking-spaces',
     title: 'The Art of Networking in Coworking Spaces: A Nepal Perspective',
-    excerpt: 'Master the subtle art of building professional relationships in coworking environments while respecting cultural nuances.',
+    excerpt:
+      'Master the subtle art of building professional relationships in coworking environments while respecting cultural nuances.',
     content: `Networking in Nepal's coworking spaces requires understanding both professional etiquette and cultural sensitivities. Here's how to build meaningful connections.
 
 **Understanding Nepali Business Culture**
@@ -138,13 +148,16 @@ Don't forget online networking. Connect with your coworking space community on L
     date: '2024-08-30',
     readTime: '5 min read',
     category: 'Networking',
-    image: 'https://images.unsplash.com/photo-1515187029135-18ee286d815b?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-    featured: false
+    image:
+      'https://images.unsplash.com/photo-1515187029135-18ee286d815b?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+    featured: false,
   },
   {
     id: 'sustainable-workspace-design',
-    title: 'Sustainable Workspace Design: Green Initiatives in Nepal\'s Coworking Spaces',
-    excerpt: 'Explore how modern coworking spaces in Nepal are incorporating eco-friendly practices and sustainable design principles.',
+    title:
+      "Sustainable Workspace Design: Green Initiatives in Nepal's Coworking Spaces",
+    excerpt:
+      'Explore how modern coworking spaces in Nepal are incorporating eco-friendly practices and sustainable design principles.',
     content: `As environmental consciousness grows in Nepal, coworking spaces are leading by example with sustainable practices and green design initiatives.
 
 **Solar Power and Energy Efficiency**
@@ -170,29 +183,51 @@ Some coworking spaces are incorporating rooftop gardens where members can grow h
     date: '2024-08-25',
     readTime: '6 min read',
     category: 'Sustainability',
-    image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-    featured: false
-  }
+    image:
+      'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+    featured: false,
+  },
 ]
 
 const categories = [
   { name: 'All Posts', count: blogPosts.length },
-  { name: 'Remote Work', count: blogPosts.filter(post => post.category === 'Remote Work').length },
-  { name: 'Productivity', count: blogPosts.filter(post => post.category === 'Productivity').length },
-  { name: 'Entrepreneurship', count: blogPosts.filter(post => post.category === 'Entrepreneurship').length },
-  { name: 'Work-Life Balance', count: blogPosts.filter(post => post.category === 'Work-Life Balance').length },
-  { name: 'Networking', count: blogPosts.filter(post => post.category === 'Networking').length },
-  { name: 'Sustainability', count: blogPosts.filter(post => post.category === 'Sustainability').length }
+  {
+    name: 'Remote Work',
+    count: blogPosts.filter((post) => post.category === 'Remote Work').length,
+  },
+  {
+    name: 'Productivity',
+    count: blogPosts.filter((post) => post.category === 'Productivity').length,
+  },
+  {
+    name: 'Entrepreneurship',
+    count: blogPosts.filter((post) => post.category === 'Entrepreneurship')
+      .length,
+  },
+  {
+    name: 'Work-Life Balance',
+    count: blogPosts.filter((post) => post.category === 'Work-Life Balance')
+      .length,
+  },
+  {
+    name: 'Networking',
+    count: blogPosts.filter((post) => post.category === 'Networking').length,
+  },
+  {
+    name: 'Sustainability',
+    count: blogPosts.filter((post) => post.category === 'Sustainability')
+      .length,
+  },
 ]
 
 export function BlogPage() {
-  const featuredPosts = blogPosts.filter(post => post.featured)
-  const regularPosts = blogPosts.filter(post => !post.featured)
+  const featuredPosts = blogPosts.filter((post) => post.featured)
+  const regularPosts = blogPosts.filter((post) => !post.featured)
 
   return (
     <div className="overflow-hidden">
       {/* Hero Section */}
-      <section className="section-padding bg-gradient-to-br from-background via-background to-primary/5">
+      <section className="section-padding bg-gradient-to-br from-bg via-bg to-clay/5">
         <div className="container">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -205,13 +240,14 @@ export function BlogPage() {
             </Badge>
             <h1 className="text-4xl md:text-6xl font-display font-bold mb-6">
               Insights & Stories from the{' '}
-              <span className="bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-clay to-clay/70 bg-clip-text text-transparent">
                 Future of Work
               </span>
             </h1>
-            <p className="text-xl text-muted-foreground mb-8 leading-relaxed">
-              Discover the latest trends, tips, and insights about remote work, productivity, 
-              and building a thriving professional community in Nepal and beyond.
+            <p className="text-xl text-fg-2 mb-8 leading-relaxed">
+              Discover the latest trends, tips, and insights about remote work,
+              productivity, and building a thriving professional community in
+              Nepal and beyond.
             </p>
           </motion.div>
         </div>
@@ -227,7 +263,9 @@ export function BlogPage() {
             viewport={{ once: true }}
             className="mb-12"
           >
-            <h2 className="text-3xl font-display font-bold mb-8">Featured Articles</h2>
+            <h2 className="text-3xl font-display font-bold mb-8">
+              Featured Articles
+            </h2>
             <div className="grid lg:grid-cols-2 gap-8">
               {featuredPosts.map((post, index) => (
                 <motion.div
@@ -246,14 +284,14 @@ export function BlogPage() {
                       />
                     </div>
                     <CardHeader className="pb-4">
-                      <div className="flex items-center gap-4 text-sm text-muted-foreground mb-3">
+                      <div className="flex items-center gap-4 text-sm text-fg-2 mb-3">
                         <Badge variant="secondary">{post.category}</Badge>
                         <div className="flex items-center gap-1">
                           <Calendar className="h-4 w-4" />
-                          {new Date(post.date).toLocaleDateString('en-US', { 
-                            month: 'long', 
-                            day: 'numeric', 
-                            year: 'numeric' 
+                          {new Date(post.date).toLocaleDateString('en-US', {
+                            month: 'long',
+                            day: 'numeric',
+                            year: 'numeric',
                           })}
                         </div>
                         <div className="flex items-center gap-1">
@@ -261,16 +299,18 @@ export function BlogPage() {
                           {post.readTime}
                         </div>
                       </div>
-                      <h3 className="text-xl font-bold mb-3 group-hover:text-primary transition-colors">
+                      <h3 className="text-xl font-bold mb-3 group-hover:text-clay transition-colors">
                         {post.title}
                       </h3>
-                      <p className="text-muted-foreground leading-relaxed mb-4">
+                      <p className="text-fg-2 leading-relaxed mb-4">
                         {post.excerpt}
                       </p>
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
-                          <User className="h-4 w-4 text-muted-foreground" />
-                          <span className="text-sm text-muted-foreground">{post.author}</span>
+                          <User className="h-4 w-4 text-fg-2" />
+                          <span className="text-sm text-fg-2">
+                            {post.author}
+                          </span>
                         </div>
                         <Button variant="ghost" size="sm" asChild>
                           <Link to={`/blog/${post.id}`}>
@@ -289,7 +329,7 @@ export function BlogPage() {
       </section>
 
       {/* Categories & Regular Posts */}
-      <section className="section-padding bg-muted/30">
+      <section className="section-padding bg-bg-band/30">
         <div className="container">
           <div className="grid lg:grid-cols-4 gap-8">
             {/* Categories Sidebar */}
@@ -309,7 +349,7 @@ export function BlogPage() {
                     {categories.map((category) => (
                       <div
                         key={category.name}
-                        className="flex items-center justify-between p-2 rounded-lg hover:bg-muted/50 cursor-pointer transition-colors"
+                        className="flex items-center justify-between p-2 rounded-lg hover:bg-bg-band/50 cursor-pointer transition-colors"
                       >
                         <span className="text-sm">{category.name}</span>
                         <Badge variant="outline" className="text-xs">
@@ -331,7 +371,9 @@ export function BlogPage() {
                 viewport={{ once: true }}
                 className="mb-8"
               >
-                <h2 className="text-3xl font-display font-bold mb-8">Latest Articles</h2>
+                <h2 className="text-3xl font-display font-bold mb-8">
+                  Latest Articles
+                </h2>
                 <div className="grid gap-6">
                   {regularPosts.map((post, index) => (
                     <motion.div
@@ -354,31 +396,38 @@ export function BlogPage() {
                               </div>
                             </div>
                             <div className="md:col-span-3">
-                              <div className="flex items-center gap-4 text-sm text-muted-foreground mb-3">
-                                <Badge variant="secondary">{post.category}</Badge>
+                              <div className="flex items-center gap-4 text-sm text-fg-2 mb-3">
+                                <Badge variant="secondary">
+                                  {post.category}
+                                </Badge>
                                 <div className="flex items-center gap-1">
                                   <Calendar className="h-4 w-4" />
-                                  {new Date(post.date).toLocaleDateString('en-US', { 
-                                    month: 'long', 
-                                    day: 'numeric', 
-                                    year: 'numeric' 
-                                  })}
+                                  {new Date(post.date).toLocaleDateString(
+                                    'en-US',
+                                    {
+                                      month: 'long',
+                                      day: 'numeric',
+                                      year: 'numeric',
+                                    }
+                                  )}
                                 </div>
                                 <div className="flex items-center gap-1">
                                   <Clock className="h-4 w-4" />
                                   {post.readTime}
                                 </div>
                               </div>
-                              <h3 className="text-xl font-bold mb-3 group-hover:text-primary transition-colors">
+                              <h3 className="text-xl font-bold mb-3 group-hover:text-clay transition-colors">
                                 {post.title}
                               </h3>
-                              <p className="text-muted-foreground leading-relaxed mb-4">
+                              <p className="text-fg-2 leading-relaxed mb-4">
                                 {post.excerpt}
                               </p>
                               <div className="flex items-center justify-between">
                                 <div className="flex items-center gap-2">
-                                  <User className="h-4 w-4 text-muted-foreground" />
-                                  <span className="text-sm text-muted-foreground">{post.author}</span>
+                                  <User className="h-4 w-4 text-fg-2" />
+                                  <span className="text-sm text-fg-2">
+                                    {post.author}
+                                  </span>
                                 </div>
                                 <Button variant="ghost" size="sm" asChild>
                                   <Link to={`/blog/${post.id}`}>

@@ -10,7 +10,8 @@ export function AdminLayout() {
   const { pathname } = useLocation()
   const session = typeof window !== 'undefined' ? getAdminSession() : null
   const [bookingToast, setBookingToast] = useState<NewBookingEvent | null>(null)
-  const [membershipToast, setMembershipToast] = useState<MembershipEvent | null>(null)
+  const [membershipToast, setMembershipToast] =
+    useState<MembershipEvent | null>(null)
 
   useEffect(() => {
     if (typeof window === 'undefined') return
@@ -22,7 +23,7 @@ export function AdminLayout() {
       setMembershipToast(m)
       setTimeout(() => setMembershipToast(null), 6000)
     })
-    return () => { 
+    return () => {
       offBooking()
       offMembership()
     }
@@ -35,7 +36,12 @@ export function AdminLayout() {
           <div className="bg-green-600 text-white rounded-md shadow-lg p-4 w-80">
             <div className="font-semibold">New booking confirmed</div>
             <div className="text-xs opacity-90 mt-1">
-              {bookingToast.customerName} — {bookingToast.planName || 'Plan'} — NPR {(bookingToast.amount/100).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              {bookingToast.customerName} — {bookingToast.planName || 'Plan'} —
+              NPR{' '}
+              {(bookingToast.amount / 100).toLocaleString('en-US', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              })}
             </div>
           </div>
         )}
@@ -48,23 +54,64 @@ export function AdminLayout() {
           </div>
         )}
       </div>
-      <header className="border-b bg-background/50 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <header className="border-b bg-bg/50 backdrop-blur supports-[backdrop-filter]:bg-bg/60">
         <div className="container flex items-center justify-between py-3">
           <div className="flex items-center gap-4">
-            <Link to={ROUTES.ADMIN} className="font-semibold">Admin</Link>
+            <Link to={ROUTES.ADMIN} className="font-semibold">
+              Admin
+            </Link>
             <nav className="flex items-center gap-3 text-sm">
-              <Link to={ROUTES.ADMIN} className={pathname === ROUTES.ADMIN ? 'text-primary' : 'text-muted-foreground'}>Dashboard</Link>
-              <Link to={ROUTES.ADMIN_BOOKINGS} className={pathname === ROUTES.ADMIN_BOOKINGS ? 'text-primary' : 'text-muted-foreground'}>Bookings</Link>
-              <Link to={ROUTES.ADMIN_MEMBERSHIPS} className={pathname === ROUTES.ADMIN_MEMBERSHIPS ? 'text-primary' : 'text-muted-foreground'}>Memberships</Link>
-              <Link to={ROUTES.ADMIN_PRICING} className={pathname === ROUTES.ADMIN_PRICING ? 'text-primary' : 'text-muted-foreground'}>Pricing</Link>
+              <Link
+                to={ROUTES.ADMIN}
+                className={
+                  pathname === ROUTES.ADMIN ? 'text-clay' : 'text-fg-2'
+                }
+              >
+                Dashboard
+              </Link>
+              <Link
+                to={ROUTES.ADMIN_BOOKINGS}
+                className={
+                  pathname === ROUTES.ADMIN_BOOKINGS ? 'text-clay' : 'text-fg-2'
+                }
+              >
+                Bookings
+              </Link>
+              <Link
+                to={ROUTES.ADMIN_MEMBERSHIPS}
+                className={
+                  pathname === ROUTES.ADMIN_MEMBERSHIPS
+                    ? 'text-clay'
+                    : 'text-fg-2'
+                }
+              >
+                Memberships
+              </Link>
+              <Link
+                to={ROUTES.ADMIN_PRICING}
+                className={
+                  pathname === ROUTES.ADMIN_PRICING ? 'text-clay' : 'text-fg-2'
+                }
+              >
+                Pricing
+              </Link>
             </nav>
           </div>
           <div className="flex items-center gap-3">
-            <span className="text-xs text-muted-foreground">{session?.email}</span>
+            <span className="text-xs text-fg-2">{session?.email}</span>
             <Button size="sm" variant="ghost" asChild>
               <Link to={ROUTES.HOME}>View site</Link>
             </Button>
-            <Button size="sm" variant="outline" onClick={() => { logoutAdmin(); window.location.href = '/' }}>Logout</Button>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => {
+                logoutAdmin()
+                window.location.href = '/'
+              }}
+            >
+              Logout
+            </Button>
           </div>
         </div>
       </header>
@@ -74,5 +121,3 @@ export function AdminLayout() {
     </div>
   )
 }
-
-

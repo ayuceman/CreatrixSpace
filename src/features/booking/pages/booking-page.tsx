@@ -12,16 +12,17 @@ import { BookingSummary } from '../components/booking-summary'
 
 export function BookingPage() {
   const [searchParams] = useSearchParams()
-  const { currentStep, updateBookingData, loadAllData, loading } = useBookingStore()
+  const { currentStep, updateBookingData, loadAllData, loading } =
+    useBookingStore()
   const stepContentRef = useRef<HTMLDivElement>(null)
-  
+
   const stepTitles = [
     'Location & Plan Selection',
-    'Date & Time Selection', 
+    'Date & Time Selection',
     'Add-ons & Services',
-    'Contact Information'
+    'Contact Information',
   ]
-  
+
   // Load data from Supabase on mount
   useEffect(() => {
     loadAllData()
@@ -33,7 +34,8 @@ export function BookingPage() {
     const planId = searchParams.get('plan')
     if (planId) {
       // Validate it's a UUID before setting (to avoid using string IDs)
-      const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+      const uuidRegex =
+        /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
       if (uuidRegex.test(planId)) {
         updateBookingData({ planId })
       } else {
@@ -46,11 +48,15 @@ export function BookingPage() {
   useEffect(() => {
     const locationId = searchParams.get('location')
     if (locationId) {
-      const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+      const uuidRegex =
+        /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
       if (uuidRegex.test(locationId)) {
         updateBookingData({ locationId })
       } else {
-        console.warn('Location ID from URL is not a valid UUID, ignoring:', locationId)
+        console.warn(
+          'Location ID from URL is not a valid UUID, ignoring:',
+          locationId
+        )
       }
     }
   }, [searchParams, updateBookingData])
@@ -67,7 +73,7 @@ export function BookingPage() {
         const offset = 100 // Account for fixed header
         window.scrollTo({
           top: absoluteElementTop - offset,
-          behavior: 'smooth'
+          behavior: 'smooth',
         })
       }
     }, 200)
@@ -81,9 +87,9 @@ export function BookingPage() {
         if (stepContentRef.current) {
           stepContentRef.current.scrollIntoView({
             behavior: 'smooth',
-            block: 'center'
+            block: 'center',
           })
-          
+
           // Focus on the container for keyboard navigation
           stepContentRef.current.focus()
         }
@@ -107,14 +113,14 @@ export function BookingPage() {
   }
 
   return (
-    <div className="min-h-screen bg-muted/30">
+    <div className="min-h-screen bg-bg-band/30">
       <div className="container py-8">
         {/* Header */}
         <div className="text-center mb-8" id="booking-header">
           <h1 className="text-3xl md:text-4xl font-display font-bold mb-2">
             Book Your Workspace
           </h1>
-          <p className="text-muted-foreground">
+          <p className="text-fg-2">
             Complete your booking in just a few simple steps
           </p>
         </div>
@@ -124,29 +130,31 @@ export function BookingPage() {
 
         <div className="mt-8 grid lg:grid-cols-3 gap-8" id="booking-content">
           {/* Main Content */}
-            <div className="lg:col-span-2">
-              {loading ? (
-                <div className="flex items-center justify-center py-12">
-                  <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                  <span className="ml-2 text-muted-foreground">Loading booking options...</span>
-                </div>
-              ) : (
-                <motion.div
-                  ref={stepContentRef}
-                  key={currentStep}
-                  initial={{ opacity: 0, x: 20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -20 }}
-                  transition={{ duration: 0.3 }}
-                  tabIndex={-1}
-                  className="focus:outline-none scroll-mt-8"
-                  aria-live="polite"
-                  aria-label={`Step ${currentStep} of 4: ${stepTitles[currentStep - 1]}`}
-                >
-                  {renderStep()}
-                </motion.div>
-              )}
-            </div>
+          <div className="lg:col-span-2">
+            {loading ? (
+              <div className="flex items-center justify-center py-12">
+                <Loader2 className="h-8 w-8 animate-spin text-clay" />
+                <span className="ml-2 text-fg-2">
+                  Loading booking options...
+                </span>
+              </div>
+            ) : (
+              <motion.div
+                ref={stepContentRef}
+                key={currentStep}
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                transition={{ duration: 0.3 }}
+                tabIndex={-1}
+                className="focus:outline-none scroll-mt-8"
+                aria-live="polite"
+                aria-label={`Step ${currentStep} of 4: ${stepTitles[currentStep - 1]}`}
+              >
+                {renderStep()}
+              </motion.div>
+            )}
+          </div>
 
           {/* Sidebar Summary */}
           <div className="lg:col-span-1">

@@ -31,12 +31,14 @@ export interface Location {
       closed?: boolean
     }
   }
-  capacity: number | {
-    hotDesks: number
-    dedicatedDesks: number
-    privateOffices: number
-    meetingRooms: number
-  }
+  capacity:
+    | number
+    | {
+        hotDesks: number
+        dedicatedDesks: number
+        privateOffices: number
+        meetingRooms: number
+      }
   rating?: number
   available?: boolean
   status?: string
@@ -53,7 +55,12 @@ export interface Location {
 export interface Plan {
   id: string
   name: string
-  type: 'day_pass' | 'hot_desk' | 'dedicated_desk' | 'private_office' | 'meeting_room'
+  type:
+    | 'day_pass'
+    | 'hot_desk'
+    | 'dedicated_desk'
+    | 'private_office'
+    | 'meeting_room'
   description: string
   features: string[]
   pricing: {
