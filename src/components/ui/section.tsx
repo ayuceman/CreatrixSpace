@@ -12,11 +12,7 @@ export function Section({ bg, className, children, ...props }: SectionProps) {
       whileInView={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.7 }}
       viewport={{ once: true }}
-      className={cn(
-        'px-6 md:px-10 lg:px-16 py-16 md:py-20',
-        bg,
-        className
-      )}
+      className={cn('px-6 md:px-10 lg:px-16 py-16 md:py-20', bg, className)}
       {...props}
     >
       <div className="mx-auto max-w-7xl">{children}</div>
@@ -46,7 +42,12 @@ interface AnimateInProps extends React.HTMLAttributes<HTMLDivElement> {
   delay?: number
 }
 
-export function AnimateIn({ delay = 0, className, children, ...props }: AnimateInProps) {
+export function AnimateIn({
+  delay = 0,
+  className,
+  children,
+  ...props
+}: AnimateInProps) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}

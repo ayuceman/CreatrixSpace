@@ -32,8 +32,7 @@ const faqs = [
       'Yes. The event room at Dhobighat holds 60, the Jhamsikhel rooftop 40, and the Kausimaa terrace 24. We do half-day and full-day hire on Saturdays and Sundays \u2014 message on WhatsApp with the date and headcount and we\u2019ll send pricing.',
   },
   {
-    question:
-      'Do you host training cohorts \u2014 robotics, coding, language?',
+    question: 'Do you host training cohorts \u2014 robotics, coding, language?',
     answer:
       'Yes. A dedicated training room runs after-school and evening cohorts for robotics, STEM, coding, design, and languages. We work with the trainer or institute on a 2/3/6-month block. Get in touch with cohort size and timing.',
   },
@@ -64,9 +63,7 @@ export function FAQSection() {
       <div className="container">
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_1.4fr] gap-16 items-start">
           <div className="lg:sticky lg:top-24">
-            <div className="eyebrow text-clay mb-4.5">
-              Frequently asked
-            </div>
+            <div className="eyebrow text-clay mb-4.5">Frequently asked</div>
             <h2 className="font-display font-normal text-[clamp(36px,4.6vw,64px)] leading-[1.05] tracking-[-0.015em] m-0 max-w-[440px]">
               The things people{' '}
               <em className="text-clay not-italic">actually ask</em>.
@@ -75,7 +72,15 @@ export function FAQSection() {
               If your question isn't here, WhatsApp us &mdash; someone on the
               floor will reply inside a minute.
             </p>
-            <Button variant="dark" className='px-7 py-3.5 leading-none mt-6' text='WhatsApp +977 9851 000 000' icon={MessageCircle} href={`https://wa.me/${WHATSAPP.NUMBER}?text=${encodeURIComponent('Hello CreatrixSpace \u2014 I have a question:')}`} target="_blank" rel="noopener noreferrer" /> 
+            <Button
+              variant="dark"
+              className="px-7 py-3.5 leading-none mt-6"
+              text="WhatsApp +977 9851 000 000"
+              icon={MessageCircle}
+              href={`https://wa.me/${WHATSAPP.NUMBER}?text=${encodeURIComponent('Hello CreatrixSpace \u2014 I have a question:')}`}
+              target="_blank"
+              rel="noopener noreferrer"
+            />
           </div>
 
           <div className="border-t border-rule-strong">

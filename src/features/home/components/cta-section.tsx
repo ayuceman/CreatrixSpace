@@ -37,9 +37,7 @@ export function CTASection() {
             viewport={{ once: true }}
             transition={{ duration: 0.6, ease: [0.2, 0.7, 0.2, 1] }}
           >
-            <div className="eyebrow text-clay mb-5.5">
-              Your desk is waiting
-            </div>
+            <div className="eyebrow text-clay mb-5.5">Your desk is waiting</div>
             <h2 className="font-display font-normal text-[clamp(48px,7vw,104px)] leading-[0.98] tracking-[-0.02em] m-0 text-fg-on-ink-1">
               Come by <em className="text-clay not-italic">tomorrow</em>.<br />
               Stay <em className="text-clay not-italic">as long</em> as you

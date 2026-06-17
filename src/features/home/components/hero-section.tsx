@@ -166,7 +166,10 @@ export function HeroSection({ onBookTour: _onBookTour }: HeroSectionProps) {
                 initial={{ opacity: 0, scale: 1 }}
                 animate={{ opacity: 1, scale: [1, 1.08, 1] }}
                 exit={{ opacity: 0 }}
-                transition={{ opacity: { duration: 1, ease: 'easeInOut' }, scale: { duration: 20, repeat: Infinity, ease: 'easeInOut' } }}
+                transition={{
+                  opacity: { duration: 1, ease: 'easeInOut' },
+                  scale: { duration: 20, repeat: Infinity, ease: 'easeInOut' },
+                }}
                 className="absolute inset-0"
               >
                 <img
@@ -177,7 +180,10 @@ export function HeroSection({ onBookTour: _onBookTour }: HeroSectionProps) {
               </motion.div>
             </AnimatePresence>
 
-            <div aria-hidden="true" className="absolute inset-0 pointer-events-none bg-gradient-to-t from-neutral-900/60 to-transparent" />
+            <div
+              aria-hidden="true"
+              className="absolute inset-0 pointer-events-none bg-gradient-to-t from-neutral-900/60 to-transparent"
+            />
 
             <button
               onClick={prevImage}
@@ -197,7 +203,9 @@ export function HeroSection({ onBookTour: _onBookTour }: HeroSectionProps) {
             <div className="absolute left-8 right-8 bottom-7 z-10 flex items-end justify-between gap-6 flex-wrap text-fg-on-ink-1">
               <div>
                 <div className="text-xs uppercase tracking-widest font-medium mb-2 text-white/70">
-                  {String(currentImageIndex + 1).padStart(2, '0')} / {String(heroImages.length).padStart(2, '0')} · {heroImages[currentImageIndex].location}
+                  {String(currentImageIndex + 1).padStart(2, '0')} /{' '}
+                  {String(heroImages.length).padStart(2, '0')} ·{' '}
+                  {heroImages[currentImageIndex].location}
                 </div>
                 <div className="font-display text-[clamp(28px,4vw,44px)] leading-[1.05] tracking-[-0.01em] transition-opacity duration-400 ease-out">
                   {heroImages[currentImageIndex].label}

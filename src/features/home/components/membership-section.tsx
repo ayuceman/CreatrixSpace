@@ -169,8 +169,7 @@ const tabs: PlanTab[] = [
       period: '/ month',
       description:
         'A real Kathmandu business address at Dhobighat Hub. We sign for your mail, scan it, and forward what matters. Use it for company registration, banking, courier, and Google Business.',
-      badge:
-        'MOST-REQUESTED SETUP FOR REMOTE FOUNDERS AND VISITING TEAMS.',
+      badge: 'MOST-REQUESTED SETUP FOR REMOTE FOUNDERS AND VISITING TEAMS.',
       subtitle: 'ADDRESS & MAIL · NPR 6,000 / MO',
       features: [
         'Registered business address',
@@ -191,7 +190,9 @@ function PlanCard({ card }: { card: PlanCard }) {
   return (
     <div
       className={`rounded-sm p-[28px_26px] flex flex-col gap-3.5 h-full transition-all ${
-        card.featured ? 'bg-ink border border-transparent text-fg-on-ink-1' : 'bg-bg-raised border border-rule text-fg-1'
+        card.featured
+          ? 'bg-ink border border-transparent text-fg-on-ink-1'
+          : 'bg-bg-raised border border-rule text-fg-1'
       }`}
     >
       <div className="flex justify-between items-center gap-2">
@@ -200,11 +201,7 @@ function PlanCard({ card }: { card: PlanCard }) {
         >
           {card.eyebrow}
         </span>
-        {card.badge && (
-          <span className="eyebrow text-clay">
-            {card.badge}
-          </span>
-        )}
+        {card.badge && <span className="eyebrow text-clay">{card.badge}</span>}
       </div>
 
       <div className="font-display text-28 leading-[1.05] tracking-[-0.01em] -mt-0.5">
@@ -253,9 +250,7 @@ function PlanCard({ card }: { card: PlanCard }) {
             key={f}
             className={`flex gap-3 items-start text-sm ${card.featured ? 'text-fg-on-ink-1' : 'text-fg-1'}`}
           >
-            <span className="shrink-0 mt-0.5 text-clay">
-              —
-            </span>
+            <span className="shrink-0 mt-0.5 text-clay">—</span>
             {f}
           </li>
         ))}
@@ -312,7 +307,10 @@ export function MembershipSection({
   )
 
   return (
-    <section id="membership" className="bg-bg-band py-32 border-t border-rule border-b">
+    <section
+      id="membership"
+      className="bg-bg-band py-32 border-t border-rule border-b"
+    >
       <div className="container">
         <motion.div
           initial={{ opacity: 0, y: 24 }}
@@ -341,14 +339,17 @@ export function MembershipSection({
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.5, delay: 0.15, ease: [0.2, 0.7, 0.2, 1] }}
-          className="flex items-center gap-5 mb-12 flex-wrap">
+          className="flex items-center gap-5 mb-12 flex-wrap"
+        >
           <div className="inline-flex p-1 bg-bg-raised border border-rule rounded-pill">
             {tabs.map((tab) => (
               <button
                 key={tab.id}
                 onClick={() => setActiveId(tab.id)}
                 className={`px-5.5 py-2.5 rounded-pill font-body text-sm font-medium whitespace-nowrap cursor-pointer transition-all border-0 ${
-                  activeId === tab.id ? 'bg-ink text-bg' : 'bg-transparent text-fg-2'
+                  activeId === tab.id
+                    ? 'bg-ink text-bg'
+                    : 'bg-transparent text-fg-2'
                 }`}
               >
                 {tab.label}
@@ -368,7 +369,11 @@ export function MembershipSection({
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: 0.1 * i, ease: [0.2, 0.7, 0.2, 1] }}
+                transition={{
+                  duration: 0.5,
+                  delay: 0.1 * i,
+                  ease: [0.2, 0.7, 0.2, 1],
+                }}
               >
                 <PlanCard card={card} />
               </motion.div>
@@ -425,9 +430,7 @@ export function MembershipSection({
               </div>
 
               <div>
-                <div className="eyebrow text-clay mb-4.5">
-                  What's included
-                </div>
+                <div className="eyebrow text-clay mb-4.5">What's included</div>
                 <ul className="list-none p-0 m-0 flex flex-col gap-3.5">
                   {activeTab.single.features.map((feature) => (
                     <li

@@ -26,7 +26,10 @@ const interestOptions = [
   { value: 'resident', label: 'Dedicated Desk — NPR 8,000 / month' },
   { value: 'studio-2', label: 'Studio for two — NPR 24,000 / month' },
   { value: 'studio-4', label: 'Studio for four — NPR 46,000 / month' },
-  { value: 'studio-8', label: 'Studio for six to eight — NPR From 78,000 / month' },
+  {
+    value: 'studio-8',
+    label: 'Studio for six to eight — NPR From 78,000 / month',
+  },
   { value: 'virtual', label: 'Virtual Office — NPR 6,000 / month' },
   { value: 'just-looking', label: 'Just looking, thanks' },
 ]
@@ -142,9 +145,7 @@ export function BookTourSheet({ open, onClose, seed }: BookTourSheetProps) {
     }
   }
 
-  const selectedLocName = locations.find(
-    (l) => l.id === selectedLocation
-  )?.name
+  const selectedLocName = locations.find((l) => l.id === selectedLocation)?.name
 
   const selectedInterestLabel = interestOptions.find(
     (o) => o.value === interest
@@ -188,9 +189,7 @@ export function BookTourSheet({ open, onClose, seed }: BookTourSheetProps) {
                 <div className="flex items-center gap-2 text-xs font-mono text-fg-3">
                   {[1, 2, 3].map((s) => (
                     <div key={s} className="flex items-center gap-2">
-                      {s > 1 && (
-                        <span className="flex-1 h-px bg-rule w-6" />
-                      )}
+                      {s > 1 && <span className="flex-1 h-px bg-rule w-6" />}
                       <div
                         className="flex items-center gap-2"
                         style={{
@@ -200,8 +199,7 @@ export function BookTourSheet({ open, onClose, seed }: BookTourSheetProps) {
                               : s < step
                                 ? 'var(--color-clay)'
                                 : undefined,
-                          fontWeight:
-                            s === step || s < step ? 500 : 400,
+                          fontWeight: s === step || s < step ? 500 : 400,
                         }}
                       >
                         <StepCircle
@@ -260,9 +258,7 @@ export function BookTourSheet({ open, onClose, seed }: BookTourSheetProps) {
                                 : '1px solid var(--color-rule)',
                           }}
                         >
-                          <div className="text-sm font-medium">
-                            {loc.name}
-                          </div>
+                          <div className="text-sm font-medium">{loc.name}</div>
                           <div
                             className="font-mono text-[11px] mt-1"
                             style={{ opacity: 0.65 }}
@@ -388,9 +384,7 @@ export function BookTourSheet({ open, onClose, seed }: BookTourSheetProps) {
                       <path d="M3 6a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6Z" />
                     </svg>
                     <div>
-                      <b className="text-fg-1 font-medium">
-                        {selectedLocName}
-                      </b>{' '}
+                      <b className="text-fg-1 font-medium">{selectedLocName}</b>{' '}
                       · {selectedDate} at {selectedTime}
                     </div>
                     <button
@@ -513,8 +507,8 @@ export function BookTourSheet({ open, onClose, seed }: BookTourSheetProps) {
                   <div className="eyebrow text-moss">Confirmed</div>
 
                   <h2 className="font-display text-5xl leading-[1.02] tracking-[-0.02em] m-0">
-                    See you{' '}
-                    <em className="text-clay">{selectedDate}</em>, {name}.
+                    See you <em className="text-clay">{selectedDate}</em>,{' '}
+                    {name}.
                   </h2>
 
                   <p className="text-base leading-[1.6] text-fg-2 m-0">

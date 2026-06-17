@@ -1,5 +1,14 @@
 import { motion } from 'framer-motion'
-import { Clock, Wifi, Users, CalendarDays, Sunrise, Coffee, Phone, Mail } from 'lucide-react'
+import {
+  Clock,
+  Wifi,
+  Users,
+  CalendarDays,
+  Sunrise,
+  Coffee,
+  Phone,
+  Mail,
+} from 'lucide-react'
 
 const amenities = [
   {
@@ -64,12 +73,10 @@ export function AmenitiesSection() {
           className="grid grid-cols-1 lg:grid-cols-[1fr_1.3fr] gap-20 mb-14 items-start"
         >
           <div>
-            <div className="eyebrow text-clay mb-4.5">
-              What's in the room
-            </div>
+            <div className="eyebrow text-clay mb-4.5">What's in the room</div>
             <h2 className="font-display font-normal text-[clamp(36px,4.6vw,64px)] leading-[1.05] tracking-[-0.015em] m-0">
-              The things you'd{' '}
-              <em className="text-clay not-italic">expect</em>, kept well.
+              The things you'd <em className="text-clay not-italic">expect</em>,
+              kept well.
             </h2>
           </div>
           <p className="text-lg leading-[1.6] text-fg-2 max-w-135 pt-5.5 m-0">
@@ -89,7 +96,11 @@ export function AmenitiesSection() {
                 initial={{ opacity: 0, y: 16 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ duration: 0.4, delay: 0.05 * i, ease: [0.2, 0.7, 0.2, 1] }}
+                transition={{
+                  duration: 0.4,
+                  delay: 0.05 * i,
+                  ease: [0.2, 0.7, 0.2, 1],
+                }}
                 className="group bg-bg-raised hover:bg-bg border border-rule hover:border-rule-strong rounded-sm p-[28px_24px_24px] flex flex-col gap-4.5 min-h-49 transition-[border-color,background] duration-base ease-out"
               >
                 <Icon

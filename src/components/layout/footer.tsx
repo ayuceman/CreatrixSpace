@@ -175,8 +175,8 @@ export function Footer() {
 
         <div className="pt-7 flex justify-between items-center flex-wrap gap-4">
           <div className="font-mono text-xs text-fg-3">
-            &copy; CreatrixSpace 2026 &middot; Kathmandu &amp; Lalitpur
-            &middot; Powered by{' '}
+            &copy; CreatrixSpace 2026 &middot; Kathmandu &amp; Lalitpur &middot;
+            Powered by{' '}
             <a
               href="#"
               className="text-fg-on-ink-2 underline underline-offset-3"

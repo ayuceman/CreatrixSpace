@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { WHATSAPP } from '@/lib/constants'
-import { FaWhatsapp } from "react-icons/fa";
+import { FaWhatsapp } from 'react-icons/fa'
 import { Link } from 'react-router-dom'
 
 export function WhatsappFloat() {

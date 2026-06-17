@@ -76,8 +76,7 @@ export function SpacesSection() {
               Also at CreatrixSpace
             </div>
             <h2 className="font-display font-normal text-[clamp(36px,4.6vw,64px)] leading-[1.05] tracking-[-0.015em] m-0">
-              Rooms for{' '}
-              <em className="text-clay not-italic">weekends</em> and{' '}
+              Rooms for <em className="text-clay not-italic">weekends</em> and{' '}
               <em className="text-clay not-italic">cohorts</em>.
             </h2>
           </div>
@@ -96,7 +95,11 @@ export function SpacesSection() {
               initial={{ opacity: 0, y: 24 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: 0.1 * i, ease: [0.2, 0.7, 0.2, 1] }}
+              transition={{
+                duration: 0.6,
+                delay: 0.1 * i,
+                ease: [0.2, 0.7, 0.2, 1],
+              }}
               className="bg-bg-raised border border-rule rounded-sm overflow-hidden"
             >
               <div
@@ -104,9 +107,7 @@ export function SpacesSection() {
               >
                 <div
                   className={`relative min-h-[320px] bg-ink overflow-hidden ${
-                    card.id === 'event-space'
-                      ? 'lg:order-1'
-                      : 'lg:order-2'
+                    card.id === 'event-space' ? 'lg:order-1' : 'lg:order-2'
                   }`}
                 >
                   <img
@@ -125,9 +126,7 @@ export function SpacesSection() {
 
                 <div
                   className={`p-[clamp(28px,4vw,56px)] flex flex-col gap-5.5 justify-center ${
-                    card.id === 'event-space'
-                      ? 'lg:order-2'
-                      : 'lg:order-1'
+                    card.id === 'event-space' ? 'lg:order-2' : 'lg:order-1'
                   }`}
                 >
                   <h3 className="font-display font-normal text-[clamp(32px,3.6vw,48px)] leading-[1.05] tracking-[-0.015em] m-0">
@@ -167,7 +166,15 @@ export function SpacesSection() {
                   </div>
 
                   <div className="flex gap-2.5 flex-wrap mt-1">
-                    <Button variant="dark" className='px-7 py-3.5 leading-none' text={card.cta} icon={MessageCircle} href={`https://wa.me/${WHATSAPP.NUMBER}?text=${encodeURIComponent(card.waMsg)}`} target="_blank" rel="noopener noreferrer" /> 
+                    <Button
+                      variant="dark"
+                      className="px-7 py-3.5 leading-none"
+                      text={card.cta}
+                      icon={MessageCircle}
+                      href={`https://wa.me/${WHATSAPP.NUMBER}?text=${encodeURIComponent(card.waMsg)}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    />
                     <Button
                       text="Or send a request"
                       variant="outline"
@@ -198,7 +205,15 @@ export function SpacesSection() {
               are included. Pricing depends on room and length.
             </div>
           </div>
-          <Button variant="dark" className='px-7 py-3.5 leading-none' text='WhatsApp the spaces team' icon={MessageCircle} href={`https://wa.me/${WHATSAPP.NUMBER}?text=${encodeURIComponent('Hello CreatrixSpace — I\'d like to discuss a space hire (event or training).')}`} target="_blank" rel="noopener noreferrer" /> 
+          <Button
+            variant="dark"
+            className="px-7 py-3.5 leading-none"
+            text="WhatsApp the spaces team"
+            icon={MessageCircle}
+            href={`https://wa.me/${WHATSAPP.NUMBER}?text=${encodeURIComponent("Hello CreatrixSpace — I'd like to discuss a space hire (event or training).")}`}
+            target="_blank"
+            rel="noopener noreferrer"
+          />
         </motion.div>
       </div>
     </section>

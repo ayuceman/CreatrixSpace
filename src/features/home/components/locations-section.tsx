@@ -97,13 +97,13 @@ export function LocationsSection({ onBookTour }: LocationsSectionProps) {
 
   useEffect(() => {
     const timer = setInterval(() => {
-      setSlideIndex(prev => (prev + 1) % activeLocation.images.length)
+      setSlideIndex((prev) => (prev + 1) % activeLocation.images.length)
     }, 4000)
     return () => clearInterval(timer)
   }, [activeLocation.images.length])
 
   return (
-    <section id="locations" className='py-32'>
+    <section id="locations" className="py-32">
       <div className="container">
         <div className="grid grid-cols-1 md:grid-cols-[1.4fr_1fr] gap-12 items-end mb-16">
           <div>
@@ -112,8 +112,7 @@ export function LocationsSection({ onBookTour }: LocationsSectionProps) {
             </div>
             <h2 className="font-display font-normal text-[clamp(40px,5vw,80px)] leading-[1.02] tracking-[-0.015em] m-0 max-w-[880px] text-pretty">
               One in <em className="text-clay">Kathmandu</em>, two in{' '}
-              <em className="text-clay">Lalitpur</em> — each a little
-              different.
+              <em className="text-clay">Lalitpur</em> — each a little different.
             </h2>
           </div>
           <Link
@@ -137,7 +136,8 @@ export function LocationsSection({ onBookTour }: LocationsSectionProps) {
                   tabIndex={0}
                   onClick={() => setActiveIndex(index)}
                   onKeyDown={(e) => {
-                    if (e.key === 'Enter' || e.key === ' ') setActiveIndex(index)
+                    if (e.key === 'Enter' || e.key === ' ')
+                      setActiveIndex(index)
                   }}
                   className={`loc-tab cursor-pointer flex items-start gap-4 border-t border-rule ${
                     isActive ? 'py-[28px]' : 'py-[22px]'
@@ -188,7 +188,9 @@ export function LocationsSection({ onBookTour }: LocationsSectionProps) {
                     aria-hidden="true"
                     className="shrink-0"
                     style={{
-                      color: isActive ? 'var(--color-clay)' : 'var(--color-fg-3)',
+                      color: isActive
+                        ? 'var(--color-clay)'
+                        : 'var(--color-fg-3)',
                       transform: isActive ? 'translateX(2px)' : 'none',
                       transition:
                         'transform 300ms var(--ease-out), color 300ms var(--ease-out)',
@@ -217,7 +219,10 @@ export function LocationsSection({ onBookTour }: LocationsSectionProps) {
                 />
               </AnimatePresence>
 
-              <div aria-hidden="true" className="absolute inset-0 pointer-events-none bg-linear-to-t from-neutral-900/60 to-transparent" />
+              <div
+                aria-hidden="true"
+                className="absolute inset-0 pointer-events-none bg-linear-to-t from-neutral-900/60 to-transparent"
+              />
 
               <div className="absolute bottom-4 right-4 z-10 flex gap-1.5">
                 {activeLocation.images.map((_, i) => (

@@ -49,14 +49,22 @@ export function ConciergeSection() {
     if (answering) return
 
     const userId = nextId++
-    setMessages((prev) => [...prev, { text: question, isUser: true, id: userId }])
+    setMessages((prev) => [
+      ...prev,
+      { text: question, isUser: true, id: userId },
+    ])
     setAnswering(question)
 
     const delay = Math.max(600, question.length * 12)
     setTimeout(() => {
-      const reply = replies[question] || 'Great question \u2014 send us a WhatsApp and we\u2019ll get back to you right away.'
+      const reply =
+        replies[question] ||
+        'Great question \u2014 send us a WhatsApp and we\u2019ll get back to you right away.'
       const replyId = nextId++
-      setMessages((prev) => [...prev, { text: reply, isUser: false, id: replyId }])
+      setMessages((prev) => [
+        ...prev,
+        { text: reply, isUser: false, id: replyId },
+      ])
       setAnswering(null)
     }, delay)
   }
@@ -69,9 +77,7 @@ export function ConciergeSection() {
       <div className="container">
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_1.2fr] gap-16 items-start">
           <div>
-            <div className="eyebrow text-clay mb-4.5">
-              Ask CreatrixSpace
-            </div>
+            <div className="eyebrow text-clay mb-4.5">Ask CreatrixSpace</div>
             <h2 className="font-display font-normal text-[clamp(32px,4vw,56px)] leading-[1.05] tracking-[-0.015em] m-0">
               Faster than a form.{' '}
               <em className="text-clay not-italic">Real answers</em>, in plain
@@ -94,7 +100,11 @@ export function ConciergeSection() {
                   className="absolute inset-0 rounded-full border border-moss opacity-60"
                   initial={{ scale: 0.6, opacity: 0.7 }}
                   animate={{ scale: [0.6, 1.8], opacity: [0.7, 0] }}
-                  transition={{ duration: 2.4, repeat: Infinity, ease: 'easeOut' }}
+                  transition={{
+                    duration: 2.4,
+                    repeat: Infinity,
+                    ease: 'easeOut',
+                  }}
                 />
                 <span className="inline-block w-2 h-2 rounded-full bg-moss shrink-0" />
               </span>
@@ -104,12 +114,13 @@ export function ConciergeSection() {
                   On the floor today &middot; replies in a minute
                 </div>
               </div>
-              <div className="ml-auto text-xs text-fg-3 font-mono">
-                LIVE
-              </div>
+              <div className="ml-auto text-xs text-fg-3 font-mono">LIVE</div>
             </div>
 
-            <div ref={chatRef} className="p-[24px_22px] flex flex-col gap-3 min-h-[260px] max-h-[380px] overflow-y-auto">
+            <div
+              ref={chatRef}
+              className="p-[24px_22px] flex flex-col gap-3 min-h-[260px] max-h-[380px] overflow-y-auto"
+            >
               <AnimatePresence initial={false}>
                 {messages.map((msg) => (
                   <motion.div

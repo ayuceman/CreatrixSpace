@@ -99,19 +99,15 @@ export function AdminLayout() {
           </div>
           <div className="flex items-center gap-3">
             <span className="text-xs text-fg-2">{session?.email}</span>
-            <Button size="sm" variant="ghost" asChild>
-              <Link to={ROUTES.HOME}>View site</Link>
-            </Button>
+            <Button variant="ghost" text="View site" href={ROUTES.HOME} />
             <Button
-              size="sm"
               variant="outline"
               onClick={() => {
                 logoutAdmin()
                 window.location.href = '/'
               }}
-            >
-              Logout
-            </Button>
+              text="Logout"
+            />
           </div>
         </div>
       </header>

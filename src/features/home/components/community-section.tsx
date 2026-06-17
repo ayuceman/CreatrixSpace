@@ -1,5 +1,10 @@
 import { useRef } from 'react'
-import { motion, useMotionValue, useAnimationFrame, useTransform } from 'framer-motion'
+import {
+  motion,
+  useMotionValue,
+  useAnimationFrame,
+  useTransform,
+} from 'framer-motion'
 
 const avatarColors = ['bg-clay-deep', 'bg-fg-2', 'bg-clay'] as const
 
@@ -97,21 +102,25 @@ export function CommunitySection() {
               The people in the room
             </div>
             <h2 className="font-display font-normal text-[clamp(40px,5vw,72px)] leading-[1.02] tracking-[-0.015em] m-0">
-              A floor full of people doing serious work{' '}
-              &mdash; <em className="text-clay not-italic">quietly</em>.
+              A floor full of people doing serious work &mdash;{' '}
+              <em className="text-clay not-italic">quietly</em>.
             </h2>
           </div>
           <p className="text-base leading-[1.6] text-fg-2 max-w-[460px] mb-[6px] m-0">
-            Translators, founders, filmmakers, engineers. Some of them are
-            here every weekday at eight. Some come twice a year for a week.
+            Translators, founders, filmmakers, engineers. Some of them are here
+            every weekday at eight. Some come twice a year for a week.
           </p>
         </div>
       </div>
 
       <div
         className="overflow-hidden [mask-image:linear-gradient(to_right,transparent_0%,black_5%,black_95%,transparent_100%)]"
-        onMouseEnter={() => { testPaused.current = true }}
-        onMouseLeave={() => { testPaused.current = false }}
+        onMouseEnter={() => {
+          testPaused.current = true
+        }}
+        onMouseLeave={() => {
+          testPaused.current = false
+        }}
       >
         <motion.div className="flex gap-6" style={{ x: testX }}>
           {[...testimonials, ...testimonials].map((t, i) => {
@@ -138,9 +147,7 @@ export function CommunitySection() {
                     <div className="text-sm font-medium text-fg-1">
                       {t.name}
                     </div>
-                    <div className="text-xs text-fg-2 mt-0.5">
-                      {t.role}
-                    </div>
+                    <div className="text-xs text-fg-2 mt-0.5">{t.role}</div>
                   </div>
                 </div>
               </article>
@@ -157,8 +164,12 @@ export function CommunitySection() {
 
       <div
         className="overflow-hidden [mask-image:linear-gradient(to_right,transparent_0%,black_5%,black_95%,transparent_100%)]"
-        onMouseEnter={() => { compPaused.current = true }}
-        onMouseLeave={() => { compPaused.current = false }}
+        onMouseEnter={() => {
+          compPaused.current = true
+        }}
+        onMouseLeave={() => {
+          compPaused.current = false
+        }}
       >
         <motion.div className="flex gap-12" style={{ x: compX }}>
           {[...companies, ...companies].map((c, i) => (

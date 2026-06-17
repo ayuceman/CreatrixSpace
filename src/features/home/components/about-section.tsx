@@ -1,7 +1,13 @@
 import { motion, useInView, animate } from 'framer-motion'
 import { useEffect, useRef } from 'react'
 
-function AnimatedNumber({ value, suffix = '' }: { value: number; suffix?: string }) {
+function AnimatedNumber({
+  value,
+  suffix = '',
+}: {
+  value: number
+  suffix?: string
+}) {
   const ref = useRef<HTMLSpanElement>(null)
   const isInView = useInView(ref, { once: true, margin: '-100px' })
 
@@ -30,15 +36,34 @@ function parseStat(raw: string): { value: number; suffix: string } {
 }
 
 const stats = [
-  { raw: '480+', label: 'Members across three rooms', meta: 'as of this morning' },
-  { raw: '86', label: 'Companies, large and small', meta: 'from one-person studios to teams of twelve' },
-  { raw: '3', label: 'Rooms in Kathmandu & Lalitpur', meta: 'opening a fourth in 2027' },
-  { raw: '1,428', label: 'Cups of coffee a week', meta: 'roasted next door \u00b7 we count them' },
+  {
+    raw: '480+',
+    label: 'Members across three rooms',
+    meta: 'as of this morning',
+  },
+  {
+    raw: '86',
+    label: 'Companies, large and small',
+    meta: 'from one-person studios to teams of twelve',
+  },
+  {
+    raw: '3',
+    label: 'Rooms in Kathmandu & Lalitpur',
+    meta: 'opening a fourth in 2027',
+  },
+  {
+    raw: '1,428',
+    label: 'Cups of coffee a week',
+    meta: 'roasted next door \u00b7 we count them',
+  },
 ]
 
 export function AboutSection() {
   return (
-    <section id="about" className="bg-parchment py-32 border-t border-rule border-b">
+    <section
+      id="about"
+      className="bg-parchment py-32 border-t border-rule border-b"
+    >
       <div className="container">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
@@ -57,10 +82,7 @@ export function AboutSection() {
           </div>
           <div>
             <h2 className="font-display font-normal text-[clamp(36px,4.6vw,64px)] leading-[1.08] tracking-[-0.015em] m-0 max-w-read-width text-pretty">
-              We build{' '}
-              <em className="text-clay">
-                rooms worth showing up to
-              </em>{' '}
+              We build <em className="text-clay">rooms worth showing up to</em>{' '}
               — well-lit, well-kept, and full of people doing serious work,
               quietly.
             </h2>
