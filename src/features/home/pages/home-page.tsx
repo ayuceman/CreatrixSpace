@@ -7,6 +7,7 @@ import { AmenitiesSection } from '../components/amenities-section'
 import { CommunitySection } from '../components/community-section'
 import { FAQSection } from '../components/faq-section'
 import { ConciergeSection } from '../components/concierge-section'
+import { CTASection } from '../components/cta-section'
 import { CTAClose } from '../components/cta-close'
 import { useBookTour } from '@/lib/book-tour-context'
 
@@ -24,7 +25,7 @@ export function HomePage() {
       <CommunitySection />
       <FAQSection />
       <ConciergeSection />
-      <CTAClose onBookTour={() => openTour()} />
+      <CTASection />
     </div>
   )
 }

@@ -1,98 +1,178 @@
-import { motion } from 'framer-motion'
-import { Section, SectionHeading } from '@/components/ui/section'
+import { useRef } from 'react'
+import { motion, useMotionValue, useAnimationFrame, useTransform } from 'framer-motion'
+
+const avatarColors = ['bg-clay-deep', 'bg-fg-2', 'bg-clay'] as const
 
 const testimonials = [
   {
+    initials: 'SP',
     quote:
-      "I was at a traditional coworking space before. There, everyone was loud on Zoom calls. Here? People actually work. It's like a library with better coffee.",
-    name: 'Priya Sharma',
-    role: 'Software Engineer',
+      'I came in for a week pass and never left. The light is wrong everywhere else now.',
+    name: 'Sunaina Pradhan',
+    role: 'Translator \u00B7 Jhamsikhel resident',
   },
   {
+    initials: 'AK',
     quote:
-      "I've been here four months now. My team thought I was working from home — that's how uninterrupted my days are. The internet alone is worth it.",
-    name: 'Rajesh Khadka',
-    role: 'UX Consultant',
+      'We grew from two to nine without changing rooms. They just kept finding space.',
+    name: 'Anjan Karki',
+    role: 'Founder, Loomstack',
   },
   {
+    initials: 'MJ',
     quote:
-      'I used to rent a small office. It was lonely, expensive, and the WiFi was terrible. CreatrixSpace costs a third and I get ten times the environment.',
-    name: 'Samiksha Adhikari',
-    role: 'Freelance Writer',
+      'A floor full of people doing serious work, quietly. That is rarer than it sounds.',
+    name: 'Mira Joshi',
+    role: 'Visiting fellow \u00B7 Dhobighat',
+  },
+  {
+    initials: 'AS',
+    quote:
+      'The terrace at four o\u2019clock is the only meeting room I trust for hard conversations.',
+    name: 'Aakriti Sharma',
+    role: 'Designer \u00B7 Kausimaa',
+  },
+  {
+    initials: 'RM',
+    quote:
+      'I have a Kathmandu address now. Things arrive. People know where to find me.',
+    name: 'Robin Maharjan',
+    role: 'Virtual office \u00B7 2 yrs',
+  },
+  {
+    initials: 'PT',
+    quote:
+      'I edit better here than at home. The chair is part of it. So is the silence.',
+    name: 'Priya Tamang',
+    role: 'Filmmaker \u00B7 Day pass regular',
   },
 ]
 
 const companies = [
-  'Bhote Books',
-  'Patan Records',
-  'Sherpa Software',
-  'Khumbu & Co.',
-  'Pokhi Notes',
-  'Lipi Cartography',
-  'Kathmandu',
-  'Bhote Books',
-  'Patan Records',
-  'Sherpa Software',
-  'Khumbu & Co.',
-  'Pokhi Notes',
-  'Lipi Cartography',
-  'Kathmandu',
+  { name: 'Loomstack', italic: false },
+  { name: 'Tuk\u012B Studio', italic: true },
+  { name: 'Naya Press', italic: false },
+  { name: 'Madal Labs', italic: false },
+  { name: 'Annapurna Type', italic: true },
+  { name: 'Bhote Books', italic: false },
+  { name: 'Patan Records', italic: false },
+  { name: 'Sherpa Software', italic: true },
+  { name: 'Khukuri & Co.', italic: false },
+  { name: 'Field/Note', italic: false },
+  { name: 'Lipi Cartography', italic: true },
+  { name: 'Kalimati Capital', italic: false },
+  { name: 'Chautari Films', italic: false },
+  { name: 'Tea & Wire', italic: true },
 ]
 
 export function CommunitySection() {
-  return (
-    <Section>
-      <SectionHeading>
-        A floor full of people doing serious work —{' '}
-        <em className="text-clay not-italic italic">quietly</em>.
-      </SectionHeading>
+  const tx = useMotionValue(0)
+  const testPaused = useRef(false)
+  const testSpeed = 1 / 30000
+  useAnimationFrame((_, delta) => {
+    if (testPaused.current) return
+    const cur = tx.get()
+    const next = cur + testSpeed * delta
+    tx.set(next >= 1 ? next - 1 : next)
+  })
+  const testX = useTransform(tx, (v) => `${-v * 50}%`)
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16 md:mb-20">
-        {testimonials.map((testimonial, index) => (
-          <motion.div
-            key={testimonial.name}
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: index * 0.1 }}
-            viewport={{ once: true }}
-            className="p-6 rounded-xl bg-bg-raised border border-rule/30"
-          >
-            <p className="text-sm leading-relaxed mb-6 text-fg-2">
-              "{testimonial.quote}"
-            </p>
-            <div className="border-t border-rule/50 pt-4">
-              <div className="font-medium text-sm text-fg-1">
-                {testimonial.name}
-              </div>
-              <div className="text-xs text-fg-3">{testimonial.role}</div>
+  const cx = useMotionValue(0)
+  const compPaused = useRef(false)
+  const compSpeed = 1 / 25000
+  useAnimationFrame((_, delta) => {
+    if (compPaused.current) return
+    const cur = cx.get()
+    const next = cur + compSpeed * delta
+    cx.set(next >= 1 ? next - 1 : next)
+  })
+  const compX = useTransform(cx, (v) => `${(v - 1) * 50}%`)
+
+  return (
+    <section id="community" className="py-32 pb-24">
+      <div className="container">
+        <div className="grid grid-cols-1 lg:grid-cols-[1fr_1.4fr] gap-16 mb-16 items-end">
+          <div>
+            <div className="eyebrow text-clay mb-4.5">
+              The people in the room
             </div>
-          </motion.div>
-        ))}
+            <h2 className="font-display font-normal text-[clamp(40px,5vw,72px)] leading-[1.02] tracking-[-0.015em] m-0">
+              A floor full of people doing serious work{' '}
+              &mdash; <em className="text-clay not-italic">quietly</em>.
+            </h2>
+          </div>
+          <p className="text-base leading-[1.6] text-fg-2 max-w-[460px] mb-[6px] m-0">
+            Translators, founders, filmmakers, engineers. Some of them are
+            here every weekday at eight. Some come twice a year for a week.
+          </p>
+        </div>
       </div>
 
-      <motion.div
-        initial={{ opacity: 0 }}
-        whileInView={{ opacity: 1 }}
-        transition={{ duration: 0.6 }}
-        viewport={{ once: true }}
-        className="overflow-hidden border-t border-rule pt-8"
+      <div
+        className="overflow-hidden [mask-image:linear-gradient(to_right,transparent_0%,black_5%,black_95%,transparent_100%)]"
+        onMouseEnter={() => { testPaused.current = true }}
+        onMouseLeave={() => { testPaused.current = false }}
       >
-        <p className="text-xs text-center mb-6 text-fg-3">
-          Members from these companies work here
-        </p>
-        <div className="relative overflow-hidden">
-          <div className="flex animate-marquee whitespace-nowrap">
-            {companies.map((company, index) => (
-              <span
-                key={`${company}-${index}`}
-                className="mx-8 font-serif text-lg font-semibold flex-shrink-0 text-fg-3"
+        <motion.div className="flex gap-6" style={{ x: testX }}>
+          {[...testimonials, ...testimonials].map((t, i) => {
+            const avatarColor =
+              avatarColors[
+                (t.initials.charCodeAt(0) + t.initials.charCodeAt(1)) %
+                  avatarColors.length
+              ]
+            return (
+              <article
+                key={`${t.initials}-${i}`}
+                className="shrink-0 w-[380px] bg-bg-raised border border-rule rounded-sm p-[28px] flex flex-col gap-4.5"
               >
-                {company}
-              </span>
-            ))}
-          </div>
+                <div className="font-display text-[22px] leading-[1.3] tracking-[-0.005em] text-fg-1">
+                  &ldquo;{t.quote}&rdquo;
+                </div>
+                <div className="flex gap-3.5 items-center mt-auto">
+                  <div
+                    className={`w-[42px] h-[42px] rounded-full ${avatarColor} text-bg flex items-center justify-center font-display text-base tracking-[-0.01em] shrink-0`}
+                  >
+                    {t.initials}
+                  </div>
+                  <div>
+                    <div className="text-sm font-medium text-fg-1">
+                      {t.name}
+                    </div>
+                    <div className="text-xs text-fg-2 mt-0.5">
+                      {t.role}
+                    </div>
+                  </div>
+                </div>
+              </article>
+            )
+          })}
+        </motion.div>
+      </div>
+
+      <div className="container mt-16">
+        <div className="text-xs tracking-[0.12em] uppercase text-fg-3 font-medium mb-5.5 text-center">
+          Companies &amp; studios in residence &mdash; fourteen of eighty-six
         </div>
-      </motion.div>
-    </Section>
+      </div>
+
+      <div
+        className="overflow-hidden [mask-image:linear-gradient(to_right,transparent_0%,black_5%,black_95%,transparent_100%)]"
+        onMouseEnter={() => { compPaused.current = true }}
+        onMouseLeave={() => { compPaused.current = false }}
+      >
+        <motion.div className="flex gap-12" style={{ x: compX }}>
+          {[...companies, ...companies].map((c, i) => (
+            <div
+              key={`${c.name}-${i}`}
+              className={`shrink-0 font-display text-[clamp(28px,3.4vw,44px)] tracking-[-0.01em] text-fg-2 py-3 whitespace-nowrap ${
+                c.italic ? 'italic' : 'not-italic'
+              }`}
+            >
+              {c.name}
+            </div>
+          ))}
+        </motion.div>
+      </div>
+    </section>
   )
 }

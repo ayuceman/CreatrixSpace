@@ -1,7 +1,6 @@
 import { X, ArrowRight } from 'lucide-react'
 import { AnimatePresence, motion } from 'framer-motion'
-import { useState, useMemo } from 'react'
-import { WHATSAPP } from '@/lib/constants'
+import { useState, useMemo, useEffect } from 'react'
 
 interface BookTourSheetProps {
   open: boolean
@@ -20,6 +19,17 @@ const locations = [
 ]
 
 const timeSlots = ['11:00', '12:00', '14:00', '15:00', '16:00']
+
+const interestOptions = [
+  { value: 'day', label: 'Day Pass — NPR 800 / day' },
+  { value: 'week', label: 'Week Pass — NPR 3,000 / week' },
+  { value: 'resident', label: 'Dedicated Desk — NPR 8,000 / month' },
+  { value: 'studio-2', label: 'Studio for two — NPR 24,000 / month' },
+  { value: 'studio-4', label: 'Studio for four — NPR 46,000 / month' },
+  { value: 'studio-8', label: 'Studio for six to eight — NPR From 78,000 / month' },
+  { value: 'virtual', label: 'Virtual Office — NPR 6,000 / month' },
+  { value: 'just-looking', label: 'Just looking, thanks' },
+]
 
 function generateDates() {
   const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
@@ -49,14 +59,14 @@ function StepCircle({
 }) {
   if (done) {
     return (
-      <span className="w-[18px] h-[18px] rounded-full bg-clay border border-clay text-bg inline-flex items-center justify-center text-[10px] font-medium">
+      <span className="w-4.5 h-4.5 rounded-full bg-clay border border-clay text-bg inline-flex items-center justify-center text-[10px] font-medium">
         ✓
       </span>
     )
   }
   return (
     <span
-      className="w-[18px] h-[18px] rounded-full inline-flex items-center justify-center text-[10px] font-medium"
+      className="w-4.5 h-4.5 rounded-full inline-flex items-center justify-center text-[10px] font-medium"
       style={{
         background: active ? 'var(--color-clay)' : 'transparent',
         border: active
@@ -71,26 +81,40 @@ function StepCircle({
 }
 
 export function BookTourSheet({ open, onClose, seed }: BookTourSheetProps) {
+  const defaultLocation = locations[0].id
   const [step, setStep] = useState(1)
   const [selectedLocation, setSelectedLocation] = useState<string | null>(
-    seed?.location || 'dhobighat'
+    seed?.location || defaultLocation
   )
   const [selectedDate, setSelectedDate] = useState<string | null>(null)
   const [selectedTime, setSelectedTime] = useState<string | null>(null)
   const [name, setName] = useState('')
+  const [email, setEmail] = useState('')
   const [phone, setPhone] = useState('')
+  const [interest, setInterest] = useState('day')
+  const [notes, setNotes] = useState('')
 
   const dates = useMemo(() => generateDates(), [])
 
   const canContinueStep1 = selectedLocation && selectedDate && selectedTime
+  const canConfirmStep2 = name && email
+
+  useEffect(() => {
+    if (open && seed?.location) {
+      setSelectedLocation(seed.location)
+    }
+  }, [open, seed?.location])
 
   const reset = () => {
     setStep(1)
-    setSelectedLocation(seed?.location || 'dhobighat')
+    setSelectedLocation(seed?.location || defaultLocation)
     setSelectedDate(null)
     setSelectedTime(null)
     setName('')
+    setEmail('')
     setPhone('')
+    setInterest('day')
+    setNotes('')
   }
 
   const handleClose = () => {
@@ -100,15 +124,11 @@ export function BookTourSheet({ open, onClose, seed }: BookTourSheetProps) {
 
   const handleContinue = () => {
     if (step === 1 && canContinueStep1) setStep(2)
-    else if (step === 2 && name && phone) setStep(3)
   }
 
-  const handleSubmit = () => {
-    const message = encodeURIComponent(
-      `Hi! I'd like to book a tour.\n\nLocation: ${locations.find((l) => l.id === selectedLocation)?.name}\nDate: ${selectedDate}\nTime: ${selectedTime}\nName: ${name}\nPhone: ${phone}`
-    )
-    window.open(`https://wa.me/${WHATSAPP.NUMBER}?text=${message}`, '_blank')
-    handleClose()
+  const handleConfirm = () => {
+    if (!canConfirmStep2) return
+    setStep(3)
   }
 
   const stepLabel = (s: number) => {
@@ -122,6 +142,14 @@ export function BookTourSheet({ open, onClose, seed }: BookTourSheetProps) {
     }
   }
 
+  const selectedLocName = locations.find(
+    (l) => l.id === selectedLocation
+  )?.name
+
+  const selectedInterestLabel = interestOptions.find(
+    (o) => o.value === interest
+  )?.label
+
   return (
     <AnimatePresence onExitComplete={reset}>
       {open && (
@@ -131,7 +159,7 @@ export function BookTourSheet({ open, onClose, seed }: BookTourSheetProps) {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
-            className="fixed inset-0 bg-black/40 z-[100]"
+            className="fixed inset-0 bg-black/40 z-100"
             onClick={handleClose}
           />
           <motion.div
@@ -139,44 +167,56 @@ export function BookTourSheet({ open, onClose, seed }: BookTourSheetProps) {
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: '100%' }}
             transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-            className="fixed right-0 top-0 h-full w-full max-w-[560px] bg-bg z-[101] overflow-y-auto"
+            className="fixed right-0 top-0 h-full w-full max-w-140 bg-bg z-101 overflow-y-auto"
             style={{ boxShadow: 'rgba(26, 25, 22, 0.18) -20px 0px 60px' }}
           >
-            <div className="p-9 md:p-10 flex flex-col gap-6">
+            <div className="p-9 md:p-[36px_40px_40px] flex flex-col gap-6">
               {/* Header */}
               <div className="flex items-center justify-between">
-                <span className="eyebrow text-label uppercase tracking-widest font-medium text-clay">
-                  Book a tour
-                </span>
+                <span className="eyebrow text-clay">Book a tour</span>
                 <button
                   onClick={handleClose}
-                  className="p-1.5 rounded-sm hover:bg-bg-band transition-colors text-fg-2"
+                  className="bg-transparent border-0 text-fg-2 cursor-pointer p-1.5 inline-flex"
                   aria-label="Close"
                 >
                   <X className="h-5 w-5" />
                 </button>
               </div>
 
-              {/* Step indicator */}
-              <div className="flex items-center gap-2 text-[12px] font-mono text-fg-3">
-                {[1, 2, 3].map((s) => (
-                  <div key={s} className="flex items-center gap-2">
-                    {s > 1 && <span className="flex-1 h-[1px] bg-rule w-6" />}
-                    <div
-                      className="flex items-center gap-2"
-                      style={{
-                        color: s === step ? 'var(--color-clay)' : undefined,
-                        fontWeight: s === step ? 500 : 400,
-                      }}
-                    >
-                      <StepCircle num={s} active={s === step} done={s < step} />
-                      <span className="text-[11px] tracking-wide">
-                        {stepLabel(s)}
-                      </span>
+              {/* Step indicator (hidden on step 3) */}
+              {step < 3 && (
+                <div className="flex items-center gap-2 text-xs font-mono text-fg-3">
+                  {[1, 2, 3].map((s) => (
+                    <div key={s} className="flex items-center gap-2">
+                      {s > 1 && (
+                        <span className="flex-1 h-px bg-rule w-6" />
+                      )}
+                      <div
+                        className="flex items-center gap-2"
+                        style={{
+                          color:
+                            s === step
+                              ? 'var(--color-clay)'
+                              : s < step
+                                ? 'var(--color-clay)'
+                                : undefined,
+                          fontWeight:
+                            s === step || s < step ? 500 : 400,
+                        }}
+                      >
+                        <StepCircle
+                          num={s}
+                          active={s === step}
+                          done={s < step}
+                        />
+                        <span className="text-[11px] tracking-wide">
+                          {stepLabel(s)}
+                        </span>
+                      </div>
                     </div>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              )}
 
               {/* Step 1: Where & When */}
               {step === 1 && (
@@ -185,12 +225,11 @@ export function BookTourSheet({ open, onClose, seed }: BookTourSheetProps) {
                   animate={{ opacity: 1, x: 0 }}
                   className="flex flex-col gap-6"
                 >
-                  <h2 className="font-display text-[40px] leading-[1.05] tracking-tight m-0">
+                  <h2 className="font-display text-[40px] leading-[1.05] tracking-[-0.015em] m-0">
                     Come by, have a coffee,{' '}
-                    <em className="text-clay not-italic italic">look around</em>
-                    .
+                    <em className="text-clay">look around</em>.
                   </h2>
-                  <p className="text-[15px] leading-relaxed text-fg-2 m-0">
+                  <p className="text-[15px] leading-[1.6] text-fg-2 m-0">
                     A tour takes about twenty minutes. You'll meet whoever's
                     running the floor that day; the coffee is on us.
                   </p>
@@ -205,7 +244,7 @@ export function BookTourSheet({ open, onClose, seed }: BookTourSheetProps) {
                         <button
                           key={loc.id}
                           onClick={() => setSelectedLocation(loc.id)}
-                          className="p-3.5 text-left rounded-sm transition-all"
+                          className="p-[14px_12px] text-left rounded-sm transition-all"
                           style={{
                             background:
                               selectedLocation === loc.id
@@ -221,7 +260,7 @@ export function BookTourSheet({ open, onClose, seed }: BookTourSheetProps) {
                                 : '1px solid var(--color-rule)',
                           }}
                         >
-                          <div className="text-[14px] font-medium">
+                          <div className="text-sm font-medium">
                             {loc.name}
                           </div>
                           <div
@@ -249,7 +288,7 @@ export function BookTourSheet({ open, onClose, seed }: BookTourSheetProps) {
                           style={{
                             background:
                               selectedDate === d.label
-                                ? 'var(--color-ink)'
+                                ? 'var(--color-clay)'
                                 : 'var(--color-bg-raised)',
                             color:
                               selectedDate === d.label
@@ -281,7 +320,7 @@ export function BookTourSheet({ open, onClose, seed }: BookTourSheetProps) {
                           style={{
                             background:
                               selectedTime === t
-                                ? 'var(--color-ink)'
+                                ? 'var(--color-clay)'
                                 : 'var(--color-bg-raised)',
                             color:
                               selectedTime === t
@@ -302,7 +341,7 @@ export function BookTourSheet({ open, onClose, seed }: BookTourSheetProps) {
                   <button
                     disabled={!canContinueStep1}
                     onClick={handleContinue}
-                    className="btn self-start mt-3 inline-flex items-center gap-2 px-6 py-3 rounded-pill text-sm font-medium transition-all"
+                    className="inline-flex items-center gap-2 self-start mt-3 px-6 py-3 rounded-pill text-sm font-medium transition-all"
                     style={{
                       background: canContinueStep1
                         ? 'var(--color-ink)'
@@ -325,15 +364,44 @@ export function BookTourSheet({ open, onClose, seed }: BookTourSheetProps) {
                   animate={{ opacity: 1, x: 0 }}
                   className="flex flex-col gap-6"
                 >
-                  <h2 className="font-display text-[40px] leading-[1.05] tracking-tight m-0">
-                    Just a name and a number —{' '}
-                    <em className="text-clay not-italic italic">that's all</em>.
+                  <h2 className="font-display text-[36px] leading-[1.08] tracking-[-0.015em] m-0">
+                    A couple of <em className="text-clay">details</em>.
                   </h2>
-                  <p className="text-[15px] leading-relaxed text-fg-2 m-0">
-                    We'll send you a WhatsApp to confirm. No spam, no sales
-                    pitch.
-                  </p>
 
+                  {/* Summary card */}
+                  <div className="bg-bg-raised border border-rule rounded-sm p-[14px_18px] flex items-center gap-3.5 text-[13px] text-fg-2">
+                    <svg
+                      viewBox="0 0 24 24"
+                      width="16"
+                      height="16"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="1.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      aria-hidden="true"
+                      className="shrink-0 text-clay"
+                    >
+                      <path d="M8 2v4" />
+                      <path d="M16 2v4" />
+                      <path d="M3 10h18" />
+                      <path d="M3 6a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6Z" />
+                    </svg>
+                    <div>
+                      <b className="text-fg-1 font-medium">
+                        {selectedLocName}
+                      </b>{' '}
+                      · {selectedDate} at {selectedTime}
+                    </div>
+                    <button
+                      onClick={() => setStep(1)}
+                      className="ml-auto bg-transparent border-0 text-clay cursor-pointer text-[13px] underline underline-offset-4 shrink-0"
+                    >
+                      Change
+                    </button>
+                  </div>
+
+                  {/* Name */}
                   <label className="flex flex-col gap-2">
                     <span className="text-[11px] tracking-[0.12em] uppercase text-fg-2 font-medium">
                       Your name
@@ -342,46 +410,93 @@ export function BookTourSheet({ open, onClose, seed }: BookTourSheetProps) {
                       type="text"
                       value={name}
                       onChange={(e) => setName(e.target.value)}
-                      placeholder="e.g. Anish"
-                      className="w-full px-4 py-3 rounded-sm border border-rule bg-bg-raised text-fg-1 text-sm placeholder:text-fg-3 focus:outline-none focus:ring-2 focus:ring-clay"
+                      placeholder="e.g. Sunaina Pradhan"
+                      className="w-full px-3.5 py-3 rounded-sm border border-rule bg-bg-raised text-fg-1 text-[15px] placeholder:text-fg-3 focus:outline-none focus:ring-2 focus:ring-clay"
                     />
                   </label>
 
+                  {/* Email + Phone */}
+                  <div className="grid grid-cols-[1.4fr_1fr] gap-3">
+                    <label className="flex flex-col gap-2">
+                      <span className="text-[11px] tracking-[0.12em] uppercase text-fg-2 font-medium">
+                        Email
+                      </span>
+                      <input
+                        type="email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        placeholder="you@example.com"
+                        className="w-full px-3.5 py-3 rounded-sm border border-rule bg-bg-raised text-fg-1 text-[15px] placeholder:text-fg-3 focus:outline-none focus:ring-2 focus:ring-clay"
+                      />
+                    </label>
+                    <label className="flex flex-col gap-2">
+                      <span className="text-[11px] tracking-[0.12em] uppercase text-fg-2 font-medium">
+                        Phone (optional)
+                      </span>
+                      <input
+                        type="tel"
+                        value={phone}
+                        onChange={(e) => setPhone(e.target.value)}
+                        placeholder="+977 ..."
+                        className="w-full px-3.5 py-3 rounded-sm border border-rule bg-bg-raised text-fg-1 text-[15px] placeholder:text-fg-3 focus:outline-none focus:ring-2 focus:ring-clay"
+                      />
+                    </label>
+                  </div>
+
+                  {/* What you're after */}
                   <label className="flex flex-col gap-2">
                     <span className="text-[11px] tracking-[0.12em] uppercase text-fg-2 font-medium">
-                      Phone number
+                      What you're after
                     </span>
-                    <input
-                      type="tel"
-                      value={phone}
-                      onChange={(e) => setPhone(e.target.value)}
-                      placeholder="e.g. 98XXXXXXXX"
-                      className="w-full px-4 py-3 rounded-sm border border-rule bg-bg-raised text-fg-1 text-sm placeholder:text-fg-3 focus:outline-none focus:ring-2 focus:ring-clay"
+                    <select
+                      value={interest}
+                      onChange={(e) => setInterest(e.target.value)}
+                      className="w-full px-3.5 py-3 rounded-sm border border-rule bg-bg-raised text-fg-1 text-[15px] focus:outline-none focus:ring-2 focus:ring-clay appearance-none cursor-pointer"
+                    >
+                      {interestOptions.map((opt) => (
+                        <option key={opt.value} value={opt.value}>
+                          {opt.label}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+
+                  {/* Notes */}
+                  <label className="flex flex-col gap-2">
+                    <span className="text-[11px] tracking-[0.12em] uppercase text-fg-2 font-medium">
+                      Anything else (optional)
+                    </span>
+                    <textarea
+                      rows={3}
+                      value={notes}
+                      onChange={(e) => setNotes(e.target.value)}
+                      placeholder="Bring a friend? Need parking? Quietest desk?"
+                      className="w-full px-3.5 py-3 rounded-sm border border-rule bg-bg-raised text-fg-1 text-[15px] placeholder:text-fg-3 focus:outline-none focus:ring-2 focus:ring-clay resize-y"
                     />
                   </label>
 
-                  <div className="flex gap-3 mt-3">
+                  {/* Back + Confirm */}
+                  <div className="flex gap-3 mt-2">
                     <button
                       onClick={() => setStep(1)}
-                      className="px-6 py-3 rounded-pill text-sm font-medium border border-rule text-fg-1 hover:bg-bg-raised transition-all"
+                      className="px-4.5 py-3 rounded-pill text-sm font-medium border border-rule text-fg-1 hover:bg-bg-raised transition-all cursor-pointer"
                     >
                       Back
                     </button>
                     <button
-                      disabled={!name || !phone}
-                      onClick={handleContinue}
-                      className="inline-flex items-center gap-2 px-6 py-3 rounded-pill text-sm font-medium transition-all"
+                      disabled={!canConfirmStep2}
+                      onClick={handleConfirm}
+                      className="inline-flex items-center gap-2 px-4.5 py-3 rounded-pill text-sm font-medium transition-all"
                       style={{
-                        background:
-                          name && phone
-                            ? 'var(--color-ink)'
-                            : 'var(--color-fg-3)',
+                        background: canConfirmStep2
+                          ? 'var(--color-ink)'
+                          : 'var(--color-fg-3)',
                         color: 'var(--color-bg)',
-                        opacity: name && phone ? 1 : 0.6,
-                        cursor: name && phone ? 'pointer' : 'not-allowed',
+                        opacity: canConfirmStep2 ? 1 : 0.6,
+                        cursor: canConfirmStep2 ? 'pointer' : 'not-allowed',
                       }}
                     >
-                      Continue
+                      Confirm tour
                       <ArrowRight className="h-4 w-4" />
                     </button>
                   </div>
@@ -393,64 +508,43 @@ export function BookTourSheet({ open, onClose, seed }: BookTourSheetProps) {
                 <motion.div
                   initial={{ opacity: 0, x: 10 }}
                   animate={{ opacity: 1, x: 0 }}
-                  className="flex flex-col gap-6"
+                  className="flex flex-col gap-5 pt-3"
                 >
-                  <h2 className="font-display text-[40px] leading-[1.05] tracking-tight m-0">
-                    Ready to go?{' '}
-                    <em className="text-clay not-italic italic">
-                      Confirm below
-                    </em>
-                    .
+                  <div className="eyebrow text-moss">Confirmed</div>
+
+                  <h2 className="font-display text-5xl leading-[1.02] tracking-[-0.02em] m-0">
+                    See you{' '}
+                    <em className="text-clay">{selectedDate}</em>, {name}.
                   </h2>
 
-                  <div className="bg-bg-raised border border-rule rounded-sm p-5 space-y-3">
-                    <div className="flex justify-between text-sm">
-                      <span className="text-fg-3">Location</span>
-                      <span className="text-fg-1 font-medium">
-                        {locations.find((l) => l.id === selectedLocation)?.name}
-                      </span>
-                    </div>
-                    <div className="flex justify-between text-sm">
-                      <span className="text-fg-3">Date</span>
-                      <span className="text-fg-1 font-medium">
-                        {selectedDate}
-                      </span>
-                    </div>
-                    <div className="flex justify-between text-sm">
-                      <span className="text-fg-3">Time</span>
-                      <span className="text-fg-1 font-medium">
-                        {selectedTime}
-                      </span>
-                    </div>
-                    <div className="border-t border-rule pt-3 flex justify-between text-sm">
-                      <span className="text-fg-3">Name</span>
-                      <span className="text-fg-1 font-medium">{name}</span>
-                    </div>
-                    <div className="flex justify-between text-sm">
-                      <span className="text-fg-3">Phone</span>
-                      <span className="text-fg-1 font-medium">{phone}</span>
-                    </div>
-                  </div>
-
-                  <p className="text-xs text-fg-3 m-0">
-                    We'll send you a WhatsApp to confirm your tour time.
+                  <p className="text-base leading-[1.6] text-fg-2 m-0">
+                    We've put you on the list at{' '}
+                    <b className="text-fg-1">{selectedLocName}</b> for{' '}
+                    <b className="text-fg-1">{selectedTime}</b>. Look for an
+                    email shortly with directions and a contact for the host on
+                    the floor. No need to RSVP — just show up.
                   </p>
 
-                  <div className="flex gap-3 mt-3">
-                    <button
-                      onClick={() => setStep(2)}
-                      className="px-6 py-3 rounded-pill text-sm font-medium border border-rule text-fg-1 hover:bg-bg-raised transition-all"
-                    >
-                      Back
-                    </button>
-                    <button
-                      onClick={handleSubmit}
-                      className="inline-flex items-center gap-2 px-6 py-3 rounded-pill text-sm font-medium bg-clay text-bg hover:bg-clay-deep transition-all"
-                    >
-                      Confirm via WhatsApp
-                      <ArrowRight className="h-4 w-4" />
-                    </button>
+                  <div className="mt-3 p-5.5 bg-bg-raised border border-rule rounded-sm flex flex-col gap-2.5">
+                    <div className="eyebrow text-fg-2">What you'll see</div>
+                    <div className="text-sm leading-[1.55] text-fg-2">
+                      The full floor, the meeting rooms, the phone booths, the
+                      terrace. We'll show you the desk we'd put you at, what the
+                      wifi feels like, and where the coffee comes from.
+                    </div>
+                    <div className="text-[13px] text-fg-3 font-mono mt-1.5 pt-3 border-t border-rule">
+                      {interest !== 'just-looking'
+                        ? `HOLDING — ${selectedInterestLabel}`
+                        : 'JUST LOOKING'}
+                    </div>
                   </div>
+
+                  <button
+                    onClick={handleClose}
+                    className="inline-flex items-center gap-2 self-start mt-3 px-6 py-3 rounded-pill text-sm font-medium bg-ink text-bg hover:bg-ink/90 transition-all cursor-pointer"
+                  >
+                    Back to the site
+                  </button>
                 </motion.div>
               )}
             </div>

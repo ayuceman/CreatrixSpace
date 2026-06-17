@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { Menu, MessageCircle, X } from 'lucide-react'
 import { cn } from '@/lib/utils'
@@ -6,105 +6,146 @@ import { ROUTES, WHATSAPP } from '@/lib/constants'
 import { Button } from '../ui/button'
 import { useBookTour } from '@/lib/book-tour-context'
 
-const navigation = [
-  { name: 'Amenities', href: '#amenities' },
-  { name: 'Locations', href: ROUTES.LOCATIONS },
-  { name: 'Pricing', href: ROUTES.PRICING },
-  { name: 'FAQ', href: '#faq' },
+const navItems = [
+  { name: 'Locations', hash: 'locations' },
+  { name: 'Membership', hash: 'membership' },
+  { name: 'Events & training', hash: 'spaces' },
+  { name: 'Amenities', hash: 'amenities' },
+  { name: 'FAQ', hash: 'faq' },
 ]
+
+function getActiveHash(): string {
+  const ids = navItems.map((n) => n.hash)
+  for (const id of ids.reverse()) {
+    const el = document.getElementById(id)
+    if (!el) continue
+    const rect = el.getBoundingClientRect()
+    if (rect.top <= 200) return id
+  }
+  return ''
+}
 
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const [scrolled, setScrolled] = useState(false)
+  const [activeHash, setActiveHash] = useState('')
   const location = useLocation()
   const { openTour } = useBookTour()
 
+  useEffect(() => {
+    const onScroll = () => {
+      setScrolled(window.scrollY > 0)
+      if (location.pathname === '/') {
+        setActiveHash(getActiveHash())
+      }
+    }
+    onScroll()
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [location.pathname])
+
+  const scrollTo = useCallback((hash: string) => {
+    const el = document.getElementById(hash)
+    if (!el) return
+    const y = el.getBoundingClientRect().top + window.scrollY - 100
+    window.scrollTo({ top: y, behavior: 'smooth' })
+    window.history.pushState(null, '', `/#${hash}`)
+  }, [])
+
   return (
-    <header className="sticky top-0 z-50 w-full bg-bg border-b border-rule">
-      <div className="container flex h-16 items-center justify-between">
-        <Link
-          to={ROUTES.HOME}
-          className="flex items-center space-x-1 hover:opacity-80 transition-opacity"
-        >
-          <span className="font-serif text-xl font-bold text-fg-1">
-            Creatrix
-          </span>
-          <span className="font-serif text-xl italic font-normal text-clay">
-            Space
-          </span>
-        </Link>
+    <header
+      className={cn(
+        'sticky top-0 z-50 w-full transition-[background,border-color] duration-300 ease-out py-4.5',
+        scrolled
+          ? 'bg-[rgba(243,239,231,0.86)] backdrop-blur-md saturate-[1.4] border-b border-rule'
+          : 'bg-transparent border-b border-transparent'
+      )}
+    >
+      <div className="container">
+        <div className="flex items-center justify-between">
+          <Link to={ROUTES.HOME} className="no-underline">
+            <div className="font-display text-[26px] tracking-[-0.01em] text-fg-1 leading-none">
+              Creatrix<em className="text-clay">Space</em>
+            </div>
+          </Link>
 
-        <nav className="hidden md:flex items-center space-x-8">
-          {navigation.map((item) => (
-            <Link
-              key={item.name}
-              to={item.href}
-              className={cn(
-                'text-sm font-medium transition-colors',
-                location.pathname === item.href
-                  ? 'text-fg-1'
-                  : 'text-fg-2 hover:text-fg-1'
-              )}
-            >
-              {item.name}
-            </Link>
-          ))}
-        </nav>
+          <nav className="hidden md:flex items-center gap-7.5">
+            {navItems.map((item) => (
+              <button
+                key={item.name}
+                type="button"
+                onClick={() => scrollTo(item.hash)}
+                className={cn(
+                  'bg-transparent border-0 cursor-pointer text-sm transition-colors duration-200 ease-out pb-1 relative after:absolute after:bottom-0 after:left-1/2 after:-translate-x-1/2 after:h-px after:bg-clay after:transition-all after:duration-200 after:origin-center hover:after:w-full',
+                  activeHash === item.hash
+                    ? 'text-fg-1 font-medium after:w-full'
+                    : 'text-fg-2 font-normal hover:text-fg-1 after:w-0'
+                )}
+              >
+                {item.name}
+              </button>
+            ))}
+          </nav>
 
-        <div className="hidden md:flex items-center gap-4">
-          <Button
-            variant="outline"
-            icon={MessageCircle}
-            text="WhatsApp"
-            className="py-2 px-3.5"
-            href={WHATSAPP.url}
-            target="_blank"
-          />
-          <Button
-            variant="dark"
-            text="Book a tour"
-            className="py-2 px-3.5"
-            onClick={() => openTour()}
-          />
+          <div className="hidden md:flex items-center gap-3">
+            <Button
+              variant="outline"
+              icon={MessageCircle}
+              text="WhatsApp"
+              className="py-2 px-3.5"
+              href={WHATSAPP.url}
+              target="_blank"
+            />
+            <Button
+              variant="dark"
+              text="Book a tour"
+              className="py-2 px-5.5"
+              onClick={() => openTour()}
+            />
+          </div>
+
+          <button
+            type="button"
+            className="md:hidden p-2 rounded-md text-fg-2"
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+          >
+            {isMenuOpen ? (
+              <X className="h-6 w-6" />
+            ) : (
+              <Menu className="h-6 w-6" />
+            )}
+          </button>
         </div>
-
-        <button
-          type="button"
-          className="md:hidden p-2 rounded-md text-fg-2"
-          onClick={() => setIsMenuOpen(!isMenuOpen)}
-        >
-          {isMenuOpen ? (
-            <X className="h-6 w-6" />
-          ) : (
-            <Menu className="h-6 w-6" />
-          )}
-        </button>
       </div>
 
       {isMenuOpen && (
         <div className="md:hidden border-t border-rule bg-bg">
           <div className="container py-4 space-y-4">
             <nav className="space-y-1">
-              {navigation.map((item) => (
-                <Link
+              {navItems.map((item) => (
+                <button
                   key={item.name}
-                  to={item.href}
+                  type="button"
+                  onClick={() => {
+                    scrollTo(item.hash)
+                    setIsMenuOpen(false)
+                  }}
                   className={cn(
-                    'block px-3 py-2.5 rounded-md text-sm font-medium transition-colors',
-                    location.pathname === item.href
+                    'block w-full text-left px-3 py-2.5 rounded-md text-sm font-medium transition-colors bg-transparent border-0 cursor-pointer',
+                    activeHash === item.hash
                       ? 'text-fg-1 bg-bg-band'
                       : 'text-fg-2 hover:text-fg-1 hover:bg-bg-band'
                   )}
-                  onClick={() => setIsMenuOpen(false)}
                 >
                   {item.name}
-                </Link>
+                </button>
               ))}
             </nav>
             <div className="pt-3 border-t border-rule">
               <Link
                 to={ROUTES.BOOKING}
                 onClick={() => setIsMenuOpen(false)}
-                className="block w-full text-center px-5 py-2.5 text-sm font-medium rounded-full bg-clay text-bg"
+                className="block w-full text-center px-5 py-2.5 text-sm font-medium rounded-full bg-clay text-bg no-underline"
               >
                 Book now
               </Link>
