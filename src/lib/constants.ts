@@ -41,6 +41,7 @@ export const ROUTES = {
   ADMIN_MEMBER_COMPANIES: '/admin/member-companies',
   ADMIN_CTA: '/admin/cta',
   ADMIN_FORM_SUBMISSIONS: '/admin/form-submissions',
+  ADMIN_PLANS: '/admin/plans',
 } as const
 
 export const AMENITIES = [

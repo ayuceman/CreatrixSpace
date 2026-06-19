@@ -206,7 +206,7 @@ export function AdminDashboardPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-semibold">Dashboard</h1>
+          <h1 className="text-2xl font-normal">Dashboard</h1>
           <p className="text-sm text-fg-2">
             Overview of live + manual entries.
           </p>

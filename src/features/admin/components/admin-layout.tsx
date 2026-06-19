@@ -44,6 +44,7 @@ const navEntries: NavEntry[] = [
     kind: 'group',
     name: 'Settings',
     items: [
+      { name: 'Plans', path: ROUTES.ADMIN_PLANS },
       { name: 'Pricing', path: ROUTES.ADMIN_PRICING },
       { name: 'Site Stats', path: ROUTES.ADMIN_SITE_STATS },
     ],

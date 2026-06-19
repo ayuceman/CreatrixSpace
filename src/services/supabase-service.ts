@@ -360,6 +360,45 @@ export const planService = {
     if (error) throw error
     return data
   },
+
+  async getAllPlansAdmin(): Promise<Plan[]> {
+    const client = supabaseAdmin ?? supabase
+    const { data, error } = await client
+      .from('plans')
+      .select('*')
+      .order('name', { ascending: true })
+    if (error) throw error
+    return data || []
+  },
+
+  async createPlan(payload: any): Promise<Plan> {
+    const client = supabaseAdmin ?? supabase
+    const { data, error } = await client
+      .from('plans')
+      .insert(payload)
+      .select()
+      .single()
+    if (error) throw error
+    return data
+  },
+
+  async updatePlan(id: string, payload: any): Promise<Plan> {
+    const client = supabaseAdmin ?? supabase
+    const { data, error } = await client
+      .from('plans')
+      .update(payload)
+      .eq('id', id)
+      .select()
+      .single()
+    if (error) throw error
+    return data
+  },
+
+  async deletePlan(id: string): Promise<void> {
+    const client = supabaseAdmin ?? supabase
+    const { error } = await client.from('plans').delete().eq('id', id)
+    if (error) throw error
+  },
 }
 
 // ============================================

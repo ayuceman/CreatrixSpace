@@ -42,6 +42,7 @@ import { AdminTestimonialsPage } from '@/features/admin/pages/admin-testimonials
 import { AdminFaqPage } from '@/features/admin/pages/admin-faq-page'
 import { AdminMemberCompaniesPage } from '@/features/admin/pages/admin-member-companies-page'
 import { AdminFormSubmissionsPage } from '@/features/admin/pages/admin-form-submissions-page'
+import { AdminPlansPage } from '@/features/admin/pages/admin-plans-page'
 
 const router = createBrowserRouter([
   {
@@ -161,6 +162,7 @@ const router = createBrowserRouter([
             path: ROUTES.ADMIN_FORM_SUBMISSIONS,
             element: <AdminFormSubmissionsPage />,
           },
+          { path: ROUTES.ADMIN_PLANS, element: <AdminPlansPage /> },
         ],
       },
     ],

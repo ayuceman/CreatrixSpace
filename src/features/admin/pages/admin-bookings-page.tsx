@@ -441,7 +441,7 @@ export function AdminBookingsPage() {
       {/* Header */}
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
-          <h1 className="text-2xl font-semibold">Bookings</h1>
+          <h1 className="text-2xl font-normal">Bookings</h1>
           <p className="text-sm text-fg-2 mt-1">
             Manage all workspace bookings
           </p>

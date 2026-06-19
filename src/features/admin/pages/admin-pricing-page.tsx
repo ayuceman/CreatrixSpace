@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useState } from 'react'
-import { Plus, Loader2, AlertCircle, X } from 'lucide-react'
+import { useEffect, useMemo, useState, useRef } from 'react'
+import { Plus, Loader2, AlertCircle, X, Pencil } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
@@ -77,11 +77,20 @@ export function AdminPricingPage() {
     null
   )
   const [showAddRoom, setShowAddRoom] = useState(false)
+  const [editingRoomId, setEditingRoomId] = useState<string | null>(null)
   const [newRoomName, setNewRoomName] = useState('')
+  const [newRoomSlug, setNewRoomSlug] = useState('')
   const [newRoomCapacity, setNewRoomCapacity] = useState('')
   const [newRoomStatus, setNewRoomStatus] =
     useState<RoomRow['status']>('available')
+  const [newRoomDescription, setNewRoomDescription] = useState('')
+  const [newRoomSize, setNewRoomSize] = useState('')
+  const [newRoomTags, setNewRoomTags] = useState('')
+  const [newRoomAmenities, setNewRoomAmenities] = useState('')
+  const [newRoomImageUrl, setNewRoomImageUrl] = useState('')
   const [addingRoom, setAddingRoom] = useState(false)
+  const [uploadingImage, setUploadingImage] = useState(false)
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   const loadData = async () => {
     setLoading(true)
@@ -95,7 +104,7 @@ export function AdminPricingPage() {
         roomPricingData,
       ] = await Promise.all([
         locationService.getAllLocations(),
-        planService.getAllPlans(),
+        planService.getAllPlansAdmin(),
         locationPricingService.getAllLocationPricing(),
         roomService.getAllRooms(),
         roomPricingService.getAllRoomPricing(),
@@ -337,36 +346,108 @@ export function AdminPricingPage() {
     }
   }
 
+  const resetRoomForm = (keepOpen = false) => {
+    setEditingRoomId(null)
+    setNewRoomName('')
+    setNewRoomSlug('')
+    setNewRoomCapacity('')
+    setNewRoomStatus('available')
+    setNewRoomDescription('')
+    setNewRoomSize('')
+    setNewRoomTags('')
+    setNewRoomAmenities('')
+    setNewRoomImageUrl('')
+    if (!keepOpen) setShowAddRoom(false)
+  }
+
+  const handleUploadRoomImage = async (file: File) => {
+    setUploadingImage(true)
+    try {
+      const storage = supabaseAdmin?.storage ?? supabase.storage
+      const ext = file.name.split('.').pop()
+      const filePath = `rooms/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`
+      const { data, error } = await storage
+        .from('images')
+        .upload(filePath, file, { cacheControl: '3600', upsert: false })
+      if (error) throw error
+      const fullUrl = storage.from('images').getPublicUrl(filePath)
+        .data.publicUrl
+      setNewRoomImageUrl(fullUrl)
+      showToast('Image uploaded')
+    } catch (err: any) {
+      showToast(`Image upload failed: ${err?.message || err}`, 'error')
+    }
+    setUploadingImage(false)
+  }
+
   const handleAddRoom = async () => {
     if (!selectedLocationId || !newRoomName.trim()) return
     setAddingRoom(true)
     try {
+      const payload: any = {
+        location_id: selectedLocationId,
+        name: newRoomName.trim(),
+        slug:
+          newRoomSlug.trim() ||
+          newRoomName.trim().toLowerCase().replace(/\s+/g, '-'),
+        capacity: Number(newRoomCapacity) || null,
+        status: newRoomStatus,
+        description: newRoomDescription.trim() || null,
+        size: newRoomSize.trim() || null,
+        tags: newRoomTags.trim()
+          ? newRoomTags
+              .split(',')
+              .map((t) => t.trim())
+              .filter(Boolean)
+          : null,
+        amenities: newRoomAmenities.trim()
+          ? newRoomAmenities
+              .split(',')
+              .map((t) => t.trim())
+              .filter(Boolean)
+          : null,
+        image_url: newRoomImageUrl || null,
+      }
+
       const client = supabaseAdmin ?? supabase
-      const { data, error } = await client
-        .from('location_rooms')
-        .insert({
-          location_id: selectedLocationId,
-          name: newRoomName.trim(),
-          slug: newRoomName.trim().toLowerCase().replace(/\s+/g, '-'),
-          capacity: Number(newRoomCapacity) || 0,
-          status: newRoomStatus,
-        })
-        .select()
-        .single()
-      if (error) throw error
-      setRooms((prev) => [...prev, data])
-      setNewRoomName('')
-      setNewRoomCapacity('')
-      setNewRoomStatus('available')
-      setShowAddRoom(false)
-      showToast('Room created!')
+
+      if (editingRoomId) {
+        const updated = await roomService.updateRoom(editingRoomId, payload)
+        if (!updated) throw new Error('Update returned no data')
+        setRooms((prev) =>
+          prev.map((r) => (r.id === editingRoomId ? updated : r))
+        )
+        showToast('Room updated!')
+      } else {
+        const { data, error } = await client
+          .from('location_rooms')
+          .insert(payload)
+          .select()
+          .single()
+        if (error) throw error
+        setRooms((prev) => [...prev, data])
+        showToast('Room created!')
+      }
+
+      resetRoomForm()
     } catch (err) {
-      showToast(
-        `Failed to create room: ${(err as any)?.message || err}`,
-        'error'
-      )
+      showToast(`Failed to save room: ${(err as any)?.message || err}`, 'error')
     }
     setAddingRoom(false)
+  }
+
+  const openEditRoom = (room: RoomRow) => {
+    setEditingRoomId(room.id)
+    setNewRoomName(room.name)
+    setNewRoomSlug(room.slug)
+    setNewRoomCapacity(String(room.capacity ?? ''))
+    setNewRoomStatus(room.status)
+    setNewRoomDescription(room.description ?? '')
+    setNewRoomSize(room.size ?? '')
+    setNewRoomTags((room.tags ?? []).join(', '))
+    setNewRoomAmenities((room.amenities ?? []).join(', '))
+    setNewRoomImageUrl(room.image_url ?? '')
+    setShowAddRoom(true)
   }
 
   const handleRoomStatusChange = async (
@@ -392,7 +473,7 @@ export function AdminPricingPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold">Location Pricing</h1>
+        <h1 className="text-2xl font-normal">Location Pricing</h1>
         <p className="text-sm text-fg-2 mt-1">
           Manage live pricing for each plan and location stored in Supabase.
         </p>
@@ -444,15 +525,11 @@ export function AdminPricingPage() {
               <div className="border border-rule rounded-sm p-4 mb-4 space-y-3 bg-bg-raised">
                 <div className="flex items-center justify-between">
                   <span className="text-sm font-medium text-fg-1">
-                    New Room
+                    {editingRoomId ? 'Edit Room' : 'New Room'}
                   </span>
                   <button
                     type="button"
-                    onClick={() => {
-                      setShowAddRoom(false)
-                      setNewRoomName('')
-                      setNewRoomCapacity('')
-                    }}
+                    onClick={() => resetRoomForm()}
                     className="text-fg-3 hover:text-clay cursor-pointer"
                   >
                     <X size={16} />
@@ -463,10 +540,42 @@ export function AdminPricingPage() {
                     <label className="text-caption text-fg-3">Name *</label>
                     <input
                       value={newRoomName}
-                      onChange={(e) => setNewRoomName(e.target.value)}
-                      placeholder="e.g. Sun Room"
+                      onChange={(e) => {
+                        setNewRoomName(e.target.value)
+                        if (!editingRoomId) {
+                          setNewRoomSlug(
+                            e.target.value
+                              .toLowerCase()
+                              .replace(/\s+/g, '-')
+                              .replace(/[^a-z0-9-]/g, '')
+                          )
+                        }
+                      }}
+                      placeholder="e.g. Earth Lab"
                       className="w-full border border-rule rounded-sm px-2.5 py-1.5 text-sm bg-transparent text-fg-1"
                     />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-caption text-fg-3">Slug *</label>
+                    {editingRoomId ? (
+                      <input
+                        value={newRoomSlug}
+                        onChange={(e) =>
+                          setNewRoomSlug(
+                            e.target.value
+                              .toLowerCase()
+                              .replace(/\s+/g, '-')
+                              .replace(/[^a-z0-9-]/g, '')
+                          )
+                        }
+                        placeholder="earth-lab"
+                        className="w-full border border-rule rounded-sm px-2.5 py-1.5 text-sm bg-transparent text-fg-1"
+                      />
+                    ) : (
+                      <p className="text-sm text-fg-2 px-2.5 py-1.5 border border-transparent">
+                        {newRoomSlug || 'auto-generated from name'}
+                      </p>
+                    )}
                   </div>
                   <div className="space-y-1">
                     <label className="text-caption text-fg-3">Capacity</label>
@@ -475,10 +584,59 @@ export function AdminPricingPage() {
                       min="0"
                       value={newRoomCapacity}
                       onChange={(e) => setNewRoomCapacity(e.target.value)}
-                      placeholder="6"
+                      placeholder="8"
                       className="w-full border border-rule rounded-sm px-2.5 py-1.5 text-sm bg-transparent text-fg-1"
                     />
                   </div>
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-1">
+                    <label className="text-caption text-fg-3">
+                      Description
+                    </label>
+                    <textarea
+                      value={newRoomDescription}
+                      onChange={(e) => setNewRoomDescription(e.target.value)}
+                      placeholder="A bright, private room for 10 people"
+                      rows={2}
+                      className="w-full border border-rule rounded-sm px-2.5 py-1.5 text-sm bg-transparent text-fg-1 resize-none"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-caption text-fg-3">Size</label>
+                    <input
+                      value={newRoomSize}
+                      onChange={(e) => setNewRoomSize(e.target.value)}
+                      placeholder="360 sq.ft"
+                      className="w-full border border-rule rounded-sm px-2.5 py-1.5 text-sm bg-transparent text-fg-1"
+                    />
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-1">
+                    <label className="text-caption text-fg-3">
+                      Tags (comma separated)
+                    </label>
+                    <input
+                      value={newRoomTags}
+                      onChange={(e) => setNewRoomTags(e.target.value)}
+                      placeholder="sunlight, parking, spacious"
+                      className="w-full border border-rule rounded-sm px-2.5 py-1.5 text-sm bg-transparent text-fg-1"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-caption text-fg-3">
+                      Amenities (comma separated)
+                    </label>
+                    <input
+                      value={newRoomAmenities}
+                      onChange={(e) => setNewRoomAmenities(e.target.value)}
+                      placeholder="Focus pods, Team huddle system"
+                      className="w-full border border-rule rounded-sm px-2.5 py-1.5 text-sm bg-transparent text-fg-1"
+                    />
+                  </div>
+                </div>
+                <div className="grid grid-cols-3 gap-3">
                   <div className="space-y-1">
                     <label className="text-caption text-fg-3">Status</label>
                     <select
@@ -493,11 +651,59 @@ export function AdminPricingPage() {
                       <option value="maintenance">Maintenance</option>
                     </select>
                   </div>
+                  <div className="space-y-1 col-span-2">
+                    <label className="text-caption text-fg-3">Image</label>
+                    <div className="flex items-start gap-3">
+                      <div className="flex-1">
+                        <input
+                          ref={fileInputRef}
+                          type="file"
+                          accept="image/*"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0]
+                            if (file) handleUploadRoomImage(file)
+                          }}
+                          className="w-full text-sm text-fg-2 file:mr-3 file:py-1.5 file:px-3 file:rounded-sm file:border file:border-rule file:text-sm file:bg-bg-raised file:text-fg-1 hover:file:bg-bg file:cursor-pointer"
+                        />
+                        {uploadingImage && (
+                          <span className="text-xs text-clay mt-1 block">
+                            Uploading...
+                          </span>
+                        )}
+                      </div>
+                      {newRoomImageUrl && (
+                        <div className="relative group shrink-0">
+                          <img
+                            src={newRoomImageUrl}
+                            alt="Preview"
+                            className="size-20 object-cover rounded-sm border border-rule"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setNewRoomImageUrl('')
+                              if (fileInputRef.current)
+                                fileInputRef.current.value = ''
+                            }}
+                            className="absolute -top-1.5 -right-1.5 size-5 rounded-full bg-clay text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                          >
+                            <X size={10} />
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  </div>
                 </div>
                 <div className="flex gap-2">
                   <Button
                     size="sm"
-                    text={addingRoom ? 'Creating...' : 'Create Room'}
+                    text={
+                      addingRoom
+                        ? 'Saving...'
+                        : editingRoomId
+                          ? 'Update Room'
+                          : 'Create Room'
+                    }
                     disabled={addingRoom || !newRoomName.trim()}
                     onClick={handleAddRoom}
                   />
@@ -505,11 +711,7 @@ export function AdminPricingPage() {
                     size="sm"
                     variant="ghost"
                     text="Cancel"
-                    onClick={() => {
-                      setShowAddRoom(false)
-                      setNewRoomName('')
-                      setNewRoomCapacity('')
-                    }}
+                    onClick={() => resetRoomForm()}
                   />
                 </div>
               </div>
@@ -539,9 +741,30 @@ export function AdminPricingPage() {
                           : 'hover:border-clay/40'
                       )}
                     >
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <h3 className="font-medium">{room.name}</h3>
+                      {room.image_url && (
+                        <div className="relative h-28 -mx-4 -mt-4 mb-2 overflow-hidden rounded-t-lg">
+                          <img
+                            src={room.image_url}
+                            alt={room.name}
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                      )}
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-1.5">
+                            <h3 className="font-medium truncate">
+                              {room.name}
+                            </h3>
+                            <button
+                              type="button"
+                              onClick={() => openEditRoom(room)}
+                              className="text-fg-3 hover:text-clay cursor-pointer shrink-0"
+                              title="Edit room"
+                            >
+                              <Pencil size={12} />
+                            </button>
+                          </div>
                           {room.size && (
                             <p className="text-xs text-fg-2">{room.size}</p>
                           )}

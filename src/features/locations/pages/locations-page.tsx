@@ -308,7 +308,7 @@ export function LocationsPage() {
         transition={{ duration: 0.6, delay: 0.4 }}
         className="text-center mt-16"
       >
-        <h2 className="text-2xl font-semibold mb-4">
+        <h2 className="text-2xl font-normal mb-4">
           Can't find what you're looking for?
         </h2>
         <p className="text-fg-2 mb-6">
