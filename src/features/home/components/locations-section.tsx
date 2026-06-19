@@ -4,8 +4,32 @@ import { Link } from 'react-router-dom'
 import { ArrowRight } from 'lucide-react'
 import { ROUTES } from '@/lib/constants'
 import { Button } from '@/components/ui/button'
+import { locationService } from '@/services/supabase-service'
 
-const locations = [
+interface LocationView {
+  id: string
+  name: string
+  city: string
+  status: string
+  description: string
+  address: string
+  hours: string
+  hotDesk: string
+  privateOffice: string
+  mapQuery: string
+  mapEmbedUrl: string | null
+  lat: number | null
+  lng: number | null
+  stats: {
+    openDesks: number
+    privateOffices: number
+    meetingRooms: number
+    eventSeats: number
+  }
+  images: string[]
+}
+
+const defaultLocations: LocationView[] = [
   {
     id: 'dhobighat',
     name: 'Dhobighat Hub',
@@ -18,6 +42,9 @@ const locations = [
     hotDesk: 'Open · 12 spots today',
     privateOffice: '2 rooms — available',
     mapQuery: 'Dhobighat+Kathmandu+Nepal',
+    mapEmbedUrl: null,
+    lat: null,
+    lng: null,
     stats: {
       openDesks: 30,
       privateOffices: 4,
@@ -42,6 +69,9 @@ const locations = [
     hotDesk: 'Full · waiting list open',
     privateOffice: '1 room — available',
     mapQuery: 'Kupondole+Lalitpur+Nepal',
+    mapEmbedUrl: null,
+    lat: null,
+    lng: null,
     stats: {
       openDesks: 20,
       privateOffices: 3,
@@ -66,6 +96,9 @@ const locations = [
     hotDesk: 'Open · 8 spots today',
     privateOffice: '1 room — available',
     mapQuery: 'Jhamsikhel+Lalitpur+Nepal',
+    mapEmbedUrl: null,
+    lat: null,
+    lng: null,
     stats: {
       openDesks: 40,
       privateOffices: 6,
@@ -80,6 +113,53 @@ const locations = [
   },
 ]
 
+function toLocationView(db: any): LocationView {
+  const cap = db.capacity || {}
+  const imgs = db.images || []
+  const lat = db.latitude ? Number(db.latitude) : null
+  const lng = db.longitude ? Number(db.longitude) : null
+  const gmaps = db.google_maps_url || ''
+  const mapEmbedUrl = gmaps.includes('/embed')
+    ? gmaps
+    : lat && lng
+      ? `https://www.google.com/maps?q=${lat},${lng}&output=embed`
+      : null
+  return {
+    id: db.slug || db.id,
+    name: db.name,
+    city: db.city || '',
+    status: db.status || (db.available ? 'Open today' : 'Closed'),
+    description: db.description || '',
+    address: db.address || '',
+    hours: db.opening_hours
+      ? typeof db.opening_hours === 'string'
+        ? db.opening_hours
+        : '24/7 access'
+      : '24/7 access',
+    hotDesk: cap.hotDesks
+      ? `Open · ${cap.hotDesks} spots today`
+      : 'Available today',
+    privateOffice: cap.privateOffices
+      ? `${cap.privateOffices} rooms — available`
+      : 'Available',
+    mapQuery: db.full_address
+      ? db.full_address.replace(/\s+/g, '+')
+      : db.city
+        ? `${db.name}+${db.city}+Nepal`.replace(/\s+/g, '+')
+        : '',
+    mapEmbedUrl,
+    lat,
+    lng,
+    stats: {
+      openDesks: cap.hotDesks || cap.openDesks || 0,
+      privateOffices: cap.privateOffices || cap.dedicatedDesks || 0,
+      meetingRooms: cap.meetingRooms || 0,
+      eventSeats: cap.eventSeats || 0,
+    },
+    images: imgs.length > 0 ? imgs : db.image_url ? [db.image_url] : [],
+  }
+}
+
 interface LocationsSectionProps {
   onBookTour?: (location: string) => void
 }
@@ -88,6 +168,15 @@ export function LocationsSection({ onBookTour }: LocationsSectionProps) {
   const [activeIndex, setActiveIndex] = useState(0)
   const [slideIndex, setSlideIndex] = useState(0)
   const [showMap, setShowMap] = useState(false)
+  const [locations, setLocations] = useState<LocationView[]>(defaultLocations)
+
+  useEffect(() => {
+    locationService.getAllLocations().then((data) => {
+      if (data && data.length > 0) {
+        setLocations(data.map(toLocationView))
+      }
+    })
+  }, [])
 
   const activeLocation = locations[activeIndex]
 
@@ -361,16 +450,26 @@ export function LocationsSection({ onBookTour }: LocationsSectionProps) {
                   transition={{ duration: 0.35, ease: [0.2, 0.7, 0.2, 1] }}
                   className="overflow-hidden rounded-sm border border-rule"
                 >
-                  <iframe
-                    title={`${activeLocation.name} on Google Maps`}
-                    src={`https://www.google.com/maps?q=${activeLocation.mapQuery}&output=embed`}
-                    width="100%"
-                    height="220"
-                    className="border-0"
-                    allowFullScreen
-                    loading="lazy"
-                    referrerPolicy="no-referrer-when-downgrade"
-                  />
+                  {activeLocation.mapEmbedUrl || activeLocation.mapQuery ? (
+                    <iframe
+                      title={`${activeLocation.name} on Google Maps`}
+                      src={
+                        activeLocation.mapEmbedUrl ||
+                        `https://www.google.com/maps?q=${activeLocation.mapQuery}&output=embed`
+                      }
+                      width="100%"
+                      height="220"
+                      className="border-0"
+                      allowFullScreen
+                      loading="lazy"
+                      referrerPolicy="no-referrer-when-downgrade"
+                    />
+                  ) : (
+                    <div className="h-[220px] flex items-center justify-center text-sm text-fg-3 bg-bg-raised">
+                      No map data — add an address, coordinates, or Google Maps
+                      URL
+                    </div>
+                  )}
                 </motion.div>
               )}
             </AnimatePresence>

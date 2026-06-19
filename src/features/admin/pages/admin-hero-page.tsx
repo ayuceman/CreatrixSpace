@@ -3,7 +3,8 @@ import { Plus, X, GripVertical } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { heroService } from '@/services/supabase-service'
-import { supabase, supabaseAdmin } from '@/lib/supabase'
+import { supabase } from '@/lib/supabase'
+import { supabaseAdmin } from '@/lib/supabase-admin'
 import { showToast } from '@/components/ui/toast'
 
 function parseSubBadge(html: string) {
@@ -143,6 +144,29 @@ export function AdminHeroPage() {
         i === index ? { ...img, [field]: value } : img
       ),
     }))
+  }
+
+  const replaceImage = async (index: number, file: File) => {
+    setUploading(true)
+    try {
+      const storage = supabaseAdmin?.storage ?? supabase.storage
+      const ext = file.name.split('.').pop()
+      const filePath = `hero/${Date.now()}_${index}.${ext}`
+      const { error } = await storage.from('images').upload(filePath, file)
+      if (error) throw error
+      const {
+        data: { publicUrl },
+      } = storage.from('images').getPublicUrl(filePath)
+      setForm((f) => ({
+        ...f,
+        images: f.images.map((img, i) =>
+          i === index ? { ...img, src: publicUrl } : img
+        ),
+      }))
+    } catch (err) {
+      showToast(`Upload failed: ${(err as any)?.message || err}`, 'error')
+    }
+    setUploading(false)
   }
 
   const removeImage = (index: number) => {
@@ -368,6 +392,7 @@ export function AdminHeroPage() {
               <input
                 type="file"
                 accept="image/*"
+                key={form.images.length}
                 ref={fileInputRef}
                 onChange={handleImageUpload}
                 className="w-full text-sm text-fg-2 file:mr-3 file:py-1.5 file:px-3 file:rounded-sm file:border file:border-rule file:text-sm file:bg-bg-raised file:text-fg-1 hover:file:bg-bg file:cursor-pointer"
@@ -420,11 +445,19 @@ export function AdminHeroPage() {
                     />
                   </div>
                   <div className="space-y-1.5 col-span-2">
-                    <label className="text-caption text-fg-3">Image URL</label>
+                    <label className="text-caption text-fg-3">
+                      Change image
+                    </label>
                     <input
-                      value={img.src}
-                      onChange={(e) => updateImage(i, 'src', e.target.value)}
-                      className="w-full border border-rule rounded-sm px-2.5 py-1.5 text-sm bg-transparent text-fg-1 font-mono"
+                      type="file"
+                      accept="image/*"
+                      key={img.src}
+                      onChange={(e) => {
+                        const file = e.target.files?.[0]
+                        if (file) replaceImage(i, file)
+                        e.target.value = ''
+                      }}
+                      className="w-full text-xs text-fg-2 file:mr-2 file:py-1 file:px-2 file:rounded-sm file:border file:border-rule file:text-xs file:bg-bg file:text-fg-1 hover:file:bg-bg-raised file:cursor-pointer"
                     />
                   </div>
                 </div>

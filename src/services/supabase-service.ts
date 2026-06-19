@@ -210,6 +210,35 @@ export const locationService = {
     if (error) throw error
     return data
   },
+
+  async createLocation(payload: any): Promise<any> {
+    const client = supabaseAdmin ?? supabase
+    const { data, error } = await client
+      .from('locations')
+      .insert(payload)
+      .select()
+      .single()
+    if (error) throw error
+    return data
+  },
+
+  async updateLocation(id: string, payload: any): Promise<any> {
+    const client = supabaseAdmin ?? supabase
+    const { data, error } = await client
+      .from('locations')
+      .update(payload)
+      .eq('id', id)
+      .select()
+      .single()
+    if (error) throw error
+    return data
+  },
+
+  async deleteLocation(id: string): Promise<void> {
+    const client = supabaseAdmin ?? supabase
+    const { error } = await client.from('locations').delete().eq('id', id)
+    if (error) throw error
+  },
 }
 
 // ============================================
@@ -895,7 +924,8 @@ export const manualEntryService = {
   async getEntries(
     entryType?: ManualAdminEntry['entry_type']
   ): Promise<ManualAdminEntry[]> {
-    let query = supabase
+    const client = supabaseAdmin ?? supabase
+    let query = client
       .from('manual_admin_entries')
       .select('*')
       .order('created_at', { ascending: false })
@@ -1031,6 +1061,396 @@ export const paymentService = {
       updates.transaction_id = transactionId
     }
     return this.updatePayment(id, updates)
+  },
+}
+
+// ============================================
+// AMENITIES
+// ============================================
+export const amenitiesService = {
+  async getAll(): Promise<any[]> {
+    const { data } = await supabase
+      .from('amenities')
+      .select('*')
+      .order('sort_order', { ascending: true })
+    return data || []
+  },
+
+  async getContent(): Promise<any | null> {
+    const { data, error } = await supabase
+      .from('amenities_content')
+      .select('*')
+      .limit(1)
+      .maybeSingle()
+    if (error) return null
+    return data || null
+  },
+
+  async upsertContent(payload: any): Promise<any> {
+    const client = supabaseAdmin ?? supabase
+    const { data: existing } = await client
+      .from('amenities_content')
+      .select('id')
+      .limit(1)
+      .maybeSingle()
+    const id = existing?.id ?? undefined
+    const { data, error } = await client
+      .from('amenities_content')
+      .upsert({ id, ...payload })
+      .select()
+      .single()
+    if (error) throw error
+    return data
+  },
+}
+
+// ============================================
+// TESTIMONIALS
+// ============================================
+export const testimonialsService = {
+  async getAll(): Promise<any[]> {
+    const { data } = await supabase
+      .from('testimonials')
+      .select('*')
+      .order('sort_order', { ascending: true })
+    return data || []
+  },
+  async create(payload: any): Promise<any> {
+    const client = supabaseAdmin ?? supabase
+    const { data, error } = await client
+      .from('testimonials')
+      .insert(payload)
+      .select()
+      .single()
+    if (error) throw error
+    return data
+  },
+  async update(id: string, payload: any): Promise<any> {
+    const client = supabaseAdmin ?? supabase
+    const { data, error } = await client
+      .from('testimonials')
+      .update(payload)
+      .eq('id', id)
+      .select()
+      .single()
+    if (error) throw error
+    return data
+  },
+  async delete(id: string): Promise<void> {
+    const client = supabaseAdmin ?? supabase
+    const { error } = await client.from('testimonials').delete().eq('id', id)
+    if (error) throw error
+  },
+}
+
+// ============================================
+// FAQS
+// ============================================
+export const faqsService = {
+  async getAll(): Promise<any[]> {
+    const { data } = await supabase
+      .from('faqs')
+      .select('*')
+      .order('sort_order', { ascending: true })
+    return data || []
+  },
+  async create(payload: any): Promise<any> {
+    const client = supabaseAdmin ?? supabase
+    const { data, error } = await client
+      .from('faqs')
+      .insert(payload)
+      .select()
+      .single()
+    if (error) throw error
+    return data
+  },
+  async update(id: string, payload: any): Promise<any> {
+    const client = supabaseAdmin ?? supabase
+    const { data, error } = await client
+      .from('faqs')
+      .update(payload)
+      .eq('id', id)
+      .select()
+      .single()
+    if (error) throw error
+    return data
+  },
+  async delete(id: string): Promise<void> {
+    const client = supabaseAdmin ?? supabase
+    const { error } = await client.from('faqs').delete().eq('id', id)
+    if (error) throw error
+  },
+}
+
+// ============================================
+// MEMBER COMPANIES
+// ============================================
+export const memberCompaniesService = {
+  async getAll(): Promise<any[]> {
+    const { data } = await supabase
+      .from('member_companies')
+      .select('*')
+      .order('sort_order', { ascending: true })
+    return data || []
+  },
+  async create(payload: any): Promise<any> {
+    const client = supabaseAdmin ?? supabase
+    const { data, error } = await client
+      .from('member_companies')
+      .insert(payload)
+      .select()
+      .single()
+    if (error) throw error
+    return data
+  },
+  async update(id: string, payload: any): Promise<any> {
+    const client = supabaseAdmin ?? supabase
+    const { data, error } = await client
+      .from('member_companies')
+      .update(payload)
+      .eq('id', id)
+      .select()
+      .single()
+    if (error) throw error
+    return data
+  },
+  async delete(id: string): Promise<void> {
+    const client = supabaseAdmin ?? supabase
+    const { error } = await client
+      .from('member_companies')
+      .delete()
+      .eq('id', id)
+    if (error) throw error
+  },
+}
+
+// ============================================
+// SITE STATS
+// ============================================
+export const siteStatsService = {
+  async getAll(): Promise<any[]> {
+    const { data } = await supabase
+      .from('site_stats')
+      .select('*')
+      .order('sort_order', { ascending: true })
+    return data || []
+  },
+
+  async create(payload: any): Promise<any> {
+    const client = supabaseAdmin ?? supabase
+    const { data, error } = await client
+      .from('site_stats')
+      .insert(payload)
+      .select()
+      .single()
+    if (error) throw error
+    return data
+  },
+
+  async update(id: string, payload: any): Promise<any> {
+    const client = supabaseAdmin ?? supabase
+    const { data, error } = await client
+      .from('site_stats')
+      .update(payload)
+      .eq('id', id)
+      .select()
+      .single()
+    if (error) throw error
+    return data
+  },
+
+  async delete(id: string): Promise<void> {
+    const client = supabaseAdmin ?? supabase
+    const { error } = await client.from('site_stats').delete().eq('id', id)
+    if (error) throw error
+  },
+}
+
+// ============================================
+// HERO CONTENT
+// ============================================
+export const heroService = {
+  async get(): Promise<any | null> {
+    const { data, error } = await supabase
+      .from('hero_content')
+      .select('*')
+      .limit(1)
+      .maybeSingle()
+    if (error) return null
+    return data || null
+  },
+
+  async upsert(payload: any): Promise<any> {
+    const client = supabaseAdmin ?? supabase
+    const { data: existing } = await client
+      .from('hero_content')
+      .select('id')
+      .limit(1)
+      .maybeSingle()
+    const id = existing?.id ?? undefined
+    const { data, error } = await client
+      .from('hero_content')
+      .upsert({ id, ...payload })
+      .select()
+      .single()
+    if (error) throw error
+    return data
+  },
+}
+
+// ============================================
+// MEMBERSHIP CONTENT
+// ============================================
+export const membershipService = {
+  async get(): Promise<any | null> {
+    const { data, error } = await supabase
+      .from('membership_content')
+      .select('*')
+      .limit(1)
+      .maybeSingle()
+    if (error) return null
+    return data || null
+  },
+
+  async upsert(payload: any): Promise<any> {
+    const client = supabaseAdmin ?? supabase
+    const { data: existing } = await client
+      .from('membership_content')
+      .select('id')
+      .limit(1)
+      .maybeSingle()
+    const id = existing?.id ?? undefined
+    const { data, error } = await client
+      .from('membership_content')
+      .upsert({ id, ...payload })
+      .select()
+      .single()
+    if (error) throw error
+    return data
+  },
+}
+
+// ============================================
+// SPACES CONTENT
+// ============================================
+export const spacesService = {
+  async get(): Promise<any | null> {
+    const { data, error } = await supabase
+      .from('spaces_content')
+      .select('*')
+      .limit(1)
+      .maybeSingle()
+    if (error) return null
+    return data || null
+  },
+
+  async upsert(payload: any): Promise<any> {
+    const client = supabaseAdmin ?? supabase
+    const { data: existing } = await client
+      .from('spaces_content')
+      .select('id')
+      .limit(1)
+      .maybeSingle()
+    const id = existing?.id ?? undefined
+    const { data, error } = await client
+      .from('spaces_content')
+      .upsert({ id, ...payload })
+      .select()
+      .single()
+    if (error) throw error
+    return data
+  },
+}
+
+// ============================================
+// BOOK TOUR CONTENT
+// ============================================
+export const bookTourContentService = {
+  async get(): Promise<any | null> {
+    const { data, error } = await supabase
+      .from('book_tour_content')
+      .select('*')
+      .limit(1)
+      .maybeSingle()
+    if (error) return null
+    return data || null
+  },
+
+  async upsert(payload: any): Promise<any> {
+    const client = supabaseAdmin ?? supabase
+    const { data: existing } = await client
+      .from('book_tour_content')
+      .select('id')
+      .limit(1)
+      .maybeSingle()
+    const id = existing?.id ?? undefined
+    const { data, error } = await client
+      .from('book_tour_content')
+      .upsert({ id, ...payload })
+      .select()
+      .single()
+    if (error) throw error
+    return data
+  },
+}
+
+// ============================================
+// CTA CONTENT
+// ============================================
+export const ctaContentService = {
+  async get(): Promise<any | null> {
+    const { data, error } = await supabase
+      .from('cta_content')
+      .select('*')
+      .limit(1)
+      .maybeSingle()
+    if (error) return null
+    return data || null
+  },
+
+  async upsert(payload: any): Promise<any> {
+    const client = supabaseAdmin ?? supabase
+    const { data: existing } = await client
+      .from('cta_content')
+      .select('id')
+      .limit(1)
+      .maybeSingle()
+    const id = existing?.id ?? undefined
+    const { data, error } = await client
+      .from('cta_content')
+      .upsert({ id, ...payload })
+      .select()
+      .single()
+    if (error) throw error
+    return data
+  },
+}
+
+// ============================================
+// FORM SUBMISSIONS
+// ============================================
+export const formSubmissionService = {
+  async getAll(): Promise<any[]> {
+    const client = supabaseAdmin ?? supabase
+    const { data } = await client
+      .from('form_submissions')
+      .select('*')
+      .order('created_at', { ascending: false })
+    return data || []
+  },
+
+  async create(payload: any): Promise<void> {
+    const { error } = await supabase.from('form_submissions').insert(payload)
+    if (error) throw error
+  },
+
+  async delete(id: string): Promise<void> {
+    const client = supabaseAdmin ?? supabase
+    const { error } = await client
+      .from('form_submissions')
+      .delete()
+      .eq('id', id)
+    if (error) throw error
   },
 }
 

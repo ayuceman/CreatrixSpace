@@ -19,7 +19,7 @@ export function HomePage() {
       <HeroSection onBookTour={() => openTour()} />
       <AboutSection />
       <LocationsSection onBookTour={(loc) => openTour({ location: loc })} />
-      <MembershipSection onBookTour={(plan) => openTour({ plan })} />
+      <MembershipSection />
       <SpacesSection />
       <AmenitiesSection />
       <CommunitySection />

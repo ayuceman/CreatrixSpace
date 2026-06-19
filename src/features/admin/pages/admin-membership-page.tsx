@@ -5,6 +5,24 @@ import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { membershipService } from '@/services/supabase-service'
 import { showToast } from '@/components/ui/toast'
 
+interface HeadlineParts {
+  prefix: string
+  em: string
+  suffix: string
+}
+
+function parseHeadline(html: string): HeadlineParts {
+  const match = html.match(/^(.*?)<em class="text-clay">(.*?)<\/em>(.*)$/)
+  if (!match) return { prefix: html || '', em: '', suffix: '' }
+  return { prefix: match[1], em: match[2], suffix: match[3] }
+}
+
+function buildHeadline(parts: HeadlineParts): string {
+  const { prefix, em, suffix } = parts
+  if (!em) return prefix + suffix
+  return `${prefix}<em class="text-clay">${em}</em>${suffix}`
+}
+
 interface CardData {
   id: string
   eyebrow: string
@@ -38,8 +56,12 @@ interface TabData {
   }
 }
 
+const defaultHeadlineParts = parseHeadline(
+  'Pick a room. <em class="text-clay">Show up tomorrow.</em>'
+)
+
 const emptyForm = {
-  headline: 'Pick a room. <em class="text-clay">Show up tomorrow.</em>',
+  headlineParts: defaultHeadlineParts,
   description: '',
   tabs: [] as TabData[],
   footer_tags: [
@@ -66,7 +88,7 @@ export function AdminMembershipPage() {
       .then((data) => {
         if (data) {
           setForm({
-            headline: data.headline ?? emptyForm.headline,
+            headlineParts: parseHeadline(data.headline ?? ''),
             description: data.description ?? '',
             tabs: (data.tabs as TabData[]) ?? [],
             footer_tags:
@@ -81,7 +103,13 @@ export function AdminMembershipPage() {
   const handleSave = async () => {
     setSaving(true)
     try {
-      await membershipService.upsert(form)
+      const payload = {
+        headline: buildHeadline(form.headlineParts),
+        description: form.description,
+        tabs: form.tabs,
+        footer_tags: form.footer_tags,
+      }
+      await membershipService.upsert(payload)
       showToast('Membership content saved!')
     } catch (err) {
       showToast(`Save failed: ${(err as any)?.message || err}`, 'error')
@@ -100,14 +128,22 @@ export function AdminMembershipPage() {
     setForm((f) => ({ ...f, tabs: f.tabs.filter((_, idx) => idx !== i) }))
   }
 
-  const addTab = () => {
-    setForm((f) => ({
-      ...f,
-      tabs: [
-        ...f.tabs,
-        { id: genId(), label: '', subtitle: '', mode: 'grid', cards: [] },
-      ],
-    }))
+  const addTab = (mode: 'grid' | 'single' = 'grid') => {
+    const tab: any = { id: genId(), label: '', subtitle: '', mode }
+    if (mode === 'grid') tab.cards = []
+    if (mode === 'single') {
+      tab.single = {
+        eyebrow: '',
+        name: '',
+        price: '',
+        period: '',
+        description: '',
+        badge: '',
+        subtitle: '',
+        features: [],
+      }
+    }
+    setForm((f) => ({ ...f, tabs: [...f.tabs, tab] }))
   }
 
   const addCard = (tabIdx: number) => {
@@ -258,17 +294,64 @@ export function AdminMembershipPage() {
           <h2 className="text-h4 font-display text-fg-1">Header</h2>
         </CardHeader>
         <CardContent className="space-y-4 max-w-2xl">
-          <div className="space-y-1.5">
-            <label className="text-label text-fg-2">Headline (HTML)</label>
-            <textarea
-              rows={2}
-              value={form.headline}
-              onChange={(e) =>
-                setForm((f) => ({ ...f, headline: e.target.value }))
-              }
-              placeholder='e.g. Plans &lt;span class="text-clay"&gt;for every&lt;/span&gt; workflow'
-              className="w-full border border-rule rounded-sm px-3 py-2 text-sm bg-transparent text-fg-1 font-mono"
-            />
+          <div className="space-y-2">
+            <label className="text-label text-fg-2">Headline</label>
+            <div className="grid grid-cols-[1fr_auto_1fr] gap-2 items-start">
+              <div className="space-y-1">
+                <label className="text-caption text-fg-3">Text</label>
+                <input
+                  value={form.headlineParts.prefix}
+                  onChange={(e) =>
+                    setForm((f) => ({
+                      ...f,
+                      headlineParts: {
+                        ...f.headlineParts,
+                        prefix: e.target.value,
+                      },
+                    }))
+                  }
+                  placeholder="Pick a room."
+                  className="w-full border border-rule rounded-sm px-2.5 py-1.5 text-sm bg-transparent text-fg-1"
+                />
+              </div>
+              <div className="space-y-1">
+                <label className="text-caption text-fg-3">Emphasis</label>
+                <input
+                  value={form.headlineParts.em}
+                  onChange={(e) =>
+                    setForm((f) => ({
+                      ...f,
+                      headlineParts: { ...f.headlineParts, em: e.target.value },
+                    }))
+                  }
+                  placeholder="Show up tomorrow"
+                  className="w-full border border-rule rounded-sm px-2.5 py-1.5 text-sm bg-transparent text-fg-1 font-medium"
+                  style={{ color: 'var(--color-clay)' }}
+                />
+              </div>
+              <div className="space-y-1">
+                <label className="text-caption text-fg-3">Text</label>
+                <input
+                  value={form.headlineParts.suffix}
+                  onChange={(e) =>
+                    setForm((f) => ({
+                      ...f,
+                      headlineParts: {
+                        ...f.headlineParts,
+                        suffix: e.target.value,
+                      },
+                    }))
+                  }
+                  placeholder="."
+                  className="w-full border border-rule rounded-sm px-2.5 py-1.5 text-sm bg-transparent text-fg-1"
+                />
+              </div>
+            </div>
+            <div className="text-xs text-fg-3 italic">
+              Preview: {form.headlineParts.prefix}
+              <em className="text-clay">{form.headlineParts.em}</em>
+              {form.headlineParts.suffix}
+            </div>
           </div>
           <div className="space-y-1.5">
             <label className="text-label text-fg-2">Description</label>
@@ -353,9 +436,26 @@ export function AdminMembershipPage() {
                 <label className="text-caption text-fg-3">Mode</label>
                 <select
                   value={tab.mode}
-                  onChange={(e) =>
-                    updateTab(ti, { mode: e.target.value as 'grid' | 'single' })
-                  }
+                  onChange={(e) => {
+                    const mode = e.target.value as 'grid' | 'single'
+                    updateTab(ti, {
+                      mode,
+                      ...(mode === 'single' && !tab.single
+                        ? {
+                            single: {
+                              eyebrow: '',
+                              name: '',
+                              price: '',
+                              period: '',
+                              description: '',
+                              badge: '',
+                              subtitle: '',
+                              features: [],
+                            },
+                          }
+                        : {}),
+                    })
+                  }}
                   className="w-full border border-rule rounded-sm px-2.5 py-1.5 text-sm bg-transparent text-fg-1"
                 >
                   <option value="grid">Grid</option>
@@ -567,148 +667,176 @@ export function AdminMembershipPage() {
               </div>
             )}
 
-            {tab.mode === 'single' && tab.single && (
+            {tab.mode === 'single' && (
               <div className="border border-rule rounded-sm p-4 bg-bg-raised">
-                <div className="grid grid-cols-3 gap-3 mb-3">
-                  <div className="space-y-1">
-                    <label className="text-caption text-fg-3">Eyebrow</label>
-                    <input
-                      value={tab.single.eyebrow}
-                      onChange={(e) =>
-                        updateTab(ti, {
-                          single: { ...tab.single!, eyebrow: e.target.value },
-                        })
-                      }
-                      placeholder="Address & mail"
-                      className="w-full border border-rule rounded-sm px-2 py-1.5 text-xs bg-transparent text-fg-1"
-                    />
+                {!tab.single ? (
+                  <div className="text-sm text-fg-3 text-center py-4">
+                    Add content below — save to keep
                   </div>
-                  <div className="space-y-1">
-                    <label className="text-caption text-fg-3">Name</label>
-                    <input
-                      value={tab.single.name}
-                      onChange={(e) =>
-                        updateTab(ti, {
-                          single: { ...tab.single!, name: e.target.value },
-                        })
-                      }
-                      placeholder="Virtual Office"
-                      className="w-full border border-rule rounded-sm px-2 py-1.5 text-xs bg-transparent text-fg-1"
-                    />
-                  </div>
-                  <div className="space-y-1">
-                    <label className="text-caption text-fg-3">Price</label>
-                    <input
-                      value={tab.single.price}
-                      onChange={(e) =>
-                        updateTab(ti, {
-                          single: { ...tab.single!, price: e.target.value },
-                        })
-                      }
-                      placeholder="6,000"
-                      className="w-full border border-rule rounded-sm px-2 py-1.5 text-xs bg-transparent text-fg-1"
-                    />
-                  </div>
-                  <div className="space-y-1">
-                    <label className="text-caption text-fg-3">Period</label>
-                    <input
-                      value={tab.single.period}
-                      onChange={(e) =>
-                        updateTab(ti, {
-                          single: { ...tab.single!, period: e.target.value },
-                        })
-                      }
-                      placeholder="/ month"
-                      className="w-full border border-rule rounded-sm px-2 py-1.5 text-xs bg-transparent text-fg-1"
-                    />
-                  </div>
-                  <div className="space-y-1">
-                    <label className="text-caption text-fg-3">Badge</label>
-                    <input
-                      value={tab.single.badge}
-                      onChange={(e) =>
-                        updateTab(ti, {
-                          single: { ...tab.single!, badge: e.target.value },
-                        })
-                      }
-                      placeholder="Most picked"
-                      className="w-full border border-rule rounded-sm px-2 py-1.5 text-xs bg-transparent text-fg-1"
-                    />
-                  </div>
-                  <div className="space-y-1">
-                    <label className="text-caption text-fg-3">Subtitle</label>
-                    <input
-                      value={tab.single.subtitle}
-                      onChange={(e) =>
-                        updateTab(ti, {
-                          single: { ...tab.single!, subtitle: e.target.value },
-                        })
-                      }
-                      placeholder="DAY PASS · NPR 800 / DAY"
-                      className="w-full border border-rule rounded-sm px-2 py-1.5 text-xs bg-transparent text-fg-1"
-                    />
-                  </div>
-                </div>
-                <div className="space-y-1 mb-3">
-                  <label className="text-caption text-fg-3">Description</label>
-                  <textarea
-                    rows={2}
-                    value={tab.single.description}
-                    onChange={(e) =>
-                      updateTab(ti, {
-                        single: { ...tab.single!, description: e.target.value },
-                      })
-                    }
-                    placeholder="A mailing address & mail handling service…"
-                    className="w-full border border-rule rounded-sm px-2 py-1.5 text-xs bg-transparent text-fg-1"
-                  />
-                </div>
-                <div>
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="text-caption text-fg-3">Features</span>
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      text="+"
-                      onClick={() => {
-                        const s = tab.single!
-                        updateTab(ti, {
-                          single: { ...s, features: [...s.features, ''] },
-                        })
-                      }}
-                      className="!px-2 !py-0.5 text-xs"
-                    />
-                  </div>
-                  {tab.single.features.map((fv, fi) => (
-                    <div key={fi} className="flex gap-2 mb-1">
-                      <input
-                        value={fv}
-                        onChange={(e) => {
-                          const s = tab.single!
-                          s.features[fi] = e.target.value
-                          updateTab(ti, { single: { ...s } })
-                        }}
-                        placeholder="e.g. Dedicated mailbox"
-                        className="flex-1 border border-rule rounded-sm px-2 py-1 text-xs bg-transparent text-fg-1"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => {
-                          const s = tab.single!
+                ) : (
+                  <>
+                    <div className="grid grid-cols-3 gap-3 mb-3">
+                      <div className="space-y-1">
+                        <label className="text-caption text-fg-3">
+                          Eyebrow
+                        </label>
+                        <input
+                          value={tab.single.eyebrow}
+                          onChange={(e) =>
+                            updateTab(ti, {
+                              single: {
+                                ...tab.single!,
+                                eyebrow: e.target.value,
+                              },
+                            })
+                          }
+                          placeholder="Address & mail"
+                          className="w-full border border-rule rounded-sm px-2 py-1.5 text-xs bg-transparent text-fg-1"
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <label className="text-caption text-fg-3">Name</label>
+                        <input
+                          value={tab.single.name}
+                          onChange={(e) =>
+                            updateTab(ti, {
+                              single: { ...tab.single!, name: e.target.value },
+                            })
+                          }
+                          placeholder="Virtual Office"
+                          className="w-full border border-rule rounded-sm px-2 py-1.5 text-xs bg-transparent text-fg-1"
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <label className="text-caption text-fg-3">Price</label>
+                        <input
+                          value={tab.single.price}
+                          onChange={(e) =>
+                            updateTab(ti, {
+                              single: { ...tab.single!, price: e.target.value },
+                            })
+                          }
+                          placeholder="6,000"
+                          className="w-full border border-rule rounded-sm px-2 py-1.5 text-xs bg-transparent text-fg-1"
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <label className="text-caption text-fg-3">Period</label>
+                        <input
+                          value={tab.single.period}
+                          onChange={(e) =>
+                            updateTab(ti, {
+                              single: {
+                                ...tab.single!,
+                                period: e.target.value,
+                              },
+                            })
+                          }
+                          placeholder="/ month"
+                          className="w-full border border-rule rounded-sm px-2 py-1.5 text-xs bg-transparent text-fg-1"
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <label className="text-caption text-fg-3">Badge</label>
+                        <input
+                          value={tab.single.badge}
+                          onChange={(e) =>
+                            updateTab(ti, {
+                              single: { ...tab.single!, badge: e.target.value },
+                            })
+                          }
+                          placeholder="Most picked"
+                          className="w-full border border-rule rounded-sm px-2 py-1.5 text-xs bg-transparent text-fg-1"
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <label className="text-caption text-fg-3">
+                          Subtitle
+                        </label>
+                        <input
+                          value={tab.single.subtitle}
+                          onChange={(e) =>
+                            updateTab(ti, {
+                              single: {
+                                ...tab.single!,
+                                subtitle: e.target.value,
+                              },
+                            })
+                          }
+                          placeholder="DAY PASS · NPR 800 / DAY"
+                          className="w-full border border-rule rounded-sm px-2 py-1.5 text-xs bg-transparent text-fg-1"
+                        />
+                      </div>
+                    </div>
+                    <div className="space-y-1 mb-3">
+                      <label className="text-caption text-fg-3">
+                        Description
+                      </label>
+                      <textarea
+                        rows={2}
+                        value={tab.single.description}
+                        onChange={(e) =>
                           updateTab(ti, {
                             single: {
-                              ...s,
-                              features: s.features.filter((_, k) => k !== fi),
+                              ...tab.single!,
+                              description: e.target.value,
                             },
                           })
-                        }}
-                        className="text-fg-3 hover:text-clay cursor-pointer text-xs"
-                      >
-                        <X size={14} />
-                      </button>
+                        }
+                        placeholder="A mailing address & mail handling service…"
+                        className="w-full border border-rule rounded-sm px-2 py-1.5 text-xs bg-transparent text-fg-1"
+                      />
                     </div>
-                  ))}
-                </div>
+                    <div>
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-caption text-fg-3">Features</span>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          text="+"
+                          onClick={() => {
+                            const s = tab.single!
+                            updateTab(ti, {
+                              single: { ...s, features: [...s.features, ''] },
+                            })
+                          }}
+                          className="!px-2 !py-0.5 text-xs"
+                        />
+                      </div>
+                      {tab.single.features.map((fv, fi) => (
+                        <div key={fi} className="flex gap-2 mb-1">
+                          <input
+                            value={fv}
+                            onChange={(e) => {
+                              const s = tab.single!
+                              s.features[fi] = e.target.value
+                              updateTab(ti, { single: { ...s } })
+                            }}
+                            placeholder="e.g. Dedicated mailbox"
+                            className="flex-1 border border-rule rounded-sm px-2 py-1 text-xs bg-transparent text-fg-1"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const s = tab.single!
+                              updateTab(ti, {
+                                single: {
+                                  ...s,
+                                  features: s.features.filter(
+                                    (_, k) => k !== fi
+                                  ),
+                                },
+                              })
+                            }}
+                            className="text-fg-3 hover:text-clay cursor-pointer text-xs"
+                          >
+                            <X size={14} />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </>
+                )}
               </div>
             )}
           </CardContent>
@@ -716,7 +844,18 @@ export function AdminMembershipPage() {
       ))}
 
       <div className="flex gap-3">
-        <Button text="Add Tab" icon={Plus} onClick={addTab} variant="outline" />
+        <Button
+          text="Add Grid Tab"
+          icon={Plus}
+          onClick={() => addTab('grid')}
+          variant="outline"
+        />
+        <Button
+          text="Add Single Tab"
+          icon={Plus}
+          onClick={() => addTab('single')}
+          variant="outline"
+        />
         <Button text="Save All" onClick={handleSave} disabled={saving} />
       </div>
     </div>

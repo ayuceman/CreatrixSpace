@@ -1,10 +1,11 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { Plus, Minus, MessageCircle } from 'lucide-react'
 import { WHATSAPP } from '@/lib/constants'
 import { Button } from '@/components/ui/button'
+import { faqsService } from '@/services/supabase-service'
 
-const faqs = [
+const defaultFaqs = [
   {
     question: 'Can I walk in tomorrow and start working?',
     answer:
@@ -49,6 +50,17 @@ const faqs = [
 ]
 
 export function FAQSection() {
+  const [faqs, setFaqs] = useState(defaultFaqs)
+
+  useEffect(() => {
+    faqsService.getAll().then((data) => {
+      if (data && data.length > 0) {
+        setFaqs(
+          data.map((f: any) => ({ question: f.question, answer: f.answer }))
+        )
+      }
+    })
+  }, [])
   const [openIndex, setOpenIndex] = useState(0)
 
   const toggle = (index: number) => {

@@ -1,5 +1,6 @@
 import { motion, useInView, animate } from 'framer-motion'
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
+import { siteStatsService } from '@/services/supabase-service'
 
 function AnimatedNumber({
   value,
@@ -29,13 +30,13 @@ function AnimatedNumber({
   return <span ref={ref}>0</span>
 }
 
-function parseStat(raw: string): { value: number; suffix: string } {
-  const match = raw.match(/^([\d,]+)(.*)$/)
-  if (!match) return { value: 0, suffix: raw }
-  return { value: parseInt(match[1].replace(/,/g, ''), 10), suffix: match[2] }
+interface Stat {
+  raw: string
+  label: string
+  meta: string
 }
 
-const stats = [
+const defaultStats: Stat[] = [
   {
     raw: '480+',
     label: 'Members across three rooms',
@@ -54,11 +55,33 @@ const stats = [
   {
     raw: '1,428',
     label: 'Cups of coffee a week',
-    meta: 'roasted next door \u00b7 we count them',
+    meta: 'roasted next door · we count them',
   },
 ]
 
+function parseStat(raw: string): { value: number; suffix: string } {
+  const match = raw.match(/^([\d,]+)(.*)$/)
+  if (!match) return { value: 0, suffix: raw }
+  return { value: parseInt(match[1].replace(/,/g, ''), 10), suffix: match[2] }
+}
+
 export function AboutSection() {
+  const [stats, setStats] = useState<Stat[]>(defaultStats)
+
+  useEffect(() => {
+    siteStatsService.getAll().then((data) => {
+      if (data && data.length > 0) {
+        setStats(
+          data.map((s: any) => ({
+            raw: s.value + (s.suffix || ''),
+            label: s.label,
+            meta: s.meta || '',
+          }))
+        )
+      }
+    })
+  }, [])
+
   return (
     <section
       id="about"

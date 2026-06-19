@@ -29,6 +29,18 @@ export const ROUTES = {
   ADMIN_BOOKINGS: '/admin/bookings',
   ADMIN_MEMBERSHIPS: '/admin/memberships',
   ADMIN_PRICING: '/admin/pricing',
+  ADMIN_LOCATIONS: '/admin/locations',
+  ADMIN_SITE_STATS: '/admin/site-stats',
+  ADMIN_HERO: '/admin/hero',
+  ADMIN_MEMBERSHIP: '/admin/membership',
+  ADMIN_SPACES: '/admin/spaces',
+  ADMIN_AMENITIES: '/admin/amenities',
+  ADMIN_BOOK_TOUR: '/admin/book-tour',
+  ADMIN_TESTIMONIALS: '/admin/testimonials',
+  ADMIN_FAQ: '/admin/faq',
+  ADMIN_MEMBER_COMPANIES: '/admin/member-companies',
+  ADMIN_CTA: '/admin/cta',
+  ADMIN_FORM_SUBMISSIONS: '/admin/form-submissions',
 } as const
 
 export const AMENITIES = [

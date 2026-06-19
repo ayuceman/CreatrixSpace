@@ -12,6 +12,7 @@ export type AdminBookingRecord = {
   roomName?: string | null
   amount: number
   status: string
+  paymentStatus?: string
   createdAt: string
   addOns: {
     selectedAddOns: string[]
@@ -60,6 +61,7 @@ export function transformBookingsToAdmin(
       roomName: booking.rooms?.name || null,
       amount: Math.round(booking.total_amount || 0),
       status: booking.status || 'pending',
+      paymentStatus: booking.payment_status || 'pending',
       createdAt: booking.created_at || new Date().toISOString(),
       addOns: {
         selectedAddOns,

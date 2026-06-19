@@ -21,7 +21,10 @@ import {
   transformBookingsToAdmin,
   type AdminBookingRecord,
 } from '@/features/admin/utils/admin-bookings'
-import { Trash2 } from 'lucide-react'
+import { Plus, Trash2 } from 'lucide-react'
+import { showToast } from '@/components/ui/toast'
+import { ConfirmModal } from '@/components/ui/confirm-modal'
+import { Textarea } from '@/components/ui/textarea'
 
 type MembershipRow = AdminBookingRecord & {
   billingCycle?: string
@@ -99,6 +102,24 @@ export function AdminMembershipsPage() {
   const [query, setQuery] = useState('')
   const [memberships, setMemberships] = useState<MembershipRow[]>([])
   const [loading, setLoading] = useState(true)
+  const [showManualForm, setShowManualForm] = useState(false)
+  const [deleteTarget, setDeleteTarget] = useState<MembershipRow | null>(null)
+  const [manualForm, setManualForm] = useState({
+    customerName: '',
+    email: '',
+    phone: '',
+    locationName: '',
+    planName: '',
+    roomName: '',
+    amountNpr: '',
+    startDate: '',
+    endDate: '',
+    billingCycle: 'monthly' as 'monthly' | 'annual',
+    addOns: '',
+    meetingRoomHours: '',
+    guestPasses: '',
+    notes: '',
+  })
 
   const loadMemberships = async () => {
     setLoading(true)
@@ -126,8 +147,6 @@ export function AdminMembershipsPage() {
         },
         {}
       )
-      setLocationLookup(locationMap)
-
       const manualBookingRecords: AdminBookingRecord[] =
         manualBookingEntries.map((entry) => {
           const data = entry.data as AdminBookingRecord
@@ -249,7 +268,13 @@ export function AdminMembershipsPage() {
   }
 
   const handleDeleteMembershipRow = async (row: MembershipRow) => {
-    if (!confirm('Delete this membership record?')) return
+    setDeleteTarget(row)
+  }
+
+  const confirmDelete = async () => {
+    if (!deleteTarget) return
+    const row = deleteTarget
+    setDeleteTarget(null)
     try {
       if (row.source === 'manual' && row.manualEntryId) {
         await manualEntryService.deleteEntry(row.manualEntryId)
@@ -259,9 +284,100 @@ export function AdminMembershipsPage() {
         deleteMembership(row.eventId)
       }
       await loadMemberships()
+      showToast('Membership deleted', 'success')
     } catch (err) {
       console.error('Failed to delete membership record', err)
-      alert('Failed to delete membership. Please try again.')
+      showToast('Failed to delete membership. Please try again.', 'error')
+    }
+  }
+
+  const handleManualMembershipSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (
+      !manualForm.customerName ||
+      !manualForm.locationName ||
+      !manualForm.planName
+    ) {
+      showToast(
+        'Please fill in customer, location, and plan information.',
+        'error'
+      )
+      return
+    }
+
+    const startDate =
+      manualForm.startDate || new Date().toISOString().split('T')[0]
+    const durationDays = manualForm.billingCycle === 'annual' ? 365 : 30
+    const end = new Date(startDate)
+    end.setDate(end.getDate() + durationDays)
+    const endDate = manualForm.endDate || end.toISOString().split('T')[0]
+
+    const payload = {
+      id: '',
+      customerName: manualForm.customerName,
+      email: manualForm.email || undefined,
+      phone: manualForm.phone || undefined,
+      locationName: manualForm.locationName,
+      planName: manualForm.planName,
+      roomName: manualForm.roomName || undefined,
+      amount: Math.round(Number(manualForm.amountNpr || 0) * 100),
+      status: 'active',
+      createdAt: new Date().toISOString(),
+      startDate,
+      endDate,
+      billingCycle: manualForm.billingCycle,
+      autoRenew: false,
+      addOns: {
+        selectedAddOns: manualForm.addOns
+          ? manualForm.addOns
+              .split(',')
+              .map((item) => item.trim())
+              .filter(Boolean)
+          : [],
+        meetingRoomHours: Number(manualForm.meetingRoomHours || 0),
+        guestPasses: Number(manualForm.guestPasses || 0),
+      },
+      notes: manualForm.notes || undefined,
+      source: 'manual' as const,
+    }
+
+    try {
+      const inserted = await manualEntryService.addEntry({
+        entryType: 'membership',
+        data: payload,
+      })
+
+      setMemberships((prev) => [
+        {
+          ...payload,
+          id: inserted.id,
+          manualEntryId: inserted.id,
+          addOns: normalizeAddOns(payload.addOns),
+        },
+        ...prev,
+      ])
+
+      setManualForm({
+        customerName: '',
+        email: '',
+        phone: '',
+        locationName: '',
+        planName: '',
+        roomName: '',
+        amountNpr: '',
+        startDate: '',
+        endDate: '',
+        billingCycle: 'monthly',
+        addOns: '',
+        meetingRoomHours: '',
+        guestPasses: '',
+        notes: '',
+      })
+      setShowManualForm(false)
+      showToast('Membership added successfully', 'success')
+    } catch (err) {
+      console.error('Failed to add membership:', err)
+      showToast('Failed to add membership. Please try again.', 'error')
     }
   }
 
@@ -269,10 +385,159 @@ export function AdminMembershipsPage() {
     <div className="space-y-4">
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <h1 className="text-2xl font-semibold">Memberships</h1>
-        <Button variant="outline" onClick={loadMemberships}>
-          Refresh
-        </Button>
+        <div className="flex items-center gap-3">
+          <Button
+            variant="outline"
+            onClick={() => setShowManualForm((prev) => !prev)}
+          >
+            <Plus className="h-4 w-4 mr-1" />
+            {showManualForm ? 'Close' : 'Add Membership'}
+          </Button>
+          <Button variant="outline" onClick={loadMemberships}>
+            Refresh
+          </Button>
+        </div>
       </div>
+
+      {showManualForm && (
+        <Card>
+          <CardContent className="p-4 space-y-4">
+            <h2 className="font-semibold text-lg">Manual Membership Entry</h2>
+            <form
+              className="grid gap-4 md:grid-cols-2"
+              onSubmit={handleManualMembershipSubmit}
+            >
+              <Input
+                required
+                placeholder="Customer name"
+                value={manualForm.customerName}
+                onChange={(e) =>
+                  setManualForm((p) => ({ ...p, customerName: e.target.value }))
+                }
+              />
+              <Input
+                placeholder="Email"
+                value={manualForm.email}
+                onChange={(e) =>
+                  setManualForm((p) => ({ ...p, email: e.target.value }))
+                }
+              />
+              <Input
+                placeholder="Phone"
+                value={manualForm.phone}
+                onChange={(e) =>
+                  setManualForm((p) => ({ ...p, phone: e.target.value }))
+                }
+              />
+              <Input
+                required
+                placeholder="Location name"
+                value={manualForm.locationName}
+                onChange={(e) =>
+                  setManualForm((p) => ({ ...p, locationName: e.target.value }))
+                }
+              />
+              <Input
+                required
+                placeholder="Plan name"
+                value={manualForm.planName}
+                onChange={(e) =>
+                  setManualForm((p) => ({ ...p, planName: e.target.value }))
+                }
+              />
+              <Input
+                placeholder="Room name (optional)"
+                value={manualForm.roomName}
+                onChange={(e) =>
+                  setManualForm((p) => ({ ...p, roomName: e.target.value }))
+                }
+              />
+              <Input
+                placeholder="Amount (NPR)"
+                type="number"
+                min="0"
+                value={manualForm.amountNpr}
+                onChange={(e) =>
+                  setManualForm((p) => ({ ...p, amountNpr: e.target.value }))
+                }
+              />
+              <div className="grid grid-cols-2 gap-2">
+                <Input
+                  type="date"
+                  value={manualForm.startDate}
+                  onChange={(e) =>
+                    setManualForm((p) => ({ ...p, startDate: e.target.value }))
+                  }
+                />
+                <Input
+                  type="date"
+                  value={manualForm.endDate}
+                  onChange={(e) =>
+                    setManualForm((p) => ({ ...p, endDate: e.target.value }))
+                  }
+                />
+              </div>
+              <select
+                className="border rounded px-3 py-2 text-sm"
+                value={manualForm.billingCycle}
+                onChange={(e) =>
+                  setManualForm((p) => ({
+                    ...p,
+                    billingCycle: e.target.value as 'monthly' | 'annual',
+                  }))
+                }
+              >
+                <option value="monthly">Monthly</option>
+                <option value="annual">Annual</option>
+              </select>
+              <Input
+                placeholder="Add-ons (comma separated)"
+                value={manualForm.addOns}
+                onChange={(e) =>
+                  setManualForm((p) => ({ ...p, addOns: e.target.value }))
+                }
+              />
+              <div className="grid grid-cols-2 gap-2">
+                <Input
+                  type="number"
+                  min="0"
+                  placeholder="Meeting room hours"
+                  value={manualForm.meetingRoomHours}
+                  onChange={(e) =>
+                    setManualForm((p) => ({
+                      ...p,
+                      meetingRoomHours: e.target.value,
+                    }))
+                  }
+                />
+                <Input
+                  type="number"
+                  min="0"
+                  placeholder="Guest passes"
+                  value={manualForm.guestPasses}
+                  onChange={(e) =>
+                    setManualForm((p) => ({
+                      ...p,
+                      guestPasses: e.target.value,
+                    }))
+                  }
+                />
+              </div>
+              <Textarea
+                className="md:col-span-2"
+                placeholder="Notes"
+                value={manualForm.notes}
+                onChange={(e) =>
+                  setManualForm((p) => ({ ...p, notes: e.target.value }))
+                }
+              />
+              <div className="md:col-span-2 flex justify-end">
+                <Button type="submit">Save Membership</Button>
+              </div>
+            </form>
+          </CardContent>
+        </Card>
+      )}
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card>
@@ -405,7 +670,6 @@ export function AdminMembershipsPage() {
                           Renew Package
                         </Button>
                         <Button
-                          size="icon"
                           variant="ghost"
                           onClick={() => handleDeleteMembershipRow(m)}
                           title="Delete membership"
@@ -464,6 +728,13 @@ export function AdminMembershipsPage() {
           )}
         </div>
       )}
+      <ConfirmModal
+        open={deleteTarget !== null}
+        title="Delete Membership"
+        message={`Delete membership for "${deleteTarget?.customerName}"? This cannot be undone.`}
+        onConfirm={confirmDelete}
+        onCancel={() => setDeleteTarget(null)}
+      />
     </div>
   )
 }

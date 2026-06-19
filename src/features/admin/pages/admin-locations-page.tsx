@@ -4,7 +4,9 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { ConfirmModal } from '@/components/ui/confirm-modal'
 import { locationService } from '@/services/supabase-service'
-import { supabase, supabaseAdmin } from '@/lib/supabase'
+import { supabase } from '@/lib/supabase'
+import { supabaseAdmin } from '@/lib/supabase-admin'
+import { showToast } from '@/components/ui/toast'
 import type { Database } from '@/lib/database.types'
 
 type LocationRow = Database['public']['Tables']['locations']['Row']
@@ -43,6 +45,17 @@ const emptyForm: Database['public']['Tables']['locations']['Insert'] = {
   contact_phone: '',
   contact_email: '',
   google_maps_url: '',
+  latitude: null,
+  longitude: null,
+}
+
+function extractGoogleMapsUrl(input: string): string {
+  const trimmed = input.trim()
+  const iframeMatch = trimmed.match(/src="([^"]+)"/)
+  if (iframeMatch) return iframeMatch[1]
+  const urlMatch = trimmed.match(/(https?:\/\/[^\s<>"]+)/)
+  if (urlMatch) return urlMatch[1]
+  return trimmed
 }
 
 export function AdminLocationsPage() {
@@ -51,6 +64,32 @@ export function AdminLocationsPage() {
   const [showForm, setShowForm] = useState(false)
   const [editingId, setEditingId] = useState<string | null>(null)
   const [form, setForm] = useState(emptyForm)
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({})
+
+  const validate = (): boolean => {
+    const errors: Record<string, string> = {}
+    if (!form.name.trim()) errors.name = 'Name is required'
+    if (!form.address.trim()) errors.address = 'Address is required'
+    if (
+      form.contact_email &&
+      !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.contact_email)
+    ) {
+      errors.contact_email = 'Invalid email format'
+    }
+    if (form.google_maps_url && !/^https?:\/\/.+/.test(form.google_maps_url)) {
+      errors.google_maps_url = 'Must be a valid URL (http://...)'
+    }
+    setFieldErrors(errors)
+    return Object.keys(errors).length === 0
+  }
+
+  const clearError = (field: string) => {
+    setFieldErrors((prev) => {
+      const next = { ...prev }
+      delete next[field]
+      return next
+    })
+  }
 
   const [imagePreview, setImagePreview] = useState<string | null>(null)
   const [hoverRating, setHoverRating] = useState(0)
@@ -62,6 +101,11 @@ export function AdminLocationsPage() {
     setLoading(true)
     const data = await locationService.getAllLocations()
     setLocations(data)
+    if (data.length === 0 && !loading) {
+      console.warn(
+        'No locations returned — check Supabase connection or RLS policies'
+      )
+    }
     setLoading(false)
   }
 
@@ -74,6 +118,7 @@ export function AdminLocationsPage() {
     setEditingId(null)
     setImagePreview(null)
     setHoverRating(0)
+    setFieldErrors({})
     setShowForm(true)
   }
 
@@ -104,10 +149,13 @@ export function AdminLocationsPage() {
       contact_phone: loc.contact_phone,
       contact_email: loc.contact_email,
       google_maps_url: loc.google_maps_url,
+      latitude: loc.latitude,
+      longitude: loc.longitude,
     })
     setEditingId(loc.id)
     setImagePreview(loc.image_url)
     setHoverRating(0)
+    setFieldErrors({})
     setShowForm(true)
   }
 
@@ -132,13 +180,17 @@ export function AdminLocationsPage() {
       } = storage.from('images').getPublicUrl(filePath)
       setForm((f) => ({ ...f, image_url: publicUrl }))
     } catch (err) {
-      alert(`Upload failed: ${(err as any)?.message || err}`)
+      showToast(`Upload failed: ${(err as any)?.message || err}`, 'error')
     }
     setUploading(false)
   }
 
+  const [saving, setSaving] = useState(false)
+
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault()
+    if (!validate()) return
+    setSaving(true)
     try {
       if (editingId) {
         await locationService.updateLocation(editingId, form)
@@ -146,10 +198,17 @@ export function AdminLocationsPage() {
         await locationService.createLocation(form)
       }
       setShowForm(false)
-      load()
+      showToast(editingId ? 'Location updated' : 'Location created', 'success')
+      await load()
     } catch (err) {
-      alert(`Save failed: ${(err as any)?.message || err}`)
+      const msg = (err as any)?.message || String(err)
+      setFieldErrors((prev) => ({
+        ...prev,
+        _form: `Save failed: ${msg}`,
+      }))
+      showToast(`Save failed: ${msg}`, 'error')
     }
+    setSaving(false)
   }
 
   const handleDelete = async (id: string) => {
@@ -211,18 +270,32 @@ export function AdminLocationsPage() {
                 <div className="space-y-1.5">
                   <label className="text-label text-fg-2">Name *</label>
                   <input
-                    required
                     value={form.name}
                     onChange={(e) => {
                       const val = e.target.value
+                      clearError('name')
                       setForm((f) => ({
                         ...f,
                         name: val,
-                        slug: editingId ? f.slug : slugify(val),
+                        slug: slugify(val),
                       }))
                     }}
-                    className="w-full border border-rule rounded-sm px-3 py-2 text-sm bg-transparent text-fg-1"
+                    onBlur={() => {
+                      if (!form.name.trim())
+                        setFieldErrors((p) => ({
+                          ...p,
+                          name: 'Name is required',
+                        }))
+                    }}
+                    className={`w-full border rounded-sm px-3 py-2 text-sm bg-transparent text-fg-1 ${
+                      fieldErrors.name ? 'border-clay' : 'border-rule'
+                    }`}
                   />
+                  {fieldErrors.name && (
+                    <span className="text-xs text-clay">
+                      {fieldErrors.name}
+                    </span>
+                  )}
                 </div>
                 <div className="space-y-1.5">
                   <label className="text-label text-fg-2">Slug</label>
@@ -244,13 +317,27 @@ export function AdminLocationsPage() {
                 <div className="space-y-1.5">
                   <label className="text-label text-fg-2">Address *</label>
                   <input
-                    required
                     value={form.address}
-                    onChange={(e) =>
+                    onChange={(e) => {
+                      clearError('address')
                       setForm((f) => ({ ...f, address: e.target.value }))
-                    }
-                    className="w-full border border-rule rounded-sm px-3 py-2 text-sm bg-transparent text-fg-1"
+                    }}
+                    onBlur={() => {
+                      if (!form.address.trim())
+                        setFieldErrors((p) => ({
+                          ...p,
+                          address: 'Address is required',
+                        }))
+                    }}
+                    className={`w-full border rounded-sm px-3 py-2 text-sm bg-transparent text-fg-1 ${
+                      fieldErrors.address ? 'border-clay' : 'border-rule'
+                    }`}
                   />
+                  {fieldErrors.address && (
+                    <span className="text-xs text-clay">
+                      {fieldErrors.address}
+                    </span>
+                  )}
                 </div>
                 <div className="space-y-1.5">
                   <label className="text-label text-fg-2">Full Address</label>
@@ -367,8 +454,9 @@ export function AdminLocationsPage() {
                               ],
                             }))
                           } catch (err) {
-                            alert(
-                              `Upload failed: ${(err as any)?.message || err}`
+                            showToast(
+                              `Upload failed: ${(err as any)?.message || err}`,
+                              'error'
                             )
                           }
                           setUploading(false)
@@ -417,11 +505,29 @@ export function AdminLocationsPage() {
                   <label className="text-label text-fg-2">Contact Email</label>
                   <input
                     value={form.contact_email ?? ''}
-                    onChange={(e) =>
+                    type="email"
+                    onChange={(e) => {
+                      clearError('contact_email')
                       setForm((f) => ({ ...f, contact_email: e.target.value }))
-                    }
-                    className="w-full border border-rule rounded-sm px-3 py-2 text-sm bg-transparent text-fg-1"
+                    }}
+                    onBlur={() => {
+                      const v = form.contact_email
+                      if (v && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)) {
+                        setFieldErrors((p) => ({
+                          ...p,
+                          contact_email: 'Invalid email format',
+                        }))
+                      }
+                    }}
+                    className={`w-full border rounded-sm px-3 py-2 text-sm bg-transparent text-fg-1 ${
+                      fieldErrors.contact_email ? 'border-clay' : 'border-rule'
+                    }`}
                   />
+                  {fieldErrors.contact_email && (
+                    <span className="text-xs text-clay">
+                      {fieldErrors.contact_email}
+                    </span>
+                  )}
                 </div>
                 <div className="space-y-1.5">
                   <label className="text-label text-fg-2">
@@ -429,14 +535,84 @@ export function AdminLocationsPage() {
                   </label>
                   <input
                     value={form.google_maps_url ?? ''}
-                    onChange={(e) =>
+                    onChange={(e) => {
+                      const raw = e.target.value
+                      const cleaned = extractGoogleMapsUrl(raw)
+                      clearError('google_maps_url')
                       setForm((f) => ({
                         ...f,
-                        google_maps_url: e.target.value,
+                        google_maps_url: cleaned !== raw ? cleaned : raw,
                       }))
-                    }
-                    className="w-full border border-rule rounded-sm px-3 py-2 text-sm bg-transparent text-fg-1"
+                    }}
+                    placeholder="Paste Google Maps embed <iframe> code"
+                    onBlur={() => {
+                      const v = form.google_maps_url
+                      if (v && !/^https?:\/\/.+/.test(v)) {
+                        setFieldErrors((p) => ({
+                          ...p,
+                          google_maps_url: 'Must be a valid URL (http://...)',
+                        }))
+                      }
+                    }}
+                    className={`w-full border rounded-sm px-3 py-2 text-sm bg-transparent text-fg-1 ${
+                      fieldErrors.google_maps_url
+                        ? 'border-clay'
+                        : 'border-rule'
+                    }`}
                   />
+                  {fieldErrors.google_maps_url && (
+                    <span className="text-xs text-clay">
+                      {fieldErrors.google_maps_url}
+                    </span>
+                  )}
+                  <span className="text-caption text-fg-3">
+                    Go to Google Maps → Share → Embed a map → copy the Iframe
+                    code and paste here. The <code>src</code> URL is
+                    auto-extracted.
+                  </span>
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-label text-fg-2">Coordinates</label>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="text-caption text-fg-3">Latitude</label>
+                      <input
+                        type="number"
+                        step="any"
+                        value={form.latitude ?? ''}
+                        onChange={(e) =>
+                          setForm((f) => ({
+                            ...f,
+                            latitude: e.target.value
+                              ? Number(e.target.value)
+                              : null,
+                          }))
+                        }
+                        placeholder="27.7172"
+                        className="w-full border border-rule rounded-sm px-3 py-2 text-sm bg-transparent text-fg-1 font-mono"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-caption text-fg-3">
+                        Longitude
+                      </label>
+                      <input
+                        type="number"
+                        step="any"
+                        value={form.longitude ?? ''}
+                        onChange={(e) =>
+                          setForm((f) => ({
+                            ...f,
+                            longitude: e.target.value
+                              ? Number(e.target.value)
+                              : null,
+                          }))
+                        }
+                        placeholder="85.3240"
+                        className="w-full border border-rule rounded-sm px-3 py-2 text-sm bg-transparent text-fg-1 font-mono"
+                      />
+                    </div>
+                  </div>
                 </div>
                 <div className="space-y-1.5">
                   <label className="text-label text-fg-2">Rating</label>
@@ -627,11 +803,22 @@ export function AdminLocationsPage() {
                   </label>
                 </div>
               </div>
+              {fieldErrors._form && (
+                <div className="text-sm text-clay bg-clay-soft border border-clay rounded-sm px-3 py-2">
+                  {fieldErrors._form}
+                </div>
+              )}
               <div className="flex gap-3 pt-2">
                 <Button
                   type="submit"
-                  text={editingId ? 'Update Location' : 'Create Location'}
-                  disabled={uploading}
+                  text={
+                    saving
+                      ? 'Saving...'
+                      : editingId
+                        ? 'Update Location'
+                        : 'Create Location'
+                  }
+                  disabled={uploading || saving}
                 />
                 <Button
                   type="button"

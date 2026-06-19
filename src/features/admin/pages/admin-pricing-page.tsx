@@ -1,11 +1,14 @@
 import { useEffect, useMemo, useState } from 'react'
-import { Loader2, AlertCircle } from 'lucide-react'
+import { Plus, Loader2, AlertCircle, X } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 import { Separator } from '@/components/ui/separator'
 import { Badge } from '@/components/ui/badge'
+import { showToast } from '@/components/ui/toast'
+import { supabaseAdmin } from '@/lib/supabase-admin'
+import { supabase } from '@/lib/supabase'
 import { cn } from '@/lib/utils'
 import type { Database } from '@/lib/database.types'
 import {
@@ -73,6 +76,12 @@ export function AdminPricingPage() {
   const [roomStatusUpdating, setRoomStatusUpdating] = useState<string | null>(
     null
   )
+  const [showAddRoom, setShowAddRoom] = useState(false)
+  const [newRoomName, setNewRoomName] = useState('')
+  const [newRoomCapacity, setNewRoomCapacity] = useState('')
+  const [newRoomStatus, setNewRoomStatus] =
+    useState<RoomRow['status']>('available')
+  const [addingRoom, setAddingRoom] = useState(false)
 
   const loadData = async () => {
     setLoading(true)
@@ -281,10 +290,10 @@ export function AdminPricingPage() {
       const refreshedPricing =
         await locationPricingService.getAllLocationPricing()
       setPricingRows(refreshedPricing)
-      alert('Pricing updated successfully.')
+      showToast('Pricing updated successfully.')
     } catch (err) {
       console.error(err)
-      alert('Failed to save pricing. Please try again.')
+      showToast('Failed to save pricing. Please try again.', 'error')
     } finally {
       setSaving(false)
     }
@@ -319,13 +328,45 @@ export function AdminPricingPage() {
 
       const refreshed = await roomPricingService.getAllRoomPricing()
       setRoomPricingRows(refreshed)
-      alert('Room pricing updated successfully.')
+      showToast('Room pricing updated successfully.')
     } catch (err) {
       console.error(err)
-      alert('Failed to save room pricing. Please try again.')
+      showToast('Failed to save room pricing. Please try again.', 'error')
     } finally {
       setRoomSaving(false)
     }
+  }
+
+  const handleAddRoom = async () => {
+    if (!selectedLocationId || !newRoomName.trim()) return
+    setAddingRoom(true)
+    try {
+      const client = supabaseAdmin ?? supabase
+      const { data, error } = await client
+        .from('location_rooms')
+        .insert({
+          location_id: selectedLocationId,
+          name: newRoomName.trim(),
+          slug: newRoomName.trim().toLowerCase().replace(/\s+/g, '-'),
+          capacity: Number(newRoomCapacity) || 0,
+          status: newRoomStatus,
+        })
+        .select()
+        .single()
+      if (error) throw error
+      setRooms((prev) => [...prev, data])
+      setNewRoomName('')
+      setNewRoomCapacity('')
+      setNewRoomStatus('available')
+      setShowAddRoom(false)
+      showToast('Room created!')
+    } catch (err) {
+      showToast(
+        `Failed to create room: ${(err as any)?.message || err}`,
+        'error'
+      )
+    }
+    setAddingRoom(false)
   }
 
   const handleRoomStatusChange = async (
@@ -342,7 +383,7 @@ export function AdminPricingPage() {
       }
     } catch (err) {
       console.error(err)
-      alert('Failed to update room status. Please try again.')
+      showToast('Failed to update room status. Please try again.', 'error')
     } finally {
       setRoomStatusUpdating(null)
     }
@@ -399,11 +440,91 @@ export function AdminPricingPage() {
             </p>
           </CardHeader>
           <CardContent>
-            {roomsForSelectedLocation.length === 0 ? (
-              <p className="text-sm text-fg-2">
-                No rooms configured for this location yet. Create rooms in
-                Supabase to enable per-room pricing.
-              </p>
+            {showAddRoom && (
+              <div className="border border-rule rounded-sm p-4 mb-4 space-y-3 bg-bg-raised">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-medium text-fg-1">
+                    New Room
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowAddRoom(false)
+                      setNewRoomName('')
+                      setNewRoomCapacity('')
+                    }}
+                    className="text-fg-3 hover:text-clay cursor-pointer"
+                  >
+                    <X size={16} />
+                  </button>
+                </div>
+                <div className="grid grid-cols-3 gap-3">
+                  <div className="space-y-1">
+                    <label className="text-caption text-fg-3">Name *</label>
+                    <input
+                      value={newRoomName}
+                      onChange={(e) => setNewRoomName(e.target.value)}
+                      placeholder="e.g. Sun Room"
+                      className="w-full border border-rule rounded-sm px-2.5 py-1.5 text-sm bg-transparent text-fg-1"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-caption text-fg-3">Capacity</label>
+                    <input
+                      type="number"
+                      min="0"
+                      value={newRoomCapacity}
+                      onChange={(e) => setNewRoomCapacity(e.target.value)}
+                      placeholder="6"
+                      className="w-full border border-rule rounded-sm px-2.5 py-1.5 text-sm bg-transparent text-fg-1"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-caption text-fg-3">Status</label>
+                    <select
+                      value={newRoomStatus}
+                      onChange={(e) =>
+                        setNewRoomStatus(e.target.value as RoomRow['status'])
+                      }
+                      className="w-full border border-rule rounded-sm px-2.5 py-1.5 text-sm bg-transparent text-fg-1"
+                    >
+                      <option value="available">Available</option>
+                      <option value="booked">Booked</option>
+                      <option value="maintenance">Maintenance</option>
+                    </select>
+                  </div>
+                </div>
+                <div className="flex gap-2">
+                  <Button
+                    size="sm"
+                    text={addingRoom ? 'Creating...' : 'Create Room'}
+                    disabled={addingRoom || !newRoomName.trim()}
+                    onClick={handleAddRoom}
+                  />
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    text="Cancel"
+                    onClick={() => {
+                      setShowAddRoom(false)
+                      setNewRoomName('')
+                      setNewRoomCapacity('')
+                    }}
+                  />
+                </div>
+              </div>
+            )}
+            {roomsForSelectedLocation.length === 0 && !showAddRoom ? (
+              <div className="text-sm text-fg-2 space-y-3">
+                <p>No rooms configured for this location yet.</p>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  text="Add Room"
+                  icon={Plus}
+                  onClick={() => setShowAddRoom(true)}
+                />
+              </div>
             ) : (
               <div className="grid gap-4 md:grid-cols-3">
                 {roomsForSelectedLocation.map((room) => {
@@ -507,6 +628,17 @@ export function AdminPricingPage() {
                     </div>
                   )
                 })}
+              </div>
+            )}
+            {roomsForSelectedLocation.length > 0 && (
+              <div className="mt-4">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  text="Add Room"
+                  icon={Plus}
+                  onClick={() => setShowAddRoom(true)}
+                />
               </div>
             )}
           </CardContent>

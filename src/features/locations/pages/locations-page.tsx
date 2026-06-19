@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { MapPin, Users, Star, Clock, ExternalLink } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -5,8 +6,25 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Link } from 'react-router-dom'
 import { ROUTES } from '@/lib/constants'
+import { locationService } from '@/services/supabase-service'
 
-const locations = [
+interface LocationData {
+  id: string
+  name: string
+  address: string
+  image: string
+  capacity: number
+  rating: number
+  features: string[]
+  amenities: string[]
+  openingHours: { open: string; close: string }
+  available: boolean
+  popular: boolean
+  status?: string
+  googleMapsUrl?: string
+}
+
+const defaultLocations: LocationData[] = [
   {
     id: 'dhobighat-hub',
     name: 'Dhobighat (WashingTown) Hub',
@@ -28,21 +46,13 @@ const locations = [
       'Phone Booths',
       'Lounge Areas',
     ],
-    openingHours: {
-      monday: { open: '06:00', close: '22:00' },
-      tuesday: { open: '06:00', close: '22:00' },
-      wednesday: { open: '06:00', close: '22:00' },
-      thursday: { open: '06:00', close: '22:00' },
-      friday: { open: '06:00', close: '22:00' },
-      saturday: { open: '08:00', close: '20:00' },
-      sunday: { open: '08:00', close: '20:00' },
-    },
+    openingHours: { open: '06:00', close: '22:00' },
     available: true,
     popular: true,
     googleMapsUrl: 'https://maps.app.goo.gl/88JRCRwL5ttdaPpu6',
   },
   {
-    id: 'kausimaa',
+    id: 'kausimaa-coworking',
     name: 'Kausimaa Co-working',
     address: 'Kupondole, Lalitpur',
     image:
@@ -60,15 +70,7 @@ const locations = [
       'Free Drinking Water',
       'Parking',
     ],
-    openingHours: {
-      monday: { open: '10:00', close: '18:00' },
-      tuesday: { open: '10:00', close: '18:00' },
-      wednesday: { open: '10:00', close: '18:00' },
-      thursday: { open: '10:00', close: '18:00' },
-      friday: { open: '10:00', close: '18:00' },
-      saturday: { open: '10:00', close: '18:00' },
-      sunday: { open: '10:00', close: '18:00' },
-    },
+    openingHours: { open: '10:00', close: '18:00' },
     available: true,
     popular: false,
   },
@@ -87,22 +89,50 @@ const locations = [
       'Event Space',
       'Storage Lockers',
     ],
-    openingHours: {
-      monday: { open: '07:00', close: '21:00' },
-      tuesday: { open: '07:00', close: '21:00' },
-      wednesday: { open: '07:00', close: '21:00' },
-      thursday: { open: '07:00', close: '21:00' },
-      friday: { open: '07:00', close: '21:00' },
-      saturday: { open: '09:00', close: '19:00' },
-      sunday: { open: '09:00', close: '19:00' },
-    },
+    openingHours: { open: '07:00', close: '21:00' },
     available: false,
     status: 'Reserved for 6 months',
     popular: false,
   },
 ]
 
+function mapDbLocation(db: any): LocationData {
+  const cap = db.capacity || {}
+  const totalCapacity =
+    (cap.hotDesks || 0) + (cap.dedicatedDesks || 0) + (cap.privateOffices || 0)
+  const imgs = db.images || []
+  const imageSrc = imgs.length > 0 ? imgs[0] : db.image_url || ''
+  const hours = db.opening_hours || {}
+  const openTime = hours.monday?.open || hours.open || '08:00'
+  const closeTime = hours.monday?.close || hours.close || '20:00'
+  return {
+    id: db.slug || db.id,
+    name: db.name,
+    address: db.address || '',
+    image: imageSrc,
+    capacity: totalCapacity || 0,
+    rating: db.rating ? Number(db.rating) : 4.5,
+    features: (db.features as string[]) || [],
+    amenities: (db.amenities as string[]) || [],
+    openingHours: { open: openTime, close: closeTime },
+    available: db.available ?? true,
+    popular: db.popular ?? false,
+    status: db.status || undefined,
+    googleMapsUrl: db.google_maps_url || undefined,
+  }
+}
+
 export function LocationsPage() {
+  const [locations, setLocations] = useState<LocationData[]>(defaultLocations)
+
+  useEffect(() => {
+    locationService.getAllLocations().then((data) => {
+      if (data && data.length > 0) {
+        setLocations(data.map(mapDbLocation))
+      }
+    })
+  }, [])
+
   return (
     <div className="container section-padding">
       <motion.div
@@ -143,25 +173,14 @@ export function LocationsPage() {
                   </Badge>
                 )}
 
-                {location.status === 'reserved' && (
+                {!location.available && location.status && (
                   <Badge
-                    variant="secondary"
-                    className="absolute top-4 left-4 bg-orange-100 text-orange-800 border-orange-200"
+                    variant="destructive"
+                    className="absolute top-4 left-4"
                   >
-                    🔒 Reserved
+                    {location.status}
                   </Badge>
                 )}
-
-                {!location.available &&
-                  location.status &&
-                  location.status !== 'reserved' && (
-                    <Badge
-                      variant="destructive"
-                      className="absolute top-4 left-4"
-                    >
-                      {location.status}
-                    </Badge>
-                  )}
 
                 <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm rounded-lg px-2 py-1 flex items-center space-x-1">
                   <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
@@ -203,40 +222,47 @@ export function LocationsPage() {
                   </div>
                   <div className="flex items-center text-fg-2">
                     <Clock className="h-4 w-4 mr-1" />
-                    <span className="text-sm">Open now</span>
+                    <span className="text-sm">
+                      {location.openingHours.open} -{' '}
+                      {location.openingHours.close}
+                    </span>
                   </div>
                 </div>
 
                 <div className="space-y-3">
-                  <div>
-                    <h4 className="font-medium text-sm mb-2">Features</h4>
-                    <div className="flex flex-wrap gap-1">
-                      {location.features.map((feature) => (
-                        <Badge
-                          key={feature}
-                          variant="secondary"
-                          className="text-xs"
-                        >
-                          {feature}
-                        </Badge>
-                      ))}
+                  {location.features.length > 0 && (
+                    <div>
+                      <h4 className="font-medium text-sm mb-2">Features</h4>
+                      <div className="flex flex-wrap gap-1">
+                        {location.features.map((feature) => (
+                          <Badge
+                            key={feature}
+                            variant="secondary"
+                            className="text-xs"
+                          >
+                            {feature}
+                          </Badge>
+                        ))}
+                      </div>
                     </div>
-                  </div>
+                  )}
 
-                  <div>
-                    <h4 className="font-medium text-sm mb-2">Amenities</h4>
-                    <div className="flex flex-wrap gap-1">
-                      {location.amenities.map((amenity) => (
-                        <Badge
-                          key={amenity}
-                          variant="outline"
-                          className="text-xs"
-                        >
-                          {amenity}
-                        </Badge>
-                      ))}
+                  {location.amenities.length > 0 && (
+                    <div>
+                      <h4 className="font-medium text-sm mb-2">Amenities</h4>
+                      <div className="flex flex-wrap gap-1">
+                        {location.amenities.map((amenity) => (
+                          <Badge
+                            key={amenity}
+                            variant="outline"
+                            className="text-xs"
+                          >
+                            {amenity}
+                          </Badge>
+                        ))}
+                      </div>
                     </div>
-                  </div>
+                  )}
                 </div>
 
                 <div className="space-y-2">
@@ -245,15 +271,15 @@ export function LocationsPage() {
                     <div className="flex justify-between">
                       <span>Mon - Fri</span>
                       <span>
-                        {location.openingHours.monday.open} -{' '}
-                        {location.openingHours.monday.close}
+                        {location.openingHours.open} -{' '}
+                        {location.openingHours.close}
                       </span>
                     </div>
                     <div className="flex justify-between">
                       <span>Weekend</span>
                       <span>
-                        {location.openingHours.saturday.open} -{' '}
-                        {location.openingHours.saturday.close}
+                        {location.openingHours.open} -{' '}
+                        {location.openingHours.close}
                       </span>
                     </div>
                   </div>
@@ -267,7 +293,7 @@ export function LocationsPage() {
                   </Button>
                 ) : (
                   <Button className="w-full" variant="outline" disabled>
-                    {location.status}
+                    {location.status || 'Unavailable'}
                   </Button>
                 )}
               </CardContent>

@@ -10,8 +10,7 @@ import { paymentService } from '@/services/payment-service'
 import { PaymentMethod, PaymentData } from '@/lib/payment-config'
 import { formatCurrency } from '@/lib/utils'
 import { useBookingStore } from '@/store/booking-store'
-import { notifyNewBooking } from '@/lib/booking-events'
-import { notifyNewMembership } from '@/lib/membership-events'
+import { manualEntryService } from '@/services/supabase-service'
 
 type PaymentStatus =
   | 'selecting'
@@ -20,6 +19,22 @@ type PaymentStatus =
   | 'error'
   | 'pending'
   | 'qr_payment'
+
+async function persistBooking(data: Record<string, any>) {
+  try {
+    await manualEntryService.addEntry({ entryType: 'booking', data })
+  } catch {
+    /* localStorage still works as fallback */
+  }
+}
+
+async function persistMembership(data: Record<string, any>) {
+  try {
+    await manualEntryService.addEntry({ entryType: 'membership', data })
+  } catch {
+    /* localStorage still works as fallback */
+  }
+}
 
 export function PaymentPage() {
   const [searchParams] = useSearchParams()
@@ -84,10 +99,35 @@ export function PaymentPage() {
       if (result?.success) {
         setPaymentStatus('success')
         setPaymentResult(result)
-        // Emit booking notification (frontend-only)
-        try {
-          notifyNewBooking({
-            id: result.paymentId || `BK-${Date.now()}`,
+        const bookingEntry = {
+          id: result.paymentId || `BK-${Date.now()}`,
+          customerName:
+            bookingData.contactInfo?.firstName &&
+            bookingData.contactInfo?.lastName
+              ? `${bookingData.contactInfo.firstName} ${bookingData.contactInfo.lastName}`
+              : 'Customer',
+          email: bookingData.contactInfo?.email,
+          phone: bookingData.contactInfo?.phone,
+          locationName: bookingData.locationId || 'Location',
+          planName: bookingData.planId || 'Plan',
+          amount: result.amount,
+          status: 'confirmed',
+          createdAt: new Date().toISOString(),
+        }
+        persistBooking(bookingEntry)
+
+        if (bookingData.planId && bookingData.planId !== 'explorer') {
+          const startDate = bookingData.startDate || new Date()
+          const billingCycle =
+            bookingData.planId === 'explorer' ? 'daily' : 'monthly'
+          const endDate = new Date(startDate)
+          if (billingCycle === 'monthly') {
+            endDate.setMonth(endDate.getMonth() + 1)
+          } else {
+            endDate.setDate(endDate.getDate() + 1)
+          }
+          persistMembership({
+            id: `MEM-${Date.now()}`,
             customerName:
               bookingData.contactInfo?.firstName &&
               bookingData.contactInfo?.lastName
@@ -95,45 +135,16 @@ export function PaymentPage() {
                 : 'Customer',
             email: bookingData.contactInfo?.email,
             phone: bookingData.contactInfo?.phone,
-            locationName: bookingData.locationId || 'Location',
-            planName: bookingData.planId || 'Plan',
+            membershipType: bookingData.planId,
+            status: 'active',
+            startDate: startDate.toISOString(),
+            endDate: endDate.toISOString(),
             amount: result.amount,
-            status: 'confirmed',
+            billingCycle,
+            locationId: bookingData.locationId,
+            autoRenew: false,
             createdAt: new Date().toISOString(),
           })
-          // Create membership for non-day-pass plans
-          if (bookingData.planId && bookingData.planId !== 'explorer') {
-            const startDate = bookingData.startDate || new Date()
-            const billingCycle =
-              bookingData.planId === 'explorer' ? 'daily' : 'monthly'
-            const endDate = new Date(startDate)
-            if (billingCycle === 'monthly') {
-              endDate.setMonth(endDate.getMonth() + 1)
-            } else {
-              endDate.setDate(endDate.getDate() + 1)
-            }
-            notifyNewMembership({
-              id: `MEM-${Date.now()}`,
-              customerName:
-                bookingData.contactInfo?.firstName &&
-                bookingData.contactInfo?.lastName
-                  ? `${bookingData.contactInfo.firstName} ${bookingData.contactInfo.lastName}`
-                  : 'Customer',
-              email: bookingData.contactInfo?.email,
-              phone: bookingData.contactInfo?.phone,
-              membershipType: bookingData.planId,
-              status: 'active',
-              startDate: startDate.toISOString(),
-              endDate: endDate.toISOString(),
-              amount: result.amount,
-              billingCycle,
-              locationId: bookingData.locationId,
-              autoRenew: false,
-              createdAt: new Date().toISOString(),
-            })
-          }
-        } catch {
-          /* noop */
         }
       } else {
         setPaymentStatus('error')
@@ -195,42 +206,36 @@ export function PaymentPage() {
       } else if (method === 'bank_transfer') {
         setPaymentStatus('success')
         setPaymentResult(result)
-        try {
-          notifyNewBooking({
-            id: result.paymentId || `BK-${Date.now()}`,
-            customerName: paymentData.customerInfo.name,
-            email: paymentData.customerInfo.email,
-            phone: paymentData.customerInfo.phone,
-            locationName: paymentData.metadata?.locationId,
-            planName: paymentData.metadata?.planId,
-            amount: result.amount,
-            status: 'pending_verification',
-            createdAt: new Date().toISOString(),
-          })
-        } catch {
-          /* noop */
+        const bankEntry = {
+          id: result.paymentId || `BK-${Date.now()}`,
+          customerName: paymentData.customerInfo.name,
+          email: paymentData.customerInfo.email,
+          phone: paymentData.customerInfo.phone,
+          locationName: paymentData.metadata?.locationId,
+          planName: paymentData.metadata?.planId,
+          amount: result.amount,
+          status: 'pending_verification',
+          createdAt: new Date().toISOString(),
         }
+        persistBooking(bankEntry)
       } else if (method === 'qr_payment') {
         setPaymentStatus('qr_payment')
         setPaymentResult(result)
       } else if (result.success) {
         setPaymentStatus('success')
         setPaymentResult(result)
-        try {
-          notifyNewBooking({
-            id: result.paymentId || `BK-${Date.now()}`,
-            customerName: paymentData.customerInfo.name,
-            email: paymentData.customerInfo.email,
-            phone: paymentData.customerInfo.phone,
-            locationName: paymentData.metadata?.locationId,
-            planName: paymentData.metadata?.planId,
-            amount: result.amount,
-            status: 'confirmed',
-            createdAt: new Date().toISOString(),
-          })
-        } catch {
-          /* noop */
+        const stripeEntry = {
+          id: result.paymentId || `BK-${Date.now()}`,
+          customerName: paymentData.customerInfo.name,
+          email: paymentData.customerInfo.email,
+          phone: paymentData.customerInfo.phone,
+          locationName: paymentData.metadata?.locationId,
+          planName: paymentData.metadata?.planId,
+          amount: result.amount,
+          status: 'confirmed',
+          createdAt: new Date().toISOString(),
         }
+        persistBooking(stripeEntry)
       } else {
         setPaymentStatus('error')
         setError(result.error || 'Payment failed')
@@ -253,22 +258,6 @@ export function PaymentPage() {
 
         setPaymentStatus('success')
         setPaymentResult({ ...result, bookingId })
-
-        notifyNewBooking({
-          id: bookingId || result.paymentId || `BK-${Date.now()}`,
-          customerName:
-            bookingData.contactInfo?.firstName &&
-            bookingData.contactInfo?.lastName
-              ? `${bookingData.contactInfo.firstName} ${bookingData.contactInfo.lastName}`
-              : 'Customer',
-          email: bookingData.contactInfo?.email,
-          phone: bookingData.contactInfo?.phone,
-          locationName: bookingData.locationId,
-          planName: bookingData.planId,
-          amount: result.amount,
-          status: 'pending_verification',
-          createdAt: new Date().toISOString(),
-        })
       } catch (e) {
         console.error('Failed to create booking after QR verification:', e)
         setPaymentStatus('error')

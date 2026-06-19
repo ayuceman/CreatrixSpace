@@ -1,6 +1,11 @@
 import { X, ArrowRight } from 'lucide-react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useState, useMemo, useEffect } from 'react'
+import {
+  locationService,
+  bookTourContentService,
+  formSubmissionService,
+} from '@/services/supabase-service'
 
 interface BookTourSheetProps {
   open: boolean
@@ -8,31 +13,22 @@ interface BookTourSheetProps {
   seed?: { location?: string; plan?: string }
 }
 
-const locations = [
-  { id: 'dhobighat', name: 'Dhobighat Hub', address: 'Kathmandu' },
-  {
-    id: 'kausimaa',
-    name: 'Kausimaa Co-working',
-    address: 'Kupondole, Lalitpur',
-  },
-  { id: 'jhamsikhel', name: 'Jhamsikhel Loft', address: 'Lalitpur' },
+interface SheetLocation {
+  id: string
+  name: string
+  address: string
+}
+
+const defaultSheetLocations: SheetLocation[] = [
+  { id: 'dhobighat', name: 'Dhobighat', address: 'Kathmandu' },
+  { id: 'kausimaa', name: 'Kausimaa', address: 'Kupondole' },
+  { id: 'jhamsikhel', name: 'Jhamsikhel', address: 'Lalitpur' },
 ]
 
-const timeSlots = ['11:00', '12:00', '14:00', '15:00', '16:00']
-
-const interestOptions = [
-  { value: 'day', label: 'Day Pass — NPR 800 / day' },
-  { value: 'week', label: 'Week Pass — NPR 3,000 / week' },
-  { value: 'resident', label: 'Dedicated Desk — NPR 8,000 / month' },
-  { value: 'studio-2', label: 'Studio for two — NPR 24,000 / month' },
-  { value: 'studio-4', label: 'Studio for four — NPR 46,000 / month' },
-  {
-    value: 'studio-8',
-    label: 'Studio for six to eight — NPR From 78,000 / month',
-  },
-  { value: 'virtual', label: 'Virtual Office — NPR 6,000 / month' },
-  { value: 'just-looking', label: 'Just looking, thanks' },
-]
+interface InterestOption {
+  value: string
+  label: string
+}
 
 function generateDates() {
   const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
@@ -84,39 +80,89 @@ function StepCircle({
 }
 
 export function BookTourSheet({ open, onClose, seed }: BookTourSheetProps) {
-  const defaultLocation = locations[0].id
   const [step, setStep] = useState(1)
-  const [selectedLocation, setSelectedLocation] = useState<string | null>(
-    seed?.location || defaultLocation
-  )
+  const [selectedLocation, setSelectedLocation] = useState<string | null>(null)
   const [selectedDate, setSelectedDate] = useState<string | null>(null)
   const [selectedTime, setSelectedTime] = useState<string | null>(null)
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [phone, setPhone] = useState('')
-  const [interest, setInterest] = useState('day')
+  const [interest, setInterest] = useState('')
   const [notes, setNotes] = useState('')
 
+  const [locations, setLocations] = useState<SheetLocation[]>([])
+  const [timeSlots, setTimeSlots] = useState<string[]>([])
+  const [interestOptions, setInterestOptions] = useState<InterestOption[]>([])
+  const [step1Headline, setStep1Headline] = useState('')
+  const [step1Description, setStep1Description] = useState('')
+  const [step2Headline, setStep2Headline] = useState('')
+  const [confirmationEyebrow, setConfirmationEyebrow] = useState('')
+  const [confirmationTourDetails, setConfirmationTourDetails] = useState('')
+
   const dates = useMemo(() => generateDates(), [])
+
+  useEffect(() => {
+    if (!open) return
+    Promise.all([
+      locationService.getAllLocations(),
+      bookTourContentService.get(),
+    ]).then(([locData, content]) => {
+      const mapped: SheetLocation[] = (locData || []).map((l: any) => ({
+        id: l.slug || l.id,
+        name: l.name,
+        address: l.address || '',
+      }))
+      const loadedLocations = mapped.length > 0 ? mapped : defaultSheetLocations
+      const loadedOptions =
+        (content?.interest_options as InterestOption[]) ?? []
+      const loadedTimeSlots = (content?.time_slots as string[]) ?? [
+        '11:00',
+        '12:00',
+        '14:00',
+        '15:00',
+        '16:00',
+      ]
+
+      setLocations(loadedLocations)
+      setTimeSlots(loadedTimeSlots)
+      setInterestOptions(loadedOptions)
+      setStep1Headline(
+        content?.step1_headline ??
+          'Come by, have a coffee, <em class="text-clay">look around</em>.'
+      )
+      setStep1Description(
+        content?.step1_description ??
+          "A tour takes about twenty minutes. You'll meet whoever's running the floor that day; the coffee is on us."
+      )
+      setStep2Headline(
+        content?.step2_headline ??
+          'A couple of <em class="text-clay">details</em>.'
+      )
+      setConfirmationEyebrow(content?.confirmation_eyebrow ?? 'Confirmed')
+      setConfirmationTourDetails(
+        content?.confirmation_tour_details ??
+          "The full floor, the meeting rooms, the phone booths, the terrace. We'll show you the desk we'd put you at, what the wifi feels like, and where the coffee comes from."
+      )
+      const firstLoc = loadedLocations[0]?.id ?? null
+      setSelectedLocation(seed?.location || firstLoc)
+      setInterest(loadedOptions[0]?.value || '')
+    })
+  }, [open, seed?.location])
 
   const canContinueStep1 = selectedLocation && selectedDate && selectedTime
   const canConfirmStep2 = name && email
 
-  useEffect(() => {
-    if (open && seed?.location) {
-      setSelectedLocation(seed.location)
-    }
-  }, [open, seed?.location])
-
   const reset = () => {
     setStep(1)
-    setSelectedLocation(seed?.location || defaultLocation)
+    const current = locations.length > 0 ? locations : defaultSheetLocations
+    const firstLoc = current[0]?.id ?? null
+    setSelectedLocation(seed?.location || firstLoc)
     setSelectedDate(null)
     setSelectedTime(null)
     setName('')
     setEmail('')
     setPhone('')
-    setInterest('day')
+    setInterest(interestOptions[0]?.value || '')
     setNotes('')
   }
 
@@ -129,8 +175,23 @@ export function BookTourSheet({ open, onClose, seed }: BookTourSheetProps) {
     if (step === 1 && canContinueStep1) setStep(2)
   }
 
-  const handleConfirm = () => {
+  const handleConfirm = async () => {
     if (!canConfirmStep2) return
+    try {
+      await formSubmissionService.create({
+        form_type: 'book_tour',
+        name,
+        email,
+        phone: phone || null,
+        room: selectedLocName,
+        selected_date: selectedDate,
+        time_slot: selectedTime,
+        interest,
+        notes: notes || null,
+      })
+    } catch {
+      // silently fail — don't block the user
+    }
     setStep(3)
   }
 
@@ -223,14 +284,15 @@ export function BookTourSheet({ open, onClose, seed }: BookTourSheetProps) {
                   animate={{ opacity: 1, x: 0 }}
                   className="flex flex-col gap-6"
                 >
-                  <h2 className="font-display text-[40px] leading-[1.05] tracking-[-0.015em] m-0">
-                    Come by, have a coffee,{' '}
-                    <em className="text-clay">look around</em>.
-                  </h2>
-                  <p className="text-[15px] leading-[1.6] text-fg-2 m-0">
-                    A tour takes about twenty minutes. You'll meet whoever's
-                    running the floor that day; the coffee is on us.
-                  </p>
+                  <h2
+                    className="font-display text-[40px] leading-[1.05] tracking-[-0.015em] m-0"
+                    dangerouslySetInnerHTML={{ __html: step1Headline }}
+                  />
+                  {step1Description && (
+                    <p className="text-[15px] leading-[1.6] text-fg-2 m-0">
+                      {step1Description}
+                    </p>
+                  )}
 
                   {/* Location picker */}
                   <label className="flex flex-col gap-2">
@@ -360,9 +422,10 @@ export function BookTourSheet({ open, onClose, seed }: BookTourSheetProps) {
                   animate={{ opacity: 1, x: 0 }}
                   className="flex flex-col gap-6"
                 >
-                  <h2 className="font-display text-[36px] leading-[1.08] tracking-[-0.015em] m-0">
-                    A couple of <em className="text-clay">details</em>.
-                  </h2>
+                  <h2
+                    className="font-display text-[36px] leading-[1.08] tracking-[-0.015em] m-0"
+                    dangerouslySetInnerHTML={{ __html: step2Headline }}
+                  />
 
                   {/* Summary card */}
                   <div className="bg-bg-raised border border-rule rounded-sm p-[14px_18px] flex items-center gap-3.5 text-[13px] text-fg-2">
@@ -504,7 +567,7 @@ export function BookTourSheet({ open, onClose, seed }: BookTourSheetProps) {
                   animate={{ opacity: 1, x: 0 }}
                   className="flex flex-col gap-5 pt-3"
                 >
-                  <div className="eyebrow text-moss">Confirmed</div>
+                  <div className="eyebrow text-moss">{confirmationEyebrow}</div>
 
                   <h2 className="font-display text-5xl leading-[1.02] tracking-[-0.02em] m-0">
                     See you <em className="text-clay">{selectedDate}</em>,{' '}

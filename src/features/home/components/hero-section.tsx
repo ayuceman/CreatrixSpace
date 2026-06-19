@@ -9,8 +9,9 @@ import {
 import { WHATSAPP } from '@/lib/constants'
 import { Button } from '@/components/ui/button'
 import { useBookTour } from '@/lib/book-tour-context'
+import { heroService } from '@/services/supabase-service'
 
-const heroImages = [
+const defaultHeroImages = [
   {
     src: '/images/hero-slider/office-meeting-room.webp',
     alt: 'Modern meeting room with conference table',
@@ -43,7 +44,7 @@ const heroImages = [
   },
 ]
 
-const pricingStrip = [
+const defaultPricingStrip = [
   { label: 'NPR 800', sublabel: 'A day · no deposit' },
   { label: 'NPR 8,000', sublabel: 'A month · dedicated desk' },
   { label: '5 rooms', sublabel: 'Private offices — available now' },
@@ -56,14 +57,45 @@ interface HeroSectionProps {
 
 export function HeroSection({ onBookTour: _onBookTour }: HeroSectionProps) {
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
+  const [heroImages, setHeroImages] = useState(defaultHeroImages)
+  const [pricingStrip, setPricingStrip] = useState(defaultPricingStrip)
+  const [badge, setBadge] = useState('Now booking')
+  const [subBadgeHtml, setSubBadgeHtml] = useState(
+    '<b class="text-fg-1 font-medium">5 private offices</b> just opened across the three buildings — and <b class="text-fg-1 font-medium">25 hot desks</b> today'
+  )
+  const [headline1, setHeadline1] = useState('A quieter way')
+  const [headline2, setHeadline2] = useState('to work')
+  const [headline3, setHeadline3] = useState('in the valley.')
+  const [subheading, setSubheading] = useState(
+    'Three rooms across Kathmandu and Lalitpur — hot desks, dedicated desks, five lockable private offices, and a virtual office for NPR 6,000 a month.'
+  )
+  const [buttonText, setButtonText] = useState('Book a tour')
+  const [whatsappText, setWhatsappText] = useState('WhatsApp')
   const { openTour } = useBookTour()
+
+  useEffect(() => {
+    heroService.get().then((data) => {
+      if (data) {
+        if (data.images?.length) setHeroImages(data.images)
+        if (data.pricing?.length) setPricingStrip(data.pricing)
+        if (data.badge) setBadge(data.badge)
+        if (data.sub_badge) setSubBadgeHtml(data.sub_badge)
+        if (data.headline_1) setHeadline1(data.headline_1)
+        if (data.headline_2) setHeadline2(data.headline_2)
+        if (data.headline_3) setHeadline3(data.headline_3)
+        if (data.subheading) setSubheading(data.subheading)
+        if (data.button_text) setButtonText(data.button_text)
+        if (data.whatsapp_text) setWhatsappText(data.whatsapp_text)
+      }
+    })
+  }, [])
 
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentImageIndex((prev) => (prev + 1) % heroImages.length)
     }, 5000)
     return () => clearInterval(interval)
-  }, [])
+  }, [heroImages.length])
 
   const nextImage = () => {
     setCurrentImageIndex((prev) => (prev + 1) % heroImages.length)
@@ -90,15 +122,14 @@ export function HeroSection({ onBookTour: _onBookTour }: HeroSectionProps) {
                 className="relative inline-block w-2 h-2 rounded-full bg-moss before:absolute before:-inset-1 before:rounded-full before:border before:border-moss before:opacity-60 before:animate-ping"
               />
               <span className="eyebrow text-label uppercase tracking-widest font-medium text-moss">
-                Now booking
+                {badge}
               </span>
             </span>
             <span className="w-px h-3.5 bg-rule-strong" />
-            <span className="text-[13px] text-fg-2">
-              <b className="text-fg-1 font-medium">5 private offices</b> just
-              opened across the three buildings — and{' '}
-              <b className="text-fg-1 font-medium">25 hot desks</b> today
-            </span>
+            <span
+              className="text-[13px] text-fg-2"
+              dangerouslySetInnerHTML={{ __html: subBadgeHtml }}
+            />
           </div>
         </motion.div>
         <div className="grid grid-cols-1 lg:grid-cols-[1.5fr_1fr] gap-14 items-end pb-14">
@@ -109,11 +140,11 @@ export function HeroSection({ onBookTour: _onBookTour }: HeroSectionProps) {
             transition={{ duration: 0.8, ease: 'easeOut' }}
           >
             <h1 className="font-display font-normal text-[clamp(56px,9vw,132px)] leading-[0.95] tracking-tight m-0 text-fg-1">
-              A quieter way
+              {headline1}
               <br />
-              <em className="text-clay">to work</em>
+              <em className="text-clay">{headline2}</em>
               <br />
-              in the valley.
+              {headline3}
             </h1>
           </motion.div>
 
@@ -125,15 +156,13 @@ export function HeroSection({ onBookTour: _onBookTour }: HeroSectionProps) {
           >
             <div>
               <p className="text-[19px] leading-[1.55] text-fg-2 max-w-95 mb-8">
-                Three rooms across Kathmandu and Lalitpur — hot desks, dedicated
-                desks, five lockable private offices, and a virtual office for
-                NPR 6,000 a month.
+                {subheading}
               </p>
 
               <div className="hidden md:flex items-center gap-4">
                 <Button
                   variant="dark"
-                  text="Book a tour"
+                  text={buttonText}
                   icon={ArrowRight}
                   iconPosition="right"
                   className="py-3.5 px-7"
@@ -142,7 +171,7 @@ export function HeroSection({ onBookTour: _onBookTour }: HeroSectionProps) {
                 <Button
                   variant="outline"
                   icon={MessageCircle}
-                  text="WhatsApp"
+                  text={whatsappText}
                   className="py-3.5 px-7 rounded-none"
                   href={WHATSAPP.url}
                   target="_blank"

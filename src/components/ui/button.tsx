@@ -7,21 +7,30 @@ import { IconType } from 'react-icons'
 import { cn } from '@/lib/utils'
 
 const buttonVariants = cva(
-  'inline-flex items-center justify-center cursor-pointer p-3 whitespace-nowrap rounded-full text-sm disabled:pointer-events-none disabled:opacity-50 transition-colors',
+  'inline-flex items-center justify-center p-3 whitespace-nowrap rounded-full text-sm disabled:pointer-events-none disabled:opacity-50 transition-colors',
   {
     variants: {
       variant: {
-        default: 'bg-clay text-white hover:bg-clay/90',
-        dark: 'bg-foreground text-white border border-foreground hover:bg-white hover:text-fg-1',
-        destructive: 'bg-clay-deep text-fg-on-ink-1 hover:bg-clay-deep/90',
-        outline: 'border border-rule bg-bg hover:bg-clay-soft hover:text-fg-1',
-        secondary: 'bg-moss-soft text-fg-1 hover:bg-moss-soft/80',
-        ghost: 'hover:bg-clay-soft hover:text-fg-1',
-        link: 'text-clay underline-offset-4 hover:underline',
+        default: 'bg-primary text-white hover:bg-primary/90',
+        dark: 'bg-foreground text-white hover:bg-white hover:text-foreground',
+        destructive:
+          'bg-destructive text-destructive-foreground hover:bg-destructive/90',
+        outline:
+          'border border-input bg-background hover:bg-accent hover:text-accent-foreground',
+        secondary:
+          'bg-secondary text-secondary-foreground hover:bg-secondary/80',
+        ghost: 'hover:bg-accent hover:text-accent-foreground',
+        link: 'text-primary underline-offset-4 hover:underline',
+      },
+      size: {
+        sm: 'px-2.5 py-1.5 text-xs rounded-sm',
+        lg: 'px-7 py-3.5 text-base',
+        default: 'p-3',
       },
     },
     defaultVariants: {
       variant: 'default',
+      size: 'default',
     },
   }
 )
@@ -31,13 +40,15 @@ export interface ButtonProps
     Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, 'children'>,
     VariantProps<typeof buttonVariants> {
   asChild?: boolean
-  text: string
+  text?: string
+  children?: React.ReactNode
   icon?: IconType
   iconPosition?: 'left' | 'right'
   iconSize?: number
   href?: string
   target?: React.AnchorHTMLAttributes<HTMLAnchorElement>['target']
   rel?: string
+  size?: 'sm' | 'lg' | 'default'
 }
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
@@ -45,10 +56,12 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     {
       className,
       variant,
+      size,
       icon: Icon,
       iconPosition = 'left',
       iconSize = 16,
       text,
+      children,
       href,
       target,
       rel,
@@ -57,7 +70,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     },
     ref
   ) => {
-    const classes = cn(buttonVariants({ variant, className }))
+    const classes = cn(buttonVariants({ variant, size, className }))
 
     const iconNode = Icon ? (
       <Icon
@@ -67,10 +80,11 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       />
     ) : null
 
+    const label = text ?? children
     const content = (
       <>
         {iconPosition === 'left' && iconNode}
-        {text}
+        {label}
         {iconPosition === 'right' && iconNode}
       </>
     )

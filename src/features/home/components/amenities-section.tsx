@@ -1,4 +1,5 @@
 import { motion } from 'framer-motion'
+import { useEffect, useState } from 'react'
 import {
   Clock,
   Wifi,
@@ -8,60 +9,53 @@ import {
   Coffee,
   Phone,
   Mail,
+  type LucideIcon,
 } from 'lucide-react'
+import { amenitiesService } from '@/services/supabase-service'
 
-const amenities = [
-  {
-    icon: Clock,
-    title: '24/7 access',
-    description:
-      'Residents and private-office members get a key fob. Come in at six, leave at four — no one is keeping score.',
-  },
-  {
-    icon: Wifi,
-    title: '1G symmetric fibre',
-    description:
-      'Backed up by a second line and a UPS that has actually been tested. Latency posted to a public dashboard each month.',
-  },
-  {
-    icon: Users,
-    title: 'Meeting rooms',
-    description:
-      'Seven meeting rooms across the three buildings. Bookable by the hour. Projector, speakerphone, and coffee that work.',
-  },
-  {
-    icon: CalendarDays,
-    title: 'Event spaces',
-    description:
-      'Six to sixty seats. Setup, teardown, and a host on the floor — included in the weekend hire.',
-  },
-  {
-    icon: Sunrise,
-    title: 'Rooftop & terrace',
-    description:
-      'Two of the three buildings have one. Best around four in the afternoon.',
-  },
-  {
-    icon: Coffee,
-    title: 'Cafés on site',
-    description:
-      'A café below Dhobighat and another below Jhamsikhel. Members get the resident discount.',
-  },
-  {
-    icon: Phone,
-    title: 'Phone booths',
-    description:
-      'Quiet, well-lit, with a hook for your coat. No one will hear you breathe.',
-  },
-  {
-    icon: Mail,
-    title: 'Mail & registered address',
-    description:
-      'Use any of the three buildings as your business address. We sign for things and let you know.',
-  },
-]
+const iconMap: Record<string, LucideIcon> = {
+  clock: Clock,
+  wifi: Wifi,
+  presentation: Users,
+  calendar: CalendarDays,
+  sun: Sunrise,
+  coffee: Coffee,
+  phone: Phone,
+  mail: Mail,
+}
+
+const defaultEyebrow = "What's in the room"
+const defaultHeadline1 = "The things you'd"
+const defaultHeadlineEm = 'expect'
+const defaultHeadline2 = ', kept well.'
+const defaultDescription =
+  "We don't have a foosball table. We do have a phone booth where you can hear the other person, a kettle that has been on every weekday since 2022, and an electrician on speed-dial. The list below is what every room shares — the locations page has the rest."
 
 export function AmenitiesSection() {
+  const [amenities, setAmenities] = useState<any[]>([])
+  const [eyebrow, setEyebrow] = useState(defaultEyebrow)
+  const [headline1, setHeadline1] = useState(defaultHeadline1)
+  const [headlineEm, setHeadlineEm] = useState(defaultHeadlineEm)
+  const [headline2, setHeadline2] = useState(defaultHeadline2)
+  const [description, setDescription] = useState(defaultDescription)
+
+  useEffect(() => {
+    amenitiesService.getAll().then(setAmenities)
+    amenitiesService
+      .getContent()
+      .then((data) => {
+        if (data) {
+          setEyebrow(data.eyebrow ?? defaultEyebrow)
+          setHeadline1(data.headline_1 ?? defaultHeadline1)
+          setHeadlineEm(data.headline_em ?? defaultHeadlineEm)
+          setHeadline2(data.headline_2 ?? defaultHeadline2)
+          setDescription(data.description ?? defaultDescription)
+        }
+      })
+      .catch(() => {})
+  }, [])
+
+  if (amenities.length === 0) return null
   return (
     <section id="amenities" className="py-32">
       <div className="container">
@@ -73,26 +67,23 @@ export function AmenitiesSection() {
           className="grid grid-cols-1 lg:grid-cols-[1fr_1.3fr] gap-20 mb-14 items-start"
         >
           <div>
-            <div className="eyebrow text-clay mb-4.5">What's in the room</div>
+            <div className="eyebrow text-clay mb-4.5">{eyebrow}</div>
             <h2 className="font-display font-normal text-[clamp(36px,4.6vw,64px)] leading-[1.05] tracking-[-0.015em] m-0">
-              The things you'd <em className="text-clay not-italic">expect</em>,
-              kept well.
+              {headline1} <em className="text-clay">{headlineEm}</em>{' '}
+              {headline2}
             </h2>
           </div>
           <p className="text-lg leading-[1.6] text-fg-2 max-w-135 pt-5.5 m-0">
-            We don't have a foosball table. We do have a phone booth where you
-            can hear the other person, a kettle that has been on every weekday
-            since 2022, and an electrician on speed-dial. The list below is what
-            every room shares — the locations page has the rest.
+            {description}
           </p>
         </motion.div>
 
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           {amenities.map((amenity, i) => {
-            const Icon = amenity.icon
+            const Icon = iconMap[amenity.icon] || Clock
             return (
               <motion.div
-                key={amenity.title}
+                key={amenity.id}
                 initial={{ opacity: 0, y: 16 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}

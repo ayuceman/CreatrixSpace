@@ -1,9 +1,10 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { ArrowRight, MessageCircle } from 'lucide-react'
 import { WHATSAPP } from '@/lib/constants'
 import { Button } from '@/components/ui/button'
 import { Link } from 'react-router-dom'
+import { membershipService } from '@/services/supabase-service'
 
 interface PlanCard {
   id: string
@@ -14,9 +15,9 @@ interface PlanCard {
   period: string
   description: string
   features: string[]
-  featured?: boolean
+  highlight?: boolean
   badge?: string
-  availability?: string
+  availability?: boolean
   cta: string
 }
 
@@ -38,7 +39,18 @@ interface PlanTab {
   }
 }
 
-const tabs: PlanTab[] = [
+const defaultHeadline =
+  'Pick a room. <em class="text-clay">Show up tomorrow.</em>'
+const defaultDescription =
+  'Four ways to work with us — day passes, dedicated desks, lockable private offices, and a virtual office for founders who want a Kathmandu address. No deposit, no joining fee, cancel any time.'
+const defaultFooterTags = [
+  'NO DEPOSIT',
+  'CANCEL ANY TIME',
+  'PRICES INCLUDE 13% VAT',
+  'FIRST DAY ON US FOR DAY PASSES',
+]
+
+const defaultTabs: PlanTab[] = [
   {
     id: 'open-desks',
     label: 'Open desks',
@@ -89,7 +101,6 @@ const tabs: PlanTab[] = [
           'Eight hours of meeting room',
           'Two event passes per month',
         ],
-        featured: true,
         badge: 'Most picked',
         cta: 'Start dedicated desk',
       },
@@ -115,7 +126,7 @@ const tabs: PlanTab[] = [
           '16 hrs meeting room / mo',
           'Mail at your address',
         ],
-        availability: 'AVAILABLE AT KAUSIMAA & JHAMSIKHEL',
+        availability: true,
         cta: 'Book a viewing',
       },
       {
@@ -132,9 +143,8 @@ const tabs: PlanTab[] = [
           '24 hrs meeting room / mo',
           'Phone-booth credits',
         ],
-        featured: true,
         badge: 'Most picked',
-        availability: 'AVAILABLE AT DHOBIGHAT & KAUSIMAA',
+        availability: true,
         cta: 'Book a viewing',
       },
       {
@@ -152,7 +162,7 @@ const tabs: PlanTab[] = [
           'Custom signage on the door',
           'Dedicated host on the floor',
         ],
-        availability: 'AVAILABLE AT DHOBIGHAT (FLAGSHIP)',
+        availability: true,
         cta: 'Book a viewing',
       },
     ],
@@ -182,7 +192,7 @@ const tabs: PlanTab[] = [
   },
 ]
 
-function PlanCard({ card }: { card: PlanCard }) {
+function PlanCardComponent({ card }: { card: PlanCard }) {
   const waMsg = encodeURIComponent(
     `Hello CreatrixSpace — I'd like to enquire about the ${card.name} plan. `
   )
@@ -190,14 +200,14 @@ function PlanCard({ card }: { card: PlanCard }) {
   return (
     <div
       className={`rounded-sm p-[28px_26px] flex flex-col gap-3.5 h-full transition-all ${
-        card.featured
+        card.highlight
           ? 'bg-ink border border-transparent text-fg-on-ink-1'
           : 'bg-bg-raised border border-rule text-fg-1'
       }`}
     >
       <div className="flex justify-between items-center gap-2">
         <span
-          className={`eyebrow ${card.featured ? 'text-fg-on-ink-2' : 'text-fg-2'}`}
+          className={`eyebrow ${card.highlight ? 'text-fg-on-ink-2' : 'text-fg-2'}`}
         >
           {card.eyebrow}
         </span>
@@ -210,27 +220,25 @@ function PlanCard({ card }: { card: PlanCard }) {
 
       <div className="flex items-baseline gap-1.5 mt-1">
         {card.prefix === 'From' ? (
-          <>
-            <span
-              className={`font-display text-[40px] leading-none tracking-[-0.015em] ${card.featured ? 'text-fg-on-ink-1' : 'text-fg-1'}`}
-            >
-              From {card.price}
-            </span>
-          </>
+          <span
+            className={`font-display text-[40px] leading-none tracking-[-0.015em] ${card.highlight ? 'text-fg-on-ink-1' : 'text-fg-1'}`}
+          >
+            From {card.price}
+          </span>
         ) : (
           <>
             <span
-              className={`font-mono text-[13px] ${card.featured ? 'text-fg-on-ink-2' : 'text-fg-2'}`}
+              className={`font-mono text-[13px] ${card.highlight ? 'text-fg-on-ink-2' : 'text-fg-2'}`}
             >
               NPR
             </span>
             <span
-              className={`font-display text-[60px] leading-none tracking-[-0.015em] ${card.featured ? 'text-fg-on-ink-1' : 'text-fg-1'}`}
+              className={`font-display text-[60px] leading-none tracking-[-0.015em] ${card.highlight ? 'text-fg-on-ink-1' : 'text-fg-1'}`}
             >
               {card.price}
             </span>
             <span
-              className={`text-[13px] ml-1 ${card.featured ? 'text-fg-on-ink-2' : 'text-fg-2'}`}
+              className={`text-[13px] ml-1 ${card.highlight ? 'text-fg-on-ink-2' : 'text-fg-2'}`}
             >
               {card.period}
             </span>
@@ -239,7 +247,7 @@ function PlanCard({ card }: { card: PlanCard }) {
       </div>
 
       <p
-        className={`text-sm leading-[1.55] m-0 mt-1 ${card.featured ? 'text-fg-on-ink-2' : 'text-fg-2'}`}
+        className={`text-sm leading-[1.55] m-0 mt-1 ${card.highlight ? 'text-fg-on-ink-2' : 'text-fg-2'}`}
       >
         {card.description}
       </p>
@@ -248,7 +256,7 @@ function PlanCard({ card }: { card: PlanCard }) {
         {card.features.map((f) => (
           <li
             key={f}
-            className={`flex gap-3 items-start text-sm ${card.featured ? 'text-fg-on-ink-1' : 'text-fg-1'}`}
+            className={`flex gap-3 items-start text-sm ${card.highlight ? 'text-fg-on-ink-1' : 'text-fg-1'}`}
           >
             <span className="shrink-0 mt-0.5 text-clay">—</span>
             {f}
@@ -259,7 +267,7 @@ function PlanCard({ card }: { card: PlanCard }) {
       {card.availability && (
         <div className="mt-1 text-xs font-mono flex items-center gap-2 text-moss">
           <span className="inline-block w-1.5 h-1.5 rounded-full bg-moss" />
-          {card.availability}
+          Available
         </div>
       )}
 
@@ -270,17 +278,16 @@ function PlanCard({ card }: { card: PlanCard }) {
           iconPosition="right"
           iconSize={16}
           className={`w-full rounded-sm! px-5 py-3.25 text-sm font-medium border-0 justify-between ${
-            card.featured ? 'bg-bg text-ink' : 'bg-ink text-bg'
+            card.highlight ? 'bg-bg text-ink' : 'bg-ink text-bg'
           }`}
         />
-
         <Link
           to={`https://wa.me/${WHATSAPP.NUMBER}?text=${waMsg}`}
           target="_blank"
           rel="noopener"
           className={`flex items-center justify-center gap-2 px-3 py-2.5 rounded-sm text-[13px] font-medium no-underline cursor-pointer text-center ${
-            card.featured
-              ? 'text-fg-on-ink-1 border border-rule-on-ink'
+            card.highlight
+              ? 'text-white/80 border border-white/20'
               : 'text-fg-1 border border-rule-strong'
           }`}
         >
@@ -292,14 +299,32 @@ function PlanCard({ card }: { card: PlanCard }) {
   )
 }
 
-interface MembershipSectionProps {
-  onBookTour?: (plan: string) => void
-}
-
-export function MembershipSection({
-  onBookTour: _onBookTour,
-}: MembershipSectionProps) {
+export function MembershipSection() {
+  const [headline, setHeadline] = useState(defaultHeadline)
+  const [description, setDescription] = useState(defaultDescription)
+  const [tabs, setTabs] = useState<PlanTab[]>(defaultTabs)
+  const [footerTags, setFooterTags] = useState(defaultFooterTags)
   const [activeId, setActiveId] = useState('open-desks')
+
+  useEffect(() => {
+    membershipService
+      .get()
+      .then((data) => {
+        if (data) {
+          setHeadline(data.headline ?? defaultHeadline)
+          setDescription(data.description ?? defaultDescription)
+          const loadedTabs =
+            (data.tabs as PlanTab[])?.length > 0
+              ? (data.tabs as PlanTab[])
+              : defaultTabs
+          setTabs(loadedTabs)
+          setFooterTags((data.footer_tags as string[]) ?? defaultFooterTags)
+          if (loadedTabs.length > 0) setActiveId(loadedTabs[0].id)
+        }
+      })
+      .catch(() => {})
+  }, [])
+
   const activeTab = tabs.find((t) => t.id === activeId)!
 
   const waMsgVirtual = encodeURIComponent(
@@ -317,19 +342,18 @@ export function MembershipSection({
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6, ease: [0.2, 0.7, 0.2, 1] }}
-          className="grid grid-cols-[1fr_1.3fr] gap-20 mb-12 items-start"
+          className="grid grid-cols-1 lg:grid-cols-[1fr_1.3fr] gap-20 mb-16 items-start"
         >
           <div>
-            <div className="eyebrow text-clay mb-4.5">Membership</div>
-            <h2 className="font-display font-normal text-[clamp(40px,5vw,80px)] leading-[1.02] tracking-[-0.015em] m-0">
-              Pick a room. <em className="text-clay">Show up tomorrow.</em>
-            </h2>
+            <div className="eyebrow text-clay mb-4.5">Pricing plans</div>
+            <h2
+              className="font-display font-normal text-[clamp(36px,4.6vw,64px)] leading-[1.05] tracking-[-0.015em] m-0"
+              dangerouslySetInnerHTML={{ __html: headline }}
+            />
           </div>
-          <div className="pt-4.5">
+          <div>
             <p className="text-lg leading-[1.6] text-fg-2 max-w-135 m-0">
-              Four ways to work with us — day passes, dedicated desks, lockable
-              private offices, and a virtual office for founders who want a
-              Kathmandu address. No deposit, no joining fee, cancel any time.
+              {description}
             </p>
           </div>
         </motion.div>
@@ -357,123 +381,105 @@ export function MembershipSection({
             ))}
           </div>
           <div className="text-[13px] text-fg-3 font-mono">
-            {activeTab.subtitle}
+            {activeTab?.subtitle}
           </div>
         </motion.div>
 
-        {activeTab.mode === 'grid' && activeTab.cards ? (
-          <div className="grid grid-cols-3 gap-4">
+        {activeTab?.mode === 'grid' && activeTab.cards ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
             {activeTab.cards.map((card, i) => (
               <motion.div
                 key={card.id}
-                initial={{ opacity: 0, y: 20 }}
+                initial={{ opacity: 0, y: 16 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{
-                  duration: 0.5,
-                  delay: 0.1 * i,
+                  duration: 0.4,
+                  delay: 0.05 * i,
                   ease: [0.2, 0.7, 0.2, 1],
                 }}
               >
-                <PlanCard card={card} />
+                <PlanCardComponent card={card} />
               </motion.div>
             ))}
           </div>
-        ) : activeTab.single ? (
+        ) : activeTab?.single ? (
           <motion.div
-            initial={{ opacity: 0, y: 24 }}
+            initial={{ opacity: 0, y: 16 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.6, ease: [0.2, 0.7, 0.2, 1] }}
-            className="bg-bg-raised border border-rule rounded-sm p-[36px_40px] flex flex-col gap-3.5"
+            transition={{ duration: 0.4, ease: [0.2, 0.7, 0.2, 1] }}
+            className="bg-bg-raised border border-rule rounded-sm p-[40px_44px] flex flex-col lg:flex-row gap-12"
           >
-            <div className="grid grid-cols-[1fr_1.1fr] gap-12 items-start">
-              <div className="flex flex-col gap-4.5">
-                <span className="eyebrow text-fg-2">
-                  {activeTab.single.eyebrow}
-                </span>
-                <div className="font-display text-[clamp(36px,4vw,56px)] leading-none tracking-[-0.015em]">
-                  {activeTab.single.name}
-                </div>
-                <div className="flex items-baseline gap-1.5">
-                  <span className="font-mono text-sm text-fg-2">NPR</span>
-                  <span className="font-display text-80 leading-none tracking-[-0.02em]">
-                    {activeTab.single.price}
-                  </span>
-                  <span className="text-sm text-fg-2 ml-1.5">
-                    {activeTab.single.period}
-                  </span>
-                </div>
-                <p className="text-[15px] leading-[1.6] text-fg-2 m-0 max-w-105">
-                  {activeTab.single.description}
-                </p>
-                <div className="text-xs font-mono text-clay pt-3.5 border-t border-rule">
-                  {activeTab.single.badge}
-                </div>
-                <div className="flex gap-2.5 flex-wrap mt-1.5">
-                  <Link
-                    to={`https://wa.me/${WHATSAPP.NUMBER}?text=${waMsgVirtual}`}
-                    target="_blank"
-                    rel="noopener"
-                    className="inline-flex items-center gap-2 px-5.5 py-3 rounded-pill text-sm font-medium bg-ink text-bg hover:bg-ink/90 transition-all cursor-pointer no-underline"
-                  >
-                    <MessageCircle className="h-4 w-4" />
-                    WhatsApp us
-                  </Link>
-                  <Link
-                    to="mailto:hello@creatrixventures.space?subject=Virtual Office enquiry"
-                    className="inline-flex items-center gap-2 px-4.5 py-3 rounded-pill text-sm font-medium border border-rule text-fg-1 hover:bg-bg-raised transition-all cursor-pointer no-underline"
-                  >
-                    Email instead
-                  </Link>
-                </div>
+            <div className="flex-1 flex flex-col gap-3.5">
+              <span className="eyebrow text-fg-2">
+                {activeTab.single.eyebrow}
+              </span>
+              <div className="font-display text-[40px] leading-[1.05] tracking-[-0.015em]">
+                {activeTab.single.name}
               </div>
-
-              <div>
-                <div className="eyebrow text-clay mb-4.5">What's included</div>
-                <ul className="list-none p-0 m-0 flex flex-col gap-3.5">
-                  {activeTab.single.features.map((feature) => (
-                    <li
-                      key={feature}
-                      className="flex gap-3.5 items-start text-base leading-[1.45] pb-3.5 border-b border-rule"
-                    >
-                      <svg
-                        viewBox="0 0 24 24"
-                        width="18"
-                        height="18"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="1.5"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        aria-hidden="true"
-                        className="shrink-0 mt-0.5 text-clay"
-                      >
-                        <path d="M20 6 9 17l-5-5" />
-                      </svg>
-                      {feature}
-                    </li>
-                  ))}
-                </ul>
+              <div className="flex items-baseline gap-1">
+                <span className="font-mono text-[13px] text-fg-2">NPR</span>
+                <span className="font-display text-80 leading-none tracking-[-0.02em]">
+                  {activeTab.single.price}
+                </span>
+                <span className="text-sm text-fg-2 ml-1.5">
+                  {activeTab.single.period}
+                </span>
+              </div>
+              <p className="text-[15px] leading-[1.6] text-fg-2 m-0 max-w-105">
+                {activeTab.single.description}
+              </p>
+              <div className="text-xs font-mono text-clay pt-3.5 border-t border-rule">
+                {activeTab.single.badge}
+              </div>
+            </div>
+            <div className="flex-1 flex flex-col gap-5">
+              <ul className="list-none p-0 m-0 flex flex-col gap-3">
+                {activeTab.single.features.map((feature) => (
+                  <li key={feature} className="flex gap-3 text-sm text-fg-1">
+                    <span className="shrink-0 mt-0.5 text-clay">—</span>
+                    {feature}
+                  </li>
+                ))}
+              </ul>
+              <div className="flex gap-2.5 flex-wrap mt-auto">
+                <Button
+                  text="Set up virtual office"
+                  icon={ArrowRight}
+                  iconPosition="right"
+                  variant="dark"
+                  href={`https://wa.me/${WHATSAPP.NUMBER}?text=${waMsgVirtual}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-7 py-3.25 leading-none rounded-sm!"
+                />
+                <Button
+                  text="Or send a request"
+                  variant="outline"
+                  href="#cta"
+                  className="px-5.5 py-3.25 rounded-sm! leading-none"
+                />
               </div>
             </div>
           </motion.div>
         ) : null}
 
         <motion.div
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
+          initial={{ opacity: 0, y: 16 }}
+          whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.5, delay: 0.4, ease: [0.2, 0.7, 0.2, 1] }}
-          className="mt-10 text-[13px] text-fg-3 font-mono flex gap-4.5 flex-wrap"
+          transition={{ duration: 0.4, delay: 0.2, ease: [0.2, 0.7, 0.2, 1] }}
+          className="flex items-center justify-center gap-3 flex-wrap mt-14"
         >
-          <span>NO DEPOSIT</span>
-          <span>·</span>
-          <span>CANCEL ANY TIME</span>
-          <span>·</span>
-          <span>PRICES INCLUDE 13% VAT</span>
-          <span>·</span>
-          <span>FIRST DAY ON US FOR DAY PASSES</span>
+          {footerTags.map((tag) => (
+            <span
+              key={tag}
+              className="inline-flex items-center gap-1.5 px-4 py-2 bg-bg-raised border border-rule rounded-full text-xs font-mono text-fg-2 tracking-wide uppercase"
+            >
+              {tag}
+            </span>
+          ))}
         </motion.div>
       </div>
     </section>

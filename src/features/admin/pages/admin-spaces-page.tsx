@@ -3,7 +3,8 @@ import { Plus, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { spacesService } from '@/services/supabase-service'
-import { supabase, supabaseAdmin } from '@/lib/supabase'
+import { supabase } from '@/lib/supabase'
+import { supabaseAdmin } from '@/lib/supabase-admin'
 import { showToast } from '@/components/ui/toast'
 
 interface StatItem {

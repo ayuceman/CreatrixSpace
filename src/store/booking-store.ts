@@ -347,22 +347,33 @@ export const useBookingStore = create<BookingStore>()(
 
       getPlanPricingForLocation: (planId, locationId, roomId) => {
         const { plans, locationPlanPricing, roomPlanPricing } = get()
+        const plan = plans.find((p) => p.id === planId)
+        let resolvedPricing: PlanPricing = {}
+
         if (
           roomId &&
           roomPlanPricing[roomId] &&
           roomPlanPricing[roomId][planId]
         ) {
-          return roomPlanPricing[roomId][planId]
-        }
-        if (
+          resolvedPricing = roomPlanPricing[roomId][planId]
+        } else if (
           locationId &&
           locationPlanPricing[locationId] &&
           locationPlanPricing[locationId][planId]
         ) {
-          return locationPlanPricing[locationId][planId]
+          resolvedPricing = locationPlanPricing[locationId][planId]
+        } else {
+          resolvedPricing = plan?.pricing || {}
         }
-        const plan = plans.find((p) => p.id === planId)
-        return plan?.pricing || {}
+
+        if (
+          plan?.type === 'day_pass' &&
+          plan.name?.toLowerCase() === 'explorer'
+        ) {
+          return { ...resolvedPricing, daily: 50000 }
+        }
+
+        return resolvedPricing
       },
 
       getRoomsForLocation: (locationId) => {

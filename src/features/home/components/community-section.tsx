@@ -1,14 +1,18 @@
-import { useRef } from 'react'
+import { useRef, useState, useEffect } from 'react'
 import {
   motion,
   useMotionValue,
   useAnimationFrame,
   useTransform,
 } from 'framer-motion'
+import {
+  testimonialsService,
+  memberCompaniesService,
+} from '@/services/supabase-service'
 
 const avatarColors = ['bg-clay-deep', 'bg-fg-2', 'bg-clay'] as const
 
-const testimonials = [
+const defaultTestimonials = [
   {
     initials: 'SP',
     quote:
@@ -53,7 +57,7 @@ const testimonials = [
   },
 ]
 
-const companies = [
+const defaultCompanies = [
   { name: 'Loomstack', italic: false },
   { name: 'Tuk\u012B Studio', italic: true },
   { name: 'Naya Press', italic: false },
@@ -71,6 +75,33 @@ const companies = [
 ]
 
 export function CommunitySection() {
+  const [testimonials, setTestimonials] = useState(defaultTestimonials)
+  const [companies, setCompanies] = useState(defaultCompanies)
+
+  useEffect(() => {
+    testimonialsService.getAll().then((data) => {
+      if (data && data.length > 0) {
+        setTestimonials(
+          data.map((t: any) => ({
+            initials: t.author_initials || '',
+            quote: t.quote,
+            name: t.author_name,
+            role: t.author_role || '',
+          }))
+        )
+      }
+    })
+    memberCompaniesService.getAll().then((data) => {
+      if (data && data.length > 0) {
+        setCompanies(
+          data.map((c: any) => ({
+            name: c.name,
+            italic: c.italic || false,
+          }))
+        )
+      }
+    })
+  }, [])
   const tx = useMotionValue(0)
   const testPaused = useRef(false)
   const testSpeed = 1 / 30000
