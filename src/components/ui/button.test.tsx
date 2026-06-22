@@ -6,7 +6,7 @@ describe('Button', () => {
     render(<Button>Click me</Button>)
     const button = screen.getByRole('button', { name: /click me/i })
     expect(button).toBeInTheDocument()
-    expect(button).toHaveClass('bg-clay')
+    expect(button).toHaveClass('bg-primary')
   })
 
   it('renders with outline variant', () => {
@@ -20,7 +20,7 @@ describe('Button', () => {
     render(<Button size="lg">Large button</Button>)
     const button = screen.getByRole('button', { name: /large button/i })
     expect(button).toBeInTheDocument()
-    expect(button).toHaveClass('h-11')
+    expect(button).toHaveClass('px-7')
   })
 
   it('can be disabled', () => {

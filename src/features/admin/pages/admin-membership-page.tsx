@@ -5,24 +5,6 @@ import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { membershipService } from '@/services/supabase-service'
 import { showToast } from '@/components/ui/toast'
 
-interface HeadlineParts {
-  prefix: string
-  em: string
-  suffix: string
-}
-
-function parseHeadline(html: string): HeadlineParts {
-  const match = html.match(/^(.*?)<em class="text-clay">(.*?)<\/em>(.*)$/)
-  if (!match) return { prefix: html || '', em: '', suffix: '' }
-  return { prefix: match[1], em: match[2], suffix: match[3] }
-}
-
-function buildHeadline(parts: HeadlineParts): string {
-  const { prefix, em, suffix } = parts
-  if (!em) return prefix + suffix
-  return `${prefix}<em class="text-clay">${em}</em>${suffix}`
-}
-
 interface CardData {
   id: string
   eyebrow: string
@@ -56,20 +38,8 @@ interface TabData {
   }
 }
 
-const defaultHeadlineParts = parseHeadline(
-  'Pick a room. <em class="text-clay">Show up tomorrow.</em>'
-)
-
 const emptyForm = {
-  headlineParts: defaultHeadlineParts,
-  description: '',
   tabs: [] as TabData[],
-  footer_tags: [
-    'NO DEPOSIT',
-    'CANCEL ANY TIME',
-    'PRICES INCLUDE 13% VAT',
-    'FIRST DAY ON US FOR DAY PASSES',
-  ],
 }
 
 let cardIdCounter = Date.now()
@@ -87,13 +57,7 @@ export function AdminMembershipPage() {
       .get()
       .then((data) => {
         if (data) {
-          setForm({
-            headlineParts: parseHeadline(data.headline ?? ''),
-            description: data.description ?? '',
-            tabs: (data.tabs as TabData[]) ?? [],
-            footer_tags:
-              (data.footer_tags as string[]) ?? emptyForm.footer_tags,
-          })
+          setForm({ tabs: (data.tabs as TabData[]) ?? [] })
         }
         setLoading(false)
       })
@@ -103,13 +67,7 @@ export function AdminMembershipPage() {
   const handleSave = async () => {
     setSaving(true)
     try {
-      const payload = {
-        headline: buildHeadline(form.headlineParts),
-        description: form.description,
-        tabs: form.tabs,
-        footer_tags: form.footer_tags,
-      }
-      await membershipService.upsert(payload)
+      await membershipService.upsert({ tabs: form.tabs })
       showToast('Membership content saved!')
     } catch (err) {
       showToast(`Save failed: ${(err as any)?.message || err}`, 'error')
@@ -288,102 +246,6 @@ export function AdminMembershipPage() {
         </div>
         <Button text="Save All" onClick={handleSave} disabled={saving} />
       </div>
-
-      <Card>
-        <CardHeader>
-          <h2 className="text-h4 font-display text-fg-1">Header</h2>
-        </CardHeader>
-        <CardContent className="space-y-4 max-w-2xl">
-          <div className="space-y-2">
-            <label className="text-label text-fg-2">Headline</label>
-            <div className="grid grid-cols-[1fr_auto_1fr] gap-2 items-start">
-              <div className="space-y-1">
-                <label className="text-caption text-fg-3">Text</label>
-                <input
-                  value={form.headlineParts.prefix}
-                  onChange={(e) =>
-                    setForm((f) => ({
-                      ...f,
-                      headlineParts: {
-                        ...f.headlineParts,
-                        prefix: e.target.value,
-                      },
-                    }))
-                  }
-                  placeholder="Pick a room."
-                  className="w-full border border-rule rounded-sm px-2.5 py-1.5 text-sm bg-transparent text-fg-1"
-                />
-              </div>
-              <div className="space-y-1">
-                <label className="text-caption text-fg-3">Emphasis</label>
-                <input
-                  value={form.headlineParts.em}
-                  onChange={(e) =>
-                    setForm((f) => ({
-                      ...f,
-                      headlineParts: { ...f.headlineParts, em: e.target.value },
-                    }))
-                  }
-                  placeholder="Show up tomorrow"
-                  className="w-full border border-rule rounded-sm px-2.5 py-1.5 text-sm bg-transparent text-fg-1 font-medium"
-                  style={{ color: 'var(--color-clay)' }}
-                />
-              </div>
-              <div className="space-y-1">
-                <label className="text-caption text-fg-3">Text</label>
-                <input
-                  value={form.headlineParts.suffix}
-                  onChange={(e) =>
-                    setForm((f) => ({
-                      ...f,
-                      headlineParts: {
-                        ...f.headlineParts,
-                        suffix: e.target.value,
-                      },
-                    }))
-                  }
-                  placeholder="."
-                  className="w-full border border-rule rounded-sm px-2.5 py-1.5 text-sm bg-transparent text-fg-1"
-                />
-              </div>
-            </div>
-            <div className="text-xs text-fg-3 italic">
-              Preview: {form.headlineParts.prefix}
-              <em className="text-clay">{form.headlineParts.em}</em>
-              {form.headlineParts.suffix}
-            </div>
-          </div>
-          <div className="space-y-1.5">
-            <label className="text-label text-fg-2">Description</label>
-            <textarea
-              rows={3}
-              value={form.description}
-              onChange={(e) =>
-                setForm((f) => ({ ...f, description: e.target.value }))
-              }
-              placeholder="Choose the plan that suits you best…"
-              className="w-full border border-rule rounded-sm px-3 py-2 text-sm bg-transparent text-fg-1"
-            />
-          </div>
-          <div className="space-y-1.5">
-            <label className="text-label text-fg-2">
-              Footer Tags (one per line)
-            </label>
-            <textarea
-              rows={3}
-              value={form.footer_tags.join('\n')}
-              onChange={(e) =>
-                setForm((f) => ({
-                  ...f,
-                  footer_tags: e.target.value.split('\n').filter(Boolean),
-                }))
-              }
-              placeholder="No hidden fees"
-              className="w-full border border-rule rounded-sm px-3 py-2 text-sm bg-transparent text-fg-1 font-mono"
-            />
-          </div>
-        </CardContent>
-      </Card>
 
       {form.tabs.map((tab, ti) => (
         <Card key={tab.id}>

@@ -141,7 +141,7 @@ export function AdminMemberCompaniesPage() {
                     }))
                   }
                   placeholder="0"
-                  className="w-full border border-rule rounded-sm px-3 py-2 text-sm bg-transparent text-fg-1 max-w-[100px]"
+                  className="w-full border border-rule rounded-sm px-3 py-2 text-sm bg-transparent text-fg-1 max-w-[100px] ml-2"
                 />
               </div>
               <div className="flex gap-3 pt-2">

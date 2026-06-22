@@ -507,7 +507,7 @@ export const useBookingStore = create<BookingStore>()(
         }
       },
 
-      canProceed: () => {
+      canProceed: (): boolean => {
         const { currentStep, bookingData, plans, rooms } = get()
         const selectedPlan = plans.find((p) => p.id === bookingData.planId)
         const isDayPass = selectedPlan?.type === 'day_pass'
@@ -517,7 +517,7 @@ export const useBookingStore = create<BookingStore>()(
 
         switch (currentStep) {
           case 1:
-            return (
+            return !!(
               bookingData.locationId &&
               (!requiresRoomSelection || bookingData.roomId) &&
               bookingData.planId
@@ -528,7 +528,7 @@ export const useBookingStore = create<BookingStore>()(
             if (isDayPass) {
               return !!bookingData.startDate
             }
-            return (
+            return !!(
               bookingData.startDate &&
               bookingData.startTime &&
               bookingData.endTime
@@ -536,7 +536,7 @@ export const useBookingStore = create<BookingStore>()(
           case 3:
             return true // Optional step
           case 4:
-            return (
+            return !!(
               bookingData.contactInfo.firstName &&
               bookingData.contactInfo.lastName &&
               bookingData.contactInfo.email &&

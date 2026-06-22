@@ -1,13 +1,12 @@
 import * as React from 'react'
 import { Link } from 'react-router-dom'
-import { Slot } from '@radix-ui/react-slot'
 import { cva, type VariantProps } from 'class-variance-authority'
 import { IconType } from 'react-icons'
 
 import { cn } from '@/lib/utils'
 
 const buttonVariants = cva(
-  'inline-flex items-center justify-center p-3 whitespace-nowrap rounded-full text-sm disabled:pointer-events-none disabled:opacity-50 transition-colors',
+  'inline-flex items-center cursor-pointer justify-center p-3 whitespace-nowrap rounded-full text-sm disabled:pointer-events-none disabled:opacity-50 transition-colors',
   {
     variants: {
       variant: {
@@ -72,15 +71,15 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ) => {
     const classes = cn(buttonVariants({ variant, size, className }))
 
+    const label = text ?? children
+
     const iconNode = Icon ? (
       <Icon
         size={iconSize}
         aria-hidden="true"
-        className={iconPosition === 'left' ? 'mr-2' : 'ml-2'}
+        className={label ? (iconPosition === 'left' ? 'mr-2' : 'ml-2') : ''}
       />
     ) : null
-
-    const label = text ?? children
     const content = (
       <>
         {iconPosition === 'left' && iconNode}
@@ -103,10 +102,16 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     }
 
     if (asChild) {
-      return (
-        <Slot className={classes} ref={ref} {...props}>
-          {content}
-        </Slot>
+      const child = React.Children.only(children) as any
+      return React.cloneElement(
+        child,
+        {
+          ...child.props,
+          ...props,
+          className: cn(classes, child.props.className),
+        },
+        iconNode,
+        child.props.children
       )
     }
 

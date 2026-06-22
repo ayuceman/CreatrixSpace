@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { ArrowRight, MessageCircle } from 'lucide-react'
 import { WHATSAPP } from '@/lib/constants'
@@ -39,10 +39,6 @@ interface PlanTab {
   }
 }
 
-const defaultHeadline =
-  'Pick a room. <em class="text-clay">Show up tomorrow.</em>'
-const defaultDescription =
-  'Four ways to work with us — day passes, dedicated desks, lockable private offices, and a virtual office for founders who want a Kathmandu address. No deposit, no joining fee, cancel any time.'
 const defaultFooterTags = [
   'NO DEPOSIT',
   'CANCEL ANY TIME',
@@ -300,10 +296,7 @@ function PlanCardComponent({ card }: { card: PlanCard }) {
 }
 
 export function MembershipSection() {
-  const [headline, setHeadline] = useState(defaultHeadline)
-  const [description, setDescription] = useState(defaultDescription)
   const [tabs, setTabs] = useState<PlanTab[]>(defaultTabs)
-  const [footerTags, setFooterTags] = useState(defaultFooterTags)
   const [activeId, setActiveId] = useState('open-desks')
 
   useEffect(() => {
@@ -311,14 +304,11 @@ export function MembershipSection() {
       .get()
       .then((data) => {
         if (data) {
-          setHeadline(data.headline ?? defaultHeadline)
-          setDescription(data.description ?? defaultDescription)
           const loadedTabs =
             (data.tabs as PlanTab[])?.length > 0
               ? (data.tabs as PlanTab[])
               : defaultTabs
           setTabs(loadedTabs)
-          setFooterTags((data.footer_tags as string[]) ?? defaultFooterTags)
           if (loadedTabs.length > 0) setActiveId(loadedTabs[0].id)
         }
       })
@@ -334,7 +324,7 @@ export function MembershipSection() {
   return (
     <section
       id="membership"
-      className="bg-bg-band py-32 border-t border-rule border-b"
+      className="bg-bg-band py-16 md:py-24 lg:py-32 border-t border-rule border-b"
     >
       <div className="container">
         <motion.div
@@ -342,18 +332,19 @@ export function MembershipSection() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6, ease: [0.2, 0.7, 0.2, 1] }}
-          className="grid grid-cols-1 lg:grid-cols-[1fr_1.3fr] gap-20 mb-16 items-start"
+          className="grid grid-cols-1 lg:grid-cols-[1fr_1.3fr] lg:gap-20 sm:gap-8 mb-16 items-start"
         >
           <div>
             <div className="eyebrow text-clay mb-4.5">Pricing plans</div>
-            <h2
-              className="font-display font-normal text-[clamp(36px,4.6vw,64px)] leading-[1.05] tracking-[-0.015em] m-0"
-              dangerouslySetInnerHTML={{ __html: headline }}
-            />
+            <h2 className="font-display font-normal text-[clamp(36px,4.6vw,64px)] leading-[1.05] tracking-[-0.015em] m-0">
+              Pick a room. <em className="text-clay">Show up tomorrow.</em>
+            </h2>
           </div>
           <div>
             <p className="text-lg leading-[1.6] text-fg-2 max-w-135 m-0">
-              {description}
+              Four ways to work with us — day passes, dedicated desks, lockable
+              private offices, and a virtual office for founders who want a
+              Kathmandu address. No deposit, no joining fee, cancel any time.
             </p>
           </div>
         </motion.div>
@@ -365,7 +356,7 @@ export function MembershipSection() {
           transition={{ duration: 0.5, delay: 0.15, ease: [0.2, 0.7, 0.2, 1] }}
           className="flex items-center gap-5 mb-12 flex-wrap"
         >
-          <div className="inline-flex p-1 bg-bg-raised border border-rule rounded-pill">
+          <div className="inline-flex p-1 bg-bg-raised border border-rule rounded-pill overflow-auto">
             {tabs.map((tab) => (
               <button
                 key={tab.id}
@@ -386,7 +377,7 @@ export function MembershipSection() {
         </motion.div>
 
         {activeTab?.mode === 'grid' && activeTab.cards ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
             {activeTab.cards.map((card, i) => (
               <motion.div
                 key={card.id}
@@ -409,7 +400,7 @@ export function MembershipSection() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.4, ease: [0.2, 0.7, 0.2, 1] }}
-            className="bg-bg-raised border border-rule rounded-sm p-[40px_44px] flex flex-col lg:flex-row gap-12"
+            className="bg-bg-raised border border-rule rounded-sm lg:p-[40px_44px] p-7 flex flex-col lg:flex-row lg:gap-12 gap-8"
           >
             <div className="flex-1 flex flex-col gap-3.5">
               <span className="eyebrow text-fg-2">
@@ -470,15 +461,17 @@ export function MembershipSection() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.4, delay: 0.2, ease: [0.2, 0.7, 0.2, 1] }}
-          className="flex items-center justify-center gap-3 flex-wrap mt-14"
+          className="flex items-center gap-4.5 flex-wrap mt-14"
         >
-          {footerTags.map((tag) => (
-            <span
-              key={tag}
-              className="inline-flex items-center gap-1.5 px-4 py-2 bg-bg-raised border border-rule rounded-full text-xs font-mono text-fg-2 tracking-wide uppercase"
-            >
-              {tag}
-            </span>
+          {defaultFooterTags.map((tag, index) => (
+            <React.Fragment key={tag}>
+              <span className="text-xs font-mono text-fg-3 tracking-wide uppercase">
+                {tag}
+              </span>
+              {index < defaultFooterTags.length - 1 && (
+                <span className="text-fg-3 text-xs">·</span>
+              )}
+            </React.Fragment>
           ))}
         </motion.div>
       </div>

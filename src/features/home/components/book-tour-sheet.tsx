@@ -102,6 +102,17 @@ export function BookTourSheet({ open, onClose, seed }: BookTourSheetProps) {
   const dates = useMemo(() => generateDates(), [])
 
   useEffect(() => {
+    if (open) {
+      document.body.style.overflow = 'hidden'
+    } else {
+      document.body.style.overflow = ''
+    }
+    return () => {
+      document.body.style.overflow = ''
+    }
+  }, [open])
+
+  useEffect(() => {
     if (!open) return
     Promise.all([
       locationService.getAllLocations(),
@@ -232,7 +243,7 @@ export function BookTourSheet({ open, onClose, seed }: BookTourSheetProps) {
             className="fixed right-0 top-0 h-full w-full max-w-140 bg-bg z-101 overflow-y-auto"
             style={{ boxShadow: 'rgba(26, 25, 22, 0.18) -20px 0px 60px' }}
           >
-            <div className="p-9 md:p-[36px_40px_40px] flex flex-col gap-6">
+            <div className="p-6 md:p-[36px_40px_40px] flex flex-col gap-6">
               {/* Header */}
               <div className="flex items-center justify-between">
                 <span className="eyebrow text-clay">Book a tour</span>

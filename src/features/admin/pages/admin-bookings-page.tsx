@@ -258,7 +258,7 @@ export function AdminBookingsPage() {
         })
       } else {
         await bookingService.updateBooking(bookingId, {
-          payment_status: newPaymentStatus,
+          payment_status: newPaymentStatus as any,
         })
       }
       await loadBookings()

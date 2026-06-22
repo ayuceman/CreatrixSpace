@@ -102,6 +102,23 @@ export function CommunitySection() {
       }
     })
   }, [])
+
+  const MIN_VISIBLE = 12
+
+  const testItems = (() => {
+    const copies = Math.ceil(MIN_VISIBLE / testimonials.length)
+    const repeated: typeof testimonials = []
+    for (let i = 0; i < copies; i++) repeated.push(...testimonials)
+    return repeated
+  })()
+
+  const compItems = (() => {
+    const copies = Math.ceil(MIN_VISIBLE / companies.length)
+    const repeated: typeof companies = []
+    for (let i = 0; i < copies; i++) repeated.push(...companies)
+    return repeated
+  })()
+
   const tx = useMotionValue(0)
   const testPaused = useRef(false)
   const testSpeed = 1 / 30000
@@ -125,9 +142,9 @@ export function CommunitySection() {
   const compX = useTransform(cx, (v) => `${(v - 1) * 50}%`)
 
   return (
-    <section id="community" className="py-32 pb-24">
+    <section id="community" className="py-16 md:py-24 lg:py-32 pb-24">
       <div className="container">
-        <div className="grid grid-cols-1 lg:grid-cols-[1fr_1.4fr] gap-16 mb-16 items-end">
+        <div className="grid grid-cols-1 lg:grid-cols-[1fr_1.4fr] lg:gap-16 gap-8 mb-16 items-end">
           <div>
             <div className="eyebrow text-clay mb-4.5">
               The people in the room
@@ -154,7 +171,7 @@ export function CommunitySection() {
         }}
       >
         <motion.div className="flex gap-6" style={{ x: testX }}>
-          {[...testimonials, ...testimonials].map((t, i) => {
+          {testItems.map((t, i) => {
             const avatarColor =
               avatarColors[
                 (t.initials.charCodeAt(0) + t.initials.charCodeAt(1)) %
@@ -203,7 +220,7 @@ export function CommunitySection() {
         }}
       >
         <motion.div className="flex gap-12" style={{ x: compX }}>
-          {[...companies, ...companies].map((c, i) => (
+          {compItems.map((c, i) => (
             <div
               key={`${c.name}-${i}`}
               className={`shrink-0 font-display text-[clamp(28px,3.4vw,44px)] tracking-[-0.01em] text-fg-2 py-3 whitespace-nowrap ${

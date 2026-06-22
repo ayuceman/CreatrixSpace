@@ -15,13 +15,15 @@ DROP POLICY IF EXISTS "Admins can update images" ON storage.objects;
 DROP POLICY IF EXISTS "Admins can delete images" ON storage.objects;
 
 -- Drop all tables (reverse dependency order)
+DROP TABLE IF EXISTS public.form_submissions CASCADE;
+DROP TABLE IF EXISTS public.cta_content CASCADE;
+DROP TABLE IF EXISTS public.book_tour_content CASCADE;
 DROP TABLE IF EXISTS public.spaces_content CASCADE;
 DROP TABLE IF EXISTS public.membership_content CASCADE;
 DROP TABLE IF EXISTS public.hero_content CASCADE;
 DROP TABLE IF EXISTS public.member_companies CASCADE;
 DROP TABLE IF EXISTS public.faqs CASCADE;
 DROP TABLE IF EXISTS public.testimonials CASCADE;
-DROP TABLE IF EXISTS public.amenities_content CASCADE;
 DROP TABLE IF EXISTS public.amenities CASCADE;
 DROP TABLE IF EXISTS public.site_stats CASCADE;
 DROP TABLE IF EXISTS public.payments CASCADE;

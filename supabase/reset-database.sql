@@ -19,7 +19,6 @@ TRUNCATE TABLE public.hero_content CASCADE;
 TRUNCATE TABLE public.member_companies CASCADE;
 TRUNCATE TABLE public.faqs CASCADE;
 TRUNCATE TABLE public.testimonials CASCADE;
-TRUNCATE TABLE public.amenities_content CASCADE;
 TRUNCATE TABLE public.amenities CASCADE;
 TRUNCATE TABLE public.site_stats CASCADE;
 TRUNCATE TABLE public.payments CASCADE;

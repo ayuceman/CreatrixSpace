@@ -7,27 +7,6 @@ import { supabase } from '@/lib/supabase'
 import { supabaseAdmin } from '@/lib/supabase-admin'
 import { showToast } from '@/components/ui/toast'
 
-function parseSubBadge(html: string) {
-  const m = html.match(
-    /class="text-fg-1 font-medium">([^<]+)<\/b>\s*([^<]*?)\s*<b\s[^>]*class="text-fg-1 font-medium">([^<]+)<\/b>\s*([\s\S]*)/
-  )
-  return {
-    stat_1: m?.[1] ?? '5 private offices',
-    middle: m?.[2] ?? 'just opened across the three buildings — and',
-    stat_2: m?.[3] ?? '25 hot desks',
-    end: m?.[4] ?? 'today',
-  }
-}
-
-function buildSubBadge(parts: {
-  stat_1: string
-  middle: string
-  stat_2: string
-  end: string
-}) {
-  return `<b class="text-fg-1 font-medium">${parts.stat_1}</b> ${parts.middle} <b class="text-fg-1 font-medium">${parts.stat_2}</b> ${parts.end}`
-}
-
 interface HeroImage {
   src: string
   alt: string
@@ -41,19 +20,6 @@ interface PricingItem {
 }
 
 const emptyForm = {
-  badge: 'Now booking',
-  subBadgeParts: {
-    stat_1: '5 private offices',
-    middle: 'just opened across the three buildings — and',
-    stat_2: '25 hot desks',
-    end: 'today',
-  } as { stat_1: string; middle: string; stat_2: string; end: string },
-  headline_1: '',
-  headline_2: 'to work',
-  headline_3: '',
-  subheading: '',
-  button_text: 'Book a tour',
-  whatsapp_text: 'WhatsApp',
   images: [] as HeroImage[],
   pricing: [] as PricingItem[],
 }
@@ -73,14 +39,6 @@ export function AdminHeroPage() {
     heroService.get().then((data) => {
       if (data) {
         setForm({
-          badge: data.badge ?? '',
-          subBadgeParts: parseSubBadge(data.sub_badge ?? ''),
-          headline_1: data.headline_1 ?? '',
-          headline_2: data.headline_2 ?? 'to work',
-          headline_3: data.headline_3 ?? '',
-          subheading: data.subheading ?? '',
-          button_text: data.button_text ?? 'Book a tour',
-          whatsapp_text: data.whatsapp_text ?? 'WhatsApp',
           images: (data.images as HeroImage[]) ?? [],
           pricing: (data.pricing as PricingItem[]) ?? [],
         })
@@ -93,12 +51,7 @@ export function AdminHeroPage() {
     e.preventDefault()
     setSaving(true)
     try {
-      const { subBadgeParts, ...dbFields } = form
-      const payload = {
-        ...dbFields,
-        sub_badge: buildSubBadge(subBadgeParts),
-      }
-      await heroService.upsert(payload)
+      await heroService.upsert(form)
       setToast('Hero content saved!')
     } catch (err) {
       setToast(`Save failed: ${(err as any)?.message || err}`)
@@ -222,162 +175,6 @@ export function AdminHeroPage() {
       </div>
 
       <form onSubmit={handleSave} className="space-y-6 max-w-3xl">
-        <Card>
-          <CardHeader>
-            <h2 className="text-h4 font-display text-fg-1">Text Content</h2>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-1.5">
-                <label className="text-label text-fg-2">Badge</label>
-                <input
-                  value={form.badge}
-                  onChange={(e) =>
-                    setForm((f) => ({ ...f, badge: e.target.value }))
-                  }
-                  className="w-full border border-rule rounded-sm px-3 py-2 text-sm bg-transparent text-fg-1"
-                />
-              </div>
-              <div className="space-y-1.5">
-                <label className="text-label text-fg-2">WhatsApp Button</label>
-                <input
-                  value={form.whatsapp_text}
-                  onChange={(e) =>
-                    setForm((f) => ({ ...f, whatsapp_text: e.target.value }))
-                  }
-                  className="w-full border border-rule rounded-sm px-3 py-2 text-sm bg-transparent text-fg-1"
-                />
-              </div>
-            </div>
-            <div className="text-label text-fg-2 mb-1">Sub Badge</div>
-            <div className="grid grid-cols-4 gap-3">
-              <div className="space-y-1.5">
-                <label className="text-caption text-fg-3">Stat 1 (bold)</label>
-                <input
-                  value={form.subBadgeParts.stat_1}
-                  onChange={(e) =>
-                    setForm((f) => ({
-                      ...f,
-                      subBadgeParts: {
-                        ...f.subBadgeParts,
-                        stat_1: e.target.value,
-                      },
-                    }))
-                  }
-                  placeholder="e.g. 5 private offices"
-                  className="w-full border border-rule rounded-sm px-3 py-2 text-sm bg-transparent text-fg-1"
-                />
-              </div>
-              <div className="space-y-1.5">
-                <label className="text-caption text-fg-3">Middle text</label>
-                <input
-                  value={form.subBadgeParts.middle}
-                  onChange={(e) =>
-                    setForm((f) => ({
-                      ...f,
-                      subBadgeParts: {
-                        ...f.subBadgeParts,
-                        middle: e.target.value,
-                      },
-                    }))
-                  }
-                  placeholder="just opened across..."
-                  className="w-full border border-rule rounded-sm px-3 py-2 text-sm bg-transparent text-fg-1"
-                />
-              </div>
-              <div className="space-y-1.5">
-                <label className="text-caption text-fg-3">Stat 2 (bold)</label>
-                <input
-                  value={form.subBadgeParts.stat_2}
-                  onChange={(e) =>
-                    setForm((f) => ({
-                      ...f,
-                      subBadgeParts: {
-                        ...f.subBadgeParts,
-                        stat_2: e.target.value,
-                      },
-                    }))
-                  }
-                  placeholder="e.g. 25 hot desks"
-                  className="w-full border border-rule rounded-sm px-3 py-2 text-sm bg-transparent text-fg-1"
-                />
-              </div>
-              <div className="space-y-1.5">
-                <label className="text-caption text-fg-3">End text</label>
-                <input
-                  value={form.subBadgeParts.end}
-                  onChange={(e) =>
-                    setForm((f) => ({
-                      ...f,
-                      subBadgeParts: {
-                        ...f.subBadgeParts,
-                        end: e.target.value,
-                      },
-                    }))
-                  }
-                  placeholder="e.g. today"
-                  className="w-full border border-rule rounded-sm px-3 py-2 text-sm bg-transparent text-fg-1"
-                />
-              </div>
-            </div>
-            <div className="grid grid-cols-3 gap-4">
-              <div className="space-y-1.5">
-                <label className="text-label text-fg-2">Headline Line 1</label>
-                <input
-                  value={form.headline_1}
-                  onChange={(e) =>
-                    setForm((f) => ({ ...f, headline_1: e.target.value }))
-                  }
-                  className="w-full border border-rule rounded-sm px-3 py-2 text-sm bg-transparent text-fg-1"
-                />
-              </div>
-              <div className="space-y-1.5">
-                <label className="text-label text-fg-2">
-                  Headline Line 2 (em)
-                </label>
-                <input
-                  value={form.headline_2}
-                  onChange={(e) =>
-                    setForm((f) => ({ ...f, headline_2: e.target.value }))
-                  }
-                  className="w-full border border-rule rounded-sm px-3 py-2 text-sm bg-transparent text-fg-1"
-                />
-              </div>
-              <div className="space-y-1.5">
-                <label className="text-label text-fg-2">Headline Line 3</label>
-                <input
-                  value={form.headline_3}
-                  onChange={(e) =>
-                    setForm((f) => ({ ...f, headline_3: e.target.value }))
-                  }
-                  className="w-full border border-rule rounded-sm px-3 py-2 text-sm bg-transparent text-fg-1"
-                />
-              </div>
-            </div>
-            <div className="space-y-1.5">
-              <label className="text-label text-fg-2">Subheading</label>
-              <textarea
-                rows={3}
-                value={form.subheading}
-                onChange={(e) =>
-                  setForm((f) => ({ ...f, subheading: e.target.value }))
-                }
-                className="w-full border border-rule rounded-sm px-3 py-2 text-sm bg-transparent text-fg-1"
-              />
-            </div>
-            <div className="space-y-1.5">
-              <label className="text-label text-fg-2">Button Text</label>
-              <input
-                value={form.button_text}
-                onChange={(e) =>
-                  setForm((f) => ({ ...f, button_text: e.target.value }))
-                }
-                className="w-full border border-rule rounded-sm px-3 py-2 text-sm bg-transparent text-fg-1"
-              />
-            </div>
-          </CardContent>
-        </Card>
-
         <Card>
           <CardHeader>
             <h2 className="text-h4 font-display text-fg-1">

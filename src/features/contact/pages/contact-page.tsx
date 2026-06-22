@@ -198,7 +198,9 @@ export function ContactPage() {
               transition={{ duration: 0.6, delay: 0.2 }}
               className="space-y-6"
             >
-              <h2 className="text-3xl font-display font-bold">Our Locations</h2>
+              <h2 className="text-3xl font-display font-normal">
+                Our Locations
+              </h2>
               <div className="space-y-4">
                 {locations.map((location, index) => (
                   <motion.div

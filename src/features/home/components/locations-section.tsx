@@ -192,9 +192,9 @@ export function LocationsSection({ onBookTour }: LocationsSectionProps) {
   }, [activeLocation.images.length])
 
   return (
-    <section id="locations" className="py-32">
+    <section id="locations" className="py-16 md:py-24 lg:py-32">
       <div className="container">
-        <div className="grid grid-cols-1 md:grid-cols-[1.4fr_1fr] gap-12 items-end mb-16">
+        <div className="grid grid-cols-1 lg:grid-cols-[1.4fr_1fr] gap-12 items-end mb-16">
           <div>
             <div className="text-clay text-xs uppercase tracking-widest font-medium mb-4.5">
               Three rooms
@@ -212,7 +212,7 @@ export function LocationsSection({ onBookTour }: LocationsSectionProps) {
           </Link>
         </div>
 
-        <div className="grid grid-cols-[1.05fr_1.1fr] gap-16 items-start">
+        <div className="grid lg:grid-cols-[1.05fr_1.1fr] gap-16 items-start">
           <div role="tablist" aria-label="Locations">
             {locations.map((location, index) => {
               const isActive = activeIndex === index
@@ -327,78 +327,78 @@ export function LocationsSection({ onBookTour }: LocationsSectionProps) {
               </div>
             </div>
 
-            <div className="bg-bg-raised border border-rule rounded-sm p-[28px] flex flex-col gap-4.5">
+            <article className="bg-bg-raised border border-rule rounded-sm p-[28px] flex flex-col gap-4.5">
               <div className="eyebrow text-clay">{activeLocation.status}</div>
 
-              <div className="grid grid-cols-4 gap-3.5">
+              <dl className="grid grid-cols-4 gap-3.5">
                 <div>
-                  <div className="font-display text-28 leading-none tracking-[-0.01em]">
+                  <dd className="font-display text-28 leading-none tracking-[-0.01em]">
                     {activeLocation.stats.openDesks}
-                  </div>
-                  <div className="text-[11px] text-fg-3 mt-1.5 font-mono tracking-[0.04em] uppercase">
+                  </dd>
+                  <dt className="text-[11px] text-fg-3 mt-1.5 font-mono tracking-[0.04em] uppercase">
                     Open desks
-                  </div>
+                  </dt>
                 </div>
                 <div>
-                  <div className="font-display text-28 leading-none tracking-[-0.01em]">
+                  <dd className="font-display text-28 leading-none tracking-[-0.01em]">
                     {activeLocation.stats.privateOffices}
-                  </div>
-                  <div className="text-[11px] text-fg-3 mt-1.5 font-mono tracking-[0.04em] uppercase">
+                  </dd>
+                  <dt className="text-[11px] text-fg-3 mt-1.5 font-mono tracking-[0.04em] uppercase">
                     Private offices
-                  </div>
+                  </dt>
                 </div>
                 <div>
-                  <div className="font-display text-28 leading-none tracking-[-0.01em]">
+                  <dd className="font-display text-28 leading-none tracking-[-0.01em]">
                     {activeLocation.stats.meetingRooms}
-                  </div>
-                  <div className="text-[11px] text-fg-3 mt-1.5 font-mono tracking-[0.04em] uppercase">
+                  </dd>
+                  <dt className="text-[11px] text-fg-3 mt-1.5 font-mono tracking-[0.04em] uppercase">
                     Meeting rooms
-                  </div>
+                  </dt>
                 </div>
                 <div>
-                  <div className="font-display text-28 leading-none tracking-[-0.01em]">
+                  <dd className="font-display text-28 leading-none tracking-[-0.01em]">
                     {activeLocation.stats.eventSeats}
-                  </div>
-                  <div className="text-[11px] text-fg-3 mt-1.5 font-mono tracking-[0.04em] uppercase">
+                  </dd>
+                  <dt className="text-[11px] text-fg-3 mt-1.5 font-mono tracking-[0.04em] uppercase">
                     Event seats
-                  </div>
+                  </dt>
                 </div>
-              </div>
+              </dl>
 
-              <div className="pt-4.5 border-t border-rule flex flex-col gap-2.5">
+              <dl className="pt-4.5 border-t border-rule flex flex-col gap-2.5">
                 <div className="flex justify-between gap-4 items-baseline">
-                  <div className="text-xs text-fg-3 tracking-[0.08em] uppercase font-medium shrink-0">
+                  <dt className="text-xs text-fg-3 tracking-[0.08em] uppercase font-medium shrink-0">
                     Hot desk
-                  </div>
-                  <div className="text-sm font-body text-right text-moss">
+                  </dt>
+                  <dd className="text-sm font-body text-right text-moss">
                     {activeLocation.hotDesk}
-                  </div>
+                  </dd>
                 </div>
                 <div className="flex justify-between gap-4 items-baseline">
-                  <div className="text-xs text-fg-3 tracking-[0.08em] uppercase font-medium shrink-0">
+                  <dt className="text-xs text-fg-3 tracking-[0.08em] uppercase font-medium shrink-0">
                     Private office
-                  </div>
-                  <div className="text-sm font-body text-right text-moss">
+                  </dt>
+                  <dd className="text-sm font-body text-right text-moss">
                     {activeLocation.privateOffice}
-                  </div>
+                  </dd>
                 </div>
                 <div className="flex justify-between gap-4 items-baseline">
-                  <div className="text-xs text-fg-3 tracking-[0.08em] uppercase font-medium shrink-0">
+                  <dt className="text-xs text-fg-3 tracking-[0.08em] uppercase font-medium shrink-0">
                     Hours
-                  </div>
-                  <div className="text-sm font-body text-right text-fg-1">
+                  </dt>
+                  <dd className="text-sm font-body text-right text-fg-1">
                     {activeLocation.hours}
-                  </div>
+                  </dd>
                 </div>
                 <div className="flex justify-between gap-4 items-baseline">
-                  <div className="text-xs text-fg-3 tracking-[0.08em] uppercase font-medium shrink-0">
+                  <dt className="text-xs text-fg-3 tracking-[0.08em] uppercase font-medium shrink-0">
                     Address
-                  </div>
-                  <div className="text-[13px] font-mono text-right text-fg-1">
+                  </dt>
+                  <dd className="text-[13px] font-mono text-right text-fg-1">
                     {activeLocation.address}
-                  </div>
+                  </dd>
                 </div>
-              </div>
+              </dl>
 
               <div className="flex gap-2.5 mt-[4px] flex-wrap">
                 <Button
@@ -408,7 +408,7 @@ export function LocationsSection({ onBookTour }: LocationsSectionProps) {
                   iconPosition="right"
                   iconSize={14}
                   onClick={() => onBookTour?.(activeLocation.id)}
-                  className="!rounded-sm px-5.5 text-sm"
+                  className="px-5.5 text-sm"
                 />
                 <Button
                   variant="outline"
@@ -439,7 +439,7 @@ export function LocationsSection({ onBookTour }: LocationsSectionProps) {
                 </svg>
                 {showMap ? 'Hide map' : 'Show on map'}
               </button>
-            </div>
+            </article>
 
             <AnimatePresence initial={false}>
               {showMap && (

@@ -39,8 +39,7 @@ const defaultFaqs = [
   },
   {
     question: 'Do you take WhatsApp?',
-    answer:
-      'Yes \u2014 fastest way to reach us. Tap any WhatsApp button on the site, or write to +977 9851 000 000. Replies usually inside a minute, 8am\u20138pm.',
+    answer: `Yes \u2014 fastest way to reach us. Tap any WhatsApp button on the site, or write to ${WHATSAPP.DISPLAY}. Replies usually inside a minute, 8am\u20138pm.`,
   },
   {
     question: 'How do I cancel a membership?',
@@ -70,7 +69,7 @@ export function FAQSection() {
   return (
     <section
       id="faq"
-      className="py-32 bg-bg-band border-t border-rule border-b border-rule"
+      className="py-16 md:py-24 lg:py-32 bg-bg-band border-t border-b border-rule"
     >
       <div className="container">
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_1.4fr] gap-16 items-start">
@@ -87,7 +86,7 @@ export function FAQSection() {
             <Button
               variant="dark"
               className="px-7 py-3.5 leading-none mt-6"
-              text="WhatsApp +977 9851 000 000"
+              text={`WhatsApp ${WHATSAPP.DISPLAY}`}
               icon={MessageCircle}
               href={`https://wa.me/${WHATSAPP.NUMBER}?text=${encodeURIComponent('Hello CreatrixSpace \u2014 I have a question:')}`}
               target="_blank"

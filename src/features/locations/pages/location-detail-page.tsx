@@ -16,6 +16,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { ROUTES } from '@/lib/constants'
 import { Location } from '@/lib/types'
+import { locationService } from '@/services/supabase-service'
 import {
   Gallery,
   ImageModal,
@@ -310,15 +311,87 @@ const getLocationGalleryImages = (locationId: string) => {
   return galleries[locationId] || []
 }
 
+function mapDbLocationDetail(db: any): Location {
+  const cap = db.capacity || {}
+  return {
+    id: db.slug || db.id,
+    name: db.name,
+    slug: db.slug,
+    description: db.description || '',
+    address: db.address || '',
+    fullAddress: db.full_address || db.address || '',
+    city: db.city || '',
+    coordinates:
+      db.latitude != null && db.longitude != null
+        ? { lat: Number(db.latitude), lng: Number(db.longitude) }
+        : undefined,
+    image: db.image_url || db.images?.[0] || '',
+    images: db.images || [],
+    amenities: (db.amenities as string[]) || [],
+    features: (db.features as string[]) || [],
+    openingHours: db.opening_hours || {},
+    capacity: cap.hotDesks != null ? cap : cap.total || 0,
+    rating: db.rating ? Number(db.rating) : undefined,
+    available: db.available ?? true,
+    status: db.status || undefined,
+    popular: db.popular ?? false,
+    contact: {
+      phone: db.contact_phone || '',
+      email: '',
+    },
+    googleMapsUrl: db.google_maps_url || undefined,
+  }
+}
+
+function toGoogleMapsUrl(url: string): string {
+  return url.includes('/embed') ? url.replace('/embed', '') : url
+}
+
+function toAmPm(time: string): string {
+  if (!time) return ''
+  const [h, m] = time.split(':').map(Number)
+  if (isNaN(h)) return time
+  const period = h >= 12 ? 'PM' : 'AM'
+  const hour = h % 12 || 12
+  return `${hour}:${String(m).padStart(2, '0')} ${period}`
+}
+
 export function LocationDetailPage() {
   const { id } = useParams<{ id: string }>()
-  const location = id ? locationData[id as keyof typeof locationData] : null
+  const fallback = id ? locationData[id as keyof typeof locationData] : null
+  const [location, setLocation] = useState<Location | null>(fallback)
+  const [loading, setLoading] = useState(!fallback)
+  const [imgError, setImgError] = useState(false)
   const [modalImage, setModalImage] = useState<string | null>(null)
 
-  const galleryImages = id ? getLocationGalleryImages(id) : []
+  const hardcodedGallery = id ? getLocationGalleryImages(id) : []
+  const galleryImages =
+    hardcodedGallery.length > 0
+      ? hardcodedGallery
+      : (location?.images || []).map((src, i) => ({
+          id: i + 1,
+          src,
+          alt: `${location?.name || 'Location'} gallery ${i + 1}`,
+          title: `Gallery ${i + 1}`,
+        }))
 
   const openModal = (src: string) => setModalImage(src)
   const closeModal = () => setModalImage(null)
+
+  const DAYS = [
+    'monday',
+    'tuesday',
+    'wednesday',
+    'thursday',
+    'friday',
+    'saturday',
+    'sunday',
+  ] as const
+  const validDays = location
+    ? Object.entries(location.openingHours).filter(([day]) =>
+        (DAYS as readonly string[]).includes(day)
+      )
+    : []
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -327,6 +400,35 @@ export function LocationDetailPage() {
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
   }, [])
+
+  useEffect(() => {
+    if (!id) return
+    setLoading(true)
+    locationService
+      .getLocationBySlug(id)
+      .then((dbLocation) => {
+        if (dbLocation) setLocation(mapDbLocationDetail(dbLocation))
+        setLoading(false)
+      })
+      .catch(() => {
+        setLoading(false)
+      })
+  }, [id])
+
+  if (loading) {
+    return (
+      <div className="overflow-hidden">
+        <section className="section-padding bg-gradient-to-br from-bg via-bg to-clay/5">
+          <div className="container text-center py-24">
+            <div className="animate-pulse space-y-4 max-w-xl mx-auto">
+              <div className="h-8 bg-rule rounded-sm w-3/4 mx-auto" />
+              <div className="h-4 bg-rule rounded-sm w-1/2 mx-auto" />
+            </div>
+          </div>
+        </section>
+      </div>
+    )
+  }
 
   if (!location) {
     return (
@@ -439,15 +541,18 @@ export function LocationDetailPage() {
                 <div className="flex flex-col sm:flex-row gap-4">
                   {location.available ? (
                     <>
-                      <Button size="lg" asChild>
-                        <Link to={ROUTES.BOOKING}>
-                          <Calendar className="mr-2 h-4 w-4" />
-                          Book Now
-                        </Link>
-                      </Button>
-                      <Button size="lg" asChild>
-                        <Link to={ROUTES.CONTACT}>Schedule Tour</Link>
-                      </Button>
+                      <Button
+                        size="lg"
+                        icon={Calendar}
+                        text="Book Now"
+                        href={ROUTES.BOOKING}
+                      />
+                      <Button
+                        size="lg"
+                        icon={Calendar}
+                        text="Schedule Tour"
+                        href={ROUTES.CONTACT}
+                      />
                     </>
                   ) : (
                     <Button size="lg" disabled>
@@ -457,13 +562,23 @@ export function LocationDetailPage() {
                 </div>
               </div>
 
-              <div className="relative aspect-[4/3] rounded-2xl overflow-hidden">
-                <img
-                  src={location.image}
-                  alt={location.name}
-                  className="w-full h-full object-cover"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
+              <div className="relative aspect-[4/3] rounded-2xl overflow-hidden bg-bg-raised">
+                {location.image && !imgError ? (
+                  <img
+                    src={location.image}
+                    alt={location.name}
+                    className="w-full h-full object-cover"
+                    onError={() => setImgError(true)}
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center text-fg-3">
+                    <div className="text-center">
+                      <MapPin size={48} className="mx-auto mb-2 opacity-30" />
+                      <span className="text-sm">{location.name}</span>
+                    </div>
+                  </div>
+                )}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent pointer-events-none" />
               </div>
             </div>
           </motion.div>
@@ -493,7 +608,7 @@ export function LocationDetailPage() {
               viewport={{ once: true }}
               className="space-y-6"
             >
-              <h2 className="text-3xl font-display font-bold">Features</h2>
+              <h2 className="text-3xl font-display font-normal">Features</h2>
               <div className="grid grid-cols-2 gap-3">
                 {location.features?.map((feature) => (
                   <div
@@ -514,7 +629,7 @@ export function LocationDetailPage() {
               viewport={{ once: true }}
               className="space-y-6"
             >
-              <h2 className="text-3xl font-display font-bold">Amenities</h2>
+              <h2 className="text-3xl font-display font-normal">Amenities</h2>
               <div className="grid grid-cols-2 gap-3">
                 {location.amenities.map((amenity) => (
                   <div
@@ -535,34 +650,36 @@ export function LocationDetailPage() {
       <section className="section-padding bg-bg-band/30">
         <div className="container">
           <div className="grid lg:grid-cols-2 gap-12">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
-              viewport={{ once: true }}
-              className="space-y-6"
-            >
-              <h2 className="text-3xl font-display font-bold">Opening Hours</h2>
-              <Card>
-                <CardContent className="p-6">
-                  <div className="space-y-3">
-                    {Object.entries(location.openingHours).map(
-                      ([day, hours]) => (
+            {validDays.length > 0 && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6 }}
+                viewport={{ once: true }}
+                className="space-y-6"
+              >
+                <h2 className="text-3xl font-display font-normal">
+                  Opening Hours
+                </h2>
+                <Card>
+                  <CardContent className="p-6">
+                    <div className="space-y-3">
+                      {validDays.map(([day, hours]) => (
                         <div
                           key={day}
                           className="flex justify-between items-center py-2 border-b border-rule/50 last:border-b-0"
                         >
                           <span className="font-medium capitalize">{day}</span>
                           <span className="text-fg-2">
-                            {hours.open} - {hours.close}
+                            {toAmPm(hours.open)} - {toAmPm(hours.close)}
                           </span>
                         </div>
-                      )
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
-            </motion.div>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            )}
 
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -571,7 +688,7 @@ export function LocationDetailPage() {
               viewport={{ once: true }}
               className="space-y-6"
             >
-              <h2 className="text-3xl font-display font-bold">
+              <h2 className="text-3xl font-display font-normal">
                 Contact Information
               </h2>
               <Card>
@@ -591,14 +708,31 @@ export function LocationDetailPage() {
                     </div>
                     <div>
                       <p className="font-medium">WhatsApp</p>
-                      <a
-                        href="https://wa.me/9779803171819"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-clay hover:underline"
-                      >
-                        +977 9803171819
-                      </a>
+                      {(() => {
+                        const digits = (location.contact?.phone || '').replace(
+                          /\D/g,
+                          ''
+                        )
+                        const waNumber = digits
+                          ? digits.startsWith('977')
+                            ? digits
+                            : `977${digits}`
+                          : null
+                        return waNumber ? (
+                          <a
+                            href={`https://wa.me/${waNumber}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-clay hover:underline"
+                          >
+                            {location.contact?.phone}
+                          </a>
+                        ) : (
+                          <span className="text-fg-2">
+                            {location.contact?.phone || 'Not available'}
+                          </span>
+                        )
+                      })()}
                     </div>
                   </div>
                   {location.googleMapsUrl && (
@@ -609,7 +743,7 @@ export function LocationDetailPage() {
                       <div>
                         <p className="font-medium">Location</p>
                         <a
-                          href={location.googleMapsUrl}
+                          href={toGoogleMapsUrl(location.googleMapsUrl)}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="text-clay hover:underline flex items-center space-x-1"
@@ -646,20 +780,21 @@ export function LocationDetailPage() {
                 workspace for your needs.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Button size="lg" variant="secondary" asChild>
-                  <Link to={ROUTES.BOOKING}>
-                    <Calendar className="mr-2 h-4 w-4" />
-                    Book Your Space
-                  </Link>
-                </Button>
+                <Button
+                  size="lg"
+                  variant="secondary"
+                  icon={Calendar}
+                  text="Book Your Space"
+                  href={ROUTES.BOOKING}
+                />
                 <Button
                   size="lg"
                   variant="outline"
                   className="border-2 border-white/30 bg-white/10 text-white hover:bg-white hover:text-clay backdrop-blur-sm"
-                  asChild
-                >
-                  <Link to={ROUTES.CONTACT}>Schedule a Tour</Link>
-                </Button>
+                  icon={Calendar}
+                  text="Schedule a Tour"
+                  href={ROUTES.CONTACT}
+                />
               </div>
             </motion.div>
           </div>

@@ -56,7 +56,7 @@ export function Header() {
     <header
       className={cn(
         'sticky top-0 z-50 w-full transition-[background,border-color] duration-300 ease-out py-4.5',
-        scrolled
+        scrolled || isMenuOpen
           ? 'bg-[rgba(243,239,231,0.86)] backdrop-blur-md saturate-[1.4] border-b border-rule'
           : 'bg-transparent border-b border-transparent'
       )}
@@ -69,7 +69,7 @@ export function Header() {
             </div>
           </Link>
 
-          <nav className="hidden md:flex items-center gap-7.5">
+          <nav className="hidden lg:flex items-center gap-7.5">
             {navItems.map((item) => (
               <button
                 key={item.name}
@@ -87,12 +87,12 @@ export function Header() {
             ))}
           </nav>
 
-          <div className="hidden md:flex items-center gap-3">
+          <div className="flex items-center gap-3">
             <Button
               variant="outline"
               icon={MessageCircle}
               text="WhatsApp"
-              className="py-2 px-3.5"
+              className="py-2 px-3.5 hidden lg:flex"
               href={WHATSAPP.url}
               target="_blank"
             />
@@ -102,57 +102,65 @@ export function Header() {
               className="py-2 px-5.5"
               onClick={() => openTour()}
             />
+            <button
+              type="button"
+              className="lg:hidden p-2 pr-0 rounded-md text-fg-2"
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+            >
+              {isMenuOpen ? (
+                <X className="h-6 w-6" />
+              ) : (
+                <Menu className="h-6 w-6" />
+              )}
+            </button>
           </div>
-
-          <button
-            type="button"
-            className="md:hidden p-2 rounded-md text-fg-2"
-            onClick={() => setIsMenuOpen(!isMenuOpen)}
-          >
-            {isMenuOpen ? (
-              <X className="h-6 w-6" />
-            ) : (
-              <Menu className="h-6 w-6" />
-            )}
-          </button>
         </div>
       </div>
 
-      {isMenuOpen && (
-        <div className="md:hidden border-t border-rule bg-bg">
-          <div className="container py-4 space-y-4">
-            <nav className="space-y-1">
-              {navItems.map((item) => (
-                <button
-                  key={item.name}
-                  type="button"
-                  onClick={() => {
-                    scrollTo(item.hash)
-                    setIsMenuOpen(false)
-                  }}
-                  className={cn(
-                    'block w-full text-left px-3 py-2.5 rounded-md text-sm font-medium transition-colors bg-transparent border-0 cursor-pointer',
-                    activeHash === item.hash
-                      ? 'text-fg-1 bg-bg-band'
-                      : 'text-fg-2 hover:text-fg-1 hover:bg-bg-band'
-                  )}
-                >
-                  {item.name}
-                </button>
-              ))}
-            </nav>
-            <div className="pt-3 border-t border-rule">
-              <Link
-                to={ROUTES.BOOKING}
-                onClick={() => setIsMenuOpen(false)}
-                className="block w-full text-center px-5 py-2.5 text-sm font-medium rounded-full bg-clay text-bg no-underline"
+      <div
+        className={cn(
+          'lg:hidden overflow-hidden transition-all duration-300 ease-out',
+          isMenuOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
+        )}
+      >
+        <div className="container py-4 space-y-4">
+          <nav className="space-y-1">
+            {navItems.map((item) => (
+              <button
+                key={item.name}
+                type="button"
+                onClick={() => {
+                  scrollTo(item.hash)
+                  setIsMenuOpen(false)
+                }}
+                className={cn(
+                  'block w-full text-left py-2.5 text-sm font-medium transition-colors border-0 cursor-pointer',
+                  activeHash === item.hash
+                    ? 'text-fg-1'
+                    : 'text-fg-2 hover:text-fg-1'
+                )}
               >
-                Book now
-              </Link>
-            </div>
-          </div>
+                {item.name}
+              </button>
+            ))}
+            <Link
+              to={ROUTES.LOCATIONS}
+              className="block py-2.5 text-clay text-sm mt-1 underline hover:text-clay-deep transition-colors"
+            >
+              All addresses →
+            </Link>
+            <Link
+              to={WHATSAPP.url}
+              target="_blank"
+              rel="noopener"
+              className="flex py-2.5 items-center gap-1.5 text-clay text-sm underline hover:text-clay-deep transition-colors"
+            >
+              <MessageCircle className="w-3.5 h-3.5" />
+              {`WhatsApp ${WHATSAPP.DISPLAY}`}
+            </Link>
+          </nav>
         </div>
-      )}
+      </div>
     </header>
   )
 }

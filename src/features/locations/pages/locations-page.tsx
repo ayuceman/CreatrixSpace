@@ -96,12 +96,25 @@ const defaultLocations: LocationData[] = [
   },
 ]
 
+function toGoogleMapsUrl(url: string): string {
+  return url.includes('/embed') ? url.replace('/embed', '') : url
+}
+
+function toAmPm(time: string): string {
+  if (!time) return ''
+  const [h, m] = time.split(':').map(Number)
+  if (isNaN(h)) return time
+  const period = h >= 12 ? 'PM' : 'AM'
+  const hour = h % 12 || 12
+  return `${hour}:${String(m).padStart(2, '0')} ${period}`
+}
+
 function mapDbLocation(db: any): LocationData {
   const cap = db.capacity || {}
   const totalCapacity =
     (cap.hotDesks || 0) + (cap.dedicatedDesks || 0) + (cap.privateOffices || 0)
   const imgs = db.images || []
-  const imageSrc = imgs.length > 0 ? imgs[0] : db.image_url || ''
+  const imageSrc = db.image_url || (imgs.length > 0 ? imgs[0] : '')
   const hours = db.opening_hours || {}
   const openTime = hours.monday?.open || hours.open || '08:00'
   const closeTime = hours.monday?.close || hours.close || '20:00'
@@ -124,6 +137,11 @@ function mapDbLocation(db: any): LocationData {
 
 export function LocationsPage() {
   const [locations, setLocations] = useState<LocationData[]>(defaultLocations)
+  const [imgErrors, setImgErrors] = useState<Record<string, boolean>>({})
+
+  const handleImgError = (id: string) => {
+    setImgErrors((prev) => ({ ...prev, [id]: true }))
+  }
 
   useEffect(() => {
     locationService.getAllLocations().then((data) => {
@@ -160,11 +178,18 @@ export function LocationsPage() {
           >
             <Card className="group overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-2">
               <div className="relative aspect-[4/3] overflow-hidden">
-                <img
-                  src={location.image}
-                  alt={location.name}
-                  className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-                />
+                {location.image && !imgErrors[location.id] ? (
+                  <img
+                    src={location.image}
+                    alt={location.name}
+                    className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                    onError={() => handleImgError(location.id)}
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center bg-bg-raised">
+                    <MapPin size={40} className="opacity-20" />
+                  </div>
+                )}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
 
                 {location.popular && (
@@ -198,7 +223,7 @@ export function LocationsPage() {
                     </div>
                     {location.googleMapsUrl && (
                       <a
-                        href={location.googleMapsUrl}
+                        href={toGoogleMapsUrl(location.googleMapsUrl)}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="inline-flex items-center"
@@ -223,8 +248,8 @@ export function LocationsPage() {
                   <div className="flex items-center text-fg-2">
                     <Clock className="h-4 w-4 mr-1" />
                     <span className="text-sm">
-                      {location.openingHours.open} -{' '}
-                      {location.openingHours.close}
+                      {toAmPm(location.openingHours.open)} -{' '}
+                      {toAmPm(location.openingHours.close)}
                     </span>
                   </div>
                 </div>
@@ -271,15 +296,15 @@ export function LocationsPage() {
                     <div className="flex justify-between">
                       <span>Mon - Fri</span>
                       <span>
-                        {location.openingHours.open} -{' '}
-                        {location.openingHours.close}
+                        {toAmPm(location.openingHours.open)} -{' '}
+                        {toAmPm(location.openingHours.close)}
                       </span>
                     </div>
                     <div className="flex justify-between">
                       <span>Weekend</span>
                       <span>
-                        {location.openingHours.open} -{' '}
-                        {location.openingHours.close}
+                        {toAmPm(location.openingHours.open)} -{' '}
+                        {toAmPm(location.openingHours.close)}
                       </span>
                     </div>
                   </div>

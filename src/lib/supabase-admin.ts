@@ -2,7 +2,7 @@ import { createClient } from '@supabase/supabase-js'
 import type { Database } from './database.types'
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
-const supabaseServiceRoleKey = import.meta.env.VITE_SUPABASE_SERVICE_ROLE_KEY
+const supabaseServiceRoleKey = import.meta.env.VITE_SUPABASE_ANON_KEY
 
 if (supabaseServiceRoleKey && !supabaseUrl) {
   throw new Error('Missing VITE_SUPABASE_URL for Supabase admin client.')

@@ -1,5 +1,18 @@
-import { useState, useEffect } from 'react'
-import { Plus, X } from 'lucide-react'
+import { useState, useEffect, useRef } from 'react'
+import {
+  Plus,
+  X,
+  Clock,
+  Wifi,
+  Users,
+  CalendarDays,
+  Sunrise,
+  Coffee,
+  Phone,
+  Mail,
+  Search,
+  type LucideIcon,
+} from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { amenitiesService } from '@/services/supabase-service'
@@ -11,50 +24,56 @@ interface AmenityItem {
   id: string
   title: string
   description: string
-  icon: string
-  sort_order: number
+  icon: string | null
+  sort_order: number | null
 }
 
 export function AdminAmenitiesPage() {
-  const [eyebrow, setEyebrow] = useState('')
-  const [headline1, setHeadline1] = useState('')
-  const [headlineEm, setHeadlineEm] = useState('')
-  const [headline2, setHeadline2] = useState('')
-  const [description, setDescription] = useState('')
   const [items, setItems] = useState<AmenityItem[]>([])
   const [saving, setSaving] = useState(false)
   const [loading, setLoading] = useState(true)
+  const [openDropdown, setOpenDropdown] = useState<number | null>(null)
+  const dropdownRef = useRef<HTMLDivElement | null>(null)
+
+  const iconOptions: { label: string; Icon: LucideIcon }[] = [
+    { label: 'clock', Icon: Clock },
+    { label: 'wifi', Icon: Wifi },
+    { label: 'presentation', Icon: Users },
+    { label: 'calendar', Icon: CalendarDays },
+    { label: 'sun', Icon: Sunrise },
+    { label: 'coffee', Icon: Coffee },
+    { label: 'phone', Icon: Phone },
+    { label: 'mail', Icon: Mail },
+    { label: 'search', Icon: Search },
+  ]
+
+  const iconPreview: Record<string, LucideIcon> = {}
+  for (const { label, Icon } of iconOptions) {
+    iconPreview[label] = Icon
+  }
 
   useEffect(() => {
-    Promise.all([amenitiesService.getContent(), amenitiesService.getAll()])
-      .then(([content, data]) => {
-        if (content) {
-          setEyebrow(content.eyebrow ?? '')
-          setHeadline1(content.headline_1 ?? '')
-          setHeadlineEm(content.headline_em ?? '')
-          setHeadline2(content.headline_2 ?? '')
-          setDescription(content.description ?? '')
-        }
+    const handleClickOutside = (e: MouseEvent) => {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(e.target as Node)
+      ) {
+        setOpenDropdown(null)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
+
+  useEffect(() => {
+    amenitiesService
+      .getAll()
+      .then((data) => {
         setItems(data || [])
         setLoading(false)
       })
       .catch(() => setLoading(false))
   }, [])
-
-  const saveHeader = async () => {
-    try {
-      await amenitiesService.upsertContent({
-        eyebrow,
-        headline_1: headline1,
-        headline_em: headlineEm,
-        headline_2: headline2,
-        description,
-      })
-      showToast('Amenities header saved!')
-    } catch (err) {
-      showToast(`Save failed: ${(err as any)?.message || err}`, 'error')
-    }
-  }
 
   const addItem = () => {
     setItems((prev) => [
@@ -85,25 +104,31 @@ export function AdminAmenitiesPage() {
     setSaving(true)
     try {
       const client = supabaseAdmin ?? supabase
-      const existing = await client.from('amenities').select('id')
-      const existingIds = new Set((existing.data || []).map((r: any) => r.id))
-
-      const incomingIds = new Set(items.map((r) => r.id).filter(Boolean))
+      const savedIds = new Set<string>()
 
       for (const item of items) {
-        if (item.id && existingIds.has(item.id)) {
+        if (item.id) {
           await client.from('amenities').update(item).eq('id', item.id)
+          savedIds.add(item.id)
         } else {
-          const { id: oldId, ...rest } = item
-          await client.from('amenities').upsert(rest).select()
+          const { id: _id, ...rest } = item
+          const { data } = await client.from('amenities').insert(rest).select()
+          if (data?.[0]?.id) savedIds.add(data[0].id)
         }
       }
 
-      for (const id of existingIds) {
-        if (!incomingIds.has(id)) {
-          await client.from('amenities').delete().eq('id', id)
+      const { data: all } = await client.from('amenities').select('id')
+      for (const row of all || []) {
+        if (!savedIds.has(row.id)) {
+          await client.from('amenities').delete().eq('id', row.id)
         }
       }
+
+      const { data: refreshed } = await client
+        .from('amenities')
+        .select('*')
+        .order('sort_order', { ascending: true })
+      if (refreshed) setItems(refreshed)
 
       showToast('Amenities saved!')
     } catch (err) {
@@ -126,65 +151,6 @@ export function AdminAmenitiesPage() {
           </p>
         </div>
       </div>
-
-      <Card>
-        <CardHeader>
-          <h2 className="text-h4 font-display text-fg-1">Header</h2>
-        </CardHeader>
-        <CardContent className="space-y-4 max-w-2xl">
-          <div className="space-y-1.5">
-            <label className="text-label text-fg-2">Eyebrow</label>
-            <input
-              value={eyebrow}
-              onChange={(e) => setEyebrow(e.target.value)}
-              placeholder="What's in the room"
-              className="w-full border border-rule rounded-sm px-3 py-2 text-sm bg-transparent text-fg-1"
-            />
-          </div>
-          <div className="grid grid-cols-3 gap-3">
-            <div className="space-y-1.5">
-              <label className="text-label text-fg-2">Headline (before)</label>
-              <input
-                value={headline1}
-                onChange={(e) => setHeadline1(e.target.value)}
-                placeholder="The things you'd "
-                className="w-full border border-rule rounded-sm px-3 py-2 text-sm bg-transparent text-fg-1"
-              />
-            </div>
-            <div className="space-y-1.5">
-              <label className="text-label text-fg-2">
-                Headline (emphasized)
-              </label>
-              <input
-                value={headlineEm}
-                onChange={(e) => setHeadlineEm(e.target.value)}
-                placeholder="expect"
-                className="w-full border border-rule rounded-sm px-3 py-2 text-sm bg-transparent text-fg-1"
-              />
-            </div>
-            <div className="space-y-1.5">
-              <label className="text-label text-fg-2">Headline (after)</label>
-              <input
-                value={headline2}
-                onChange={(e) => setHeadline2(e.target.value)}
-                placeholder=", kept well."
-                className="w-full border border-rule rounded-sm px-3 py-2 text-sm bg-transparent text-fg-1"
-              />
-            </div>
-          </div>
-          <div className="space-y-1.5">
-            <label className="text-label text-fg-2">Description</label>
-            <textarea
-              rows={3}
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              placeholder="We don't have a foosball table…"
-              className="w-full border border-rule rounded-sm px-3 py-2 text-sm bg-transparent text-fg-1"
-            />
-          </div>
-          <Button text="Save Header" onClick={saveHeader} />
-        </CardContent>
-      </Card>
 
       <div className="flex items-center justify-between">
         <h2 className="text-h4 font-display text-fg-1">
@@ -225,14 +191,40 @@ export function AdminAmenitiesPage() {
                   className="w-full border border-rule rounded-sm px-2 py-1.5 text-xs bg-transparent text-fg-1"
                 />
               </div>
-              <div className="space-y-1">
+              <div className="space-y-1 relative">
                 <label className="text-caption text-fg-3">Icon</label>
-                <input
-                  value={item.icon}
-                  onChange={(e) => updateItem(i, { icon: e.target.value })}
-                  placeholder="clock"
-                  className="w-full border border-rule rounded-sm px-2 py-1.5 text-xs bg-transparent text-fg-1 font-mono"
-                />
+                <button
+                  type="button"
+                  onClick={() => setOpenDropdown(openDropdown === i ? null : i)}
+                  className="w-full flex items-center gap-2 border border-rule rounded-sm px-2 py-1.5 text-xs bg-transparent text-fg-1"
+                >
+                  {(() => {
+                    const Icon = iconPreview[item.icon ?? 'clock'] || Clock
+                    return <Icon size={14} />
+                  })()}
+                  <span>{item.icon || 'clock'}</span>
+                </button>
+                {openDropdown === i && (
+                  <div
+                    ref={dropdownRef}
+                    className="absolute z-10 top-full mt-1 left-0 w-full border border-rule rounded-sm bg-white shadow-lg"
+                  >
+                    {iconOptions.map(({ label, Icon }) => (
+                      <button
+                        key={label}
+                        type="button"
+                        onClick={() => {
+                          updateItem(i, { icon: label })
+                          setOpenDropdown(null)
+                        }}
+                        className={`w-full flex items-center gap-2 px-2 py-1.5 text-xs hover:bg-gray-100 text-left ${item.icon === label ? 'bg-blue-100 font-semibold' : ''}`}
+                      >
+                        <Icon size={14} />
+                        <span>{label}</span>
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
             <div className="space-y-1">
@@ -249,7 +241,7 @@ export function AdminAmenitiesPage() {
               <label className="text-caption text-fg-3">Sort Order</label>
               <input
                 type="number"
-                value={item.sort_order}
+                value={item.sort_order ?? ''}
                 onChange={(e) =>
                   updateItem(i, { sort_order: parseInt(e.target.value) || 0 })
                 }

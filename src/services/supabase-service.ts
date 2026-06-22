@@ -1114,33 +1114,6 @@ export const amenitiesService = {
       .order('sort_order', { ascending: true })
     return data || []
   },
-
-  async getContent(): Promise<any | null> {
-    const { data, error } = await supabase
-      .from('amenities_content')
-      .select('*')
-      .limit(1)
-      .maybeSingle()
-    if (error) return null
-    return data || null
-  },
-
-  async upsertContent(payload: any): Promise<any> {
-    const client = supabaseAdmin ?? supabase
-    const { data: existing } = await client
-      .from('amenities_content')
-      .select('id')
-      .limit(1)
-      .maybeSingle()
-    const id = existing?.id ?? undefined
-    const { data, error } = await client
-      .from('amenities_content')
-      .upsert({ id, ...payload })
-      .select()
-      .single()
-    if (error) throw error
-    return data
-  },
 }
 
 // ============================================

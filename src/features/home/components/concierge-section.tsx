@@ -178,8 +178,8 @@ export function ConciergeSection() {
                   target="_blank"
                   rel="noopener"
                   aria-label="Continue on WhatsApp"
-                  title="Or message us on WhatsApp at +977 9851 000 000"
-                  className="bg-[#25D366] text-white border-0 px-3 py-2 rounded-full cursor-pointer inline-flex items-center gap-1.5 text-xs no-underline font-medium"
+                  title={`Or message us on WhatsApp at ${WHATSAPP.DISPLAY}`}
+                  className="bg-[#25D366] text-white border-0 px-3 py-2 rounded-full cursor-pointer sm:inline-flex hidden items-center gap-1.5 text-xs no-underline font-medium"
                 >
                   <MessageCircle size={14} />
                   On WhatsApp

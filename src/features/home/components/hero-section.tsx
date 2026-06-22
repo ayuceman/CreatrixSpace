@@ -30,18 +30,6 @@ const defaultHeroImages = [
     label: 'Kausimaa Co-working',
     location: 'Kupondole, Lalitpur',
   },
-  {
-    src: '/images/hero-slider/creatrixspace-coworking-area-1.webp',
-    alt: 'CreatrixSpace coworking area',
-    label: 'Dhobighat Hub',
-    location: 'Dhobighat, Kathmandu',
-  },
-  {
-    src: '/images/hero-slider/professional-workspace-desk.webp',
-    alt: 'Professional workspace with desk',
-    label: 'Jhamsikhel Loft',
-    location: 'Jhamsikhel, Lalitpur',
-  },
 ]
 
 const defaultPricingStrip = [
@@ -59,18 +47,6 @@ export function HeroSection({ onBookTour: _onBookTour }: HeroSectionProps) {
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
   const [heroImages, setHeroImages] = useState(defaultHeroImages)
   const [pricingStrip, setPricingStrip] = useState(defaultPricingStrip)
-  const [badge, setBadge] = useState('Now booking')
-  const [subBadgeHtml, setSubBadgeHtml] = useState(
-    '<b class="text-fg-1 font-medium">5 private offices</b> just opened across the three buildings — and <b class="text-fg-1 font-medium">25 hot desks</b> today'
-  )
-  const [headline1, setHeadline1] = useState('A quieter way')
-  const [headline2, setHeadline2] = useState('to work')
-  const [headline3, setHeadline3] = useState('in the valley.')
-  const [subheading, setSubheading] = useState(
-    'Three rooms across Kathmandu and Lalitpur — hot desks, dedicated desks, five lockable private offices, and a virtual office for NPR 6,000 a month.'
-  )
-  const [buttonText, setButtonText] = useState('Book a tour')
-  const [whatsappText, setWhatsappText] = useState('WhatsApp')
   const { openTour } = useBookTour()
 
   useEffect(() => {
@@ -78,14 +54,6 @@ export function HeroSection({ onBookTour: _onBookTour }: HeroSectionProps) {
       if (data) {
         if (data.images?.length) setHeroImages(data.images)
         if (data.pricing?.length) setPricingStrip(data.pricing)
-        if (data.badge) setBadge(data.badge)
-        if (data.sub_badge) setSubBadgeHtml(data.sub_badge)
-        if (data.headline_1) setHeadline1(data.headline_1)
-        if (data.headline_2) setHeadline2(data.headline_2)
-        if (data.headline_3) setHeadline3(data.headline_3)
-        if (data.subheading) setSubheading(data.subheading)
-        if (data.button_text) setButtonText(data.button_text)
-        if (data.whatsapp_text) setWhatsappText(data.whatsapp_text)
       }
     })
   }, [])
@@ -122,29 +90,28 @@ export function HeroSection({ onBookTour: _onBookTour }: HeroSectionProps) {
                 className="relative inline-block w-2 h-2 rounded-full bg-moss before:absolute before:-inset-1 before:rounded-full before:border before:border-moss before:opacity-60 before:animate-ping"
               />
               <span className="eyebrow text-label uppercase tracking-widest font-medium text-moss">
-                {badge}
+                Now booking
               </span>
             </span>
             <span className="w-px h-3.5 bg-rule-strong" />
-            <span
-              className="text-[13px] text-fg-2"
-              dangerouslySetInnerHTML={{ __html: subBadgeHtml }}
-            />
+            <span className="text-[13px] text-fg-2">
+              <b className="text-fg-1 font-medium">5 private offices</b> just
+              opened across the three buildings — and{' '}
+              <b className="text-fg-1 font-medium">25 hot desks</b> today
+            </span>
           </div>
         </motion.div>
-        <div className="grid grid-cols-1 lg:grid-cols-[1.5fr_1fr] gap-14 items-end pb-14">
+        <div className="grid grid-cols-1 lg:grid-cols-[1.5fr_1fr] sm:gap-14 gap-8 items-end pb-14">
           {/* Left — Text content */}
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, ease: 'easeOut' }}
           >
-            <h1 className="font-display font-normal text-[clamp(56px,9vw,132px)] leading-[0.95] tracking-tight m-0 text-fg-1">
-              {headline1}
-              <br />
-              <em className="text-clay">{headline2}</em>
-              <br />
-              {headline3}
+            <h1 className="font-display font-normal lg:text-[clamp(56px,9vw,132px)] text-[clamp(40px,11vw,72px)] leading-[0.95] tracking-tight m-0 text-fg-1">
+              A quieter way
+              <em className="text-clay px-2 xl:p-0 xl:block">to work</em>
+              in the valley.
             </h1>
           </motion.div>
 
@@ -156,13 +123,15 @@ export function HeroSection({ onBookTour: _onBookTour }: HeroSectionProps) {
           >
             <div>
               <p className="text-[19px] leading-[1.55] text-fg-2 max-w-95 mb-8">
-                {subheading}
+                Three rooms across Kathmandu and Lalitpur — hot desks, dedicated
+                desks, five lockable private offices, and a virtual office for
+                NPR 6,000 a month.
               </p>
 
-              <div className="hidden md:flex items-center gap-4">
+              <div className="flex items-center gap-4">
                 <Button
                   variant="dark"
-                  text={buttonText}
+                  text="Book a tour"
                   icon={ArrowRight}
                   iconPosition="right"
                   className="py-3.5 px-7"
@@ -171,7 +140,7 @@ export function HeroSection({ onBookTour: _onBookTour }: HeroSectionProps) {
                 <Button
                   variant="outline"
                   icon={MessageCircle}
-                  text={whatsappText}
+                  text="WhatsApp"
                   className="py-3.5 px-7 rounded-none"
                   href={WHATSAPP.url}
                   target="_blank"
@@ -261,7 +230,7 @@ export function HeroSection({ onBookTour: _onBookTour }: HeroSectionProps) {
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.5 }}
-          className="mt-[22px] grid grid-cols-2 md:grid-cols-4 gap-6 pt-[22px] border-t border-rule"
+          className="mt-[22px] grid grid-cols-2 lg:grid-cols-4 gap-6 pt-[22px] border-t border-rule"
         >
           {pricingStrip.map((item) => (
             <div key={item.label}>

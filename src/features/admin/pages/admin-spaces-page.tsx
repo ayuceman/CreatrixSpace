@@ -25,15 +25,7 @@ interface SpaceCard {
 }
 
 interface FormState {
-  eyebrow: string
-  headline_1: string
-  headline_em: string
-  headline_2: string
-  description: string
   cards: SpaceCard[]
-  cta_bar_eyebrow: string
-  cta_bar_text: string
-  cta_bar_whatsapp: string
 }
 
 function emptyCard(): SpaceCard {
@@ -52,17 +44,7 @@ function emptyCard(): SpaceCard {
 }
 
 export function AdminSpacesPage() {
-  const [form, setForm] = useState<FormState>({
-    eyebrow: '',
-    headline_1: '',
-    headline_em: '',
-    headline_2: '',
-    description: '',
-    cards: [],
-    cta_bar_eyebrow: '',
-    cta_bar_text: '',
-    cta_bar_whatsapp: '',
-  })
+  const [form, setForm] = useState<FormState>({ cards: [] })
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [uploading, setUploading] = useState<number | null>(null)
@@ -74,17 +56,7 @@ export function AdminSpacesPage() {
       .get()
       .then((data) => {
         if (data) {
-          setForm({
-            eyebrow: data.eyebrow ?? '',
-            headline_1: data.headline_1 ?? '',
-            headline_em: data.headline_em ?? '',
-            headline_2: data.headline_2 ?? '',
-            description: data.description ?? '',
-            cards: (data.cards as SpaceCard[]) ?? [],
-            cta_bar_eyebrow: data.cta_bar_eyebrow ?? '',
-            cta_bar_text: data.cta_bar_text ?? '',
-            cta_bar_whatsapp: data.cta_bar_whatsapp ?? '',
-          })
+          setForm({ cards: (data.cards as SpaceCard[]) ?? [] })
         }
         setLoading(false)
       })
@@ -197,74 +169,6 @@ export function AdminSpacesPage() {
         </div>
         <Button text="Save All" onClick={handleSave} disabled={saving} />
       </div>
-
-      <Card>
-        <CardHeader>
-          <h2 className="text-h4 font-display text-fg-1">Header</h2>
-        </CardHeader>
-        <CardContent className="space-y-4 max-w-2xl">
-          <div className="space-y-1.5">
-            <label className="text-label text-fg-2">Eyebrow</label>
-            <input
-              value={form.eyebrow}
-              onChange={(e) =>
-                setForm((f) => ({ ...f, eyebrow: e.target.value }))
-              }
-              placeholder="Also at CreatrixSpace"
-              className="w-full border border-rule rounded-sm px-3 py-2 text-sm bg-transparent text-fg-1"
-            />
-          </div>
-          <div className="grid grid-cols-3 gap-3">
-            <div className="space-y-1.5">
-              <label className="text-label text-fg-2">Headline (before)</label>
-              <input
-                value={form.headline_1}
-                onChange={(e) =>
-                  setForm((f) => ({ ...f, headline_1: e.target.value }))
-                }
-                placeholder="Rooms for "
-                className="w-full border border-rule rounded-sm px-3 py-2 text-sm bg-transparent text-fg-1"
-              />
-            </div>
-            <div className="space-y-1.5">
-              <label className="text-label text-fg-2">
-                Headline (emphasized)
-              </label>
-              <input
-                value={form.headline_em}
-                onChange={(e) =>
-                  setForm((f) => ({ ...f, headline_em: e.target.value }))
-                }
-                placeholder="weekends"
-                className="w-full border border-rule rounded-sm px-3 py-2 text-sm bg-transparent text-fg-1"
-              />
-            </div>
-            <div className="space-y-1.5">
-              <label className="text-label text-fg-2">Headline (after)</label>
-              <input
-                value={form.headline_2}
-                onChange={(e) =>
-                  setForm((f) => ({ ...f, headline_2: e.target.value }))
-                }
-                placeholder=" and cohorts."
-                className="w-full border border-rule rounded-sm px-3 py-2 text-sm bg-transparent text-fg-1"
-              />
-            </div>
-          </div>
-          <div className="space-y-1.5">
-            <label className="text-label text-fg-2">Description</label>
-            <textarea
-              rows={3}
-              value={form.description}
-              onChange={(e) =>
-                setForm((f) => ({ ...f, description: e.target.value }))
-              }
-              placeholder="On Saturdays and Sundays the event rooms open up…"
-              className="w-full border border-rule rounded-sm px-3 py-2 text-sm bg-transparent text-fg-1"
-            />
-          </div>
-        </CardContent>
-      </Card>
 
       <div className="flex items-center justify-between">
         <h2 className="text-h4 font-display text-fg-1">
@@ -469,48 +373,6 @@ export function AdminSpacesPage() {
           </CardContent>
         </Card>
       ))}
-
-      <Card>
-        <CardHeader>
-          <h2 className="text-h4 font-display text-fg-1">CTA Bar</h2>
-        </CardHeader>
-        <CardContent className="space-y-4 max-w-2xl">
-          <div className="space-y-1.5">
-            <label className="text-label text-fg-2">Eyebrow</label>
-            <input
-              value={form.cta_bar_eyebrow}
-              onChange={(e) =>
-                setForm((f) => ({ ...f, cta_bar_eyebrow: e.target.value }))
-              }
-              placeholder="For trainers, institutes, and event organisers"
-              className="w-full border border-rule rounded-sm px-3 py-2 text-sm bg-transparent text-fg-1"
-            />
-          </div>
-          <div className="space-y-1.5">
-            <label className="text-label text-fg-2">Text</label>
-            <textarea
-              rows={3}
-              value={form.cta_bar_text}
-              onChange={(e) =>
-                setForm((f) => ({ ...f, cta_bar_text: e.target.value }))
-              }
-              placeholder="We work on flexible blocks…"
-              className="w-full border border-rule rounded-sm px-3 py-2 text-sm bg-transparent text-fg-1"
-            />
-          </div>
-          <div className="space-y-1.5">
-            <label className="text-label text-fg-2">WhatsApp Button Text</label>
-            <input
-              value={form.cta_bar_whatsapp}
-              onChange={(e) =>
-                setForm((f) => ({ ...f, cta_bar_whatsapp: e.target.value }))
-              }
-              placeholder="WhatsApp the spaces team"
-              className="w-full border border-rule rounded-sm px-3 py-2 text-sm bg-transparent text-fg-1"
-            />
-          </div>
-        </CardContent>
-      </Card>
 
       <Button text="Save All" onClick={handleSave} disabled={saving} />
     </div>

@@ -369,26 +369,6 @@ DROP TRIGGER IF EXISTS update_amenities_updated_at ON public.amenities;
 CREATE TRIGGER update_amenities_updated_at BEFORE UPDATE ON public.amenities
   FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
-CREATE TABLE IF NOT EXISTS public.amenities_content (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  eyebrow TEXT NOT NULL DEFAULT 'What''s in the room',
-  headline_1 TEXT NOT NULL DEFAULT 'The things you''d',
-  headline_em TEXT NOT NULL DEFAULT 'expect',
-  headline_2 TEXT NOT NULL DEFAULT ', kept well.',
-  description TEXT,
-  created_at TIMESTAMPTZ DEFAULT NOW(),
-  updated_at TIMESTAMPTZ DEFAULT NOW()
-);
-
-ALTER TABLE public.amenities_content ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "Anyone can view amenities content" ON public.amenities_content FOR SELECT USING (true);
-CREATE POLICY "Only admins can insert amenities content" ON public.amenities_content FOR INSERT WITH CHECK (public.is_admin());
-CREATE POLICY "Only admins can update amenities content" ON public.amenities_content FOR UPDATE USING (public.is_admin());
-CREATE POLICY "Only admins can delete amenities content" ON public.amenities_content FOR DELETE USING (public.is_admin());
-DROP TRIGGER IF EXISTS update_amenities_content_updated_at ON public.amenities_content;
-CREATE TRIGGER update_amenities_content_updated_at BEFORE UPDATE ON public.amenities_content
-  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
-
 CREATE TABLE IF NOT EXISTS public.testimonials (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   quote TEXT NOT NULL,
@@ -447,14 +427,6 @@ CREATE TRIGGER update_member_companies_updated_at BEFORE UPDATE ON public.member
 
 CREATE TABLE IF NOT EXISTS public.hero_content (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  badge TEXT NOT NULL DEFAULT 'Now booking',
-  sub_badge TEXT,
-  headline_1 TEXT NOT NULL DEFAULT 'A quieter way',
-  headline_2 TEXT NOT NULL DEFAULT 'to work',
-  headline_3 TEXT NOT NULL DEFAULT 'in the valley.',
-  subheading TEXT,
-  button_text TEXT NOT NULL DEFAULT 'Book a tour',
-  whatsapp_text TEXT NOT NULL DEFAULT 'WhatsApp',
   images JSONB NOT NULL DEFAULT '[]'::jsonb,
   pricing JSONB NOT NULL DEFAULT '[]'::jsonb,
   created_at TIMESTAMPTZ DEFAULT NOW(),
@@ -472,10 +444,7 @@ CREATE TRIGGER update_hero_content_updated_at BEFORE UPDATE ON public.hero_conte
 
 CREATE TABLE IF NOT EXISTS public.membership_content (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  headline TEXT NOT NULL DEFAULT 'Pick a room. <em class="text-clay">Show up tomorrow.</em>',
-  description TEXT,
   tabs JSONB NOT NULL DEFAULT '[]'::jsonb,
-  footer_tags TEXT[] DEFAULT ARRAY['NO DEPOSIT', 'CANCEL ANY TIME', 'PRICES INCLUDE 13% VAT', 'FIRST DAY ON US FOR DAY PASSES'],
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
@@ -491,15 +460,7 @@ CREATE TRIGGER update_membership_content_updated_at BEFORE UPDATE ON public.memb
 
 CREATE TABLE IF NOT EXISTS public.spaces_content (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  eyebrow TEXT NOT NULL DEFAULT 'Also at CreatrixSpace',
-  headline_1 TEXT NOT NULL DEFAULT 'Rooms for ',
-  headline_em TEXT NOT NULL DEFAULT 'weekends',
-  headline_2 TEXT NOT NULL DEFAULT ' and cohorts.',
-  description TEXT,
   cards JSONB NOT NULL DEFAULT '[]'::jsonb,
-  cta_bar_eyebrow TEXT NOT NULL DEFAULT 'For trainers, institutes, and event organisers',
-  cta_bar_text TEXT,
-  cta_bar_whatsapp TEXT NOT NULL DEFAULT 'WhatsApp the spaces team',
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );

@@ -273,7 +273,6 @@ export function PaymentPage() {
 
   const handleQRPaymentCancel = () => {
     setPaymentStatus('selecting')
-    setSelectedMethod(null)
     setPaymentResult(null)
   }
 
@@ -354,7 +353,7 @@ export function PaymentPage() {
                     <div>
                       <span className="text-fg-2">Amount:</span>
                       <span className="font-medium ml-2">
-                        {formatCurrency(paymentResult.amount, 'NPR')}
+                        {formatCurrency(paymentResult.amount ?? 0, 'NPR')}
                       </span>
                     </div>
                   </div>
@@ -437,10 +436,7 @@ export function PaymentPage() {
             {/* Left Column - Payment Methods */}
             <div className="lg:col-span-3">
               <PaymentGatewaySelector
-                amount={bookingData.totalAmount}
                 onPaymentMethodSelect={handlePaymentMethodSelect}
-                isProcessing={false}
-                showSummary={false} // Don't show summary in selector
               />
             </div>
 

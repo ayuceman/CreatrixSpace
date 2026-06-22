@@ -263,7 +263,7 @@ export function BlogPage() {
             viewport={{ once: true }}
             className="mb-12"
           >
-            <h2 className="text-3xl font-display font-bold mb-8">
+            <h2 className="text-3xl font-display font-normal mb-8">
               Featured Articles
             </h2>
             <div className="grid lg:grid-cols-2 gap-8">
@@ -371,7 +371,7 @@ export function BlogPage() {
                 viewport={{ once: true }}
                 className="mb-8"
               >
-                <h2 className="text-3xl font-display font-bold mb-8">
+                <h2 className="text-3xl font-display font-normal mb-8">
                   Latest Articles
                 </h2>
                 <div className="grid gap-6">

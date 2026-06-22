@@ -87,7 +87,7 @@ export function CTASection() {
   return (
     <section
       id="cta"
-      className="relative overflow-hidden bg-ink text-fg-on-ink-1 py-32"
+      className="relative overflow-hidden bg-ink text-fg-on-ink-1 py-16 md:py-24 lg:py-32"
     >
       <div aria-hidden className="absolute inset-0 pointer-events-none">
         <img
@@ -107,7 +107,7 @@ export function CTASection() {
             transition={{ duration: 0.6, ease: [0.2, 0.7, 0.2, 1] }}
           >
             <div className="eyebrow text-clay mb-5.5">{eyebrow}</div>
-            <h2 className="font-display font-normal text-[clamp(48px,7vw,104px)] leading-[0.98] tracking-[-0.02em] m-0 text-fg-on-ink-1">
+            <h2 className="font-display font-normal lg:text-[clamp(48px,7vw,104px)] text-[clamp(40px,11vw,72px)] leading-[0.98] tracking-[-0.02em] m-0 text-fg-on-ink-1">
               {headline1}
               <em className="text-clay not-italic">{headlineEm}</em>
               {headline2}
@@ -130,7 +130,7 @@ export function CTASection() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6, delay: 0.2, ease: [0.2, 0.7, 0.2, 1] }}
-            className="bg-bg text-fg-1 border border-[rgba(243,239,231,0.08)] rounded-sm p-9 pb-8"
+            className="bg-bg text-fg-1 border border-[rgba(243,239,231,0.08)] rounded-sm md:p-9 md:pb-8 p-6"
           >
             {submitted ? (
               <div className="flex flex-col gap-4 py-8 text-center">
@@ -237,7 +237,7 @@ export function CTASection() {
                     WhatsApp &mdash; reply in a minute
                   </span>
                   <span className="font-mono text-xs opacity-[0.85]">
-                    +977 9851 000 000
+                    {WHATSAPP.DISPLAY}
                   </span>
                 </Link>
 

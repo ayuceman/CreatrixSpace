@@ -23,12 +23,6 @@ const badgeStyles = [
   { badgeColor: 'text-moss', badgeDotColor: 'bg-moss' },
 ]
 
-const defaultEyebrow = 'Also at CreatrixSpace'
-const defaultHeadline1 = 'Rooms for '
-const defaultHeadlineEm = 'weekends'
-const defaultHeadline2 = ' and cohorts.'
-const defaultDescription =
-  'On Saturdays and Sundays the event rooms open up for launches, readings, and workshops. On weekday afternoons and evenings, a dedicated training room runs cohorts — robotics for kids, coding bootcamps, design schools.'
 const defaultCards: SpaceCard[] = [
   {
     id: 'event-space',
@@ -79,35 +73,15 @@ const defaultCards: SpaceCard[] = [
     cta: 'Talk to us about a cohort',
   },
 ]
-const defaultCtaEyebrow = 'For trainers, institutes, and event organisers'
-const defaultCtaText =
-  'We work on flexible blocks — single weekends, three-month robotics terms, six-month cohorts. Equipment, AV, and a host on the floor are included. Pricing depends on room and length.'
-const defaultCtaWhatsapp = 'WhatsApp the spaces team'
 
 export function SpacesSection() {
-  const [eyebrow, setEyebrow] = useState(defaultEyebrow)
-  const [headline1, setHeadline1] = useState(defaultHeadline1)
-  const [headlineEm, setHeadlineEm] = useState(defaultHeadlineEm)
-  const [headline2, setHeadline2] = useState(defaultHeadline2)
-  const [description, setDescription] = useState(defaultDescription)
   const [cards, setCards] = useState<SpaceCard[]>(defaultCards)
-  const [ctaEyebrow, setCtaEyebrow] = useState(defaultCtaEyebrow)
-  const [ctaText, setCtaText] = useState(defaultCtaText)
-  const [ctaWhatsapp, setCtaWhatsapp] = useState(defaultCtaWhatsapp)
 
   useEffect(() => {
     spacesService
       .get()
       .then((data) => {
         if (data) {
-          setEyebrow(data.eyebrow ?? defaultEyebrow)
-          setHeadline1(data.headline_1 ?? defaultHeadline1)
-          setHeadlineEm(data.headline_em ?? defaultHeadlineEm)
-          setHeadline2(data.headline_2 ?? defaultHeadline2)
-          setDescription(data.description ?? defaultDescription)
-          setCtaEyebrow(data.cta_bar_eyebrow ?? defaultCtaEyebrow)
-          setCtaText(data.cta_bar_text ?? defaultCtaText)
-          setCtaWhatsapp(data.cta_bar_whatsapp ?? defaultCtaWhatsapp)
           const loadedCards = (data.cards as SpaceCard[]) ?? []
           setCards(loadedCards.length > 0 ? loadedCards : defaultCards)
         }
@@ -116,25 +90,28 @@ export function SpacesSection() {
   }, [])
 
   return (
-    <section id="spaces" className="py-32">
+    <section id="spaces" className="py-16 md:py-24 lg:py-32">
       <div className="container">
         <motion.div
           initial={{ opacity: 0, y: 24 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6, ease: [0.2, 0.7, 0.2, 1] }}
-          className="grid grid-cols-1 lg:grid-cols-[1fr_1.3fr] gap-20 mb-16 items-start"
+          className="grid grid-cols-1 lg:grid-cols-[1fr_1.3fr] lg:gap-20 sm:gap-8 mb-16 items-start"
         >
           <div>
-            <div className="eyebrow text-clay mb-4.5">{eyebrow}</div>
+            <div className="eyebrow text-clay mb-4.5">
+              Also at CreatrixSpace
+            </div>
             <h2 className="font-display font-normal text-[clamp(36px,4.6vw,64px)] leading-[1.05] tracking-[-0.015em] m-0">
-              {headline1}
-              <em className="text-clay">{headlineEm}</em>
-              {headline2}
+              Rooms for <em className="text-clay">weekends</em> and cohorts.
             </h2>
           </div>
           <p className="text-lg leading-[1.6] text-fg-2 max-w-135 pt-[22px] m-0">
-            {description}
+            On Saturdays and Sundays the event rooms open up for launches,
+            readings, and workshops. On weekday afternoons and evenings, a
+            dedicated training room runs cohorts — robotics for kids, coding
+            bootcamps, design schools.
           </p>
         </motion.div>
 
@@ -179,7 +156,7 @@ export function SpacesSection() {
                   </div>
 
                   <div
-                    className={`p-[clamp(28px,4vw,56px)] flex flex-col gap-5.5 justify-center ${
+                    className={`p-[clamp(24px,4vw,56px)] flex flex-col gap-5.5 justify-center ${
                       i % 2 === 0 ? 'lg:order-2' : 'lg:order-1'
                     }`}
                   >
@@ -248,18 +225,22 @@ export function SpacesSection() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.5, delay: 0.3, ease: [0.2, 0.7, 0.2, 1] }}
-          className="mt-14 p-[28px_32px] bg-bg-raised border border-rule rounded-sm flex items-center justify-between gap-6 flex-wrap"
+          className="lg:mt-14 mt-8 p-[28px_32px] bg-bg-raised border border-rule rounded-sm flex items-center justify-between gap-6 flex-wrap"
         >
           <div>
-            <div className="eyebrow text-clay mb-2">{ctaEyebrow}</div>
+            <div className="eyebrow text-clay mb-2">
+              For trainers, institutes, and event organisers
+            </div>
             <div className="text-base leading-[1.55] text-fg-1 max-w-[640px]">
-              {ctaText}
+              We work on flexible blocks — single weekends, three-month robotics
+              terms, six-month cohorts. Equipment, AV, and a host on the floor
+              are included. Pricing depends on room and length.
             </div>
           </div>
           <Button
             variant="dark"
             className="px-7 py-3.5 leading-none"
-            text={ctaWhatsapp}
+            text="WhatsApp the spaces team"
             icon={MessageCircle}
             href={`https://wa.me/${WHATSAPP.NUMBER}?text=${encodeURIComponent("Hello CreatrixSpace — I'd like to discuss a space hire (event or training).")}`}
             target="_blank"

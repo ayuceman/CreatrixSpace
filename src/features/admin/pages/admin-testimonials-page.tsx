@@ -153,7 +153,7 @@ export function AdminTestimonialsPage() {
                     setForm((f) => ({ ...f, author_initials: e.target.value }))
                   }
                   placeholder="SP"
-                  className="w-full border border-rule rounded-sm px-3 py-2 text-sm bg-transparent text-fg-1 max-w-[100px]"
+                  className="w-full border border-rule rounded-sm px-3 py-2 text-sm bg-transparent text-fg-1 max-w-[100px] ml-2"
                 />
               </div>
               <div className="space-y-1.5">
@@ -168,7 +168,7 @@ export function AdminTestimonialsPage() {
                     }))
                   }
                   placeholder="0"
-                  className="w-full border border-rule rounded-sm px-3 py-2 text-sm bg-transparent text-fg-1 max-w-[100px]"
+                  className="w-full border border-rule rounded-sm px-3 py-2 text-sm bg-transparent text-fg-1 max-w-[100px] ml-2"
                 />
               </div>
               <div className="flex gap-3 pt-2">

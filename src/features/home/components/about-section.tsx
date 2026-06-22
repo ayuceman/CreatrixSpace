@@ -85,7 +85,7 @@ export function AboutSection() {
   return (
     <section
       id="about"
-      className="bg-parchment py-32 border-t border-rule border-b"
+      className="bg-parchment py-16 md:py-24 lg:py-32 border-t border-rule border-b"
     >
       <div className="container">
         <motion.div
@@ -93,7 +93,7 @@ export function AboutSection() {
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7 }}
           viewport={{ once: true }}
-          className="grid grid-cols-1 md:grid-cols-[1fr_1.4fr] gap-20 items-start"
+          className="grid grid-cols-1 lg:grid-cols-[1fr_1.4fr] lg:gap-20 gap-8 items-start"
         >
           <div>
             <div className="text-clay text-xs uppercase tracking-widest font-medium mb-5.5">
@@ -123,7 +123,7 @@ export function AboutSection() {
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, delay: 0.2 }}
           viewport={{ once: true }}
-          className="mt-24 grid grid-cols-2 md:grid-cols-4 gap-6 pt-12 border-t border-rule-strong"
+          className="mt-24 grid grid-cols-2 lg:grid-cols-4 gap-6 pt-12 border-t border-rule-strong"
         >
           {stats.map((stat) => {
             const { value, suffix } = parseStat(stat.raw)

@@ -39,14 +39,11 @@ const emptyForm: Database['public']['Tables']['locations']['Insert'] = {
     meetingRooms: 0,
     eventSeats: 0,
   },
-  opening_hours: { weekday: { open: '09:00', close: '18:00' } },
+  opening_hours: {},
   rating: 0,
   images: [],
   contact_phone: '',
-  contact_email: '',
   google_maps_url: '',
-  latitude: null,
-  longitude: null,
 }
 
 function extractGoogleMapsUrl(input: string): string {
@@ -70,12 +67,6 @@ export function AdminLocationsPage() {
     const errors: Record<string, string> = {}
     if (!form.name.trim()) errors.name = 'Name is required'
     if (!form.address.trim()) errors.address = 'Address is required'
-    if (
-      form.contact_email &&
-      !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.contact_email)
-    ) {
-      errors.contact_email = 'Invalid email format'
-    }
     if (form.google_maps_url && !/^https?:\/\/.+/.test(form.google_maps_url)) {
       errors.google_maps_url = 'Must be a valid URL (http://...)'
     }
@@ -147,10 +138,7 @@ export function AdminLocationsPage() {
       opening_hours: loc.opening_hours,
       rating: loc.rating,
       contact_phone: loc.contact_phone,
-      contact_email: loc.contact_email,
       google_maps_url: loc.google_maps_url,
-      latitude: loc.latitude,
-      longitude: loc.longitude,
     })
     setEditingId(loc.id)
     setImagePreview(loc.image_url)
@@ -502,34 +490,6 @@ export function AdminLocationsPage() {
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <label className="text-label text-fg-2">Contact Email</label>
-                  <input
-                    value={form.contact_email ?? ''}
-                    type="email"
-                    onChange={(e) => {
-                      clearError('contact_email')
-                      setForm((f) => ({ ...f, contact_email: e.target.value }))
-                    }}
-                    onBlur={() => {
-                      const v = form.contact_email
-                      if (v && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)) {
-                        setFieldErrors((p) => ({
-                          ...p,
-                          contact_email: 'Invalid email format',
-                        }))
-                      }
-                    }}
-                    className={`w-full border rounded-sm px-3 py-2 text-sm bg-transparent text-fg-1 ${
-                      fieldErrors.contact_email ? 'border-clay' : 'border-rule'
-                    }`}
-                  />
-                  {fieldErrors.contact_email && (
-                    <span className="text-xs text-clay">
-                      {fieldErrors.contact_email}
-                    </span>
-                  )}
-                </div>
-                <div className="space-y-1.5">
                   <label className="text-label text-fg-2">
                     Google Maps URL
                   </label>
@@ -570,49 +530,6 @@ export function AdminLocationsPage() {
                     code and paste here. The <code>src</code> URL is
                     auto-extracted.
                   </span>
-                </div>
-                <div className="space-y-1.5">
-                  <label className="text-label text-fg-2">Coordinates</label>
-                  <div className="grid grid-cols-2 gap-3">
-                    <div>
-                      <label className="text-caption text-fg-3">Latitude</label>
-                      <input
-                        type="number"
-                        step="any"
-                        value={form.latitude ?? ''}
-                        onChange={(e) =>
-                          setForm((f) => ({
-                            ...f,
-                            latitude: e.target.value
-                              ? Number(e.target.value)
-                              : null,
-                          }))
-                        }
-                        placeholder="27.7172"
-                        className="w-full border border-rule rounded-sm px-3 py-2 text-sm bg-transparent text-fg-1 font-mono"
-                      />
-                    </div>
-                    <div>
-                      <label className="text-caption text-fg-3">
-                        Longitude
-                      </label>
-                      <input
-                        type="number"
-                        step="any"
-                        value={form.longitude ?? ''}
-                        onChange={(e) =>
-                          setForm((f) => ({
-                            ...f,
-                            longitude: e.target.value
-                              ? Number(e.target.value)
-                              : null,
-                          }))
-                        }
-                        placeholder="85.3240"
-                        className="w-full border border-rule rounded-sm px-3 py-2 text-sm bg-transparent text-fg-1 font-mono"
-                      />
-                    </div>
-                  </div>
                 </div>
                 <div className="space-y-1.5">
                   <label className="text-label text-fg-2">Rating</label>
@@ -772,6 +689,68 @@ export function AdminLocationsPage() {
                     </div>
                   </div>
                 </div>
+                <div className="space-y-1.5">
+                  <label className="text-label text-fg-2">Opening Hours</label>
+                  <div className="grid grid-cols-2 gap-3">
+                    {[
+                      'monday',
+                      'tuesday',
+                      'wednesday',
+                      'thursday',
+                      'friday',
+                      'saturday',
+                      'sunday',
+                    ].map((day) => {
+                      const hours =
+                        (form.opening_hours as Record<string, any>)?.[day] || {}
+                      return (
+                        <div key={day} className="flex gap-2 flex-col">
+                          <span className="text-caption text-fg-3 w-20 capitalize shrink-0">
+                            {day}
+                          </span>
+                          <div className="flex items-center gap-2">
+                            <input
+                              type="time"
+                              value={hours.open ?? ''}
+                              onChange={(e) =>
+                                setForm((f) => ({
+                                  ...f,
+                                  opening_hours: {
+                                    ...(typeof f.opening_hours === 'object'
+                                      ? f.opening_hours
+                                      : {}),
+                                    [day]: { ...hours, open: e.target.value },
+                                  },
+                                }))
+                              }
+                              className="w-full border border-rule rounded-sm px-2 py-1.5 text-sm bg-transparent text-fg-1"
+                            />
+                            <span className="text-fg-3 text-xs">to</span>
+                            <input
+                              type="time"
+                              value={hours.close ?? ''}
+                              onChange={(e) =>
+                                setForm((f) => ({
+                                  ...f,
+                                  opening_hours: {
+                                    ...(typeof f.opening_hours === 'object'
+                                      ? f.opening_hours
+                                      : {}),
+                                    [day]: { ...hours, close: e.target.value },
+                                  },
+                                }))
+                              }
+                              className="w-full border border-rule rounded-sm px-2 py-1.5 text-sm bg-transparent text-fg-1"
+                            />
+                          </div>
+                        </div>
+                      )
+                    })}
+                  </div>
+                  <span className="text-caption text-fg-3">
+                    Leave both fields empty for days the location is closed
+                  </span>
+                </div>
                 <div className="flex items-center gap-6">
                   <label className="flex items-center gap-2 text-sm text-fg-1">
                     <input
@@ -846,7 +825,7 @@ export function AdminLocationsPage() {
             text="Add your first location"
             icon={Plus}
             onClick={openCreate}
-            className="mt-4"
+            className="mt-4 hidden"
           />
         </div>
       ) : (

@@ -121,8 +121,8 @@ export function Footer() {
   return (
     <footer className="bg-ink text-fg-on-ink-1 pt-24 pb-8 border-t border-[rgba(243,239,231,0.06)]">
       <div className="container">
-        <div className="grid grid-cols-2 lg:grid-cols-[1.5fr_1fr_1fr_1fr] gap-12 pb-14 border-b border-rule-on-ink">
-          <div className="col-span-2 lg:col-span-1">
+        <div className="grid sm:grid-cols-2 lg:grid-cols-[1.5fr_1fr_1fr_1fr] gap-12 pb-14 border-b border-rule-on-ink">
+          <div className="col-span-1">
             <div className="font-display text-[40px] tracking-[-0.01em] leading-none">
               Creatrix<em className="text-clay not-italic">Space</em>
             </div>
@@ -222,7 +222,7 @@ export function Footer() {
               </span>
               <br />
               <span className="font-mono text-xs text-fg-3">
-                +977 9851 000 000
+                {WHATSAPP.DISPLAY}
               </span>
             </a>
             <a

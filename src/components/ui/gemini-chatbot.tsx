@@ -105,7 +105,8 @@ export function GeminiChatbot() {
         },
       ])
     } catch (err: unknown) {
-      const status = err?.error?.status || err?.status || err?.code
+      const e = err as Record<string, any>
+      const status = e?.error?.status || e?.status || e?.code
       if (status === 404 || status === 'NOT_FOUND') {
         setFallbackMode(true)
         setMessages((m) => [
@@ -132,7 +133,7 @@ export function GeminiChatbot() {
       } else if (
         status === 'RESOURCE_EXHAUSTED' ||
         status === 429 ||
-        /RATE_LIMIT/i.test(err?.message || '')
+        /RATE_LIMIT/i.test(e?.message || '')
       ) {
         const cooldownMs = 15000
         setCooldownUntil(now + cooldownMs)

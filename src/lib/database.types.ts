@@ -511,6 +511,360 @@ export interface Database {
         }
         Relationships: []
       }
+      amenities: {
+        Row: {
+          id: string
+          title: string
+          description: string
+          icon: string | null
+          sort_order: number | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          title: string
+          description: string
+          icon?: string | null
+          sort_order?: number | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          title?: string
+          description?: string
+          icon?: string | null
+          sort_order?: number | null
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      book_tour_content: {
+        Row: {
+          id: string
+          step1_headline: string
+          step1_description: string
+          step2_headline: string
+          confirmation_eyebrow: string
+          confirmation_tour_details: string
+          time_slots: Json
+          interest_options: Json
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          step1_headline?: string
+          step1_description?: string
+          step2_headline?: string
+          confirmation_eyebrow?: string
+          confirmation_tour_details?: string
+          time_slots?: Json
+          interest_options?: Json
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          step1_headline?: string
+          step1_description?: string
+          step2_headline?: string
+          confirmation_eyebrow?: string
+          confirmation_tour_details?: string
+          time_slots?: Json
+          interest_options?: Json
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      cta_content: {
+        Row: {
+          id: string
+          eyebrow: string
+          headline_1: string
+          headline_em: string
+          headline_2: string
+          description: string
+          rooms: Json
+          features: Json
+          form_name_label: string
+          form_email_label: string
+          form_room_label: string
+          form_button_text: string
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          eyebrow?: string
+          headline_1?: string
+          headline_em?: string
+          headline_2?: string
+          description?: string
+          rooms?: Json
+          features?: Json
+          form_name_label?: string
+          form_email_label?: string
+          form_room_label?: string
+          form_button_text?: string
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          eyebrow?: string
+          headline_1?: string
+          headline_em?: string
+          headline_2?: string
+          description?: string
+          rooms?: Json
+          features?: Json
+          form_name_label?: string
+          form_email_label?: string
+          form_room_label?: string
+          form_button_text?: string
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      faqs: {
+        Row: {
+          id: string
+          question: string
+          answer: string
+          sort_order: number | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          question: string
+          answer: string
+          sort_order?: number | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          question?: string
+          answer?: string
+          sort_order?: number | null
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      form_submissions: {
+        Row: {
+          id: string
+          form_type: string
+          name: string
+          email: string
+          phone: string | null
+          room: string | null
+          selected_date: string | null
+          time_slot: string | null
+          interest: string | null
+          notes: string | null
+          message: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          form_type: string
+          name: string
+          email: string
+          phone?: string | null
+          room?: string | null
+          selected_date?: string | null
+          time_slot?: string | null
+          interest?: string | null
+          notes?: string | null
+          message?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          form_type?: string
+          name?: string
+          email?: string
+          phone?: string | null
+          room?: string | null
+          selected_date?: string | null
+          time_slot?: string | null
+          interest?: string | null
+          notes?: string | null
+          message?: string | null
+          created_at?: string
+        }
+        Relationships: []
+      }
+      hero_content: {
+        Row: {
+          id: string
+          images: Json
+          pricing: Json
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          images?: Json
+          pricing?: Json
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          images?: Json
+          pricing?: Json
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      member_companies: {
+        Row: {
+          id: string
+          name: string
+          italic: boolean | null
+          sort_order: number | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          name: string
+          italic?: boolean | null
+          sort_order?: number | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          name?: string
+          italic?: boolean | null
+          sort_order?: number | null
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      membership_content: {
+        Row: {
+          id: string
+          tabs: Json
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          tabs?: Json
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          tabs?: Json
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      site_stats: {
+        Row: {
+          id: string
+          label: string
+          value: string
+          suffix: string | null
+          meta: string | null
+          sort_order: number | null
+          section: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          label: string
+          value: string
+          suffix?: string | null
+          meta?: string | null
+          sort_order?: number | null
+          section?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          label?: string
+          value?: string
+          suffix?: string | null
+          meta?: string | null
+          sort_order?: number | null
+          section?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      spaces_content: {
+        Row: {
+          id: string
+          cards: Json
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          cards?: Json
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          cards?: Json
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      testimonials: {
+        Row: {
+          id: string
+          quote: string
+          author_name: string
+          author_role: string | null
+          author_initials: string | null
+          sort_order: number | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          quote: string
+          author_name: string
+          author_role?: string | null
+          author_initials?: string | null
+          sort_order?: number | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          quote?: string
+          author_name?: string
+          author_role?: string | null
+          author_initials?: string | null
+          sort_order?: number | null
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
