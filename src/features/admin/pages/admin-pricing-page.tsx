@@ -503,7 +503,6 @@ export function AdminPricingPage() {
                     selectedLocationId === loc.id ? 'default' : 'outline'
                   }
                   onClick={() => setSelectedLocationId(loc.id)}
-                  className="justify-start"
                 >
                   {loc.name}
                 </Button>

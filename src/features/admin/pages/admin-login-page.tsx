@@ -6,7 +6,12 @@ import { Label } from '@/components/ui/label'
 import { loginAdmin, getAdminEnvCreds } from '@/lib/admin-auth'
 import { ROUTES } from '@/lib/constants'
 
+import { useEffect } from 'react'
+
 export function AdminLoginPage() {
+  useEffect(() => {
+    document.title = 'Admin Login | CreatrixSpace Admin'
+  }, [])
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
@@ -52,7 +57,7 @@ export function AdminLoginPage() {
           ) : null}
         </div>
         <div className="space-y-2">
-          <Label htmlFor="email">Email</Label>
+          <Label htmlFor="email">Email *</Label>
           <Input
             id="email"
             type="email"
@@ -62,7 +67,7 @@ export function AdminLoginPage() {
           />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="password">Password</Label>
+          <Label htmlFor="password">Password *</Label>
           <Input
             id="password"
             type="password"

@@ -409,7 +409,7 @@ export function AdminMembershipsPage() {
             >
               <Input
                 required
-                placeholder="Customer name"
+                placeholder="Customer name *"
                 value={manualForm.customerName}
                 onChange={(e) =>
                   setManualForm((p) => ({ ...p, customerName: e.target.value }))
@@ -431,7 +431,7 @@ export function AdminMembershipsPage() {
               />
               <Input
                 required
-                placeholder="Location name"
+                placeholder="Location name *"
                 value={manualForm.locationName}
                 onChange={(e) =>
                   setManualForm((p) => ({ ...p, locationName: e.target.value }))
@@ -439,7 +439,7 @@ export function AdminMembershipsPage() {
               />
               <Input
                 required
-                placeholder="Plan name"
+                placeholder="Plan name *"
                 value={manualForm.planName}
                 onChange={(e) =>
                   setManualForm((p) => ({ ...p, planName: e.target.value }))

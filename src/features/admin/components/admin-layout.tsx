@@ -9,6 +9,26 @@ import { cn } from '@/lib/utils'
 import { ToastContainer } from '@/components/ui/toast'
 import { ChevronDown } from 'lucide-react'
 
+const pageTitles: Record<string, string> = {
+  [ROUTES.ADMIN]: 'Dashboard',
+  [ROUTES.ADMIN_BOOKINGS]: 'Bookings',
+  [ROUTES.ADMIN_MEMBERSHIPS]: 'Memberships',
+  [ROUTES.ADMIN_PRICING]: 'Location Pricing',
+  [ROUTES.ADMIN_LOCATIONS]: 'Locations',
+  [ROUTES.ADMIN_SITE_STATS]: 'Site Stats',
+  [ROUTES.ADMIN_HERO]: 'Hero Section',
+  [ROUTES.ADMIN_MEMBERSHIP]: 'Membership Section',
+  [ROUTES.ADMIN_SPACES]: 'Spaces Section',
+  [ROUTES.ADMIN_AMENITIES]: 'Amenities Section',
+  [ROUTES.ADMIN_BOOK_TOUR]: 'Book a Tour Content',
+  [ROUTES.ADMIN_TESTIMONIALS]: 'Testimonials',
+  [ROUTES.ADMIN_FAQ]: 'FAQs',
+  [ROUTES.ADMIN_MEMBER_COMPANIES]: 'Member Companies',
+  [ROUTES.ADMIN_CTA]: 'CTA Section',
+  [ROUTES.ADMIN_FORM_SUBMISSIONS]: 'Form Submissions',
+  [ROUTES.ADMIN_PLANS]: 'Plans',
+}
+
 // ── Nav structure ────────────────────────────────────────────────────────────
 // Flat items stay flat; grouped items collapse into a dropdown.
 
@@ -142,6 +162,11 @@ export function AdminLayout() {
   const { pathname } = useLocation()
   const session = typeof window !== 'undefined' ? getAdminSession() : null
   const [bookingToast, setBookingToast] = useState<NewBookingEvent | null>(null)
+
+  useEffect(() => {
+    const title = pageTitles[pathname]
+    if (title) document.title = `${title} | CreatrixSpace Admin`
+  }, [pathname])
   const [membershipToast, setMembershipToast] =
     useState<MembershipEvent | null>(null)
 

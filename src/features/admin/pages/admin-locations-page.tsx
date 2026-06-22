@@ -66,7 +66,8 @@ export function AdminLocationsPage() {
   const validate = (): boolean => {
     const errors: Record<string, string> = {}
     if (!form.name.trim()) errors.name = 'Name is required'
-    if (!form.address.trim()) errors.address = 'Address is required'
+    if (!form.full_address?.trim())
+      errors.full_address = 'Full Address is required'
     if (form.google_maps_url && !/^https?:\/\/.+/.test(form.google_maps_url)) {
       errors.google_maps_url = 'Must be a valid URL (http://...)'
     }
@@ -303,49 +304,30 @@ export function AdminLocationsPage() {
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <label className="text-label text-fg-2">Address *</label>
+                  <label className="text-label text-fg-2">Full Address *</label>
                   <input
-                    value={form.address}
+                    value={form.full_address ?? ''}
+                    placeholder="Jhamsikhel, Lalitpur, Nepal"
                     onChange={(e) => {
-                      clearError('address')
-                      setForm((f) => ({ ...f, address: e.target.value }))
+                      clearError('full_address')
+                      setForm((f) => ({ ...f, full_address: e.target.value }))
                     }}
                     onBlur={() => {
-                      if (!form.address.trim())
+                      if (!form.full_address?.trim())
                         setFieldErrors((p) => ({
                           ...p,
-                          address: 'Address is required',
+                          full_address: 'Full Address is required',
                         }))
                     }}
                     className={`w-full border rounded-sm px-3 py-2 text-sm bg-transparent text-fg-1 ${
-                      fieldErrors.address ? 'border-clay' : 'border-rule'
+                      fieldErrors.full_address ? 'border-clay' : 'border-rule'
                     }`}
                   />
-                  {fieldErrors.address && (
+                  {fieldErrors.full_address && (
                     <span className="text-xs text-clay">
-                      {fieldErrors.address}
+                      {fieldErrors.full_address}
                     </span>
                   )}
-                </div>
-                <div className="space-y-1.5">
-                  <label className="text-label text-fg-2">Full Address</label>
-                  <input
-                    value={form.full_address ?? ''}
-                    onChange={(e) =>
-                      setForm((f) => ({ ...f, full_address: e.target.value }))
-                    }
-                    className="w-full border border-rule rounded-sm px-3 py-2 text-sm bg-transparent text-fg-1"
-                  />
-                </div>
-                <div className="space-y-1.5">
-                  <label className="text-label text-fg-2">City</label>
-                  <input
-                    value={form.city ?? ''}
-                    onChange={(e) =>
-                      setForm((f) => ({ ...f, city: e.target.value }))
-                    }
-                    className="w-full border border-rule rounded-sm px-3 py-2 text-sm bg-transparent text-fg-1"
-                  />
                 </div>
                 <div className="space-y-1.5">
                   <label className="text-label text-fg-2">Main Image</label>
@@ -836,15 +818,23 @@ export function AdminLocationsPage() {
               className="flex items-center justify-between bg-bg-raised border border-rule rounded-sm px-5 py-4"
             >
               <div className="flex items-center gap-4 min-w-0">
-                <div className="size-10 shrink-0 rounded-sm bg-clay-soft flex items-center justify-center text-clay font-display text-lg">
-                  {loc.name.charAt(0)}
-                </div>
+                {loc.image_url ? (
+                  <img
+                    src={loc.image_url}
+                    alt={loc.name}
+                    className="size-12 shrink-0 rounded-sm object-cover"
+                  />
+                ) : (
+                  <div className="size-12 shrink-0 rounded-sm bg-clay-soft flex items-center justify-center text-clay font-display text-lg">
+                    {loc.name.charAt(0)}
+                  </div>
+                )}
                 <div className="min-w-0">
                   <div className="font-medium text-fg-1 truncate">
                     {loc.name}
                   </div>
                   <div className="text-caption text-fg-3">
-                    {loc.city}
+                    {loc.full_address}
                     {loc.available === false && (
                       <span className="ml-2 text-clay">Unavailable</span>
                     )}

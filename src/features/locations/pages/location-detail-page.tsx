@@ -508,7 +508,7 @@ export function LocationDetailPage() {
                   </h1>
 
                   <div className="flex items-center text-fg-2">
-                    <MapPin className="h-5 w-5 mr-2" />
+                    <MapPin className="h-5 w-5 mr-2 shrink-0" />
                     <span className="text-lg">{location.fullAddress}</span>
                   </div>
 
