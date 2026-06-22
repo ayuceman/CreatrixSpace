@@ -127,10 +127,21 @@ function toLocationView(db: any): LocationView {
   return {
     id: db.slug || db.id,
     name: db.name,
-    city: db.city || '',
-    status: db.status || (db.available ? 'Open today' : 'Closed'),
+    city:
+      db.city ||
+      (db.full_address
+        ? db.full_address
+            .split(',')
+            .pop()
+            ?.trim()
+            .replace(/Nepal/i, '')
+            .trim() || ''
+        : ''),
+    status:
+      (db.status && db.status !== 'active' ? db.status : null) ||
+      (db.available ? 'Open today' : 'Closed'),
     description: db.description || '',
-    address: db.address || '',
+    address: db.address || db.full_address || '',
     hours: db.opening_hours
       ? typeof db.opening_hours === 'string'
         ? db.opening_hours
@@ -169,12 +180,16 @@ export function LocationsSection({ onBookTour }: LocationsSectionProps) {
   const [slideIndex, setSlideIndex] = useState(0)
   const [showMap, setShowMap] = useState(false)
   const [locations, setLocations] = useState<LocationView[]>(defaultLocations)
+  const [roomCount, setRoomCount] = useState(0)
 
   useEffect(() => {
     locationService.getAllLocations().then((data) => {
       if (data && data.length > 0) {
         setLocations(data.map(toLocationView))
       }
+    })
+    locationService.getAllLocations().then((data) => {
+      if (data?.length) setRoomCount(data.length)
     })
   }, [])
 
@@ -197,11 +212,10 @@ export function LocationsSection({ onBookTour }: LocationsSectionProps) {
         <div className="grid grid-cols-1 lg:grid-cols-[1.4fr_1fr] gap-12 items-end mb-16">
           <div>
             <div className="text-clay text-xs uppercase tracking-widest font-medium mb-4.5">
-              Three rooms
+              {roomCount} {roomCount === 1 ? 'room' : 'rooms'}
             </div>
             <h2 className="font-display font-normal text-[clamp(40px,5vw,80px)] leading-[1.02] tracking-[-0.015em] m-0 max-w-[880px] text-pretty">
-              One in <em className="text-clay">Kathmandu</em>, two in{' '}
-              <em className="text-clay">Lalitpur</em> — each a little different.
+              Rooms across Kathmandu &amp; Lalitpur — each a little different.
             </h2>
           </div>
           <Link
@@ -313,18 +327,20 @@ export function LocationsSection({ onBookTour }: LocationsSectionProps) {
                 className="absolute inset-0 pointer-events-none bg-linear-to-t from-neutral-900/60 to-transparent"
               />
 
-              <div className="absolute bottom-4 right-4 z-10 flex gap-1.5">
-                {activeLocation.images.map((_, i) => (
-                  <button
-                    key={i}
-                    onClick={() => setSlideIndex(i)}
-                    className={`w-7 h-0.75 p-0 border-0 cursor-pointer transition-colors duration-300 ease-out ${
-                      i === slideIndex ? 'bg-white' : 'bg-white/30'
-                    }`}
-                    aria-label={`Go to slide ${i + 1}`}
-                  />
-                ))}
-              </div>
+              {activeLocation.images.length > 1 && (
+                <div className="absolute bottom-4 right-4 z-10 flex gap-1.5">
+                  {activeLocation.images.map((_, i) => (
+                    <button
+                      key={i}
+                      onClick={() => setSlideIndex(i)}
+                      className={`w-7 h-0.75 p-0 border-0 cursor-pointer transition-colors duration-300 ease-out ${
+                        i === slideIndex ? 'bg-white' : 'bg-white/30'
+                      }`}
+                      aria-label={`Go to slide ${i + 1}`}
+                    />
+                  ))}
+                </div>
+              )}
             </div>
 
             <article className="bg-bg-raised border border-rule rounded-sm p-[28px] flex flex-col gap-4.5">

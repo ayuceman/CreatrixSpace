@@ -733,6 +733,17 @@ export function AdminLocationsPage() {
                     Leave both fields empty for days the location is closed
                   </span>
                 </div>
+                <div className="space-y-1.5">
+                  <label className="text-label text-fg-2">Status</label>
+                  <input
+                    value={form.status ?? ''}
+                    placeholder="Open today · 2 private offices left"
+                    onChange={(e) =>
+                      setForm((f) => ({ ...f, status: e.target.value }))
+                    }
+                    className="w-full border border-rule rounded-sm px-3 py-2 text-sm bg-transparent text-fg-1"
+                  />
+                </div>
                 <div className="flex items-center gap-6">
                   <label className="flex items-center gap-2 text-sm text-fg-1">
                     <input
