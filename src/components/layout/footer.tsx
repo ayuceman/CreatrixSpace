@@ -61,7 +61,7 @@ export function Footer() {
         setLocations(
           data.map((l: any) => ({
             name: l.name,
-            address: l.address || l.city || '',
+            address: l.address || l.city || l.full_address || '',
             slug: l.slug || l.id,
           }))
         )
