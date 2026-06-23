@@ -406,6 +406,7 @@ CREATE TRIGGER update_faqs_updated_at BEFORE UPDATE ON public.faqs
 CREATE TABLE IF NOT EXISTS public.member_companies (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   name TEXT NOT NULL,
+  logo_url TEXT,
   italic BOOLEAN DEFAULT false,
   sort_order INT DEFAULT 0,
   created_at TIMESTAMPTZ DEFAULT NOW(),

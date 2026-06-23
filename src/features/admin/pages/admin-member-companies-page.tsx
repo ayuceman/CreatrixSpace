@@ -1,20 +1,24 @@
-import { useState, useEffect } from 'react'
-import { Plus, Pencil, Trash2 } from 'lucide-react'
+import { useState, useEffect, useRef } from 'react'
+import { Plus, Pencil, Trash2, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { ConfirmModal } from '@/components/ui/confirm-modal'
 import { memberCompaniesService } from '@/services/supabase-service'
+import { supabase } from '@/lib/supabase'
+import { supabaseAdmin } from '@/lib/supabase-admin'
 import { showToast } from '@/components/ui/toast'
 
 interface MemberCompany {
   id: string
   name: string
+  logo_url: string | null
   italic: boolean
   sort_order: number
 }
 
 const emptyForm = {
   name: '',
+  logo_url: '',
   italic: false,
   sort_order: 0,
 }
@@ -26,6 +30,8 @@ export function AdminMemberCompaniesPage() {
   const [editingId, setEditingId] = useState<string | null>(null)
   const [deleteTarget, setDeleteTarget] = useState<string | null>(null)
   const [form, setForm] = useState(emptyForm)
+  const [uploading, setUploading] = useState(false)
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   const load = async () => {
     setLoading(true)
@@ -47,11 +53,34 @@ export function AdminMemberCompaniesPage() {
   const openEdit = (item: MemberCompany) => {
     setForm({
       name: item.name,
+      logo_url: item.logo_url || '',
       italic: item.italic,
       sort_order: item.sort_order,
     })
     setEditingId(item.id)
     setShowForm(true)
+  }
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setUploading(true)
+    try {
+      const storage = supabaseAdmin?.storage ?? supabase.storage
+      const ext = file.name.split('.').pop()
+      const filePath = `member-companies/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`
+      const { error } = await storage.from('images').upload(filePath, file)
+      if (error) throw error
+      const {
+        data: { publicUrl },
+      } = storage.from('images').getPublicUrl(filePath)
+      setForm((f) => ({ ...f, logo_url: publicUrl }))
+      showToast('Logo uploaded!')
+    } catch (err) {
+      showToast(`Upload failed: ${(err as any)?.message || err}`, 'error')
+    }
+    setUploading(false)
+    if (fileInputRef.current) fileInputRef.current.value = ''
   }
 
   const handleSave = async (e: React.FormEvent) => {
@@ -115,6 +144,43 @@ export function AdminMemberCompaniesPage() {
                   className="w-full border border-rule rounded-sm px-3 py-2 text-sm bg-transparent text-fg-1"
                 />
               </div>
+              <div className="space-y-1.5">
+                <label className="text-label text-fg-2">Logo</label>
+                <div className="flex items-center gap-3">
+                  {form.logo_url ? (
+                    <div className="relative group shrink-0">
+                      <img
+                        src={form.logo_url}
+                        alt="Logo preview"
+                        className="size-14 object-contain rounded-sm border border-rule bg-white"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setForm((f) => ({ ...f, logo_url: '' }))
+                          if (fileInputRef.current)
+                            fileInputRef.current.value = ''
+                        }}
+                        className="absolute -top-1.5 -right-1.5 size-5 rounded-full bg-clay text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                      >
+                        <X size={10} />
+                      </button>
+                    </div>
+                  ) : null}
+                  <input
+                    type="file"
+                    accept="image/*"
+                    ref={fileInputRef}
+                    onChange={handleImageUpload}
+                    className="w-full text-sm text-fg-2 file:mr-3 file:py-1.5 file:px-3 file:rounded-sm file:border file:border-rule file:text-sm file:bg-bg-raised file:text-fg-1 hover:file:bg-bg file:cursor-pointer"
+                  />
+                </div>
+                {uploading && (
+                  <span className="text-xs text-clay mt-1 block">
+                    Uploading...
+                  </span>
+                )}
+              </div>
               <div className="flex items-center gap-2">
                 <input
                   type="checkbox"
@@ -175,7 +241,14 @@ export function AdminMemberCompaniesPage() {
               key={item.id}
               className="flex items-center justify-between bg-bg-raised border border-rule rounded-sm px-5 py-4"
             >
-              <div className="min-w-0 flex-1">
+              <div className="flex items-center gap-3 min-w-0 flex-1">
+                {item.logo_url ? (
+                  <img
+                    src={item.logo_url}
+                    alt={item.name}
+                    className="size-8 object-contain rounded-sm border border-rule bg-white shrink-0"
+                  />
+                ) : null}
                 <span
                   className={`font-medium text-fg-1 ${item.italic ? 'italic' : ''}`}
                 >

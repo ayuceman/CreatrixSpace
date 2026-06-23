@@ -58,20 +58,20 @@ const defaultTestimonials = [
 ]
 
 const defaultCompanies = [
-  { name: 'Loomstack', italic: false },
-  { name: 'Tuk\u012B Studio', italic: true },
-  { name: 'Naya Press', italic: false },
-  { name: 'Madal Labs', italic: false },
-  { name: 'Annapurna Type', italic: true },
-  { name: 'Bhote Books', italic: false },
-  { name: 'Patan Records', italic: false },
-  { name: 'Sherpa Software', italic: true },
-  { name: 'Khukuri & Co.', italic: false },
-  { name: 'Field/Note', italic: false },
-  { name: 'Lipi Cartography', italic: true },
-  { name: 'Kalimati Capital', italic: false },
-  { name: 'Chautari Films', italic: false },
-  { name: 'Tea & Wire', italic: true },
+  { name: 'Loomstack', logo_url: null, italic: false },
+  { name: 'Tuk\u012B Studio', logo_url: null, italic: true },
+  { name: 'Naya Press', logo_url: null, italic: false },
+  { name: 'Madal Labs', logo_url: null, italic: false },
+  { name: 'Annapurna Type', logo_url: null, italic: true },
+  { name: 'Bhote Books', logo_url: null, italic: false },
+  { name: 'Patan Records', logo_url: null, italic: false },
+  { name: 'Sherpa Software', logo_url: null, italic: true },
+  { name: 'Khukuri & Co.', logo_url: null, italic: false },
+  { name: 'Field/Note', logo_url: null, italic: false },
+  { name: 'Lipi Cartography', logo_url: null, italic: true },
+  { name: 'Kalimati Capital', logo_url: null, italic: false },
+  { name: 'Chautari Films', logo_url: null, italic: false },
+  { name: 'Tea & Wire', logo_url: null, italic: true },
 ]
 
 export function CommunitySection() {
@@ -96,6 +96,7 @@ export function CommunitySection() {
         setCompanies(
           data.map((c: any) => ({
             name: c.name,
+            logo_url: c.logo_url || null,
             italic: c.italic || false,
           }))
         )
@@ -219,17 +220,26 @@ export function CommunitySection() {
           compPaused.current = false
         }}
       >
-        <motion.div className="flex gap-12" style={{ x: compX }}>
-          {compItems.map((c, i) => (
-            <div
-              key={`${c.name}-${i}`}
-              className={`shrink-0 font-display text-[clamp(28px,3.4vw,44px)] tracking-[-0.01em] text-fg-2 py-3 whitespace-nowrap ${
-                c.italic ? 'italic' : 'not-italic'
-              }`}
-            >
-              {c.name}
-            </div>
-          ))}
+        <motion.div className="flex gap-12 items-center" style={{ x: compX }}>
+          {compItems.map((c, i) =>
+            c.logo_url ? (
+              <img
+                key={`${c.name}-${i}`}
+                src={c.logo_url}
+                alt={c.name}
+                className="shrink-0 h-[clamp(28px,3.4vw,44px)] w-auto object-contain"
+              />
+            ) : (
+              <div
+                key={`${c.name}-${i}`}
+                className={`shrink-0 font-display text-[clamp(28px,3.4vw,44px)] tracking-[-0.01em] text-fg-2 py-3 whitespace-nowrap ${
+                  c.italic ? 'italic' : 'not-italic'
+                }`}
+              >
+                {c.name}
+              </div>
+            )
+          )}
         </motion.div>
       </div>
     </section>

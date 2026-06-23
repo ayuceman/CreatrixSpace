@@ -2,6 +2,12 @@ import { useState, useEffect } from 'react'
 import { Plus, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
+import {
+  Accordion,
+  AccordionItem,
+  AccordionTrigger,
+  AccordionContent,
+} from '@/components/ui/accordion'
 import { membershipService } from '@/services/supabase-service'
 import { showToast } from '@/components/ui/toast'
 
@@ -265,442 +271,541 @@ export function AdminMembershipPage() {
               </div>
             </div>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-4 gap-4">
-              <div className="space-y-1.5">
-                <label className="text-caption text-fg-3">Tab ID</label>
-                <input
-                  value={tab.id}
-                  onChange={(e) => updateTab(ti, { id: e.target.value })}
-                  placeholder="open-desks"
-                  className="w-full border border-rule rounded-sm px-2.5 py-1.5 text-sm bg-transparent text-fg-1 font-mono"
-                />
-              </div>
-              <div className="space-y-1.5">
-                <label className="text-caption text-fg-3">Label</label>
-                <input
-                  value={tab.label}
-                  onChange={(e) => updateTab(ti, { label: e.target.value })}
-                  placeholder="Open desks"
-                  className="w-full border border-rule rounded-sm px-2.5 py-1.5 text-sm bg-transparent text-fg-1"
-                />
-              </div>
-              <div className="space-y-1.5">
-                <label className="text-caption text-fg-3">Subtitle</label>
-                <input
-                  value={tab.subtitle}
-                  onChange={(e) => updateTab(ti, { subtitle: e.target.value })}
-                  placeholder="DAY PASS · NPR 800 / DAY"
-                  className="w-full border border-rule rounded-sm px-2.5 py-1.5 text-sm bg-transparent text-fg-1"
-                />
-              </div>
-              <div className="space-y-1.5">
-                <label className="text-caption text-fg-3">Mode</label>
-                <select
-                  value={tab.mode}
-                  onChange={(e) => {
-                    const mode = e.target.value as 'grid' | 'single'
-                    updateTab(ti, {
-                      mode,
-                      ...(mode === 'single' && !tab.single
-                        ? {
-                            single: {
-                              eyebrow: '',
-                              name: '',
-                              price: '',
-                              period: '',
-                              description: '',
-                              badge: '',
-                              subtitle: '',
-                              features: [],
-                            },
-                          }
-                        : {}),
-                    })
-                  }}
-                  className="w-full border border-rule rounded-sm px-2.5 py-1.5 text-sm bg-transparent text-fg-1"
-                >
-                  <option value="grid">Grid</option>
-                  <option value="single">Single</option>
-                </select>
-              </div>
-            </div>
-
-            {tab.mode === 'grid' && (
-              <div>
-                <div className="flex items-center justify-between mb-3">
-                  <span className="text-label text-fg-2">
-                    Cards ({tab.cards?.length || 0})
-                  </span>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    text="Add Card"
-                    icon={Plus}
-                    onClick={() => addCard(ti)}
-                  />
-                </div>
-                {tab.cards?.map((card, ci) => (
-                  <div
-                    key={card.id}
-                    className="border border-rule rounded-sm p-4 mb-3 bg-bg-raised"
-                  >
-                    <div className="flex items-center justify-between mb-3">
-                      <span className="text-sm font-medium text-fg-1">
-                        {card.name || `Card ${ci + 1}`}
-                      </span>
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        icon={X}
-                        onClick={() => removeCard(ti, ci)}
+          <CardContent>
+            <Accordion
+              type="multiple"
+              defaultValue={['tab-settings', 'tab-content']}
+            >
+              <AccordionItem value="tab-settings">
+                <AccordionTrigger>Tab Settings</AccordionTrigger>
+                <AccordionContent>
+                  <div className="grid grid-cols-4 gap-4 pt-2">
+                    <div className="space-y-1.5">
+                      <label className="text-caption text-fg-3">Tab ID</label>
+                      <input
+                        value={tab.id}
+                        onChange={(e) => updateTab(ti, { id: e.target.value })}
+                        placeholder="open-desks"
+                        className="w-full border border-rule rounded-sm px-2.5 py-1.5 text-sm bg-transparent text-fg-1 font-mono"
                       />
                     </div>
-                    <div className="grid grid-cols-3 gap-3 mb-3">
-                      <div className="space-y-1">
-                        <label className="text-caption text-fg-3">ID</label>
-                        <input
-                          value={card.id}
-                          onChange={(e) =>
-                            updateCard(ti, ci, { id: e.target.value })
-                          }
-                          placeholder="day-pass"
-                          className="w-full border border-rule rounded-sm px-2 py-1.5 text-xs bg-transparent text-fg-1 font-mono"
-                        />
-                      </div>
-                      <div className="space-y-1">
-                        <label className="text-caption text-fg-3">
-                          Eyebrow
-                        </label>
-                        <input
-                          value={card.eyebrow}
-                          onChange={(e) =>
-                            updateCard(ti, ci, { eyebrow: e.target.value })
-                          }
-                          placeholder="Hot desk"
-                          className="w-full border border-rule rounded-sm px-2 py-1.5 text-xs bg-transparent text-fg-1"
-                        />
-                      </div>
-                      <div className="space-y-1">
-                        <label className="text-caption text-fg-3">Name</label>
-                        <input
-                          value={card.name}
-                          onChange={(e) =>
-                            updateCard(ti, ci, { name: e.target.value })
-                          }
-                          placeholder="Day Pass"
-                          className="w-full border border-rule rounded-sm px-2 py-1.5 text-xs bg-transparent text-fg-1"
-                        />
-                      </div>
-                      <div className="space-y-1">
-                        <label className="text-caption text-fg-3">Price</label>
-                        <input
-                          value={card.price}
-                          onChange={(e) =>
-                            updateCard(ti, ci, { price: e.target.value })
-                          }
-                          placeholder="800"
-                          className="w-full border border-rule rounded-sm px-2 py-1.5 text-xs bg-transparent text-fg-1"
-                        />
-                      </div>
-                      <div className="space-y-1">
-                        <label className="text-caption text-fg-3">Period</label>
-                        <input
-                          value={card.period}
-                          onChange={(e) =>
-                            updateCard(ti, ci, { period: e.target.value })
-                          }
-                          placeholder="/ day"
-                          className="w-full border border-rule rounded-sm px-2 py-1.5 text-xs bg-transparent text-fg-1"
-                        />
-                      </div>
-                      <div className="space-y-1">
-                        <label className="text-caption text-fg-3">Prefix</label>
-                        <input
-                          value={card.prefix || ''}
-                          onChange={(e) =>
-                            updateCard(ti, ci, { prefix: e.target.value })
-                          }
-                          placeholder="From"
-                          className="w-full border border-rule rounded-sm px-2 py-1.5 text-xs bg-transparent text-fg-1"
-                        />
-                      </div>
-                      <div className="space-y-1 col-span-2">
-                        <label className="text-caption text-fg-3">CTA</label>
-                        <input
-                          value={card.cta}
-                          onChange={(e) =>
-                            updateCard(ti, ci, { cta: e.target.value })
-                          }
-                          placeholder="Start day pass"
-                          className="w-full border border-rule rounded-sm px-2 py-1.5 text-xs bg-transparent text-fg-1"
-                        />
-                      </div>
-                      <div className="space-y-1">
-                        <label className="text-caption text-fg-3">Badge</label>
-                        <input
-                          value={card.badge || ''}
-                          onChange={(e) =>
-                            updateCard(ti, ci, { badge: e.target.value })
-                          }
-                          placeholder="Most picked"
-                          className="w-full border border-rule rounded-sm px-2 py-1.5 text-xs bg-transparent text-fg-1"
-                        />
-                      </div>
-                      <div className="space-y-1 col-span-2">
-                        <label className="text-caption text-fg-3">
-                          Availability
-                        </label>
-                        <label className="flex items-center gap-1.5 text-xs text-fg-2 mt-1">
-                          <input
-                            type="checkbox"
-                            checked={!!card.availability}
-                            onChange={(e) =>
-                              updateCard(ti, ci, {
-                                availability: e.target.checked,
-                              })
-                            }
-                            className="accent-clay"
-                          />
-                          Available
-                        </label>
-                      </div>
-                    </div>
-                    <div className="space-y-1 mb-3">
-                      <label className="text-caption text-fg-3">
-                        Description
-                      </label>
-                      <textarea
-                        rows={2}
-                        value={card.description}
+                    <div className="space-y-1.5">
+                      <label className="text-caption text-fg-3">Label</label>
+                      <input
+                        value={tab.label}
                         onChange={(e) =>
-                          updateCard(ti, ci, { description: e.target.value })
+                          updateTab(ti, { label: e.target.value })
                         }
-                        placeholder="One open-room desk for the day…"
-                        className="w-full border border-rule rounded-sm px-2 py-1.5 text-xs bg-transparent text-fg-1"
+                        placeholder="Open desks"
+                        className="w-full border border-rule rounded-sm px-2.5 py-1.5 text-sm bg-transparent text-fg-1"
                       />
                     </div>
-                    <div className="flex items-center gap-3 mb-2">
-                      <label className="flex items-center gap-1.5 text-xs text-fg-2">
-                        <input
-                          type="checkbox"
-                          checked={!!card.highlight}
-                          onChange={(e) =>
-                            updateCard(ti, ci, { highlight: e.target.checked })
-                          }
-                          className="accent-clay"
-                        />
-                        Highlight
-                      </label>
-                    </div>
-                    <div>
-                      <div className="flex items-center justify-between mb-1">
-                        <span className="text-caption text-fg-3">Features</span>
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          text="+"
-                          onClick={() => addFeature(ti, ci)}
-                          className="!px-2 !py-0.5 text-xs"
-                        />
-                      </div>
-                      {card.features.map((fv, fi) => (
-                        <div key={fi} className="flex gap-2 mb-1">
-                          <input
-                            value={fv}
-                            onChange={(e) =>
-                              updateFeature(ti, ci, fi, e.target.value)
-                            }
-                            placeholder="e.g. Any open desk · any room"
-                            className="flex-1 border border-rule rounded-sm px-2 py-1 text-xs bg-transparent text-fg-1"
-                          />
-                          <button
-                            type="button"
-                            onClick={() => removeFeature(ti, ci, fi)}
-                            className="text-fg-3 hover:text-clay cursor-pointer text-xs"
-                          >
-                            <X size={14} />
-                          </button>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {tab.mode === 'single' && (
-              <div className="border border-rule rounded-sm p-4 bg-bg-raised">
-                {!tab.single ? (
-                  <div className="text-sm text-fg-3 text-center py-4">
-                    Add content below — save to keep
-                  </div>
-                ) : (
-                  <>
-                    <div className="grid grid-cols-3 gap-3 mb-3">
-                      <div className="space-y-1">
-                        <label className="text-caption text-fg-3">
-                          Eyebrow
-                        </label>
-                        <input
-                          value={tab.single.eyebrow}
-                          onChange={(e) =>
-                            updateTab(ti, {
-                              single: {
-                                ...tab.single!,
-                                eyebrow: e.target.value,
-                              },
-                            })
-                          }
-                          placeholder="Address & mail"
-                          className="w-full border border-rule rounded-sm px-2 py-1.5 text-xs bg-transparent text-fg-1"
-                        />
-                      </div>
-                      <div className="space-y-1">
-                        <label className="text-caption text-fg-3">Name</label>
-                        <input
-                          value={tab.single.name}
-                          onChange={(e) =>
-                            updateTab(ti, {
-                              single: { ...tab.single!, name: e.target.value },
-                            })
-                          }
-                          placeholder="Virtual Office"
-                          className="w-full border border-rule rounded-sm px-2 py-1.5 text-xs bg-transparent text-fg-1"
-                        />
-                      </div>
-                      <div className="space-y-1">
-                        <label className="text-caption text-fg-3">Price</label>
-                        <input
-                          value={tab.single.price}
-                          onChange={(e) =>
-                            updateTab(ti, {
-                              single: { ...tab.single!, price: e.target.value },
-                            })
-                          }
-                          placeholder="6,000"
-                          className="w-full border border-rule rounded-sm px-2 py-1.5 text-xs bg-transparent text-fg-1"
-                        />
-                      </div>
-                      <div className="space-y-1">
-                        <label className="text-caption text-fg-3">Period</label>
-                        <input
-                          value={tab.single.period}
-                          onChange={(e) =>
-                            updateTab(ti, {
-                              single: {
-                                ...tab.single!,
-                                period: e.target.value,
-                              },
-                            })
-                          }
-                          placeholder="/ month"
-                          className="w-full border border-rule rounded-sm px-2 py-1.5 text-xs bg-transparent text-fg-1"
-                        />
-                      </div>
-                      <div className="space-y-1">
-                        <label className="text-caption text-fg-3">Badge</label>
-                        <input
-                          value={tab.single.badge}
-                          onChange={(e) =>
-                            updateTab(ti, {
-                              single: { ...tab.single!, badge: e.target.value },
-                            })
-                          }
-                          placeholder="Most picked"
-                          className="w-full border border-rule rounded-sm px-2 py-1.5 text-xs bg-transparent text-fg-1"
-                        />
-                      </div>
-                      <div className="space-y-1">
-                        <label className="text-caption text-fg-3">
-                          Subtitle
-                        </label>
-                        <input
-                          value={tab.single.subtitle}
-                          onChange={(e) =>
-                            updateTab(ti, {
-                              single: {
-                                ...tab.single!,
-                                subtitle: e.target.value,
-                              },
-                            })
-                          }
-                          placeholder="DAY PASS · NPR 800 / DAY"
-                          className="w-full border border-rule rounded-sm px-2 py-1.5 text-xs bg-transparent text-fg-1"
-                        />
-                      </div>
-                    </div>
-                    <div className="space-y-1 mb-3">
-                      <label className="text-caption text-fg-3">
-                        Description
-                      </label>
-                      <textarea
-                        rows={2}
-                        value={tab.single.description}
+                    <div className="space-y-1.5">
+                      <label className="text-caption text-fg-3">Subtitle</label>
+                      <input
+                        value={tab.subtitle}
                         onChange={(e) =>
+                          updateTab(ti, { subtitle: e.target.value })
+                        }
+                        placeholder="DAY PASS · NPR 800 / DAY"
+                        className="w-full border border-rule rounded-sm px-2.5 py-1.5 text-sm bg-transparent text-fg-1"
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="text-caption text-fg-3">Mode</label>
+                      <select
+                        value={tab.mode}
+                        onChange={(e) => {
+                          const mode = e.target.value as 'grid' | 'single'
                           updateTab(ti, {
-                            single: {
-                              ...tab.single!,
-                              description: e.target.value,
-                            },
+                            mode,
+                            ...(mode === 'single' && !tab.single
+                              ? {
+                                  single: {
+                                    eyebrow: '',
+                                    name: '',
+                                    price: '',
+                                    period: '',
+                                    description: '',
+                                    badge: '',
+                                    subtitle: '',
+                                    features: [],
+                                  },
+                                }
+                              : {}),
                           })
-                        }
-                        placeholder="A mailing address & mail handling service…"
-                        className="w-full border border-rule rounded-sm px-2 py-1.5 text-xs bg-transparent text-fg-1"
-                      />
+                        }}
+                        className="w-full border border-rule rounded-sm px-2.5 py-1.5 text-sm bg-transparent text-fg-1"
+                      >
+                        <option value="grid">Grid</option>
+                        <option value="single">Single</option>
+                      </select>
                     </div>
-                    <div>
-                      <div className="flex items-center justify-between mb-1">
-                        <span className="text-caption text-fg-3">Features</span>
+                  </div>
+                </AccordionContent>
+              </AccordionItem>
+
+              <AccordionItem value="tab-content">
+                <AccordionTrigger>
+                  {tab.mode === 'grid'
+                    ? `Cards (${tab.cards?.length || 0})`
+                    : 'Content'}
+                </AccordionTrigger>
+                <AccordionContent>
+                  {tab.mode === 'grid' && (
+                    <div className="pt-2">
+                      <div className="flex items-center justify-between mb-3">
+                        <span className="text-label text-fg-2">
+                          Cards ({tab.cards?.length || 0})
+                        </span>
                         <Button
                           size="sm"
-                          variant="ghost"
-                          text="+"
-                          onClick={() => {
-                            const s = tab.single!
-                            updateTab(ti, {
-                              single: { ...s, features: [...s.features, ''] },
-                            })
-                          }}
-                          className="!px-2 !py-0.5 text-xs"
+                          variant="outline"
+                          text="Add Card"
+                          icon={Plus}
+                          onClick={() => addCard(ti)}
                         />
                       </div>
-                      {tab.single.features.map((fv, fi) => (
-                        <div key={fi} className="flex gap-2 mb-1">
-                          <input
-                            value={fv}
-                            onChange={(e) => {
-                              const s = tab.single!
-                              s.features[fi] = e.target.value
-                              updateTab(ti, { single: { ...s } })
-                            }}
-                            placeholder="e.g. Dedicated mailbox"
-                            className="flex-1 border border-rule rounded-sm px-2 py-1 text-xs bg-transparent text-fg-1"
-                          />
-                          <button
-                            type="button"
-                            onClick={() => {
-                              const s = tab.single!
-                              updateTab(ti, {
-                                single: {
-                                  ...s,
-                                  features: s.features.filter(
-                                    (_, k) => k !== fi
-                                  ),
-                                },
-                              })
-                            }}
-                            className="text-fg-3 hover:text-clay cursor-pointer text-xs"
+                      <Accordion type="multiple">
+                        {tab.cards?.map((card, ci) => (
+                          <AccordionItem
+                            key={card.id}
+                            value={`card-${ci}`}
+                            className="border border-rule rounded-sm mb-3 bg-bg-raised px-0"
                           >
-                            <X size={14} />
-                          </button>
-                        </div>
-                      ))}
+                            <AccordionTrigger className="px-4 py-3 hover:no-underline">
+                              <span className="text-sm font-medium text-fg-1">
+                                {card.name || `Card ${ci + 1}`}
+                              </span>
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  removeCard(ti, ci)
+                                }}
+                                className="shrink-0 text-fg-3 hover:text-clay transition-colors cursor-pointer ml-auto"
+                              >
+                                <X size={14} />
+                              </button>
+                            </AccordionTrigger>
+                            <AccordionContent>
+                              <div className="px-4 pb-4 pt-0 space-y-3">
+                                <div className="grid grid-cols-3 gap-3">
+                                  <div className="space-y-1">
+                                    <label className="text-caption text-fg-3">
+                                      ID
+                                    </label>
+                                    <input
+                                      value={card.id}
+                                      onChange={(e) =>
+                                        updateCard(ti, ci, {
+                                          id: e.target.value,
+                                        })
+                                      }
+                                      placeholder="day-pass"
+                                      className="w-full border border-rule rounded-sm px-2 py-1.5 text-xs bg-transparent text-fg-1 font-mono"
+                                    />
+                                  </div>
+                                  <div className="space-y-1">
+                                    <label className="text-caption text-fg-3">
+                                      Eyebrow
+                                    </label>
+                                    <input
+                                      value={card.eyebrow}
+                                      onChange={(e) =>
+                                        updateCard(ti, ci, {
+                                          eyebrow: e.target.value,
+                                        })
+                                      }
+                                      placeholder="Hot desk"
+                                      className="w-full border border-rule rounded-sm px-2 py-1.5 text-xs bg-transparent text-fg-1"
+                                    />
+                                  </div>
+                                  <div className="space-y-1">
+                                    <label className="text-caption text-fg-3">
+                                      Name
+                                    </label>
+                                    <input
+                                      value={card.name}
+                                      onChange={(e) =>
+                                        updateCard(ti, ci, {
+                                          name: e.target.value,
+                                        })
+                                      }
+                                      placeholder="Day Pass"
+                                      className="w-full border border-rule rounded-sm px-2 py-1.5 text-xs bg-transparent text-fg-1"
+                                    />
+                                  </div>
+                                  <div className="space-y-1">
+                                    <label className="text-caption text-fg-3">
+                                      Price
+                                    </label>
+                                    <input
+                                      value={card.price}
+                                      onChange={(e) =>
+                                        updateCard(ti, ci, {
+                                          price: e.target.value,
+                                        })
+                                      }
+                                      placeholder="800"
+                                      className="w-full border border-rule rounded-sm px-2 py-1.5 text-xs bg-transparent text-fg-1"
+                                    />
+                                  </div>
+                                  <div className="space-y-1">
+                                    <label className="text-caption text-fg-3">
+                                      Period
+                                    </label>
+                                    <input
+                                      value={card.period}
+                                      onChange={(e) =>
+                                        updateCard(ti, ci, {
+                                          period: e.target.value,
+                                        })
+                                      }
+                                      placeholder="/ day"
+                                      className="w-full border border-rule rounded-sm px-2 py-1.5 text-xs bg-transparent text-fg-1"
+                                    />
+                                  </div>
+                                  <div className="space-y-1">
+                                    <label className="text-caption text-fg-3">
+                                      Prefix
+                                    </label>
+                                    <input
+                                      value={card.prefix || ''}
+                                      onChange={(e) =>
+                                        updateCard(ti, ci, {
+                                          prefix: e.target.value,
+                                        })
+                                      }
+                                      placeholder="From"
+                                      className="w-full border border-rule rounded-sm px-2 py-1.5 text-xs bg-transparent text-fg-1"
+                                    />
+                                  </div>
+                                  <div className="space-y-1 col-span-2">
+                                    <label className="text-caption text-fg-3">
+                                      CTA
+                                    </label>
+                                    <input
+                                      value={card.cta}
+                                      onChange={(e) =>
+                                        updateCard(ti, ci, {
+                                          cta: e.target.value,
+                                        })
+                                      }
+                                      placeholder="Start day pass"
+                                      className="w-full border border-rule rounded-sm px-2 py-1.5 text-xs bg-transparent text-fg-1"
+                                    />
+                                  </div>
+                                  <div className="space-y-1">
+                                    <label className="text-caption text-fg-3">
+                                      Badge
+                                    </label>
+                                    <input
+                                      value={card.badge || ''}
+                                      onChange={(e) =>
+                                        updateCard(ti, ci, {
+                                          badge: e.target.value,
+                                        })
+                                      }
+                                      placeholder="Most picked"
+                                      className="w-full border border-rule rounded-sm px-2 py-1.5 text-xs bg-transparent text-fg-1"
+                                    />
+                                  </div>
+                                  <div className="space-y-1 col-span-2">
+                                    <label className="text-caption text-fg-3">
+                                      Availability
+                                    </label>
+                                    <label className="flex items-center gap-1.5 text-xs text-fg-2 mt-1">
+                                      <input
+                                        type="checkbox"
+                                        checked={!!card.availability}
+                                        onChange={(e) =>
+                                          updateCard(ti, ci, {
+                                            availability: e.target.checked,
+                                          })
+                                        }
+                                        className="accent-clay"
+                                      />
+                                      Available
+                                    </label>
+                                  </div>
+                                </div>
+                                <div className="space-y-1">
+                                  <label className="text-caption text-fg-3">
+                                    Description
+                                  </label>
+                                  <textarea
+                                    rows={2}
+                                    value={card.description}
+                                    onChange={(e) =>
+                                      updateCard(ti, ci, {
+                                        description: e.target.value,
+                                      })
+                                    }
+                                    placeholder="One open-room desk for the day…"
+                                    className="w-full border border-rule rounded-sm px-2 py-1.5 text-xs bg-transparent text-fg-1"
+                                  />
+                                </div>
+                                <div className="flex items-center gap-3">
+                                  <label className="flex items-center gap-1.5 text-xs text-fg-2">
+                                    <input
+                                      type="checkbox"
+                                      checked={!!card.highlight}
+                                      onChange={(e) =>
+                                        updateCard(ti, ci, {
+                                          highlight: e.target.checked,
+                                        })
+                                      }
+                                      className="accent-clay"
+                                    />
+                                    Highlight
+                                  </label>
+                                </div>
+                                <div>
+                                  <div className="flex items-center justify-between mb-1">
+                                    <span className="text-caption text-fg-3">
+                                      Features
+                                    </span>
+                                    <Button
+                                      size="sm"
+                                      variant="ghost"
+                                      text="+"
+                                      onClick={() => addFeature(ti, ci)}
+                                      className="!px-2 !py-0.5 text-xs"
+                                    />
+                                  </div>
+                                  {card.features.map((fv, fi) => (
+                                    <div key={fi} className="flex gap-2 mb-1">
+                                      <input
+                                        value={fv}
+                                        onChange={(e) =>
+                                          updateFeature(
+                                            ti,
+                                            ci,
+                                            fi,
+                                            e.target.value
+                                          )
+                                        }
+                                        placeholder="e.g. Any open desk · any room"
+                                        className="flex-1 border border-rule rounded-sm px-2 py-1 text-xs bg-transparent text-fg-1"
+                                      />
+                                      <button
+                                        type="button"
+                                        onClick={() =>
+                                          removeFeature(ti, ci, fi)
+                                        }
+                                        className="text-fg-3 hover:text-clay cursor-pointer"
+                                      >
+                                        <X size={14} />
+                                      </button>
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            </AccordionContent>
+                          </AccordionItem>
+                        ))}
+                      </Accordion>
                     </div>
-                  </>
-                )}
-              </div>
-            )}
+                  )}
+
+                  {tab.mode === 'single' && (
+                    <div className="border border-rule rounded-sm p-4 bg-bg-raised mt-2">
+                      {!tab.single ? (
+                        <div className="text-sm text-fg-3 text-center py-4">
+                          Add content below — save to keep
+                        </div>
+                      ) : (
+                        <>
+                          <div className="grid grid-cols-3 gap-3 mb-3">
+                            <div className="space-y-1">
+                              <label className="text-caption text-fg-3">
+                                Eyebrow
+                              </label>
+                              <input
+                                value={tab.single.eyebrow}
+                                onChange={(e) =>
+                                  updateTab(ti, {
+                                    single: {
+                                      ...tab.single!,
+                                      eyebrow: e.target.value,
+                                    },
+                                  })
+                                }
+                                placeholder="Address & mail"
+                                className="w-full border border-rule rounded-sm px-2 py-1.5 text-xs bg-transparent text-fg-1"
+                              />
+                            </div>
+                            <div className="space-y-1">
+                              <label className="text-caption text-fg-3">
+                                Name
+                              </label>
+                              <input
+                                value={tab.single.name}
+                                onChange={(e) =>
+                                  updateTab(ti, {
+                                    single: {
+                                      ...tab.single!,
+                                      name: e.target.value,
+                                    },
+                                  })
+                                }
+                                placeholder="Virtual Office"
+                                className="w-full border border-rule rounded-sm px-2 py-1.5 text-xs bg-transparent text-fg-1"
+                              />
+                            </div>
+                            <div className="space-y-1">
+                              <label className="text-caption text-fg-3">
+                                Price
+                              </label>
+                              <input
+                                value={tab.single.price}
+                                onChange={(e) =>
+                                  updateTab(ti, {
+                                    single: {
+                                      ...tab.single!,
+                                      price: e.target.value,
+                                    },
+                                  })
+                                }
+                                placeholder="6,000"
+                                className="w-full border border-rule rounded-sm px-2 py-1.5 text-xs bg-transparent text-fg-1"
+                              />
+                            </div>
+                            <div className="space-y-1">
+                              <label className="text-caption text-fg-3">
+                                Period
+                              </label>
+                              <input
+                                value={tab.single.period}
+                                onChange={(e) =>
+                                  updateTab(ti, {
+                                    single: {
+                                      ...tab.single!,
+                                      period: e.target.value,
+                                    },
+                                  })
+                                }
+                                placeholder="/ month"
+                                className="w-full border border-rule rounded-sm px-2 py-1.5 text-xs bg-transparent text-fg-1"
+                              />
+                            </div>
+                            <div className="space-y-1">
+                              <label className="text-caption text-fg-3">
+                                Badge
+                              </label>
+                              <input
+                                value={tab.single.badge}
+                                onChange={(e) =>
+                                  updateTab(ti, {
+                                    single: {
+                                      ...tab.single!,
+                                      badge: e.target.value,
+                                    },
+                                  })
+                                }
+                                placeholder="Most picked"
+                                className="w-full border border-rule rounded-sm px-2 py-1.5 text-xs bg-transparent text-fg-1"
+                              />
+                            </div>
+                            <div className="space-y-1">
+                              <label className="text-caption text-fg-3">
+                                Subtitle
+                              </label>
+                              <input
+                                value={tab.single.subtitle}
+                                onChange={(e) =>
+                                  updateTab(ti, {
+                                    single: {
+                                      ...tab.single!,
+                                      subtitle: e.target.value,
+                                    },
+                                  })
+                                }
+                                placeholder="DAY PASS · NPR 800 / DAY"
+                                className="w-full border border-rule rounded-sm px-2 py-1.5 text-xs bg-transparent text-fg-1"
+                              />
+                            </div>
+                          </div>
+                          <div className="space-y-1 mb-3">
+                            <label className="text-caption text-fg-3">
+                              Description
+                            </label>
+                            <textarea
+                              rows={2}
+                              value={tab.single.description}
+                              onChange={(e) =>
+                                updateTab(ti, {
+                                  single: {
+                                    ...tab.single!,
+                                    description: e.target.value,
+                                  },
+                                })
+                              }
+                              placeholder="A mailing address & mail handling service…"
+                              className="w-full border border-rule rounded-sm px-2 py-1.5 text-xs bg-transparent text-fg-1"
+                            />
+                          </div>
+                          <div>
+                            <div className="flex items-center justify-between mb-1">
+                              <span className="text-caption text-fg-3">
+                                Features
+                              </span>
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                text="+"
+                                onClick={() => {
+                                  const s = tab.single!
+                                  updateTab(ti, {
+                                    single: {
+                                      ...s,
+                                      features: [...s.features, ''],
+                                    },
+                                  })
+                                }}
+                                className="!px-2 !py-0.5 text-xs"
+                              />
+                            </div>
+                            {tab.single.features.map((fv, fi) => (
+                              <div key={fi} className="flex gap-2 mb-1">
+                                <input
+                                  value={fv}
+                                  onChange={(e) => {
+                                    const s = tab.single!
+                                    s.features[fi] = e.target.value
+                                    updateTab(ti, { single: { ...s } })
+                                  }}
+                                  placeholder="e.g. Dedicated mailbox"
+                                  className="flex-1 border border-rule rounded-sm px-2 py-1 text-xs bg-transparent text-fg-1"
+                                />
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    const s = tab.single!
+                                    updateTab(ti, {
+                                      single: {
+                                        ...s,
+                                        features: s.features.filter(
+                                          (_, k) => k !== fi
+                                        ),
+                                      },
+                                    })
+                                  }}
+                                  className="text-fg-3 hover:text-clay cursor-pointer"
+                                >
+                                  <X size={14} />
+                                </button>
+                              </div>
+                            ))}
+                          </div>
+                        </>
+                      )}
+                    </div>
+                  )}
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
           </CardContent>
         </Card>
       ))}

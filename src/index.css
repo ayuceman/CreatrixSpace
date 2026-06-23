@@ -120,6 +120,19 @@
   --text-caption:        13px;
   --text-caption--line-height: 1.45;
 
+  /* ── Animations ──────────────────────────────────── */
+  --animate-accordion-down: accordion-down 200ms ease-out;
+  --animate-accordion-up: accordion-up 200ms ease-out;
+
+  @keyframes accordion-down {
+    from { height: 0 }
+    to { height: var(--radix-accordion-content-height) }
+  }
+  @keyframes accordion-up {
+    from { height: var(--radix-accordion-content-height) }
+    to { height: 0 }
+  }
+
   /* ── Spacing ─────────────────────────────────────── */
   --spacing-1:  4px;
   --spacing-2:  8px;
@@ -171,6 +184,9 @@
 }
 
 @layer components {
+  input[type="file"]{
+    @apply cursor-pointer;
+  }
   .container {
     @apply max-w-(--container-width)! mx-auto xl:px-(--gutter) px-5;
   }

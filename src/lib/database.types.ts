@@ -719,6 +719,7 @@ export interface Database {
         Row: {
           id: string
           name: string
+          logo_url: string | null
           italic: boolean | null
           sort_order: number | null
           created_at: string
@@ -727,6 +728,7 @@ export interface Database {
         Insert: {
           id?: string
           name: string
+          logo_url?: string | null
           italic?: boolean | null
           sort_order?: number | null
           created_at?: string
@@ -735,6 +737,7 @@ export interface Database {
         Update: {
           id?: string
           name?: string
+          logo_url?: string | null
           italic?: boolean | null
           sort_order?: number | null
           created_at?: string
