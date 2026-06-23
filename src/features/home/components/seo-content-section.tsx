@@ -6,7 +6,8 @@ export function SEOContentSection() {
     {
       icon: MapPin,
       title: 'Prime Locations',
-      description: 'Strategically located in Kathmandu & Lalitpur with excellent connectivity',
+      description:
+        'Strategically located in Kathmandu & Lalitpur with excellent connectivity',
     },
     {
       icon: Wifi,
@@ -29,7 +30,12 @@ export function SEOContentSection() {
     {
       name: 'Dhobighat Hub',
       area: 'Kathmandu',
-      features: ['24/7 Access', 'Meeting Rooms', 'Event Space', 'Flagship Location'],
+      features: [
+        '24/7 Access',
+        'Meeting Rooms',
+        'Event Space',
+        'Flagship Location',
+      ],
     },
     {
       name: 'Kausimaa Co-working',
@@ -57,11 +63,12 @@ export function SEOContentSection() {
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-display font-bold mb-4">
             <span className="bg-gradient-to-r from-purple-600 to-purple-800 bg-clip-text text-transparent">
               Best Co Working Space
-            </span>
-            {' '}in Nepal
+            </span>{' '}
+            in Nepal
           </h2>
           <p className="text-base md:text-lg text-gray-600 dark:text-muted-foreground leading-relaxed">
-            Premium coworking spaces in Kathmandu and Lalitpur designed for freelancers, entrepreneurs, and remote workers
+            Premium coworking spaces in Kathmandu and Lalitpur designed for
+            freelancers, entrepreneurs, and remote workers
           </p>
         </motion.div>
 
@@ -86,7 +93,9 @@ export function SEOContentSection() {
                 <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500 to-purple-700 mb-4 group-hover:scale-110 transition-transform">
                   <feature.icon className="h-6 w-6 text-white" />
                 </div>
-                <h3 className="font-semibold text-lg mb-2 text-gray-900 dark:text-white">{feature.title}</h3>
+                <h3 className="font-semibold text-lg mb-2 text-gray-900 dark:text-white">
+                  {feature.title}
+                </h3>
                 <p className="text-sm text-gray-600 dark:text-muted-foreground leading-relaxed">
                   {feature.description}
                 </p>
@@ -134,7 +143,10 @@ export function SEOContentSection() {
                   </div>
                   <ul className="space-y-2">
                     {location.features.map((feat) => (
-                      <li key={feat} className="flex items-start gap-2 text-sm text-gray-700 dark:text-gray-300">
+                      <li
+                        key={feat}
+                        className="flex items-start gap-2 text-sm text-gray-700 dark:text-gray-300"
+                      >
                         <Check className="h-4 w-4 text-purple-600 dark:text-purple-400 mt-0.5 flex-shrink-0" />
                         <span>{feat}</span>
                       </li>
@@ -155,9 +167,10 @@ export function SEOContentSection() {
           className="text-center mt-12 pt-8 border-t border-purple-100 dark:border-purple-900/50"
         >
           <p className="text-gray-700 dark:text-gray-300 leading-relaxed max-w-3xl mx-auto">
-            From daily passes to private offices, CreatrixSpace provides flexible membership plans 
-            that suit your needs. Experience the perfect environment for productivity and growth 
-            at Nepal's premier coworking spaces.
+            From daily passes to private offices, CreatrixSpace provides
+            flexible membership plans that suit your needs. Experience the
+            perfect environment for productivity and growth at Nepal's premier
+            coworking spaces.
           </p>
         </motion.div>
       </div>

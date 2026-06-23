@@ -12,7 +12,7 @@ interface BookingEmailData {
   customerEmail: string
   customerPhone: string
   company?: string
-  
+
   // Booking Details
   bookingId: string
   locationName: string
@@ -21,26 +21,26 @@ interface BookingEmailData {
   roomName?: string
   roomStatus?: string
   roomNotes?: string
-  
+
   // Dates & Times
   startDate: string
   endDate: string
   startTime?: string
   endTime?: string
-  
+
   // Add-ons
   selectedAddOns: string[]
   meetingRoomHours: number
   guestPasses: number
-  
+
   // Pricing
   totalAmount: number
   currency: string
-  
+
   // Notes
   notes?: string
   manualNotes?: string
-  
+
   // Booking Status
   status: string
   paymentStatus?: string
@@ -82,28 +82,31 @@ function formatBookingEmail(data: BookingEmailData): string {
   } = data
 
   // Format amount with 2 decimal places
-  let amount = typeof totalAmount === 'number' ? totalAmount : parseFloat(String(totalAmount)) || 0
-  
+  let amount =
+    typeof totalAmount === 'number'
+      ? totalAmount
+      : parseFloat(String(totalAmount)) || 0
+
   // Convert from paisa to rupees if needed
   // If amount is very large (>= 1000) and divisible by 100, it's likely in paisa
   if (amount >= 1000 && amount % 100 === 0 && amount >= 10000) {
     // Likely in paisa, convert to rupees (divide by 100)
     amount = amount / 100
   }
-  
+
   // Ensure amount is a valid number
   if (isNaN(amount) || !isFinite(amount)) {
     amount = 0
   }
-  
+
   // Format with 2 decimal places and thousand separators
-  const formattedAmount = amount.toLocaleString('en-US', { 
-    minimumFractionDigits: 2, 
+  const formattedAmount = amount.toLocaleString('en-US', {
+    minimumFractionDigits: 2,
     maximumFractionDigits: 2,
-    useGrouping: true
+    useGrouping: true,
   })
 
-  let emailContent = `
+  const emailContent = `
 ═══════════════════════════════════════════════════════════
            NEW BOOKING RECEIVED - CREATRIX SPACE
 ═══════════════════════════════════════════════════════════
@@ -142,9 +145,10 @@ Payment Status: ${(paymentStatus || 'Pending').toUpperCase()}
 ───────────────────────────────────────────────────────────
 ADD-ONS & EXTRAS
 ───────────────────────────────────────────────────────────
-${selectedAddOns.length > 0 
-  ? `Selected Add-ons:\n${selectedAddOns.map(addon => `  • ${addon}`).join('\n')}`
-  : 'No add-ons selected'
+${
+  selectedAddOns.length > 0
+    ? `Selected Add-ons:\n${selectedAddOns.map((addon) => `  • ${addon}`).join('\n')}`
+    : 'No add-ons selected'
 }
 ${meetingRoomHours > 0 ? `Meeting Room Hours: ${meetingRoomHours} ${meetingRoomHours === 1 ? 'hour' : 'hours'}` : ''}
 ${guestPasses > 0 ? `Guest Passes: ${guestPasses} ${guestPasses === 1 ? 'pass' : 'passes'}` : ''}
@@ -201,25 +205,28 @@ function formatBookingEmailHTML(data: BookingEmailData): string {
   } = data
 
   // Format amount with 2 decimal places
-  let amount = typeof totalAmount === 'number' ? totalAmount : parseFloat(String(totalAmount)) || 0
-  
+  let amount =
+    typeof totalAmount === 'number'
+      ? totalAmount
+      : parseFloat(String(totalAmount)) || 0
+
   // Convert from paisa to rupees if needed
   // If amount is very large (>= 1000) and divisible by 100, it's likely in paisa
   if (amount >= 1000 && amount % 100 === 0 && amount >= 10000) {
     // Likely in paisa, convert to rupees (divide by 100)
     amount = amount / 100
   }
-  
+
   // Ensure amount is a valid number
   if (isNaN(amount) || !isFinite(amount)) {
     amount = 0
   }
-  
+
   // Format with 2 decimal places and thousand separators
-  const formattedAmount = amount.toLocaleString('en-US', { 
-    minimumFractionDigits: 2, 
+  const formattedAmount = amount.toLocaleString('en-US', {
+    minimumFractionDigits: 2,
     maximumFractionDigits: 2,
-    useGrouping: true
+    useGrouping: true,
   })
 
   return `
@@ -285,9 +292,10 @@ function formatBookingEmailHTML(data: BookingEmailData): string {
 
       <div class="section">
         <div class="section-title">✨ Add-ons & Extras</div>
-        ${selectedAddOns.length > 0 
-          ? `<div class="info-row">${selectedAddOns.map(addon => `<span class="badge">${addon}</span>`).join(' ')}</div>`
-          : '<div class="info-row">No add-ons selected</div>'
+        ${
+          selectedAddOns.length > 0
+            ? `<div class="info-row">${selectedAddOns.map((addon) => `<span class="badge">${addon}</span>`).join(' ')}</div>`
+            : '<div class="info-row">No add-ons selected</div>'
         }
         ${meetingRoomHours > 0 ? `<div class="info-row"><span class="label">Meeting Room Hours:</span> <span class="value">${meetingRoomHours} ${meetingRoomHours === 1 ? 'hour' : 'hours'}</span></div>` : ''}
         ${guestPasses > 0 ? `<div class="info-row"><span class="label">Guest Passes:</span> <span class="value">${guestPasses} ${guestPasses === 1 ? 'pass' : 'passes'}</span></div>` : ''}
@@ -300,18 +308,26 @@ function formatBookingEmailHTML(data: BookingEmailData): string {
         <div class="info-row"><span class="label">Payment Status:</span> <span class="value">Pending</span></div>
       </div>
 
-      ${notes ? `
+      ${
+        notes
+          ? `
       <div class="section">
         <div class="section-title">📝 Notes</div>
         <div class="info-row">${notes}</div>
       </div>
-      ` : ''}
-      ${manualNotes ? `
+      `
+          : ''
+      }
+      ${
+        manualNotes
+          ? `
       <div class="section">
         <div class="section-title">📌 Manual Entry Notes</div>
         <div class="info-row">${manualNotes}</div>
       </div>
-      ` : ''}
+      `
+          : ''
+      }
     </div>
 
     <div class="footer">
@@ -331,7 +347,9 @@ export async function sendBookingEmail(data: BookingEmailData): Promise<void> {
   // Check if EmailJS is configured
   if (!EMAILJS_PUBLIC_KEY || !EMAILJS_SERVICE_ID || !EMAILJS_TEMPLATE_ID) {
     console.warn('EmailJS is not configured. Skipping email send.')
-    console.warn('Please set VITE_EMAILJS_PUBLIC_KEY, VITE_EMAILJS_SERVICE_ID, and VITE_EMAILJS_TEMPLATE_ID in your .env file')
+    console.warn(
+      'Please set VITE_EMAILJS_PUBLIC_KEY, VITE_EMAILJS_SERVICE_ID, and VITE_EMAILJS_TEMPLATE_ID in your .env file'
+    )
     return
   }
 
@@ -347,8 +365,11 @@ export async function sendBookingEmail(data: BookingEmailData): Promise<void> {
 
     // Format total amount with 2 decimal places
     // Ensure it's a number and format correctly
-    let amount = typeof data.totalAmount === 'number' ? data.totalAmount : parseFloat(String(data.totalAmount)) || 0
-    
+    let amount =
+      typeof data.totalAmount === 'number'
+        ? data.totalAmount
+        : parseFloat(String(data.totalAmount)) || 0
+
     // Convert from paisa to rupees if needed
     // If amount is >= 10000, it's likely in paisa (smallest currency unit)
     // Example: 400000 paisa = 4000 rupees, 5000000 paisa = 50000 rupees
@@ -357,28 +378,45 @@ export async function sendBookingEmail(data: BookingEmailData): Promise<void> {
       // Very likely in paisa, convert to rupees (divide by 100)
       const originalAmount = amount
       amount = amount / 100
-      console.log('EmailJS: Converted from paisa to rupees:', originalAmount, '->', amount)
+      console.log(
+        'EmailJS: Converted from paisa to rupees:',
+        originalAmount,
+        '->',
+        amount
+      )
     } else if (amount >= 1000 && amount % 100 === 0) {
       // Might be in paisa if it's a round number divisible by 100
       const originalAmount = amount
       amount = amount / 100
-      console.log('EmailJS: Converted from paisa to rupees (round number):', originalAmount, '->', amount)
+      console.log(
+        'EmailJS: Converted from paisa to rupees (round number):',
+        originalAmount,
+        '->',
+        amount
+      )
     }
-    
+
     // Ensure amount is a valid number
     if (isNaN(amount) || !isFinite(amount)) {
       amount = 0
     }
-    
+
     // Format with 2 decimal places and thousand separators
-    const formattedAmount = amount.toLocaleString('en-US', { 
-      minimumFractionDigits: 2, 
+    const formattedAmount = amount.toLocaleString('en-US', {
+      minimumFractionDigits: 2,
       maximumFractionDigits: 2,
-      useGrouping: true
+      useGrouping: true,
     })
-    
+
     // Debug logging
-    console.log('EmailJS Formatting - Original:', data.totalAmount, 'Final:', amount, 'Formatted:', formattedAmount)
+    console.log(
+      'EmailJS Formatting - Original:',
+      data.totalAmount,
+      'Final:',
+      amount,
+      'Formatted:',
+      formattedAmount
+    )
 
     // Prepare email template parameters
     const templateParams = {
@@ -397,15 +435,28 @@ export async function sendBookingEmail(data: BookingEmailData): Promise<void> {
       location_name: data.locationName,
       plan_name: data.planName,
       plan_type: data.planType,
-      start_date: data.startDate ? new Date(data.startDate).toLocaleDateString() : 'N/A',
-      end_date: data.endDate ? new Date(data.endDate).toLocaleDateString() : 'N/A',
+      start_date: data.startDate
+        ? new Date(data.startDate).toLocaleDateString()
+        : 'N/A',
+      end_date: data.endDate
+        ? new Date(data.endDate).toLocaleDateString()
+        : 'N/A',
       start_time: data.startTime || 'N/A',
       end_time: data.endTime || 'N/A',
       total_amount: `${data.currency} ${formattedAmount}`,
       status: data.status.toUpperCase(),
-      meeting_room_hours: data.meetingRoomHours > 0 ? `${data.meetingRoomHours} ${data.meetingRoomHours === 1 ? 'hour' : 'hours'}` : 'None',
-      guest_passes: data.guestPasses > 0 ? `${data.guestPasses} ${data.guestPasses === 1 ? 'pass' : 'passes'}` : 'None',
-      add_ons: data.selectedAddOns.length > 0 ? data.selectedAddOns.join(', ') : 'None',
+      meeting_room_hours:
+        data.meetingRoomHours > 0
+          ? `${data.meetingRoomHours} ${data.meetingRoomHours === 1 ? 'hour' : 'hours'}`
+          : 'None',
+      guest_passes:
+        data.guestPasses > 0
+          ? `${data.guestPasses} ${data.guestPasses === 1 ? 'pass' : 'passes'}`
+          : 'None',
+      add_ons:
+        data.selectedAddOns.length > 0
+          ? data.selectedAddOns.join(', ')
+          : 'None',
       room_name: data.roomName || 'Not selected',
       room_status: data.roomStatus || '—',
       booking_source: data.bookingSource || 'Online Checkout',
@@ -413,12 +464,12 @@ export async function sendBookingEmail(data: BookingEmailData): Promise<void> {
       payment_status: data.paymentStatus || 'Pending',
       manual_notes: data.manualNotes || '—',
       notes: data.notes || 'No notes provided',
-      date: new Date().toLocaleString('en-US', { 
-        year: 'numeric', 
-        month: 'long', 
-        day: 'numeric', 
-        hour: '2-digit', 
-        minute: '2-digit' 
+      date: new Date().toLocaleString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
       }),
     }
 
@@ -436,4 +487,3 @@ export async function sendBookingEmail(data: BookingEmailData): Promise<void> {
     // You might want to log this to an error tracking service
   }
 }
-

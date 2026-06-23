@@ -1,6 +1,14 @@
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { Globe2, Mail, Building2, Armchair, Loader2, ArrowRight, Sparkles } from 'lucide-react'
+import {
+  Globe2,
+  Mail,
+  Building2,
+  Armchair,
+  Loader2,
+  ArrowRight,
+  Sparkles,
+} from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { ROUTES } from '@/lib/constants'
@@ -50,21 +58,29 @@ export function VirtualOfficeHighlight({ variant = 'full' }: Props) {
                   <Sparkles className="h-3 w-3 mr-1" />
                   Standalone product
                 </Badge>
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">{name}</h3>
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                  {name}
+                </h3>
                 <p className="text-sm text-muted-foreground mt-1 max-w-xl">
-                  No full-time desk required. Use our office number for call/enquiry handling, get a professional business address, and use hot desks when you visit.
+                  No full-time desk required. Use our office number for
+                  call/enquiry handling, get a professional business address,
+                  and use hot desks when you visit.
                 </p>
               </div>
             </div>
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 lg:shrink-0">
               <div className="text-right sm:text-left">
-                <p className="text-xs text-muted-foreground uppercase tracking-wide">From</p>
+                <p className="text-xs text-muted-foreground uppercase tracking-wide">
+                  From
+                </p>
                 {loading ? (
                   <Loader2 className="h-6 w-6 animate-spin text-emerald-500" />
                 ) : (
                   <p className="text-2xl font-bold text-gray-900 dark:text-white tabular-nums">
                     {formatCurrency(pricePaisa, 'NPR')}
-                    <span className="text-sm font-normal text-muted-foreground">/month</span>
+                    <span className="text-sm font-normal text-muted-foreground">
+                      /month
+                    </span>
                   </p>
                 )}
               </div>
@@ -110,7 +126,9 @@ export function VirtualOfficeHighlight({ variant = 'full' }: Props) {
               </span>
             </h2>
             <p className="text-muted-foreground text-base md:text-lg leading-relaxed max-w-lg">
-              Build professional presence without renting a full-time desk. You get office-number enquiry handling, business address credibility, and hot-desk access when you visit.
+              Build professional presence without renting a full-time desk. You
+              get office-number enquiry handling, business address credibility,
+              and hot-desk access when you visit.
             </p>
 
             <div className="flex flex-wrap gap-3 pt-2">
@@ -128,7 +146,9 @@ export function VirtualOfficeHighlight({ variant = 'full' }: Props) {
                   >
                     <Icon className={cn('h-3.5 w-3.5', item.tone)} />
                     <span className="font-medium">{item.label}</span>
-                    <span className="text-muted-foreground hidden sm:inline">· {item.hint}</span>
+                    <span className="text-muted-foreground hidden sm:inline">
+                      · {item.hint}
+                    </span>
                   </div>
                 )
               })}
@@ -150,12 +170,18 @@ export function VirtualOfficeHighlight({ variant = 'full' }: Props) {
                     <Mail className="h-6 w-6 text-emerald-600 dark:text-emerald-400" />
                   </div>
                   <div>
-                    <p className="text-xs font-semibold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">Featured package</p>
-                    <p className="text-xl font-bold text-gray-900 dark:text-white">{name}</p>
+                    <p className="text-xs font-semibold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">
+                      Featured package
+                    </p>
+                    <p className="text-xl font-bold text-gray-900 dark:text-white">
+                      {name}
+                    </p>
                   </div>
                 </div>
               </div>
-              <p className="text-sm text-muted-foreground mb-6 leading-relaxed">{description}</p>
+              <p className="text-sm text-muted-foreground mb-6 leading-relaxed">
+                {description}
+              </p>
               <ul className="space-y-2.5 mb-8 text-sm text-gray-700 dark:text-gray-300">
                 {[
                   'Prestige business address at CreatrixSpace',
@@ -166,20 +192,26 @@ export function VirtualOfficeHighlight({ variant = 'full' }: Props) {
                   'Meeting room booking at member rate when you visit',
                 ].map((line) => (
                   <li key={line} className="flex gap-2">
-                    <span className="text-emerald-600 dark:text-emerald-400 mt-0.5">✓</span>
+                    <span className="text-emerald-600 dark:text-emerald-400 mt-0.5">
+                      ✓
+                    </span>
                     {line}
                   </li>
                 ))}
               </ul>
               <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 pt-4 border-t border-purple-100 dark:border-purple-900/30">
                 <div>
-                  <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Starting at</p>
+                  <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">
+                    Starting at
+                  </p>
                   {loading ? (
                     <Loader2 className="h-8 w-8 animate-spin text-emerald-500" />
                   ) : (
                     <p className="text-3xl font-bold text-gray-900 dark:text-white tabular-nums">
                       {formatCurrency(pricePaisa, 'NPR')}
-                      <span className="text-base font-normal text-muted-foreground">/month</span>
+                      <span className="text-base font-normal text-muted-foreground">
+                        /month
+                      </span>
                     </p>
                   )}
                 </div>

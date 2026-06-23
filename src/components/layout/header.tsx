@@ -1,161 +1,166 @@
-import { useState } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { Link, useLocation } from 'react-router-dom'
-import { Menu, X, MapPin, Calendar, Phone, MessageCircle, Loader2 } from 'lucide-react'
-import { Button } from '@/components/ui/button'
+import { Menu, MessageCircle, X } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { ROUTES, APP_NAME } from '@/lib/constants'
-import { useHotDeskPricing } from '@/features/home/hooks/use-hot-desk-pricing'
+import { ROUTES, WHATSAPP } from '@/lib/constants'
+import { Button } from '../ui/button'
+import { useBookTour } from '@/lib/book-tour-context'
 
-const navigation = [
-  { name: 'Locations', href: ROUTES.LOCATIONS },
-  { name: 'Membership', href: ROUTES.PRICING },
-  { name: 'Blog', href: ROUTES.BLOG },
-  { name: 'About', href: ROUTES.ABOUT },
-  { name: 'Contact', href: ROUTES.CONTACT },
+const navItems = [
+  { name: 'Locations', hash: 'locations' },
+  { name: 'Membership', hash: 'membership' },
+  { name: 'Events & training', hash: 'spaces' },
+  { name: 'Amenities', hash: 'amenities' },
+  { name: 'FAQ', hash: 'faq' },
 ]
+
+function getActiveHash(): string {
+  const ids = navItems.map((n) => n.hash)
+  for (const id of ids.reverse()) {
+    const el = document.getElementById(id)
+    if (!el) continue
+    const rect = el.getBoundingClientRect()
+    if (rect.top <= 200) return id
+  }
+  return ''
+}
 
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const [scrolled, setScrolled] = useState(false)
+  const [activeHash, setActiveHash] = useState('')
   const location = useLocation()
-  const { loading, formatted } = useHotDeskPricing()
+  const { openTour } = useBookTour()
 
-  const phoneNumbers = ["+977 9700045256"]
-  const whatsappNumber = "9779803171819" // Format for WhatsApp link (no + or -)
-  const whatsappMessage = encodeURIComponent("Hi! I'm interested in learning more about CreatrixSpace.")
+  useEffect(() => {
+    const onScroll = () => {
+      setScrolled(window.scrollY > 0)
+      if (location.pathname === '/') {
+        setActiveHash(getActiveHash())
+      }
+    }
+    onScroll()
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [location.pathname])
+
+  const scrollTo = useCallback((hash: string) => {
+    const el = document.getElementById(hash)
+    if (!el) return
+    const y = el.getBoundingClientRect().top + window.scrollY - 100
+    window.scrollTo({ top: y, behavior: 'smooth' })
+    window.history.pushState(null, '', `/#${hash}`)
+  }, [])
 
   return (
-    <>
-      {/* Top Contact Bar */}
-      <div className="bg-gradient-to-r from-purple-600 to-purple-800 text-white py-2">
-        <div className="container flex items-center justify-between text-sm">
-          <div className="flex items-center gap-4 md:gap-6 overflow-x-auto">
-            {phoneNumbers.map((phone, index) => (
-              <a 
-                key={index}
-                href={`tel:${phone}`}
-                className="flex items-center gap-2 hover:opacity-80 transition-opacity whitespace-nowrap"
-              >
-                <Phone className="h-4 w-4" />
-                <span className="hidden sm:inline font-medium">{phone}</span>
-              </a>
-            ))}
-            <a 
-              href={`https://wa.me/${whatsappNumber}?text=${whatsappMessage}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-2 hover:opacity-80 transition-opacity whitespace-nowrap"
-            >
-              <MessageCircle className="h-4 w-4" />
-              <span className="hidden sm:inline font-medium">WhatsApp</span>
-            </a>
-          </div>
-          <div className="text-xs sm:text-sm">
-            <span className="hidden md:inline">Hot desks available: </span>
-            <span className="font-semibold">
-              {loading ? <Loader2 className="h-3 w-3 animate-spin inline" /> : formatted.badge}
-            </span>
-          </div>
-        </div>
-      </div>
-      
-      {/* Main Header */}
-      <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container flex h-24 items-center justify-between">
-        {/* Logo */}
-        <Link to={ROUTES.HOME} className="flex items-center space-x-2 hover:opacity-90 transition-opacity">
-          <img 
-            src="/creatrix-logo.png" 
-            alt="CreatrixSpace Logo" 
-            className="h-16 md:h-20 w-auto"
-            onError={(e) => {
-              e.currentTarget.style.display = 'none'
-              const fallback = e.currentTarget.nextElementSibling
-              if (fallback) fallback.classList.remove('hidden')
-            }}
-          />
-          <div className="hidden flex items-center space-x-2">
-            <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-purple-600 to-purple-800 flex items-center justify-center">
-              <span className="text-white font-bold text-lg">CS</span>
-            </div>
-            <span className="font-display font-bold text-xl">{APP_NAME}</span>
-          </div>
-        </Link>
-
-        {/* Desktop Navigation */}
-        <nav className="hidden md:flex items-center space-x-8">
-          {navigation.map((item) => (
-            <Link
-              key={item.name}
-              to={item.href}
-              className={cn(
-                "text-sm font-medium transition-colors hover:text-primary",
-                location.pathname === item.href
-                  ? "text-primary"
-                  : "text-muted-foreground"
-              )}
-            >
-              {item.name}
-            </Link>
-          ))}
-        </nav>
-
-        {/* CTA Buttons */}
-        <div className="hidden md:flex items-center space-x-3">
-          <Button size="sm" asChild>
-            <Link to={ROUTES.BOOKING}>
-              <Calendar className="h-4 w-4 mr-2" />
-              Book Now
-            </Link>
-          </Button>
-        </div>
-
-        {/* Mobile Menu Button */}
-        <button
-          type="button"
-          className="md:hidden p-2 rounded-md text-muted-foreground hover:text-foreground hover:bg-accent"
-          onClick={() => setIsMenuOpen(!isMenuOpen)}
-        >
-          {isMenuOpen ? (
-            <X className="h-6 w-6" />
-          ) : (
-            <Menu className="h-6 w-6" />
-          )}
-        </button>
-      </div>
-
-      {/* Mobile Menu */}
-      {isMenuOpen && (
-        <div className="md:hidden border-t bg-background">
-          <div className="container py-4 space-y-4">
-            <nav className="space-y-2">
-              {navigation.map((item) => (
-                <Link
-                  key={item.name}
-                  to={item.href}
-                  className={cn(
-                    "block px-3 py-2 rounded-md text-sm font-medium transition-colors",
-                    location.pathname === item.href
-                      ? "bg-primary text-primary-foreground"
-                      : "text-muted-foreground hover:text-foreground hover:bg-accent"
-                  )}
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  {item.name}
-                </Link>
-              ))}
-            </nav>
-            <div className="flex flex-col space-y-2 pt-4 border-t">
-              <Button size="sm" asChild>
-                <Link to={ROUTES.BOOKING} onClick={() => setIsMenuOpen(false)}>
-                  <Calendar className="h-4 w-4 mr-2" />
-                  Book Now
-                </Link>
-              </Button>
-            </div>
-          </div>
-        </div>
+    <header
+      className={cn(
+        'sticky top-0 z-50 w-full transition-[background,border-color] duration-300 ease-out py-4.5',
+        scrolled || isMenuOpen
+          ? 'bg-[rgba(243,239,231,0.86)] backdrop-blur-md saturate-[1.4] border-b border-rule'
+          : 'bg-transparent border-b border-transparent'
       )}
+    >
+      <div className="container">
+        <div className="flex items-center justify-between">
+          <Link to={ROUTES.HOME} className="no-underline">
+            <div className="font-display text-[26px] tracking-[-0.01em] text-fg-1 leading-none">
+              Creatrix<em className="text-clay">Space</em>
+            </div>
+          </Link>
+
+          <nav className="hidden lg:flex items-center gap-7.5">
+            {navItems.map((item) => (
+              <button
+                key={item.name}
+                type="button"
+                onClick={() => scrollTo(item.hash)}
+                className={cn(
+                  'bg-transparent border-0 cursor-pointer text-sm transition-colors duration-200 ease-out pb-1 relative after:absolute after:bottom-0 after:left-1/2 after:-translate-x-1/2 after:h-px after:bg-clay after:transition-all after:duration-200 after:origin-center hover:after:w-full',
+                  activeHash === item.hash
+                    ? 'text-fg-1 font-medium after:w-full'
+                    : 'text-fg-2 font-normal hover:text-fg-1 after:w-0'
+                )}
+              >
+                {item.name}
+              </button>
+            ))}
+          </nav>
+
+          <div className="flex items-center gap-3">
+            <Button
+              variant="outline"
+              icon={MessageCircle}
+              text="WhatsApp"
+              className="py-2 px-3.5 hidden lg:flex"
+              href={WHATSAPP.url}
+              target="_blank"
+            />
+            <Button
+              variant="dark"
+              text="Book a tour"
+              className="py-2 px-5.5"
+              onClick={() => openTour()}
+            />
+            <button
+              type="button"
+              className="lg:hidden p-2 pr-0 rounded-md text-fg-2"
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+            >
+              {isMenuOpen ? (
+                <X className="h-6 w-6" />
+              ) : (
+                <Menu className="h-6 w-6" />
+              )}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div
+        className={cn(
+          'lg:hidden overflow-hidden transition-all duration-300 ease-out',
+          isMenuOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
+        )}
+      >
+        <div className="container py-4 space-y-4">
+          <nav className="space-y-1">
+            {navItems.map((item) => (
+              <button
+                key={item.name}
+                type="button"
+                onClick={() => {
+                  scrollTo(item.hash)
+                  setIsMenuOpen(false)
+                }}
+                className={cn(
+                  'block w-full text-left py-2.5 text-sm font-medium transition-colors border-0 cursor-pointer',
+                  activeHash === item.hash
+                    ? 'text-fg-1'
+                    : 'text-fg-2 hover:text-fg-1'
+                )}
+              >
+                {item.name}
+              </button>
+            ))}
+            <Link
+              to={ROUTES.LOCATIONS}
+              className="block py-2.5 text-clay text-sm mt-1 underline hover:text-clay-deep transition-colors"
+            >
+              All addresses →
+            </Link>
+            <Link
+              to={WHATSAPP.url}
+              target="_blank"
+              rel="noopener"
+              className="flex py-2.5 items-center gap-1.5 text-clay text-sm underline hover:text-clay-deep transition-colors"
+            >
+              <MessageCircle className="w-3.5 h-3.5" />
+              {`WhatsApp ${WHATSAPP.DISPLAY}`}
+            </Link>
+          </nav>
+        </div>
+      </div>
     </header>
-    </>
   )
 }

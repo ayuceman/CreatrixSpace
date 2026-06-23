@@ -11,21 +11,26 @@ export interface SEOData {
   canonical?: string
 }
 
-const DEFAULT_SEO: Required<Omit<SEOData, 'keywords' | 'image' | 'url' | 'type' | 'noindex' | 'canonical'>> = {
-  title: 'CreatrixSpace - Premium Co Working Space in Nepal | Kathmandu & Lalitpur',
-  description: 'Premium co working space in Nepal. Flexible coworking spaces in Kathmandu and Lalitpur. 24/7 access, high-speed internet, meeting rooms, and modern facilities. Perfect for freelancers, entrepreneurs, and remote workers in Nepal.',
+const DEFAULT_SEO: Required<
+  Omit<SEOData, 'keywords' | 'image' | 'url' | 'type' | 'noindex' | 'canonical'>
+> = {
+  title: 'CreatrixSpace - Premium Coworking Spaces in Kathmandu & Lalitpur',
+  description:
+    'Premium coworking spaces in Kathmandu and Lalitpur. 24/7 access, high-speed internet, meeting rooms, and modern facilities. Perfect for freelancers, entrepreneurs, and remote workers in Nepal.',
+
   siteName: 'CreatrixSpace',
   locale: 'en_US',
 }
 
 export function updateSEO(data: SEOData) {
-  const baseUrl = import.meta.env.VITE_APP_URL || 'https://creatrixventures.space'
-  const fullTitle = data.title 
+  const baseUrl = import.meta.env.VITE_APP_URL || 'https://creatrixspace.com'
+  const fullTitle = data.title
     ? `${data.title} | ${DEFAULT_SEO.siteName}`
     : DEFAULT_SEO.title
   const description = data.description || DEFAULT_SEO.description
   const image = data.image || `${baseUrl}/creatrix-logo.png`
-  const url = data.url || (typeof window !== 'undefined' ? window.location.href : baseUrl)
+  const url =
+    data.url || (typeof window !== 'undefined' ? window.location.href : baseUrl)
   const canonical = data.canonical || url
 
   // Update title
@@ -34,8 +39,14 @@ export function updateSEO(data: SEOData) {
   }
 
   // Update or create meta tags
-  const updateMetaTag = (name: string, content: string, attribute: 'name' | 'property' = 'name') => {
-    let element = document.querySelector(`meta[${attribute}="${name}"]`) as HTMLMetaElement
+  const updateMetaTag = (
+    name: string,
+    content: string,
+    attribute: 'name' | 'property' = 'name'
+  ) => {
+    let element = document.querySelector(
+      `meta[${attribute}="${name}"]`
+    ) as HTMLMetaElement
     if (!element) {
       element = document.createElement('meta')
       element.setAttribute(attribute, name)
@@ -76,7 +87,9 @@ export function updateSEO(data: SEOData) {
   }
 
   // Canonical URL
-  let canonicalElement = document.querySelector('link[rel="canonical"]') as HTMLLinkElement
+  let canonicalElement = document.querySelector(
+    'link[rel="canonical"]'
+  ) as HTMLLinkElement
   if (!canonicalElement) {
     canonicalElement = document.createElement('link')
     canonicalElement.setAttribute('rel', 'canonical')
@@ -85,9 +98,12 @@ export function updateSEO(data: SEOData) {
   canonicalElement.setAttribute('href', canonical)
 }
 
-export function generateStructuredData(type: 'Organization' | 'LocalBusiness' | 'Article', data: Record<string, any>) {
-  const baseUrl = import.meta.env.VITE_APP_URL || 'https://creatrixventures.space'
-  
+export function generateStructuredData(
+  type: 'Organization' | 'LocalBusiness' | 'Article',
+  data: Record<string, any>
+) {
+  const baseUrl = import.meta.env.VITE_APP_URL || 'https://creatrixspace.com'
+
   const schemas: Record<string, any> = {
     Organization: {
       '@context': 'https://schema.org',
@@ -115,13 +131,13 @@ export function generateStructuredData(type: 'Organization' | 'LocalBusiness' | 
         {
           '@type': 'City',
           name: 'Kathmandu',
-          addressCountry: 'NP'
+          addressCountry: 'NP',
         },
         {
           '@type': 'City',
           name: 'Lalitpur',
-          addressCountry: 'NP'
-        }
+          addressCountry: 'NP',
+        },
       ],
       ...data,
     },
@@ -137,7 +153,9 @@ export function generateStructuredData(type: 'Organization' | 'LocalBusiness' | 
 
 export function injectStructuredData(data: Record<string, any>) {
   // Remove existing structured data
-  const existingScript = document.querySelector('script[type="application/ld+json"]')
+  const existingScript = document.querySelector(
+    'script[type="application/ld+json"]'
+  )
   if (existingScript) {
     existingScript.remove()
   }
@@ -148,4 +166,3 @@ export function injectStructuredData(data: Record<string, any>) {
   script.textContent = JSON.stringify(data, null, 2)
   document.head.appendChild(script)
 }
-

@@ -29,7 +29,8 @@ export function PaymentBookingSummary({
   onPaymentMethodSelect,
   isProcessing = false,
 }: PaymentBookingSummaryProps) {
-  const [selectedMethod, setSelectedMethod] = useState<PaymentMethod>('qr_payment')
+  const [selectedMethod, setSelectedMethod] =
+    useState<PaymentMethod>('qr_payment')
   const { locations, plans, addOns, getRoomsForLocation } = useBookingStore()
 
   // Listen to parent payment method selection
@@ -38,10 +39,16 @@ export function PaymentBookingSummary({
       setSelectedMethod(event.detail.method)
     }
 
-    window.addEventListener('paymentMethodChanged', handlePaymentMethodChange as EventListener)
-    
+    window.addEventListener(
+      'paymentMethodChanged',
+      handlePaymentMethodChange as EventListener
+    )
+
     return () => {
-      window.removeEventListener('paymentMethodChanged', handlePaymentMethodChange as EventListener)
+      window.removeEventListener(
+        'paymentMethodChanged',
+        handlePaymentMethodChange as EventListener
+      )
     }
   }, [])
 
@@ -63,19 +70,23 @@ export function PaymentBookingSummary({
   const baseAmount = bookingData.totalAmount || 0
   const fees = calculateFees(selectedMethod, baseAmount)
   const totalAmount = baseAmount + fees
-  const selectedPaymentMethod = paymentMethods.find(m => m.id === selectedMethod)
+  const selectedPaymentMethod = paymentMethods.find(
+    (m) => m.id === selectedMethod
+  )
 
   const handleProceedToPayment = () => {
     onPaymentMethodSelect(selectedMethod)
   }
 
   // Get actual booking data from store
-  const selectedLocation = locations.find(l => l.id === bookingData.locationId)
-  const selectedPlan = plans.find(p => p.id === bookingData.planId)
+  const selectedLocation = locations.find(
+    (l) => l.id === bookingData.locationId
+  )
+  const selectedPlan = plans.find((p) => p.id === bookingData.planId)
   const selectedRoom = getRoomsForLocation(bookingData.locationId).find(
     (room) => room.id === bookingData.roomId
   )
-  
+
   // Format dates
   const formatDate = (date: Date | null) => {
     if (!date) return 'Not set'
@@ -89,46 +100,57 @@ export function PaymentBookingSummary({
   // Calculate duration
   const getDuration = () => {
     if (!bookingData.startDate || !bookingData.endDate) return 'Not set'
-    const diffTime = Math.abs(bookingData.endDate.getTime() - bookingData.startDate.getTime())
+    const diffTime = Math.abs(
+      bookingData.endDate.getTime() - bookingData.startDate.getTime()
+    )
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
-    
+
     if (diffDays < 7) return `${diffDays} Day${diffDays > 1 ? 's' : ''}`
-    if (diffDays < 30) return `${Math.floor(diffDays / 7)} Week${Math.floor(diffDays / 7) > 1 ? 's' : ''}`
-    if (diffDays < 365) return `${Math.floor(diffDays / 30)} Month${Math.floor(diffDays / 30) > 1 ? 's' : ''}`
+    if (diffDays < 30)
+      return `${Math.floor(diffDays / 7)} Week${Math.floor(diffDays / 7) > 1 ? 's' : ''}`
+    if (diffDays < 365)
+      return `${Math.floor(diffDays / 30)} Month${Math.floor(diffDays / 30) > 1 ? 's' : ''}`
     return `${Math.floor(diffDays / 365)} Year${Math.floor(diffDays / 365) > 1 ? 's' : ''}`
   }
 
   // Get add-ons names
   const getAddOnsList = () => {
     const addOnsList: string[] = []
-    
+
     // Regular add-ons
     bookingData.addOns.forEach((addonId: string) => {
-      const addon = addOns.find(a => a.id === addonId)
+      const addon = addOns.find((a) => a.id === addonId)
       if (addon) addOnsList.push(addon.name)
     })
-    
+
     // Meeting room hours
     if (bookingData.meetingRoomHours > 0) {
-      addOnsList.push(`Extra Meeting Room (${bookingData.meetingRoomHours} hour${bookingData.meetingRoomHours > 1 ? 's' : ''})`)
+      addOnsList.push(
+        `Extra Meeting Room (${bookingData.meetingRoomHours} hour${bookingData.meetingRoomHours > 1 ? 's' : ''})`
+      )
     }
-    
+
     // Guest passes
     if (bookingData.guestPasses > 0) {
-      addOnsList.push(`Guest Day Pass (${bookingData.guestPasses} day${bookingData.guestPasses > 1 ? 's' : ''})`)
+      addOnsList.push(
+        `Guest Day Pass (${bookingData.guestPasses} day${bookingData.guestPasses > 1 ? 's' : ''})`
+      )
     }
-    
+
     return addOnsList
   }
 
   // Plan features (based on plan type)
   const getPlanFeatures = () => {
     const features: string[] = ['High-speed internet', 'Coffee & tea']
-    
-    if (selectedPlan?.type === 'hot_desk' || selectedPlan?.type === 'dedicated_desk') {
+
+    if (
+      selectedPlan?.type === 'hot_desk' ||
+      selectedPlan?.type === 'dedicated_desk'
+    ) {
       features.push('Meeting room credits', 'Locker access')
     }
-    
+
     return features
   }
 
@@ -147,17 +169,21 @@ export function PaymentBookingSummary({
           <div className="space-y-2">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-2">
-                <MapPin className="h-4 w-4 text-muted-foreground" />
-                <span className="font-medium">{selectedLocation?.name || 'Location not selected'}</span>
+                <MapPin className="h-4 w-4 text-fg-2" />
+                <span className="font-medium">
+                  {selectedLocation?.name || 'Location not selected'}
+                </span>
               </div>
-              <Badge variant="outline">{selectedPlan?.name || 'Plan not selected'}</Badge>
+              <Badge variant="outline">
+                {selectedPlan?.name || 'Plan not selected'}
+              </Badge>
             </div>
 
             {selectedRoom && (
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-2">
-                  <DoorOpen className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-sm text-muted-foreground">Room</span>
+                  <DoorOpen className="h-4 w-4 text-fg-2" />
+                  <span className="text-sm text-fg-2">Room</span>
                 </div>
                 <span className="text-sm font-medium">{selectedRoom.name}</span>
               </div>
@@ -165,19 +191,20 @@ export function PaymentBookingSummary({
 
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-2">
-                <Clock className="h-4 w-4 text-muted-foreground" />
-                <span className="text-sm text-muted-foreground">Duration</span>
+                <Clock className="h-4 w-4 text-fg-2" />
+                <span className="text-sm text-fg-2">Duration</span>
               </div>
               <span className="text-sm font-medium">{getDuration()}</span>
             </div>
 
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-2">
-                <Calendar className="h-4 w-4 text-muted-foreground" />
-                <span className="text-sm text-muted-foreground">Period</span>
+                <Calendar className="h-4 w-4 text-fg-2" />
+                <span className="text-sm text-fg-2">Period</span>
               </div>
               <span className="text-sm font-medium">
-                {formatDate(bookingData.startDate)} - {formatDate(bookingData.endDate)}
+                {formatDate(bookingData.startDate)} -{' '}
+                {formatDate(bookingData.endDate)}
               </span>
             </div>
           </div>
@@ -191,7 +218,7 @@ export function PaymentBookingSummary({
               {getPlanFeatures().map((feature, index) => (
                 <div key={index} className="flex items-center space-x-1">
                   <div className="w-1 h-1 bg-green-500 rounded-full" />
-                  <span className="text-xs text-muted-foreground">{feature}</span>
+                  <span className="text-xs text-fg-2">{feature}</span>
                 </div>
               ))}
             </div>
@@ -207,7 +234,7 @@ export function PaymentBookingSummary({
                   {getAddOnsList().map((addOn, index) => (
                     <div key={index} className="flex items-center space-x-1">
                       <div className="w-1 h-1 bg-blue-500 rounded-full" />
-                      <span className="text-xs text-muted-foreground">{addOn}</span>
+                      <span className="text-xs text-fg-2">{addOn}</span>
                     </div>
                   ))}
                 </div>
@@ -218,14 +245,14 @@ export function PaymentBookingSummary({
       </Card>
 
       {/* Payment Summary */}
-      <Card className="bg-primary/5 border-primary/20">
+      <Card className="bg-clay/5 border-clay/20">
         <CardHeader>
           <CardTitle className="text-lg">Payment Details</CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
           {/* Selected Payment Method */}
           {selectedPaymentMethod && (
-            <div className="p-3 bg-white border border-primary/20 rounded-lg">
+            <div className="p-3 bg-white border border-clay/20 rounded-lg">
               <div className="flex items-center space-x-2 mb-2">
                 <div className="text-lg">{selectedPaymentMethod.logo}</div>
                 <span className="font-medium text-sm">
@@ -235,9 +262,7 @@ export function PaymentBookingSummary({
                   Selected
                 </Badge>
               </div>
-              <p className="text-xs text-muted-foreground">
-                {selectedPaymentMethod.fees}
-              </p>
+              <p className="text-xs text-fg-2">{selectedPaymentMethod.fees}</p>
               {selectedPaymentMethod.id === 'bank_transfer' && (
                 <p className="text-xs text-orange-700 mt-1">
                   ⚠️ Manual verification required
@@ -254,7 +279,7 @@ export function PaymentBookingSummary({
           {/* Price Breakdown */}
           <div className="space-y-2">
             <div className="flex justify-between text-sm">
-              <span className="text-muted-foreground">Booking Amount:</span>
+              <span className="text-fg-2">Booking Amount:</span>
               <span className="font-medium">
                 {formatCurrency(baseAmount, 'NPR')}
               </span>
@@ -262,9 +287,7 @@ export function PaymentBookingSummary({
 
             {fees > 0 && (
               <div className="flex justify-between text-sm">
-                <span className="text-muted-foreground">
-                  Payment Gateway Fees:
-                </span>
+                <span className="text-fg-2">Payment Gateway Fees:</span>
                 <span className="font-medium">
                   {formatCurrency(fees, 'NPR')}
                 </span>
@@ -275,7 +298,7 @@ export function PaymentBookingSummary({
 
             <div className="flex justify-between font-bold">
               <span>Total Amount:</span>
-              <span className="text-primary text-lg">
+              <span className="text-clay text-lg">
                 {formatCurrency(totalAmount, 'NPR')}
               </span>
             </div>
@@ -300,7 +323,7 @@ export function PaymentBookingSummary({
 
           {/* Security Notice */}
           <div className="text-center">
-            <p className="text-xs text-muted-foreground">
+            <p className="text-xs text-fg-2">
               🔒 Secured with 256-bit SSL encryption
             </p>
           </div>

@@ -16,23 +16,33 @@ export function BookingSummary() {
     getRoomsForLocation,
   } = useBookingStore()
 
-  const selectedLocation = locations.find(l => l.id === bookingData.locationId)
-  const selectedPlan = plans.find(p => p.id === bookingData.planId)
+  const selectedLocation = locations.find(
+    (l) => l.id === bookingData.locationId
+  )
+  const selectedPlan = plans.find((p) => p.id === bookingData.planId)
   const locationRooms = getRoomsForLocation(bookingData.locationId)
-  const selectedRoom = locationRooms.find((room) => room.id === bookingData.roomId)
+  const selectedRoom = locationRooms.find(
+    (room) => room.id === bookingData.roomId
+  )
 
   // Use centralized pricing calculator for consistency
   const selectedAddOnsWithPrices = bookingData.addOns
-    .map(addonId => {
-      const addon = addOns.find(a => a.id === addonId)
+    .map((addonId) => {
+      const addon = addOns.find((a) => a.id === addonId)
       return addon ? { id: addon.id, price: addon.price } : null
     })
     .filter((addon): addon is { id: string; price: number } => addon !== null)
 
   const locationPlanPricing = selectedPlan
-    ? getPlanPricingForLocation(selectedPlan.id, bookingData.locationId, bookingData.roomId)
+    ? getPlanPricingForLocation(
+        selectedPlan.id,
+        bookingData.locationId,
+        bookingData.roomId
+      )
     : undefined
-  const planPricingData = selectedPlan ? (locationPlanPricing || selectedPlan.pricing) : undefined
+  const planPricingData = selectedPlan
+    ? locationPlanPricing || selectedPlan.pricing
+    : undefined
 
   const billingLabel = planPricingData?.monthly
     ? 'Monthly'
@@ -42,22 +52,27 @@ export function BookingSummary() {
         ? 'Annual'
         : 'Daily'
 
-  const pricing = selectedPlan ? calculatePricing({
-    planPricing: planPricingData || selectedPlan.pricing,
-    planType: selectedPlan.type,
-    selectedAddOns: selectedAddOnsWithPrices,
-    meetingRoomHours: bookingData.meetingRoomHours,
-    guestPasses: bookingData.guestPasses,
-  }) : {
-    basePrice: 0,
-    addOnsPrice: 0,
-    meetingRoomHoursPrice: 0,
-    guestPassesPrice: 0,
-    total: 0,
-  }
+  const pricing = selectedPlan
+    ? calculatePricing({
+        planPricing: planPricingData || selectedPlan.pricing,
+        planType: selectedPlan.type,
+        selectedAddOns: selectedAddOnsWithPrices,
+        meetingRoomHours: bookingData.meetingRoomHours,
+        guestPasses: bookingData.guestPasses,
+      })
+    : {
+        basePrice: 0,
+        addOnsPrice: 0,
+        meetingRoomHoursPrice: 0,
+        guestPassesPrice: 0,
+        total: 0,
+      }
 
   const basePrice = pricing.basePrice
-  const addOnsTotal = pricing.addOnsPrice + pricing.meetingRoomHoursPrice + pricing.guestPassesPrice
+  const addOnsTotal =
+    pricing.addOnsPrice +
+    pricing.meetingRoomHoursPrice +
+    pricing.guestPassesPrice
   const totalAmount = pricing.total
 
   if (!selectedLocation || !selectedPlan) {
@@ -67,7 +82,7 @@ export function BookingSummary() {
           <CardTitle className="text-lg">Booking Summary</CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-muted-foreground text-center py-8">
+          <p className="text-fg-2 text-center py-8">
             Select location and plan to see summary
           </p>
         </CardContent>
@@ -84,28 +99,35 @@ export function BookingSummary() {
         {/* Location & Plan */}
         <div className="space-y-4">
           <div>
-            <div className="flex items-center text-sm text-muted-foreground mb-1">
+            <div className="flex items-center text-sm text-fg-2 mb-1">
               <MapPin className="h-4 w-4 mr-1" />
               Location
             </div>
             <p className="font-medium">{selectedLocation.name}</p>
-            <p className="text-sm text-muted-foreground">{selectedLocation.address}</p>
           </div>
 
           {selectedRoom && (
             <div>
-              <div className="flex items-center text-sm text-muted-foreground mb-1">
+              <div className="flex items-center text-sm text-fg-2 mb-1">
                 <DoorOpen className="h-4 w-4 mr-1" />
                 Room
               </div>
               <div className="flex items-center justify-between">
                 <p className="font-medium">{selectedRoom.name}</p>
-                <Badge variant={selectedRoom.status === 'available' ? 'secondary' : 'destructive'}>
-                  {selectedRoom.status === 'available' ? 'Reserved' : selectedRoom.status}
+                <Badge
+                  variant={
+                    selectedRoom.status === 'available'
+                      ? 'secondary'
+                      : 'destructive'
+                  }
+                >
+                  {selectedRoom.status === 'available'
+                    ? 'Reserved'
+                    : selectedRoom.status}
                 </Badge>
               </div>
               {selectedRoom.description && (
-                <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
+                <p className="text-xs text-fg-2 mt-1 line-clamp-2">
                   {selectedRoom.description}
                 </p>
               )}
@@ -113,7 +135,7 @@ export function BookingSummary() {
           )}
 
           <div>
-            <div className="text-sm text-muted-foreground mb-1">Plan</div>
+            <div className="text-sm text-fg-2 mb-1">Plan</div>
             <div className="flex items-center justify-between">
               <p className="font-medium">{selectedPlan.name}</p>
               {selectedPlan.popular && <Badge>Popular</Badge>}
@@ -126,14 +148,14 @@ export function BookingSummary() {
           <>
             <Separator />
             <div className="space-y-2">
-              <div className="flex items-center text-sm text-muted-foreground mb-2">
+              <div className="flex items-center text-sm text-fg-2 mb-2">
                 <Calendar className="h-4 w-4 mr-1" />
                 Schedule
               </div>
 
               <div className="space-y-1 text-sm">
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">
+                  <span className="text-fg-2">
                     {selectedPlan.type === 'day_pass' ? 'Date:' : 'Start:'}
                   </span>
                   <span className="font-medium">
@@ -147,7 +169,7 @@ export function BookingSummary() {
 
                 {selectedPlan.type !== 'day_pass' && bookingData.endDate && (
                   <div className="flex justify-between">
-                    <span className="text-muted-foreground">End:</span>
+                    <span className="text-fg-2">End:</span>
                     <span className="font-medium">
                       {bookingData.endDate.toLocaleDateString('en-US', {
                         month: 'short',
@@ -160,7 +182,7 @@ export function BookingSummary() {
 
                 {selectedPlan.type !== 'day_pass' && (
                   <div className="flex justify-between">
-                    <span className="text-muted-foreground">Time:</span>
+                    <span className="text-fg-2">Time:</span>
                     <span className="font-medium">
                       {bookingData.startTime} - {bookingData.endTime}
                     </span>
@@ -169,7 +191,7 @@ export function BookingSummary() {
 
                 {selectedPlan.type === 'day_pass' && (
                   <div className="flex justify-between">
-                    <span className="text-muted-foreground">Access:</span>
+                    <span className="text-fg-2">Access:</span>
                     <span className="font-medium">6:00 AM - 10:00 PM</span>
                   </div>
                 )}
@@ -182,60 +204,60 @@ export function BookingSummary() {
         {(bookingData.addOns.length > 0 ||
           bookingData.meetingRoomHours > 0 ||
           bookingData.guestPasses > 0) && (
-            <>
-              <Separator />
-              <div className="space-y-2">
-                <div className="flex items-center text-sm text-muted-foreground mb-2">
-                  <Plus className="h-4 w-4 mr-1" />
-                  Add-ons
-                </div>
-
-                <div className="space-y-1 text-sm">
-                  {bookingData.addOns.map(addonId => {
-                    const addon = addOns.find(a => a.id === addonId)
-                    if (!addon) return null
-
-                    return (
-                      <div key={addonId} className="flex justify-between">
-                        <span className="text-muted-foreground">{addon.name}</span>
-                        <span className="font-medium">
-                          {formatCurrency(addon.price, 'NPR')}
-                        </span>
-                      </div>
-                    )
-                  })}
-
-                  {bookingData.meetingRoomHours > 0 && (
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">
-                        Meeting Room ({bookingData.meetingRoomHours}h)
-                      </span>
-                      <span className="font-medium">
-                        {formatCurrency(pricing.meetingRoomHoursPrice, 'NPR')}
-                      </span>
-                    </div>
-                  )}
-
-                  {bookingData.guestPasses > 0 && (
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">
-                        Guest Passes ({bookingData.guestPasses})
-                      </span>
-                      <span className="font-medium">
-                        {formatCurrency(pricing.guestPassesPrice, 'NPR')}
-                      </span>
-                    </div>
-                  )}
-                </div>
+          <>
+            <Separator />
+            <div className="space-y-2">
+              <div className="flex items-center text-sm text-fg-2 mb-2">
+                <Plus className="h-4 w-4 mr-1" />
+                Add-ons
               </div>
-            </>
-          )}
+
+              <div className="space-y-1 text-sm">
+                {bookingData.addOns.map((addonId) => {
+                  const addon = addOns.find((a) => a.id === addonId)
+                  if (!addon) return null
+
+                  return (
+                    <div key={addonId} className="flex justify-between">
+                      <span className="text-fg-2">{addon.name}</span>
+                      <span className="font-medium">
+                        {formatCurrency(addon.price, 'NPR')}
+                      </span>
+                    </div>
+                  )
+                })}
+
+                {bookingData.meetingRoomHours > 0 && (
+                  <div className="flex justify-between">
+                    <span className="text-fg-2">
+                      Meeting Room ({bookingData.meetingRoomHours}h)
+                    </span>
+                    <span className="font-medium">
+                      {formatCurrency(pricing.meetingRoomHoursPrice, 'NPR')}
+                    </span>
+                  </div>
+                )}
+
+                {bookingData.guestPasses > 0 && (
+                  <div className="flex justify-between">
+                    <span className="text-fg-2">
+                      Guest Passes ({bookingData.guestPasses})
+                    </span>
+                    <span className="font-medium">
+                      {formatCurrency(pricing.guestPassesPrice, 'NPR')}
+                    </span>
+                  </div>
+                )}
+              </div>
+            </div>
+          </>
+        )}
 
         {/* Pricing */}
         <Separator />
         <div className="space-y-2">
           <div className="flex justify-between text-sm">
-            <span className="text-muted-foreground">
+            <span className="text-fg-2">
               {selectedPlan.name} ({billingLabel})
             </span>
             <span className="font-medium">
@@ -245,7 +267,7 @@ export function BookingSummary() {
 
           {addOnsTotal > 0 && (
             <div className="flex justify-between text-sm">
-              <span className="text-muted-foreground">Add-ons</span>
+              <span className="text-fg-2">Add-ons</span>
               <span className="font-medium">
                 {formatCurrency(addOnsTotal, 'NPR')}
               </span>
@@ -255,9 +277,7 @@ export function BookingSummary() {
           {pricing.discountAmount && pricing.discountAmount > 0 && (
             <div className="flex justify-between text-sm text-green-600 font-medium">
               <span>Online Discount (5%)</span>
-              <span>
-                - {formatCurrency(pricing.discountAmount, 'NPR')}
-              </span>
+              <span>- {formatCurrency(pricing.discountAmount, 'NPR')}</span>
             </div>
           )}
 
@@ -265,24 +285,22 @@ export function BookingSummary() {
 
           <div className="flex justify-between font-bold text-lg">
             <span>Total</span>
-            <span className="text-primary">
+            <span className="text-clay">
               {formatCurrency(totalAmount, 'NPR')}
             </span>
           </div>
 
-          <p className="text-xs text-muted-foreground">
-            Includes all taxes and fees
-          </p>
+          <p className="text-xs text-fg-2">Includes all taxes and fees</p>
         </div>
 
         {/* Trust Signals */}
-        <div className="flex items-center justify-center gap-4 text-xs text-muted-foreground pb-2">
+        <div className="flex items-center justify-center gap-4 text-xs text-fg-2 pb-2">
           <div className="flex items-center gap-1">
             <Shield className="h-3 w-3 text-green-600" />
             <span>Instant Confirmation</span>
           </div>
           <div className="flex items-center gap-1">
-            <Lock className="h-3 w-3 text-primary" />
+            <Lock className="h-3 w-3 text-clay" />
             <span>Secure Payment</span>
           </div>
         </div>
@@ -290,7 +308,9 @@ export function BookingSummary() {
         {/* Payment Info */}
         <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
           <p className="text-sm text-green-800">
-            <strong>Great choice!</strong> You're saving {formatCurrency(pricing.discountAmount || 0, 'NPR')} by booking online today.
+            <strong>Great choice!</strong> You're saving{' '}
+            {formatCurrency(pricing.discountAmount || 0, 'NPR')} by booking
+            online today.
           </p>
         </div>
       </CardContent>

@@ -1,20 +1,30 @@
-import { useEffect, useMemo, useState } from 'react'
-import { Loader2, AlertCircle, Plus, Edit, Trash2 } from 'lucide-react'
+import { useEffect, useMemo, useState, useRef } from 'react'
+import { Plus, Loader2, AlertCircle, X, Pencil, Trash2 } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 import { Separator } from '@/components/ui/separator'
 import { Badge } from '@/components/ui/badge'
-import { Textarea } from '@/components/ui/textarea'
+import { showToast } from '@/components/ui/toast'
+import { supabaseAdmin } from '@/lib/supabase-admin'
+import { supabase } from '@/lib/supabase'
 import { cn } from '@/lib/utils'
 import type { Database } from '@/lib/database.types'
-import { locationService, planService, locationPricingService, roomService, roomPricingService } from '@/services/supabase-service'
+import {
+  locationService,
+  planService,
+  locationPricingService,
+  roomService,
+  roomPricingService,
+} from '@/services/supabase-service'
 type LocationRow = Database['public']['Tables']['locations']['Row']
 type PlanRow = Database['public']['Tables']['plans']['Row']
-type LocationPlanPricingRow = Database['public']['Tables']['location_plan_pricing']['Row']
+type LocationPlanPricingRow =
+  Database['public']['Tables']['location_plan_pricing']['Row']
 type RoomRow = Database['public']['Tables']['location_rooms']['Row']
-type RoomPlanPricingRow = Database['public']['Tables']['room_plan_pricing']['Row']
+type RoomPlanPricingRow =
+  Database['public']['Tables']['room_plan_pricing']['Row']
 type PlanPricing = {
   daily?: number
   weekly?: number
@@ -49,34 +59,52 @@ export function AdminPricingPage() {
   const [pricingRows, setPricingRows] = useState<LocationPlanPricingRow[]>([])
   const [selectedLocationId, setSelectedLocationId] = useState<string>('')
   const [rooms, setRooms] = useState<RoomRow[]>([])
-  const [roomPricingRows, setRoomPricingRows] = useState<RoomPlanPricingRow[]>([])
+  const [roomPricingRows, setRoomPricingRows] = useState<RoomPlanPricingRow[]>(
+    []
+  )
   const [selectedRoomId, setSelectedRoomId] = useState<string>('')
-  const [priceInputs, setPriceInputs] = useState<Record<string, Partial<Record<BillingField, string>>>>({})
-  const [roomPriceInputs, setRoomPriceInputs] = useState<Record<string, Partial<Record<BillingField, string>>>>({})
+  const [priceInputs, setPriceInputs] = useState<
+    Record<string, Partial<Record<BillingField, string>>>
+  >({})
+  const [roomPriceInputs, setRoomPriceInputs] = useState<
+    Record<string, Partial<Record<BillingField, string>>>
+  >({})
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [roomSaving, setRoomSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [roomStatusUpdating, setRoomStatusUpdating] = useState<string | null>(null)
-  const [showRoomForm, setShowRoomForm] = useState(false)
-  const [editingRoom, setEditingRoom] = useState<RoomRow | null>(null)
-  const [roomForm, setRoomForm] = useState({
-    name: '',
-    slug: '',
-    description: '',
-    capacity: '',
-    size: '',
-    tags: '',
-    amenities: '',
-  })
+  const [roomStatusUpdating, setRoomStatusUpdating] = useState<string | null>(
+    null
+  )
+  const [showAddRoom, setShowAddRoom] = useState(false)
+  const [editingRoomId, setEditingRoomId] = useState<string | null>(null)
+  const [newRoomName, setNewRoomName] = useState('')
+  const [newRoomSlug, setNewRoomSlug] = useState('')
+  const [newRoomCapacity, setNewRoomCapacity] = useState('')
+  const [newRoomStatus, setNewRoomStatus] =
+    useState<RoomRow['status']>('available')
+  const [newRoomDescription, setNewRoomDescription] = useState('')
+  const [newRoomSize, setNewRoomSize] = useState('')
+  const [newRoomTags, setNewRoomTags] = useState('')
+  const [newRoomAmenities, setNewRoomAmenities] = useState('')
+  const [newRoomImageUrl, setNewRoomImageUrl] = useState('')
+  const [addingRoom, setAddingRoom] = useState(false)
+  const [uploadingImage, setUploadingImage] = useState(false)
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   const loadData = async () => {
     setLoading(true)
     setError(null)
     try {
-      const [locationRows, planRows, locationPricingRows, roomRows, roomPricingData] = await Promise.all([
+      const [
+        locationRows,
+        planRows,
+        locationPricingRows,
+        roomRows,
+        roomPricingData,
+      ] = await Promise.all([
         locationService.getAllLocations(),
-        planService.getAllPlans(),
+        planService.getAllPlansAdmin(),
         locationPricingService.getAllLocationPricing(),
         roomService.getAllRooms(),
         roomPricingService.getAllRoomPricing(),
@@ -109,18 +137,27 @@ export function AdminPricingPage() {
       setSelectedRoomId('')
       return
     }
-    const roomsForLocation = rooms.filter((room) => room.location_id === selectedLocationId)
+    const roomsForLocation = rooms.filter(
+      (room) => room.location_id === selectedLocationId
+    )
     if (roomsForLocation.length === 0) {
       setSelectedRoomId('')
       return
     }
     setSelectedRoomId((current) =>
-      current && roomsForLocation.some((room) => room.id === current) ? current : roomsForLocation[0].id
+      current && roomsForLocation.some((room) => room.id === current)
+        ? current
+        : roomsForLocation[0].id
     )
   }, [rooms, selectedLocationId])
 
   const orderedPlans = useMemo(() => {
-    const preferredOrder = ['Explorer', 'Professional', 'Enterprise', 'Private Office']
+    const preferredOrder = [
+      'Explorer',
+      'Professional',
+      'Enterprise',
+      'Private Office',
+    ]
     return plans
       .filter((plan) => (PLAN_TYPE_FIELDS[plan.type] || []).length > 0)
       .sort((a, b) => {
@@ -149,15 +186,22 @@ export function AdminPricingPage() {
 
     orderedPlans.forEach((plan) => {
       const pricingRow = pricingRows.find(
-        (row) => row.location_id === selectedLocationId && row.plan_id === plan.id
+        (row) =>
+          row.location_id === selectedLocationId && row.plan_id === plan.id
       )
-      const pricing = (pricingRow?.pricing as PlanPricing) || (plan.pricing as PlanPricing) || {}
+      const pricing =
+        (pricingRow?.pricing as PlanPricing) ||
+        (plan.pricing as PlanPricing) ||
+        {}
       const fields = PLAN_TYPE_FIELDS[plan.type] || []
 
-      inputs[plan.id] = fields.reduce((acc, field) => {
-        acc[field] = formatPriceInput(pricing[field])
-        return acc
-      }, {} as Partial<Record<BillingField, string>>)
+      inputs[plan.id] = fields.reduce(
+        (acc, field) => {
+          acc[field] = formatPriceInput(pricing[field])
+          return acc
+        },
+        {} as Partial<Record<BillingField, string>>
+      )
     })
 
     setPriceInputs(inputs)
@@ -174,13 +218,19 @@ export function AdminPricingPage() {
       const pricingRow = roomPricingRows.find(
         (row) => row.room_id === selectedRoomId && row.plan_id === plan.id
       )
-      const pricing = (pricingRow?.pricing as PlanPricing) || (plan.pricing as PlanPricing) || {}
+      const pricing =
+        (pricingRow?.pricing as PlanPricing) ||
+        (plan.pricing as PlanPricing) ||
+        {}
       const fields = PLAN_TYPE_FIELDS[plan.type] || []
 
-      inputs[plan.id] = fields.reduce((acc, field) => {
-        acc[field] = formatPriceInput(pricing[field])
-        return acc
-      }, {} as Partial<Record<BillingField, string>>)
+      inputs[plan.id] = fields.reduce(
+        (acc, field) => {
+          acc[field] = formatPriceInput(pricing[field])
+          return acc
+        },
+        {} as Partial<Record<BillingField, string>>
+      )
     })
 
     setRoomPriceInputs(inputs)
@@ -191,7 +241,11 @@ export function AdminPricingPage() {
     [locations, selectedLocationId]
   )
 
-  const handleInputChange = (planId: string, field: BillingField, value: string) => {
+  const handleInputChange = (
+    planId: string,
+    field: BillingField,
+    value: string
+  ) => {
     setPriceInputs((prev) => ({
       ...prev,
       [planId]: {
@@ -201,7 +255,11 @@ export function AdminPricingPage() {
     }))
   }
 
-  const handleRoomInputChange = (planId: string, field: BillingField, value: string) => {
+  const handleRoomInputChange = (
+    planId: string,
+    field: BillingField,
+    value: string
+  ) => {
     setRoomPriceInputs((prev) => ({
       ...prev,
       [planId]: {
@@ -238,12 +296,13 @@ export function AdminPricingPage() {
         )
       )
 
-      const refreshedPricing = await locationPricingService.getAllLocationPricing()
+      const refreshedPricing =
+        await locationPricingService.getAllLocationPricing()
       setPricingRows(refreshedPricing)
-      alert('Pricing updated successfully.')
+      showToast('Pricing updated successfully.')
     } catch (err) {
       console.error(err)
-      alert('Failed to save pricing. Please try again.')
+      showToast('Failed to save pricing. Please try again.', 'error')
     } finally {
       setSaving(false)
     }
@@ -278,105 +337,150 @@ export function AdminPricingPage() {
 
       const refreshed = await roomPricingService.getAllRoomPricing()
       setRoomPricingRows(refreshed)
-      alert('Room pricing updated successfully.')
+      showToast('Room pricing updated successfully.')
     } catch (err) {
       console.error(err)
-      alert('Failed to save room pricing. Please try again.')
+      showToast('Failed to save room pricing. Please try again.', 'error')
     } finally {
       setRoomSaving(false)
     }
   }
 
-  const handleRoomStatusChange = async (roomId: string, status: RoomRow['status']) => {
+  const resetRoomForm = (keepOpen = false) => {
+    setEditingRoomId(null)
+    setNewRoomName('')
+    setNewRoomSlug('')
+    setNewRoomCapacity('')
+    setNewRoomStatus('available')
+    setNewRoomDescription('')
+    setNewRoomSize('')
+    setNewRoomTags('')
+    setNewRoomAmenities('')
+    setNewRoomImageUrl('')
+    if (!keepOpen) setShowAddRoom(false)
+  }
+
+  const handleUploadRoomImage = async (file: File) => {
+    setUploadingImage(true)
+    try {
+      const storage = supabaseAdmin?.storage ?? supabase.storage
+      const ext = file.name.split('.').pop()
+      const filePath = `rooms/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`
+      const { data, error } = await storage
+        .from('images')
+        .upload(filePath, file, { cacheControl: '3600', upsert: false })
+      if (error) throw error
+      const fullUrl = storage.from('images').getPublicUrl(filePath)
+        .data.publicUrl
+      setNewRoomImageUrl(fullUrl)
+      showToast('Image uploaded')
+    } catch (err: any) {
+      showToast(`Image upload failed: ${err?.message || err}`, 'error')
+    }
+    setUploadingImage(false)
+  }
+
+  const handleAddRoom = async () => {
+    if (!selectedLocationId || !newRoomName.trim()) return
+    setAddingRoom(true)
+    try {
+      const payload: any = {
+        location_id: selectedLocationId,
+        name: newRoomName.trim(),
+        slug:
+          newRoomSlug.trim() ||
+          newRoomName.trim().toLowerCase().replace(/\s+/g, '-'),
+        capacity: Number(newRoomCapacity) || null,
+        status: newRoomStatus,
+        description: newRoomDescription.trim() || null,
+        size: newRoomSize.trim() || null,
+        tags: newRoomTags.trim()
+          ? newRoomTags
+              .split(',')
+              .map((t) => t.trim())
+              .filter(Boolean)
+          : null,
+        amenities: newRoomAmenities.trim()
+          ? newRoomAmenities
+              .split(',')
+              .map((t) => t.trim())
+              .filter(Boolean)
+          : null,
+        image_url: newRoomImageUrl || null,
+      }
+
+      const client = supabaseAdmin ?? supabase
+
+      if (editingRoomId) {
+        const updated = await roomService.updateRoom(editingRoomId, payload)
+        if (!updated) throw new Error('Update returned no data')
+        setRooms((prev) =>
+          prev.map((r) => (r.id === editingRoomId ? updated : r))
+        )
+        showToast('Room updated!')
+      } else {
+        const { data, error } = await client
+          .from('location_rooms')
+          .insert(payload)
+          .select()
+          .single()
+        if (error) throw error
+        setRooms((prev) => [...prev, data])
+        showToast('Room created!')
+      }
+
+      resetRoomForm()
+    } catch (err) {
+      showToast(`Failed to save room: ${(err as any)?.message || err}`, 'error')
+    }
+    setAddingRoom(false)
+  }
+
+  const openEditRoom = (room: RoomRow) => {
+    setEditingRoomId(room.id)
+    setNewRoomName(room.name)
+    setNewRoomSlug(room.slug)
+    setNewRoomCapacity(String(room.capacity ?? ''))
+    setNewRoomStatus(room.status)
+    setNewRoomDescription(room.description ?? '')
+    setNewRoomSize(room.size ?? '')
+    setNewRoomTags((room.tags ?? []).join(', '))
+    setNewRoomAmenities((room.amenities ?? []).join(', '))
+    setNewRoomImageUrl(room.image_url ?? '')
+    setShowAddRoom(true)
+  }
+
+  const handleRoomStatusChange = async (
+    roomId: string,
+    status: RoomRow['status']
+  ) => {
     try {
       setRoomStatusUpdating(roomId)
       const updatedRoom = await roomService.updateRoom(roomId, { status })
       if (updatedRoom) {
-        setRooms((prev) => prev.map((room) => (room.id === roomId ? updatedRoom : room)))
+        setRooms((prev) =>
+          prev.map((room) => (room.id === roomId ? updatedRoom : room))
+        )
       }
     } catch (err) {
       console.error(err)
-      alert('Failed to update room status. Please try again.')
+      showToast('Failed to update room status. Please try again.', 'error')
     } finally {
       setRoomStatusUpdating(null)
     }
   }
 
-  const handleAddRoom = () => {
-    setEditingRoom(null)
-    setRoomForm({
-      name: '',
-      slug: '',
-      description: '',
-      capacity: '',
-      size: '',
-      tags: '',
-      amenities: '',
-    })
-    setShowRoomForm(true)
-  }
-
-  const handleEditRoom = (room: RoomRow) => {
-    setEditingRoom(room)
-    setRoomForm({
-      name: room.name,
-      slug: room.slug,
-      description: room.description || '',
-      capacity: String(room.capacity || ''),
-      size: room.size || '',
-      tags: (room.tags || []).join(', '),
-      amenities: (room.amenities || []).join(', '),
-    })
-    setShowRoomForm(true)
-  }
-
-  const handleRoomFormSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!selectedLocationId || !roomForm.name || !roomForm.slug) {
-      alert('Please fill in room name and slug.')
-      return
-    }
-
-    try {
-      const payload = {
-        location_id: selectedLocationId,
-        name: roomForm.name,
-        slug: roomForm.slug,
-        description: roomForm.description || null,
-        capacity: roomForm.capacity ? Number(roomForm.capacity) : null,
-        size: roomForm.size || null,
-        status: 'available' as const,
-        tags: roomForm.tags ? roomForm.tags.split(',').map(t => t.trim()).filter(Boolean) : [],
-        amenities: roomForm.amenities ? roomForm.amenities.split(',').map(a => a.trim()).filter(Boolean) : [],
-      }
-
-      if (editingRoom) {
-        const updated = await roomService.updateRoom(editingRoom.id, payload)
-        if (updated) {
-          setRooms(prev => prev.map(r => r.id === editingRoom.id ? updated : r))
-        }
-      } else {
-        const newRoom = await roomService.createRoom(payload)
-        if (newRoom) {
-          setRooms(prev => [...prev, newRoom])
-        }
-      }
-
-      setShowRoomForm(false)
-      setEditingRoom(null)
-      alert(editingRoom ? 'Room updated successfully.' : 'Room added successfully.')
-    } catch (err) {
-      console.error(err)
-      alert('Failed to save room. Please try again.')
-    }
-  }
-
   const handleDeleteRoom = async (roomId: string) => {
-    if (!confirm('Delete this room? This will also remove all associated pricing.')) return
-    
+    if (
+      !confirm(
+        'Delete this room? This will also remove all associated pricing.'
+      )
+    )
+      return
+
     try {
       await roomService.deleteRoom(roomId)
-      setRooms(prev => prev.filter(r => r.id !== roomId))
+      setRooms((prev) => prev.filter((r) => r.id !== roomId))
       if (selectedRoomId === roomId) {
         setSelectedRoomId('')
       }
@@ -390,8 +494,8 @@ export function AdminPricingPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold">Location Pricing</h1>
-        <p className="text-sm text-muted-foreground mt-1">
+        <h1 className="text-2xl font-normal">Location Pricing</h1>
+        <p className="text-sm text-fg-2 mt-1">
           Manage live pricing for each plan and location stored in Supabase.
         </p>
       </div>
@@ -402,22 +506,24 @@ export function AdminPricingPage() {
         </CardHeader>
         <CardContent>
           {loading ? (
-            <div className="flex items-center justify-center py-6 text-muted-foreground">
+            <div className="flex items-center justify-center py-6 text-fg-2">
               <Loader2 className="h-5 w-5 animate-spin mr-2" />
               Loading locations…
             </div>
           ) : locations.length === 0 ? (
-            <p className="text-sm text-muted-foreground">
-              No locations found. Add locations in Supabase to begin configuring pricing.
+            <p className="text-sm text-fg-2">
+              No locations found. Add locations in Supabase to begin configuring
+              pricing.
             </p>
           ) : (
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
               {locations.map((loc) => (
                 <Button
                   key={loc.id}
-                  variant={selectedLocationId === loc.id ? 'default' : 'outline'}
+                  variant={
+                    selectedLocationId === loc.id ? 'default' : 'outline'
+                  }
                   onClick={() => setSelectedLocationId(loc.id)}
-                  className="justify-start"
                 >
                   {loc.name}
                 </Button>
@@ -427,217 +533,371 @@ export function AdminPricingPage() {
         </CardContent>
       </Card>
       {selectedLocation && (
-        <>
-          <Card>
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <div>
-                  <CardTitle>
-                    Rooms at {selectedLocation.name}
-                  </CardTitle>
-                  <p className="text-sm text-muted-foreground">
-                    Update availability and select a room to configure plan overrides.
-                  </p>
+        <Card>
+          <CardHeader>
+            <CardTitle>Rooms at {selectedLocation.name}</CardTitle>
+            <p className="text-sm text-fg-2">
+              Update availability and select a room to configure plan overrides.
+            </p>
+          </CardHeader>
+          <CardContent>
+            {showAddRoom && (
+              <div className="border border-rule rounded-sm p-4 mb-4 space-y-3 bg-bg-raised">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-medium text-fg-1">
+                    {editingRoomId ? 'Edit Room' : 'New Room'}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => resetRoomForm()}
+                    className="text-fg-3 hover:text-clay cursor-pointer"
+                  >
+                    <X size={16} />
+                  </button>
                 </div>
-                <Button onClick={handleAddRoom} className="bg-gradient-to-r from-purple-600 to-purple-700">
-                  <Plus className="h-4 w-4 mr-2" />
-                  Add Room
-                </Button>
-              </div>
-            </CardHeader>
-            <CardContent>
-              {showRoomForm && (
-                <Card className="mb-6 border-2 border-purple-200">
-                  <div className="bg-gradient-to-r from-purple-600 to-purple-700 p-4 text-white">
-                    <h3 className="font-semibold">{editingRoom ? 'Edit Room' : 'Add New Room'}</h3>
+                <div className="grid grid-cols-3 gap-3">
+                  <div className="space-y-1">
+                    <label className="text-caption text-fg-3">Name *</label>
+                    <input
+                      value={newRoomName}
+                      onChange={(e) => {
+                        setNewRoomName(e.target.value)
+                        if (!editingRoomId) {
+                          setNewRoomSlug(
+                            e.target.value
+                              .toLowerCase()
+                              .replace(/\s+/g, '-')
+                              .replace(/[^a-z0-9-]/g, '')
+                          )
+                        }
+                      }}
+                      placeholder="e.g. Earth Lab"
+                      className="w-full border border-rule rounded-sm px-2.5 py-1.5 text-sm bg-transparent text-fg-1"
+                    />
                   </div>
-                  <CardContent className="p-4">
-                    <form onSubmit={handleRoomFormSubmit} className="space-y-4">
-                      <div className="grid gap-4 md:grid-cols-2">
-                        <div className="space-y-2">
-                          <Label>Room Name *</Label>
-                          <Input
-                            required
-                            value={roomForm.name}
-                            onChange={(e) => setRoomForm(prev => ({ ...prev, name: e.target.value }))}
-                            placeholder="e.g., Jupiter"
-                          />
-                        </div>
-                        <div className="space-y-2">
-                          <Label>Slug *</Label>
-                          <Input
-                            required
-                            value={roomForm.slug}
-                            onChange={(e) => setRoomForm(prev => ({ ...prev, slug: e.target.value }))}
-                            placeholder="e.g., jupiter-hall"
-                          />
-                        </div>
-                      </div>
-                      <div className="space-y-2">
-                        <Label>Description</Label>
-                        <Textarea
-                          value={roomForm.description}
-                          onChange={(e) => setRoomForm(prev => ({ ...prev, description: e.target.value }))}
-                          placeholder="Room description..."
+                  <div className="space-y-1">
+                    <label className="text-caption text-fg-3">Slug *</label>
+                    {editingRoomId ? (
+                      <input
+                        value={newRoomSlug}
+                        onChange={(e) =>
+                          setNewRoomSlug(
+                            e.target.value
+                              .toLowerCase()
+                              .replace(/\s+/g, '-')
+                              .replace(/[^a-z0-9-]/g, '')
+                          )
+                        }
+                        placeholder="earth-lab"
+                        className="w-full border border-rule rounded-sm px-2.5 py-1.5 text-sm bg-transparent text-fg-1"
+                      />
+                    ) : (
+                      <p className="text-sm text-fg-2 px-2.5 py-1.5 border border-transparent">
+                        {newRoomSlug || 'auto-generated from name'}
+                      </p>
+                    )}
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-caption text-fg-3">Capacity</label>
+                    <input
+                      type="number"
+                      min="0"
+                      value={newRoomCapacity}
+                      onChange={(e) => setNewRoomCapacity(e.target.value)}
+                      placeholder="8"
+                      className="w-full border border-rule rounded-sm px-2.5 py-1.5 text-sm bg-transparent text-fg-1"
+                    />
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-1">
+                    <label className="text-caption text-fg-3">
+                      Description
+                    </label>
+                    <textarea
+                      value={newRoomDescription}
+                      onChange={(e) => setNewRoomDescription(e.target.value)}
+                      placeholder="A bright, private room for 10 people"
+                      rows={2}
+                      className="w-full border border-rule rounded-sm px-2.5 py-1.5 text-sm bg-transparent text-fg-1 resize-none"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-caption text-fg-3">Size</label>
+                    <input
+                      value={newRoomSize}
+                      onChange={(e) => setNewRoomSize(e.target.value)}
+                      placeholder="360 sq.ft"
+                      className="w-full border border-rule rounded-sm px-2.5 py-1.5 text-sm bg-transparent text-fg-1"
+                    />
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-1">
+                    <label className="text-caption text-fg-3">
+                      Tags (comma separated)
+                    </label>
+                    <input
+                      value={newRoomTags}
+                      onChange={(e) => setNewRoomTags(e.target.value)}
+                      placeholder="sunlight, parking, spacious"
+                      className="w-full border border-rule rounded-sm px-2.5 py-1.5 text-sm bg-transparent text-fg-1"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-caption text-fg-3">
+                      Amenities (comma separated)
+                    </label>
+                    <input
+                      value={newRoomAmenities}
+                      onChange={(e) => setNewRoomAmenities(e.target.value)}
+                      placeholder="Focus pods, Team huddle system"
+                      className="w-full border border-rule rounded-sm px-2.5 py-1.5 text-sm bg-transparent text-fg-1"
+                    />
+                  </div>
+                </div>
+                <div className="grid grid-cols-3 gap-3">
+                  <div className="space-y-1">
+                    <label className="text-caption text-fg-3">Status</label>
+                    <select
+                      value={newRoomStatus}
+                      onChange={(e) =>
+                        setNewRoomStatus(e.target.value as RoomRow['status'])
+                      }
+                      className="w-full border border-rule rounded-sm px-2.5 py-1.5 text-sm bg-transparent text-fg-1"
+                    >
+                      <option value="available">Available</option>
+                      <option value="booked">Booked</option>
+                      <option value="maintenance">Maintenance</option>
+                    </select>
+                  </div>
+                  <div className="space-y-1 col-span-2">
+                    <label className="text-caption text-fg-3">Image</label>
+                    <div className="flex items-start gap-3">
+                      <div className="flex-1">
+                        <input
+                          ref={fileInputRef}
+                          type="file"
+                          accept="image/*"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0]
+                            if (file) handleUploadRoomImage(file)
+                          }}
+                          className="w-full text-sm text-fg-2 file:mr-3 file:py-1.5 file:px-3 file:rounded-sm file:border file:border-rule file:text-sm file:bg-bg-raised file:text-fg-1 hover:file:bg-bg file:cursor-pointer"
                         />
-                      </div>
-                      <div className="grid gap-4 md:grid-cols-3">
-                        <div className="space-y-2">
-                          <Label>Capacity</Label>
-                          <Input
-                            type="number"
-                            value={roomForm.capacity}
-                            onChange={(e) => setRoomForm(prev => ({ ...prev, capacity: e.target.value }))}
-                            placeholder="e.g., 12"
-                          />
-                        </div>
-                        <div className="space-y-2">
-                          <Label>Size</Label>
-                          <Input
-                            value={roomForm.size}
-                            onChange={(e) => setRoomForm(prev => ({ ...prev, size: e.target.value }))}
-                            placeholder="e.g., 500 sq.ft"
-                          />
-                        </div>
-                      </div>
-                      <div className="space-y-2">
-                        <Label>Tags (comma separated)</Label>
-                        <Input
-                          value={roomForm.tags}
-                          onChange={(e) => setRoomForm(prev => ({ ...prev, tags: e.target.value }))}
-                          placeholder="e.g., High ceilings, Flexible layout"
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label>Amenities (comma separated)</Label>
-                        <Input
-                          value={roomForm.amenities}
-                          onChange={(e) => setRoomForm(prev => ({ ...prev, amenities: e.target.value }))}
-                          placeholder="e.g., Large projection screen, Movable furniture"
-                        />
-                      </div>
-                      <div className="flex justify-end gap-3">
-                        <Button type="button" variant="outline" onClick={() => setShowRoomForm(false)}>
-                          Cancel
-                        </Button>
-                        <Button type="submit" className="bg-gradient-to-r from-purple-600 to-purple-700">
-                          {editingRoom ? 'Update Room' : 'Create Room'}
-                        </Button>
-                      </div>
-                    </form>
-                  </CardContent>
-                </Card>
-              )}
-
-              {roomsForSelectedLocation.length === 0 ? (
-                <p className="text-sm text-muted-foreground">
-                  No rooms configured for this location yet. Click "Add Room" to create one.
-                </p>
-              ) : (
-                <div className="grid gap-4 md:grid-cols-3">
-                  {roomsForSelectedLocation.map((room) => {
-                    const isSelected = room.id === selectedRoomId
-                    return (
-                      <div
-                        key={room.id}
-                        className={cn(
-                          'border rounded-lg p-4 space-y-3 transition-all',
-                          isSelected ? 'border-primary shadow-lg' : 'hover:border-primary/40'
+                        {uploadingImage && (
+                          <span className="text-xs text-clay mt-1 block">
+                            Uploading...
+                          </span>
                         )}
-                      >
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <h3 className="font-medium">{room.name}</h3>
-                            {room.size && (
-                              <p className="text-xs text-muted-foreground">{room.size}</p>
-                            )}
-                          </div>
-                          <Badge
-                            variant={
-                              room.status === 'available' ? 'secondary' : room.status === 'booked' ? 'destructive' : 'outline'
-                            }
+                      </div>
+                      {newRoomImageUrl && (
+                        <div className="relative group shrink-0">
+                          <img
+                            src={newRoomImageUrl}
+                            alt="Preview"
+                            className="size-20 object-cover rounded-sm border border-rule"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setNewRoomImageUrl('')
+                              if (fileInputRef.current)
+                                fileInputRef.current.value = ''
+                            }}
+                            className="absolute -top-1.5 -right-1.5 size-5 rounded-full bg-clay text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
                           >
-                            {room.status}
-                          </Badge>
+                            <X size={10} />
+                          </button>
                         </div>
-                        {room.description && (
-                          <p className="text-sm text-muted-foreground line-clamp-2">{room.description}</p>
-                        )}
-                        <div className="flex flex-wrap gap-1 text-xs">
-                          {(room.tags || room.amenities || []).slice(0, 3).map((tag) => (
+                      )}
+                    </div>
+                  </div>
+                </div>
+                <div className="flex gap-2">
+                  <Button
+                    size="sm"
+                    text={
+                      addingRoom
+                        ? 'Saving...'
+                        : editingRoomId
+                          ? 'Update Room'
+                          : 'Create Room'
+                    }
+                    disabled={addingRoom || !newRoomName.trim()}
+                    onClick={handleAddRoom}
+                  />
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    text="Cancel"
+                    onClick={() => resetRoomForm()}
+                  />
+                </div>
+              </div>
+            )}
+            {roomsForSelectedLocation.length === 0 && !showAddRoom ? (
+              <div className="text-sm text-fg-2 space-y-3">
+                <p>No rooms configured for this location yet.</p>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  text="Add Room"
+                  icon={Plus}
+                  onClick={() => setShowAddRoom(true)}
+                />
+              </div>
+            ) : (
+              <div className="grid gap-4 md:grid-cols-3">
+                {roomsForSelectedLocation.map((room) => {
+                  const isSelected = room.id === selectedRoomId
+                  return (
+                    <div
+                      key={room.id}
+                      className={cn(
+                        'border rounded-lg p-4 space-y-3 transition-all',
+                        isSelected
+                          ? 'border-clay shadow-lg'
+                          : 'hover:border-clay/40'
+                      )}
+                    >
+                      {room.image_url && (
+                        <div className="relative h-28 -mx-4 -mt-4 mb-2 overflow-hidden rounded-t-lg">
+                          <img
+                            src={room.image_url}
+                            alt={room.name}
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                      )}
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-1.5">
+                            <h3 className="font-medium truncate">
+                              {room.name}
+                            </h3>
+                            <button
+                              type="button"
+                              onClick={() => openEditRoom(room)}
+                              className="text-fg-3 hover:text-clay cursor-pointer shrink-0"
+                              title="Edit room"
+                            >
+                              <Pencil size={12} />
+                            </button>
+                          </div>
+                          {room.size && (
+                            <p className="text-xs text-fg-2">{room.size}</p>
+                          )}
+                        </div>
+                        <Badge
+                          variant={
+                            room.status === 'available'
+                              ? 'secondary'
+                              : room.status === 'booked'
+                                ? 'destructive'
+                                : 'outline'
+                          }
+                        >
+                          {room.status}
+                        </Badge>
+                      </div>
+                      {room.description && (
+                        <p className="text-sm text-fg-2 line-clamp-2">
+                          {room.description}
+                        </p>
+                      )}
+                      <div className="flex flex-wrap gap-1 text-xs">
+                        {(room.tags || room.amenities || [])
+                          .slice(0, 3)
+                          .map((tag) => (
                             <Badge key={tag} variant="outline">
                               {tag}
                             </Badge>
                           ))}
-                        </div>
-                        <div className="flex items-center gap-2 flex-wrap">
-                          <Button
-                            size="sm"
-                            variant={isSelected ? 'default' : 'outline'}
-                            onClick={() => setSelectedRoomId(room.id)}
-                          >
-                            {isSelected ? 'Selected' : 'Select'}
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => handleEditRoom(room)}
-                          >
-                            <Edit className="h-3 w-3" />
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            disabled={room.status === 'available' || roomStatusUpdating === room.id}
-                            onClick={() => handleRoomStatusChange(room.id, 'available')}
-                            className="flex items-center gap-1"
-                          >
-                            {roomStatusUpdating === room.id && room.status !== 'available' ? (
-                              <>
-                                <Loader2 className="h-3 w-3 animate-spin" />
-                                <span className="text-xs">Updating</span>
-                              </>
-                            ) : (
-                              'Available'
-                            )}
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            disabled={room.status === 'booked' || roomStatusUpdating === room.id}
-                            onClick={() => handleRoomStatusChange(room.id, 'booked')}
-                            className="flex items-center gap-1"
-                          >
-                            {roomStatusUpdating === room.id && room.status !== 'booked' ? (
-                              <>
-                                <Loader2 className="h-3 w-3 animate-spin" />
-                                <span className="text-xs">Updating</span>
-                              </>
-                            ) : (
-                              'Booked'
-                            )}
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            onClick={() => handleDeleteRoom(room.id)}
-                            className="text-red-600 hover:text-red-700"
-                          >
-                            <Trash2 className="h-3 w-3" />
-                          </Button>
-                        </div>
                       </div>
-                    )
-                  })}
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </>
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <Button
+                          size="sm"
+                          variant={isSelected ? 'default' : 'outline'}
+                          onClick={() => setSelectedRoomId(room.id)}
+                        >
+                          {isSelected ? 'Selected' : 'Select'}
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          disabled={
+                            room.status === 'available' ||
+                            roomStatusUpdating === room.id
+                          }
+                          onClick={() =>
+                            handleRoomStatusChange(room.id, 'available')
+                          }
+                          className="flex items-center gap-1"
+                        >
+                          {roomStatusUpdating === room.id &&
+                          room.status !== 'available' ? (
+                            <>
+                              <Loader2 className="h-3 w-3 animate-spin" />
+                              <span className="text-xs">Updating</span>
+                            </>
+                          ) : (
+                            'Mark Available'
+                          )}
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          disabled={
+                            room.status === 'booked' ||
+                            roomStatusUpdating === room.id
+                          }
+                          onClick={() =>
+                            handleRoomStatusChange(room.id, 'booked')
+                          }
+                          className="flex items-center gap-1"
+                        >
+                          {roomStatusUpdating === room.id &&
+                          room.status !== 'booked' ? (
+                            <>
+                              <Loader2 className="h-3 w-3 animate-spin" />
+                              <span className="text-xs">Updating</span>
+                            </>
+                          ) : (
+                            'Mark Booked'
+                          )}
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => handleDeleteRoom(room.id)}
+                          className="text-red-600 hover:text-red-700"
+                        >
+                          <Trash2 className="h-3 w-3" />
+                        </Button>
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+            )}
+            {roomsForSelectedLocation.length > 0 && (
+              <div className="mt-4">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  text="Add Room"
+                  icon={Plus}
+                  onClick={() => setShowAddRoom(true)}
+                />
+              </div>
+            )}
+          </CardContent>
+        </Card>
       )}
 
       {error && (
-        <div className="flex items-center gap-2 rounded-md bg-destructive/10 px-4 py-3 text-sm text-destructive">
+        <div className="flex items-center gap-2 rounded-md bg-clay-deep/10 px-4 py-3 text-sm text-clay-deep">
           <AlertCircle className="h-4 w-4" />
           {error}
         </div>
@@ -646,23 +906,28 @@ export function AdminPricingPage() {
       <Card>
         <CardHeader>
           <CardTitle>
-            {selectedLocation ? `Pricing for ${selectedLocation.name}` : 'Select a location'}
+            {selectedLocation
+              ? `Pricing for ${selectedLocation.name}`
+              : 'Select a location'}
           </CardTitle>
-          <p className="text-sm text-muted-foreground">Enter prices in NPR (converted to paisa automatically).</p>
+          <p className="text-sm text-fg-2">
+            Enter prices in NPR (converted to paisa automatically).
+          </p>
         </CardHeader>
         <CardContent className="space-y-6">
           {loading ? (
-            <div className="flex items-center justify-center py-12 text-muted-foreground">
+            <div className="flex items-center justify-center py-12 text-fg-2">
               <Loader2 className="h-6 w-6 animate-spin mr-2" />
               Loading plans…
             </div>
           ) : !selectedLocation ? (
-            <p className="text-sm text-muted-foreground">
+            <p className="text-sm text-fg-2">
               Choose a location to begin editing pricing.
             </p>
           ) : orderedPlans.length === 0 ? (
-            <p className="text-sm text-muted-foreground">
-              No eligible plans found. Add plans in Supabase to display pricing inputs.
+            <p className="text-sm text-fg-2">
+              No eligible plans found. Add plans in Supabase to display pricing
+              inputs.
             </p>
           ) : (
             <>
@@ -680,23 +945,29 @@ export function AdminPricingPage() {
                         </Badge>
                       )}
                     </div>
-                    <div className={`grid gap-4 ${fields.length > 1 ? 'md:grid-cols-3' : ''}`}>
+                    <div
+                      className={`grid gap-4 ${fields.length > 1 ? 'md:grid-cols-3' : ''}`}
+                    >
                       {fields.map((field) => (
                         <div className="space-y-2" key={`${plan.id}-${field}`}>
                           <Label htmlFor={`${plan.id}-${field}`}>
-                            {{
-                              daily: 'Daily (NPR)',
-                              weekly: 'Weekly (NPR)',
-                              monthly: 'Monthly (NPR)',
-                              annual: 'Annual (NPR)',
-                            }[field]}
+                            {
+                              {
+                                daily: 'Daily (NPR)',
+                                weekly: 'Weekly (NPR)',
+                                monthly: 'Monthly (NPR)',
+                                annual: 'Annual (NPR)',
+                              }[field]
+                            }
                           </Label>
                           <Input
                             id={`${plan.id}-${field}`}
                             type="number"
                             inputMode="decimal"
                             value={priceInputs[plan.id]?.[field] ?? ''}
-                            onChange={(e) => handleInputChange(plan.id, field, e.target.value)}
+                            onChange={(e) =>
+                              handleInputChange(plan.id, field, e.target.value)
+                            }
                           />
                         </div>
                       ))}
@@ -710,7 +981,10 @@ export function AdminPricingPage() {
                 <Button variant="outline" onClick={loadData} disabled={saving}>
                   Reset
                 </Button>
-                <Button onClick={handleSave} disabled={saving || !selectedLocationId}>
+                <Button
+                  onClick={handleSave}
+                  disabled={saving || !selectedLocationId}
+                >
                   {saving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                   Save Pricing
                 </Button>
@@ -723,17 +997,17 @@ export function AdminPricingPage() {
       {selectedRoom && (
         <Card>
           <CardHeader>
-            <CardTitle>
-              Room Pricing Overrides ({selectedRoom.name})
-            </CardTitle>
-            <p className="text-sm text-muted-foreground">
-              Leave fields empty to inherit pricing from the location-level defaults.
+            <CardTitle>Room Pricing Overrides ({selectedRoom.name})</CardTitle>
+            <p className="text-sm text-fg-2">
+              Leave fields empty to inherit pricing from the location-level
+              defaults.
             </p>
           </CardHeader>
           <CardContent className="space-y-6">
             {orderedPlans.length === 0 ? (
-              <p className="text-sm text-muted-foreground">
-                No eligible plans found. Add plans in Supabase to edit room pricing.
+              <p className="text-sm text-fg-2">
+                No eligible plans found. Add plans in Supabase to edit room
+                pricing.
               </p>
             ) : (
               <>
@@ -751,16 +1025,23 @@ export function AdminPricingPage() {
                           </Badge>
                         )}
                       </div>
-                      <div className={`grid gap-4 ${fields.length > 1 ? 'md:grid-cols-3' : ''}`}>
+                      <div
+                        className={`grid gap-4 ${fields.length > 1 ? 'md:grid-cols-3' : ''}`}
+                      >
                         {fields.map((field) => (
-                          <div className="space-y-2" key={`room-${plan.id}-${field}`}>
+                          <div
+                            className="space-y-2"
+                            key={`room-${plan.id}-${field}`}
+                          >
                             <Label htmlFor={`room-${plan.id}-${field}`}>
-                              {{
-                                daily: 'Daily (NPR)',
-                                weekly: 'Weekly (NPR)',
-                                monthly: 'Monthly (NPR)',
-                                annual: 'Annual (NPR)',
-                              }[field]}
+                              {
+                                {
+                                  daily: 'Daily (NPR)',
+                                  weekly: 'Weekly (NPR)',
+                                  monthly: 'Monthly (NPR)',
+                                  annual: 'Annual (NPR)',
+                                }[field]
+                              }
                             </Label>
                             <Input
                               id={`room-${plan.id}-${field}`}
@@ -768,7 +1049,13 @@ export function AdminPricingPage() {
                               inputMode="decimal"
                               placeholder="Inherit"
                               value={roomPriceInputs[plan.id]?.[field] ?? ''}
-                              onChange={(e) => handleRoomInputChange(plan.id, field, e.target.value)}
+                              onChange={(e) =>
+                                handleRoomInputChange(
+                                  plan.id,
+                                  field,
+                                  e.target.value
+                                )
+                              }
                             />
                           </div>
                         ))}
@@ -779,11 +1066,20 @@ export function AdminPricingPage() {
                 })}
 
                 <div className="flex justify-end gap-3 pt-2">
-                  <Button variant="outline" onClick={loadData} disabled={roomSaving}>
+                  <Button
+                    variant="outline"
+                    onClick={loadData}
+                    disabled={roomSaving}
+                  >
                     Reset
                   </Button>
-                  <Button onClick={handleRoomPricingSave} disabled={roomSaving || !selectedRoomId}>
-                    {roomSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                  <Button
+                    onClick={handleRoomPricingSave}
+                    disabled={roomSaving || !selectedRoomId}
+                  >
+                    {roomSaving && (
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    )}
                     Save Room Pricing
                   </Button>
                 </div>
@@ -805,7 +1101,7 @@ export function AdminPricingPage() {
                 return (
                   <div key={`preview-${plan.id}`}>
                     <div className="font-medium">{plan.name}</div>
-                    <div className="text-muted-foreground">
+                    <div className="text-fg-2">
                       {fields.map((field) => (
                         <div key={`preview-${plan.id}-${field}`}>
                           {field.charAt(0).toUpperCase() + field.slice(1)}:{' '}
@@ -823,4 +1119,3 @@ export function AdminPricingPage() {
     </div>
   )
 }
-

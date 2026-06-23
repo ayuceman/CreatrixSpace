@@ -1,320 +1,245 @@
-import { Link } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useState, useEffect } from 'react'
-import { ArrowRight, MapPin, Users, Wifi, Coffee, ChevronLeft, ChevronRight, AlertCircle, Loader2 } from 'lucide-react'
+import {
+  ArrowRight,
+  ChevronLeft,
+  ChevronRight,
+  MessageCircle,
+} from 'lucide-react'
+import { WHATSAPP } from '@/lib/constants'
 import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import { ROUTES } from '@/lib/constants'
-import { useHotDeskPricing } from '@/features/home/hooks/use-hot-desk-pricing'
+import { useBookTour } from '@/lib/book-tour-context'
+import { heroService } from '@/services/supabase-service'
 
-const stats = [
-  { icon: MapPin, label: 'Locations', value: '3+' },
-  { icon: Users, label: 'Members', value: '500+' },
-  { icon: Wifi, label: 'Uptime', value: '99.9%' },
-  { icon: Coffee, label: 'Cups/Day', value: '200+' },
-]
-
-const heroImages = [
+const defaultHeroImages = [
   {
     src: '/images/hero-slider/office-meeting-room.webp',
-    alt: 'Modern meeting room with conference table'
+    alt: 'Modern meeting room with conference table',
+    label: 'Jhamsikhel Loft',
+    location: 'Jhamsikhel, Lalitpur',
   },
   {
-    src: '/images/locations/dhobighat-hub/workshop_hall_plants.jpeg',
-    alt: 'Dhobighat workshop hall with plants'
-  },
-  {
-    src: '/images/hero-slider/professional-workspace-desk.webp',
-    alt: 'Professional workspace with desk'
-  },
-  {
-    src: '/images/locations/dhobighat-hub/workshop_hall_plants.jpeg',
-    alt: 'Dhobighat workshop hall with plants'
-  },
-  {
-    src: '/images/hero-slider/modern-workspace-desk.webp',
-    alt: 'Modern workspace desk setup'
+    src: '/images/hero-slider/dhobighat-coworking-space.webp',
+    alt: 'Dhobighat coworking space',
+    label: 'Dhobighat Hub',
+    location: 'Dhobighat, Kathmandu',
   },
   {
     src: '/images/hero-slider/creatrixspace-workspace-interior-1.webp',
-    alt: 'CreatrixSpace workspace interior'
-  },
-  {
-    src: '/images/hero-slider/creatrixspace-coworking-area-1.webp',
-    alt: 'CreatrixSpace coworking area'
-  },
-  {
-    src: '/images/hero-slider/creatrixspace-office-space-1.webp',
-    alt: 'CreatrixSpace office space'
-  },
-  {
-    src: '/images/hero-slider/creatrixspace-modern-workspace-1.webp',
-    alt: 'CreatrixSpace modern workspace'
-  },
-  {
-    src: '/images/hero-slider/dhobighat-workspace-view-1.webp',
-    alt: 'Dhobighat workspace view'
+    alt: 'CreatrixSpace workspace interior',
+    label: 'Kausimaa Co-working',
+    location: 'Kupondole, Lalitpur',
   },
 ]
 
-export function HeroSection() {
-  const [currentImageIndex, setCurrentImageIndex] = useState(0)
-  const { daily, weekly, monthly, loading, formatted } = useHotDeskPricing()
+const defaultPricingStrip = [
+  { label: 'NPR 800', sublabel: 'A day · no deposit' },
+  { label: 'NPR 8,000', sublabel: 'A month · dedicated desk' },
+  { label: '5 rooms', sublabel: 'Private offices — available now' },
+  { label: 'NPR 6,000', sublabel: 'Virtual office · per month' },
+]
 
-  // Auto-scroll images every 5 seconds
+interface HeroSectionProps {
+  onBookTour?: () => void
+}
+
+export function HeroSection({ onBookTour: _onBookTour }: HeroSectionProps) {
+  const [currentImageIndex, setCurrentImageIndex] = useState(0)
+  const [heroImages, setHeroImages] = useState(defaultHeroImages)
+  const [pricingStrip, setPricingStrip] = useState(defaultPricingStrip)
+  const { openTour } = useBookTour()
+
+  useEffect(() => {
+    heroService.get().then((data) => {
+      if (data) {
+        if (data.images?.length) setHeroImages(data.images)
+        if (data.pricing?.length) setPricingStrip(data.pricing)
+      }
+    })
+  }, [])
+
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentImageIndex((prev) => (prev + 1) % heroImages.length)
     }, 5000)
-
     return () => clearInterval(interval)
-  }, [])
+  }, [heroImages.length])
 
   const nextImage = () => {
     setCurrentImageIndex((prev) => (prev + 1) % heroImages.length)
   }
 
   const prevImage = () => {
-    setCurrentImageIndex((prev) => (prev - 1 + heroImages.length) % heroImages.length)
+    setCurrentImageIndex(
+      (prev) => (prev - 1 + heroImages.length) % heroImages.length
+    )
   }
 
   return (
-    <section className="relative pt-6 md:pt-8 pb-12 md:pb-16 lg:pb-20 bg-gradient-to-br from-purple-50 via-white to-purple-50/30 dark:from-background dark:via-background dark:to-primary/5 overflow-hidden">
-      {/* Decorative Elements */}
-      <div className="absolute inset-0 pointer-events-none overflow-hidden">
-        <div className="absolute top-0 right-0 w-96 h-96 bg-purple-200/20 dark:bg-primary/10 rounded-full blur-3xl" />
-        <div className="absolute bottom-0 left-0 w-96 h-96 bg-blue-200/20 dark:bg-primary/5 rounded-full blur-3xl" />
-      </div>
-      
-      <div className="container relative z-10">
-        <div className="grid lg:grid-cols-[1fr_1.2fr] gap-8 lg:gap-12 items-center">
-          {/* Content */}
+    <section className="pt-6 section-padding bg-bg">
+      <div className="container">
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, ease: 'easeOut' }}
+        >
+          <div className="inline-flex items-center gap-3.5 px-4 py-2 pr-4 pl-3.5 bg-bg-raised border border-rule rounded-pill mb-7">
+            <span className="inline-flex items-center gap-2">
+              <span
+                aria-hidden
+                className="relative inline-block w-2 h-2 rounded-full bg-moss before:absolute before:-inset-1 before:rounded-full before:border before:border-moss before:opacity-60 before:animate-ping"
+              />
+              <span className="eyebrow text-label uppercase tracking-widest font-medium text-moss">
+                Now booking
+              </span>
+            </span>
+            <span className="w-px h-3.5 bg-rule-strong" />
+            <span className="text-[13px] text-fg-2">
+              <b className="text-fg-1 font-medium">5 private offices</b> just
+              opened across the three buildings — and{' '}
+              <b className="text-fg-1 font-medium">25 hot desks</b> today
+            </span>
+          </div>
+        </motion.div>
+        <div className="grid grid-cols-1 lg:grid-cols-[1.5fr_1fr] sm:gap-14 gap-8 items-end pb-14">
+          {/* Left — Text content */}
           <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.7 }}
-            className="space-y-5 lg:space-y-6"
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, ease: 'easeOut' }}
           >
-            {/* Badge */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.1 }}
-            >
-              <Badge className="bg-gradient-to-r from-purple-600 to-purple-700 text-white border-0 px-4 py-1.5 text-sm font-medium shadow-lg shadow-purple-500/30">
-                ✨ Premium Co Working Space in Nepal
-              </Badge>
-            </motion.div>
-
-            {/* Heading */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-              className="space-y-3"
-            >
-              <h1 className="text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-display font-bold leading-[1.15] tracking-tight">
-                <span className="bg-gradient-to-r from-purple-600 via-purple-700 to-purple-800 bg-clip-text text-transparent">
-                  Best Co Working Space
-                </span>
-                <br />
-                <span className="text-gray-900 dark:text-white">in Kathmandu &</span>
-                <br />
-                <span className="text-gray-900 dark:text-white">Lalitpur, Nepal</span>
-              </h1>
-              <p className="text-sm md:text-base lg:text-lg text-gray-600 dark:text-muted-foreground leading-relaxed max-w-xl">
-                Premium workspace with flexible plans, 24/7 access, high-speed internet & modern facilities. 
-                Perfect for freelancers, entrepreneurs & remote workers.
-              </p>
-            </motion.div>
-
-            {/* CTA Buttons */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.3 }}
-              className="flex flex-col sm:flex-row gap-3 pt-2"
-            >
-              <Button size="lg" className="bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white shadow-lg shadow-purple-500/30 transition-all hover:shadow-xl hover:shadow-purple-500/40" asChild>
-                <Link to={ROUTES.BOOKING} className="group">
-                  Book Hot Desk Now
-                  <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
-                </Link>
-              </Button>
-              <Button size="lg" variant="outline" className="border-2 border-purple-200 dark:border-purple-800 hover:bg-purple-50 dark:hover:bg-purple-950/30" asChild>
-                <Link to={ROUTES.CONTACT}>
-                  Schedule Tour
-                </Link>
-              </Button>
-            </motion.div>
-
-            {/* Pricing Info */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.4 }}
-              className="bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-950/20 dark:to-orange-950/20 border border-amber-200 dark:border-amber-800/50 rounded-2xl p-5 shadow-sm"
-            >
-              <div className="flex items-start gap-3">
-                <div className="p-2 rounded-xl bg-amber-100 dark:bg-amber-900/30">
-                  <AlertCircle className="h-5 w-5 text-amber-600 dark:text-amber-500" />
-                </div>
-                <div className="flex-1 space-y-2">
-                  <p className="font-semibold text-gray-900 dark:text-white text-sm">Private offices fully booked</p>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">Hot desks available starting from:</p>
-                  <div className="flex flex-wrap gap-2">
-                    {loading ? (
-                      <Loader2 className="h-5 w-5 animate-spin text-purple-600" />
-                    ) : (
-                      <>
-                        {daily != null && (
-                          <div className="px-3 py-1.5 bg-white dark:bg-background rounded-full border border-amber-200 dark:border-amber-800/50 shadow-sm">
-                            <span className="text-sm font-bold text-purple-700 dark:text-purple-400">NPR {formatted.daily}/day</span>
-                          </div>
-                        )}
-                        {weekly != null && (
-                          <div className="px-3 py-1.5 bg-white dark:bg-background rounded-full border border-amber-200 dark:border-amber-800/50 shadow-sm">
-                            <span className="text-sm font-bold text-purple-700 dark:text-purple-400">NPR {formatted.weekly}/week</span>
-                          </div>
-                        )}
-                        {monthly != null && (
-                          <div className="px-3 py-1.5 bg-white dark:bg-background rounded-full border border-amber-200 dark:border-amber-800/50 shadow-sm">
-                            <span className="text-sm font-bold text-purple-700 dark:text-purple-400">NPR {formatted.monthly}/month</span>
-                          </div>
-                        )}
-                      </>
-                    )}
-                  </div>
-                </div>
-              </div>
-            </motion.div>
-
-            {/* Stats */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.5 }}
-              className="grid grid-cols-4 gap-4 pt-6"
-            >
-              {stats.map((stat, index) => {
-                const Icon = stat.icon
-                return (
-                  <div
-                    key={stat.label}
-                    className="text-center group"
-                  >
-                    <div className="inline-flex items-center justify-center w-10 h-10 rounded-xl bg-purple-100 dark:bg-purple-900/30 mb-2 group-hover:scale-110 transition-transform">
-                      <Icon className="h-5 w-5 text-purple-600 dark:text-purple-400" />
-                    </div>
-                    <div className="font-bold text-xl text-gray-900 dark:text-white">{stat.value}</div>
-                    <div className="text-xs text-gray-600 dark:text-muted-foreground">{stat.label}</div>
-                  </div>
-                )
-              })}
-            </motion.div>
+            <h1 className="font-display font-normal lg:text-[clamp(56px,9vw,132px)] text-[clamp(40px,11vw,72px)] leading-[0.95] tracking-tight m-0 text-fg-1">
+              A quieter way
+              <em className="text-clay px-2 xl:p-0 xl:block">to work</em>
+              in the valley.
+            </h1>
           </motion.div>
 
-          {/* Visual */}
           <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.7, delay: 0.2 }}
-            className="relative lg:scale-110"
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, ease: 'easeOut' }}
+            className="flex items-end"
           >
-            {/* Decorative Ring */}
-            <div className="absolute -inset-4 bg-gradient-to-br from-purple-600/20 to-purple-800/20 rounded-3xl blur-2xl" />
-            
-            <div className="relative aspect-[16/11] lg:aspect-[4/3] rounded-3xl overflow-hidden group shadow-2xl shadow-purple-500/20 border-4 border-white dark:border-gray-800">
-              {/* Image Carousel */}
-              <AnimatePresence initial={false}>
-                <motion.div
-                  key={currentImageIndex}
-                  initial={{ opacity: 0, scale: 1.1 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.95 }}
-                  transition={{ duration: 0.7, ease: "easeInOut" }}
-                  className="absolute inset-0"
-                >
-                  <img
-                    src={heroImages[currentImageIndex].src}
-                    alt={heroImages[currentImageIndex].alt}
-                    className="w-full h-full object-cover"
-                  />
-                </motion.div>
-              </AnimatePresence>
-              
-              {/* Overlays */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent" />
-              <div className="absolute inset-0 bg-gradient-to-br from-purple-600/10 via-transparent to-transparent" />
-              
-              {/* Navigation Arrows */}
-              <button
-                onClick={prevImage}
-                className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white rounded-full p-2.5 opacity-0 group-hover:opacity-100 transition-all shadow-lg hover:scale-110 backdrop-blur-sm"
-                aria-label="Previous image"
-              >
-                <ChevronLeft className="h-5 w-5 text-purple-700" />
-              </button>
-              <button
-                onClick={nextImage}
-                className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white rounded-full p-2.5 opacity-0 group-hover:opacity-100 transition-all shadow-lg hover:scale-110 backdrop-blur-sm"
-                aria-label="Next image"
-              >
-                <ChevronRight className="h-5 w-5 text-purple-700" />
-              </button>
-              
-              {/* Image Indicators */}
-              <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2 bg-black/20 backdrop-blur-md px-3 py-2 rounded-full">
-                {heroImages.map((_, index) => (
-                  <button
-                    key={index}
-                    onClick={() => setCurrentImageIndex(index)}
-                    className={`h-1.5 rounded-full transition-all ${
-                      index === currentImageIndex
-                        ? 'w-8 bg-white'
-                        : 'w-1.5 bg-white/50 hover:bg-white/75'
-                    }`}
-                    aria-label={`Go to image ${index + 1}`}
-                  />
-                ))}
+            <div>
+              <p className="text-[19px] leading-[1.55] text-fg-2 max-w-95 mb-8">
+                Three rooms across Kathmandu and Lalitpur — hot desks, dedicated
+                desks, five lockable private offices, and a virtual office for
+                NPR 6,000 a month.
+              </p>
+
+              <div className="flex items-center gap-4">
+                <Button
+                  variant="dark"
+                  text="Book a tour"
+                  icon={ArrowRight}
+                  iconPosition="right"
+                  className="py-3.5 px-7"
+                  onClick={() => openTour()}
+                />
+                <Button
+                  variant="outline"
+                  icon={MessageCircle}
+                  text="WhatsApp"
+                  className="py-3.5 px-7 rounded-none"
+                  href={WHATSAPP.url}
+                  target="_blank"
+                />
               </div>
             </div>
           </motion.div>
         </div>
 
-        {/* Facility Chips Section */}
+        {/* Right — Image Carousel */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.6 }}
-          className="mt-12 lg:mt-16"
+          transition={{ duration: 0.8, delay: 0.2 }}
+          className="relative"
         >
-          <div className="flex flex-wrap justify-center gap-3">
-            {[
-              { icon: Wifi, label: 'High-speed Internet' },
-              { icon: MapPin, label: 'Prime Locations' },
-              { icon: Users, label: 'Vibrant Community' },
-              { icon: Coffee, label: 'Coffee & Tea' },
-              { icon: '🔒', label: 'Secure Access' },
-              { icon: '🏢', label: 'Meeting Rooms' },
-            ].map((facility, index) => (
+          <div className="relative h-75 md:h-112.5 lg:h-150 overflow-hidden group">
+            <AnimatePresence initial={false}>
               <motion.div
-                key={facility.label}
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.3, delay: 0.7 + index * 0.05 }}
+                key={currentImageIndex}
+                initial={{ opacity: 0, scale: 1 }}
+                animate={{ opacity: 1, scale: [1, 1.08, 1] }}
+                exit={{ opacity: 0 }}
+                transition={{
+                  opacity: { duration: 1, ease: 'easeInOut' },
+                  scale: { duration: 20, repeat: Infinity, ease: 'easeInOut' },
+                }}
+                className="absolute inset-0"
               >
-                <div className="flex items-center gap-2 px-4 py-2.5 rounded-full bg-white dark:bg-background border border-purple-100 dark:border-purple-900/50 shadow-sm hover:shadow-md hover:border-purple-300 dark:hover:border-purple-700 transition-all hover:-translate-y-0.5 cursor-default">
-                  {typeof facility.icon === 'string' ? (
-                    <span className="text-base">{facility.icon}</span>
-                  ) : (
-                    <facility.icon className="h-4 w-4 text-purple-600 dark:text-purple-400" />
-                  )}
-                  <span className="text-sm font-medium text-gray-700 dark:text-gray-300 whitespace-nowrap">{facility.label}</span>
-                </div>
+                <img
+                  src={heroImages[currentImageIndex].src}
+                  alt={heroImages[currentImageIndex].alt}
+                  className="w-full h-full object-cover"
+                />
               </motion.div>
-            ))}
+            </AnimatePresence>
+
+            <div
+              aria-hidden="true"
+              className="absolute inset-0 pointer-events-none bg-gradient-to-t from-neutral-900/60 to-transparent"
+            />
+
+            <button
+              onClick={prevImage}
+              className="absolute left-4 top-1/2 -translate-y-1/2 p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity bg-bg-raised/85 lg:hidden"
+              aria-label="Previous image"
+            >
+              <ChevronLeft className="h-5 w-5 text-fg-1" />
+            </button>
+            <button
+              onClick={nextImage}
+              className="absolute right-4 top-1/2 -translate-y-1/2 p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity bg-bg-raised/85 lg:hidden"
+              aria-label="Next image"
+            >
+              <ChevronRight className="h-5 w-5 text-fg-1" />
+            </button>
+
+            <div className="absolute left-8 right-8 bottom-7 z-10 flex items-end justify-between gap-6 flex-wrap text-fg-on-ink-1">
+              <div>
+                <div className="text-xs uppercase tracking-widest font-medium mb-2 text-white/70">
+                  {String(currentImageIndex + 1).padStart(2, '0')} /{' '}
+                  {String(heroImages.length).padStart(2, '0')} ·{' '}
+                  {heroImages[currentImageIndex].location}
+                </div>
+                <div className="font-display text-[clamp(28px,4vw,44px)] leading-[1.05] tracking-[-0.01em] transition-opacity duration-400 ease-out">
+                  {heroImages[currentImageIndex].label}
+                </div>
+              </div>
+              <div className="flex gap-2">
+                {heroImages.map((_, index) => (
+                  <button
+                    key={index}
+                    onClick={() => setCurrentImageIndex(index)}
+                    aria-label={`Slide ${index + 1}`}
+                    className={`w-7 h-0.75 p-0 border-0 cursor-pointer transition-colors duration-300 ease-out ${
+                      index === currentImageIndex ? 'bg-white' : 'bg-white/30'
+                    }`}
+                  />
+                ))}
+              </div>
+            </div>
           </div>
+        </motion.div>
+
+        {/* Pricing Strip */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.5 }}
+          className="mt-[22px] grid grid-cols-2 lg:grid-cols-4 gap-6 pt-[22px] border-t border-rule"
+        >
+          {pricingStrip.map((item) => (
+            <div key={item.label}>
+              <div className="font-display text-[clamp(28px,3.4vw,40px)] leading-none text-fg-1">
+                {item.label}
+              </div>
+              <div className="text-[13px] text-fg-2 mt-2">{item.sublabel}</div>
+            </div>
+          ))}
         </motion.div>
       </div>
     </section>

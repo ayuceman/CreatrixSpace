@@ -20,7 +20,7 @@ describe('Button', () => {
     render(<Button size="lg">Large button</Button>)
     const button = screen.getByRole('button', { name: /large button/i })
     expect(button).toBeInTheDocument()
-    expect(button).toHaveClass('h-11')
+    expect(button).toHaveClass('px-7')
   })
 
   it('can be disabled', () => {

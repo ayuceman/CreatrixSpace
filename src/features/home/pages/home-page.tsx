@@ -1,15 +1,19 @@
 import { HeroSection } from '../components/hero-section'
-import { FeaturesSection } from '../components/features-section'
-import { VirtualOfficeHighlight } from '../components/virtual-office-highlight'
-import { LocationsPreview } from '../components/locations-preview'
-import { PricingPreview } from '../components/pricing-preview'
-import { TestimonialsSection } from '../components/testimonials-section'
-import { CTASection } from '../components/cta-section'
-import { SEOContentSection } from '../components/seo-content-section'
+import { AboutSection } from '../components/about-section'
+import { LocationsSection } from '../components/locations-section'
+import { MembershipSection } from '../components/membership-section'
+import { SpacesSection } from '../components/spaces-section'
+import { AmenitiesSection } from '../components/amenities-section'
+import { CommunitySection } from '../components/community-section'
 import { FAQSection } from '../components/faq-section'
+import { ConciergeSection } from '../components/concierge-section'
+import { CTASection } from '../components/cta-section'
+import { useBookTour } from '@/lib/book-tour-context'
 import { SEOHead } from '@/components/seo/seo-head'
 
 export function HomePage() {
+  const { openTour } = useBookTour()
+
   return (
     <>
       <SEOHead
@@ -22,7 +26,8 @@ export function HomePage() {
           '@context': 'https://schema.org',
           '@type': 'LocalBusiness',
           name: 'CreatrixSpace',
-          description: 'Premium co working space in Nepal with locations in Kathmandu and Lalitpur',
+          description:
+            'Premium co working space in Nepal with locations in Kathmandu and Lalitpur',
           url: 'https://creatrixventures.space',
           telephone: '+977 9700045256',
           address: {
@@ -33,22 +38,23 @@ export function HomePage() {
           },
           areaServed: [
             { '@type': 'City', name: 'Kathmandu', addressCountry: 'NP' },
-            { '@type': 'City', name: 'Lalitpur', addressCountry: 'NP' }
+            { '@type': 'City', name: 'Lalitpur', addressCountry: 'NP' },
           ],
           priceRange: '$$',
           openingHours: 'Mo-Su 00:00-23:59',
           image: 'https://creatrixventures.space/creatrix-logo.png',
         }}
       />
-      <div className="overflow-hidden">
-        <HeroSection />
-        <SEOContentSection />
-        <FeaturesSection />
-        <VirtualOfficeHighlight />
-        <LocationsPreview />
-        <PricingPreview />
-        <TestimonialsSection />
+      <div>
+        <HeroSection onBookTour={() => openTour()} />
+        <AboutSection />
+        <LocationsSection onBookTour={(loc) => openTour({ location: loc })} />
+        <MembershipSection />
+        <SpacesSection />
+        <AmenitiesSection />
+        <CommunitySection />
         <FAQSection />
+        <ConciergeSection />
         <CTASection />
       </div>
     </>

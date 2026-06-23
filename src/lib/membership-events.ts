@@ -34,7 +34,9 @@ export function getMemberships(): MembershipEvent[] {
 export function saveMemberships(memberships: MembershipEvent[]) {
   try {
     localStorage.setItem(MEMBERSHIPS_KEY, JSON.stringify(memberships))
-  } catch {}
+  } catch {
+    /* noop */
+  }
 }
 
 export function addMembership(membership: MembershipEvent) {
@@ -43,15 +45,27 @@ export function addMembership(membership: MembershipEvent) {
   saveMemberships(memberships)
 }
 
-export function updateMembership(id: string, updates: Partial<MembershipEvent>) {
+export function updateMembership(
+  id: string,
+  updates: Partial<MembershipEvent>
+) {
   const memberships = getMemberships()
   const index = memberships.findIndex((m) => m.id === id)
   if (index !== -1) {
-    memberships[index] = { ...memberships[index], ...updates, updatedAt: new Date().toISOString() }
+    memberships[index] = {
+      ...memberships[index],
+      ...updates,
+      updatedAt: new Date().toISOString(),
+    }
     saveMemberships(memberships)
     try {
-      localStorage.setItem(MEMBERSHIP_UPDATE_KEY, JSON.stringify({ ...memberships[index], _ts: Date.now() }))
-    } catch {}
+      localStorage.setItem(
+        MEMBERSHIP_UPDATE_KEY,
+        JSON.stringify({ ...memberships[index], _ts: Date.now() })
+      )
+    } catch {
+      /* noop */
+    }
     return memberships[index]
   }
   return null
@@ -60,8 +74,13 @@ export function updateMembership(id: string, updates: Partial<MembershipEvent>) 
 export function notifyNewMembership(membership: MembershipEvent) {
   addMembership(membership)
   try {
-    localStorage.setItem(MEMBERSHIP_NEW_KEY, JSON.stringify({ ...membership, _ts: Date.now() }))
-  } catch {}
+    localStorage.setItem(
+      MEMBERSHIP_NEW_KEY,
+      JSON.stringify({ ...membership, _ts: Date.now() })
+    )
+  } catch {
+    /* noop */
+  }
 }
 
 export function deleteMembership(id: string) {
@@ -70,29 +89,36 @@ export function deleteMembership(id: string) {
   saveMemberships(filtered)
 }
 
-export function onNewMembership(callback: (membership: MembershipEvent) => void) {
+export function onNewMembership(
+  callback: (membership: MembershipEvent) => void
+) {
   const handler = (e: StorageEvent) => {
     if (e.key === MEMBERSHIP_NEW_KEY && e.newValue) {
       try {
         const data = JSON.parse(e.newValue) as MembershipEvent
         callback(data)
-      } catch {}
+      } catch {
+        /* noop */
+      }
     }
   }
   window.addEventListener('storage', handler)
   return () => window.removeEventListener('storage', handler)
 }
 
-export function onMembershipUpdate(callback: (membership: MembershipEvent) => void) {
+export function onMembershipUpdate(
+  callback: (membership: MembershipEvent) => void
+) {
   const handler = (e: StorageEvent) => {
     if (e.key === MEMBERSHIP_UPDATE_KEY && e.newValue) {
       try {
         const data = JSON.parse(e.newValue) as MembershipEvent
         callback(data)
-      } catch {}
+      } catch {
+        /* noop */
+      }
     }
   }
   window.addEventListener('storage', handler)
   return () => window.removeEventListener('storage', handler)
 }
-

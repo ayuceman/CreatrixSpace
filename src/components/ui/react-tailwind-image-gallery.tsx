@@ -1,21 +1,21 @@
-import React from 'react';
+import React from 'react'
 
 interface GalleryImage {
-  id: number;
-  src: string;
-  alt: string;
-  title: string;
-  span?: string;
+  id: number
+  src: string
+  alt: string
+  title: string
+  span?: string
 }
 
 interface GalleryProps {
-  data: GalleryImage[];
-  onImageClick: (src: string) => void;
+  data: GalleryImage[]
+  onImageClick: (src: string) => void
 }
 
 interface ImageModalProps {
-  src: string | null;
-  onClose: () => void;
+  src: string | null
+  onClose: () => void
 }
 
 export function Gallery({ data, onImageClick }: GalleryProps) {
@@ -26,7 +26,7 @@ export function Gallery({ data, onImageClick }: GalleryProps) {
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-display font-bold text-gray-900 mb-4">
             Gallery
           </h2>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+          <p className="text-lg text-fg-2 max-w-2xl mx-auto">
             Explore our beautiful workspace through these stunning images
           </p>
         </div>
@@ -35,41 +35,41 @@ export function Gallery({ data, onImageClick }: GalleryProps) {
             const spanClass = img.span || 'col-span-1 sm:col-span-1'
             const isProductivityImage = img.title === 'Boost Your Productivity'
             return (
-            <div
-              key={img.id}
-              className={`group cursor-pointer relative overflow-hidden rounded-lg md:rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 ${spanClass} ${isProductivityImage ? 'bg-muted/20' : ''}`}
-              style={{ 
-                aspectRatio: img.span?.includes('col-span-2') ? '8/3' : '4/3',
-                minHeight: '200px'
-              }}
-              onClick={() => onImageClick(img.src)}
-            >
-              <img
-                src={img.src}
-                alt={img.alt}
-                className={`w-full h-full transition-transform duration-700 group-hover:scale-110 ${isProductivityImage ? 'object-contain' : 'object-cover'}`}
-                loading="lazy"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-end p-4 md:p-6">
-                <div className="transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500 ease-out">
-                  <p className="text-white text-base md:text-lg font-semibold mb-1">
-                    {img.title}
-                  </p>
-                  <div className="w-12 h-0.5 bg-white/50 group-hover:bg-white transition-colors duration-300"></div>
+              <div
+                key={img.id}
+                className={`group cursor-pointer relative overflow-hidden rounded-lg md:rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 ${spanClass} ${isProductivityImage ? 'bg-bg-band/20' : ''}`}
+                style={{
+                  aspectRatio: img.span?.includes('col-span-2') ? '8/3' : '4/3',
+                  minHeight: '200px',
+                }}
+                onClick={() => onImageClick(img.src)}
+              >
+                <img
+                  src={img.src}
+                  alt={img.alt}
+                  className={`w-full h-full transition-transform duration-700 group-hover:scale-110 ${isProductivityImage ? 'object-contain' : 'object-cover'}`}
+                  loading="lazy"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-end p-4 md:p-6">
+                  <div className="transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500 ease-out">
+                    <p className="text-white text-base md:text-lg font-semibold mb-1">
+                      {img.title}
+                    </p>
+                    <div className="w-12 h-0.5 bg-white/50 group-hover:bg-white transition-colors duration-300"></div>
+                  </div>
                 </div>
+                <div className="absolute inset-0 border-2 border-transparent group-hover:border-white/30 rounded-xl md:rounded-2xl transition-all duration-500"></div>
               </div>
-              <div className="absolute inset-0 border-2 border-transparent group-hover:border-white/30 rounded-xl md:rounded-2xl transition-all duration-500"></div>
-            </div>
             )
           })}
         </div>
       </div>
     </section>
-  );
+  )
 }
 
 export function ImageModal({ src, onClose }: ImageModalProps) {
-  if (!src) return null;
+  if (!src) return null
 
   return (
     <div
@@ -92,6 +92,5 @@ export function ImageModal({ src, onClose }: ImageModalProps) {
         </button>
       </div>
     </div>
-  );
+  )
 }
-

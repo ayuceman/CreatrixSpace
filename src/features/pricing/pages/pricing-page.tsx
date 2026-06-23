@@ -1,28 +1,48 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { Check, Star, Zap, Crown, Phone, MessageCircle, Loader2, MapPin, Globe2, Sparkles } from 'lucide-react'
+import {
+  Check,
+  Star,
+  Zap,
+  Crown,
+  Phone,
+  MessageCircle,
+  Loader2,
+  MapPin,
+  Globe2,
+  Sparkles,
+} from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { ROUTES } from '@/lib/constants'
 import { formatCurrency } from '@/lib/utils'
 import type { Database } from '@/lib/database.types'
-import { locationService, planService, locationPricingService } from '@/services/supabase-service'
+import {
+  locationService,
+  planService,
+  locationPricingService,
+} from '@/services/supabase-service'
 import { useVirtualOfficeAddon } from '@/features/home/hooks/use-virtual-office-addon'
 
 type LocationRow = Database['public']['Tables']['locations']['Row']
-type LocationPlanPricingRow = Database['public']['Tables']['location_plan_pricing']['Row']
+type LocationPlanPricingRow =
+  Database['public']['Tables']['location_plan_pricing']['Row']
 type PlanPricing = {
   daily?: number
   weekly?: number
   monthly?: number
   annual?: number
+  originalDaily?: number
+  originalMonthly?: number
 }
 type LocationPricingMap = Record<string, Record<string, PlanPricing>>
 type BillingPeriod = 'weekly' | 'monthly' | 'annual'
 
-const buildLocationPricingMap = (rows: LocationPlanPricingRow[]): LocationPricingMap =>
+const buildLocationPricingMap = (
+  rows: LocationPlanPricingRow[]
+): LocationPricingMap =>
   rows.reduce<LocationPricingMap>((acc, row) => {
     if (!acc[row.location_id]) {
       acc[row.location_id] = {}
@@ -189,8 +209,12 @@ function VirtualOfficeProductSection() {
             Virtual office package
           </h2>
           <p className="text-slate-400 max-w-xl leading-relaxed">
-            Ideal if you need a credible Kathmandu business address and mail service without a physical desk or private room.
-            This is a <span className="text-emerald-300/95 font-medium">registration & presence</span> product — not a hot desk or private suite.
+            Ideal if you need a credible Kathmandu business address and mail
+            service without a physical desk or private room. This is a{' '}
+            <span className="text-emerald-300/95 font-medium">
+              registration & presence
+            </span>{' '}
+            product — not a hot desk or private suite.
           </p>
           <ul className="grid sm:grid-cols-2 gap-2 text-sm text-slate-300">
             {[
@@ -217,13 +241,17 @@ function VirtualOfficeProductSection() {
           </div>
           <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 pt-4 border-t border-slate-700/80">
             <div>
-              <p className="text-xs text-slate-500 uppercase tracking-wide">From</p>
+              <p className="text-xs text-slate-500 uppercase tracking-wide">
+                From
+              </p>
               {loading ? (
                 <Loader2 className="h-7 w-7 animate-spin text-emerald-400 mt-1" />
               ) : (
                 <p className="text-3xl font-bold text-white tabular-nums mt-1">
                   {formatCurrency(pricePaisa, 'NPR')}
-                  <span className="text-sm font-normal text-slate-400">/month</span>
+                  <span className="text-sm font-normal text-slate-400">
+                    /month
+                  </span>
                 </p>
               )}
             </div>
@@ -241,7 +269,11 @@ function VirtualOfficeProductSection() {
                   Enquire on WhatsApp
                 </a>
               </Button>
-              <Button asChild variant="outline" className="border-slate-600 text-slate-100 hover:bg-slate-800">
+              <Button
+                asChild
+                variant="outline"
+                className="border-slate-600 text-slate-100 hover:bg-slate-800"
+              >
                 <a href="tel:+9779700045256">
                   <Phone className="h-4 w-4 mr-2" />
                   Call
@@ -260,7 +292,9 @@ export function PricingPage() {
   const [locations, setLocations] = useState<LocationRow[]>([])
   const [selectedLocationId, setSelectedLocationId] = useState<string>('')
   const [locationPricing, setLocationPricing] = useState<LocationPricingMap>({})
-  const [planMetadata, setPlanMetadata] = useState<Record<string, PlanMetadata>>({})
+  const [planMetadata, setPlanMetadata] = useState<
+    Record<string, PlanMetadata>
+  >({})
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -271,11 +305,13 @@ export function PricingPage() {
       setLoading(true)
       setError(null)
       try {
-        const [locationRows, planRows, locationPricingRows] = await Promise.all([
-          locationService.getAllLocations(),
-          planService.getAllPlans(),
-          locationPricingService.getAllLocationPricing(),
-        ])
+        const [locationRows, planRows, locationPricingRows] = await Promise.all(
+          [
+            locationService.getAllLocations(),
+            planService.getAllPlans(),
+            locationPricingService.getAllLocationPricing(),
+          ]
+        )
 
         if (ignore) return
 
@@ -283,15 +319,18 @@ export function PricingPage() {
         setLocations(availableLocations)
         setLocationPricing(buildLocationPricingMap(locationPricingRows))
 
-        const metadata = planRows.reduce<Record<string, PlanMetadata>>((acc, plan) => {
-          acc[plan.name] = {
-            id: plan.id,
-            pricing: (plan.pricing as PlanPricing) || {},
-            type: plan.type,
-            popular: plan.popular,
-          }
-          return acc
-        }, {})
+        const metadata = planRows.reduce<Record<string, PlanMetadata>>(
+          (acc, plan) => {
+            acc[plan.name] = {
+              id: plan.id,
+              pricing: (plan.pricing as PlanPricing) || {},
+              type: plan.type,
+              popular: plan.popular,
+            }
+            return acc
+          },
+          {}
+        )
         setPlanMetadata(metadata)
       } catch (err) {
         if (ignore) return
@@ -323,7 +362,7 @@ export function PricingPage() {
   )
 
   const getPlanPricingForCard = useCallback(
-    (planConfig: typeof plans[number]): PlanPricing => {
+    (planConfig: (typeof plans)[number]): PlanPricing => {
       const metadata = planMetadata[planConfig.supabaseName]
       const basePricing = planConfig.pricing
 
@@ -340,7 +379,8 @@ export function PricingPage() {
       }
 
       if (selectedLocationId) {
-        const locationSpecific = locationPricing[selectedLocationId]?.[metadata.id]
+        const locationSpecific =
+          locationPricing[selectedLocationId]?.[metadata.id]
         if (locationSpecific) {
           return applyOverrides(locationSpecific)
         }
@@ -352,14 +392,15 @@ export function PricingPage() {
   )
 
   const getPlanIdForCard = useCallback(
-    (planConfig: typeof plans[number]) => planMetadata[planConfig.supabaseName]?.id,
+    (planConfig: (typeof plans)[number]) =>
+      planMetadata[planConfig.supabaseName]?.id,
     [planMetadata]
   )
 
   return (
     <div className="overflow-hidden">
       {/* Hero Section */}
-      <section className="py-12 bg-gradient-to-br from-background via-background to-primary/5">
+      <section className="py-12 bg-gradient-to-br from-bg via-bg to-clay/5">
         <div className="container">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -371,40 +412,45 @@ export function PricingPage() {
               Simple, Transparent
               <span className="gradient-text block">Memberships</span>
             </h1>
-            <p className="text-lg text-muted-foreground">
-              Choose the perfect plan for your needs. All plans include our core amenities
-              and access to our vibrant community of professionals.
+            <p className="text-lg text-fg-2">
+              Choose the perfect plan for your needs. All plans include our core
+              amenities and access to our vibrant community of professionals.
             </p>
 
             {/* Billing Toggle */}
-            <div className="flex items-center justify-center space-x-4 bg-muted rounded-lg p-1 w-fit mx-auto">
+            <div className="flex items-center justify-center space-x-4 bg-bg-band rounded-lg p-1 w-fit mx-auto">
               <button
                 onClick={() => setBillingPeriod('weekly')}
-                className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${billingPeriod === 'weekly'
-                    ? 'bg-background shadow-sm'
-                    : 'text-muted-foreground hover:text-foreground'
-                  }`}
+                className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                  billingPeriod === 'weekly'
+                    ? 'bg-bg shadow-sm'
+                    : 'text-fg-2 hover:text-fg-1'
+                }`}
               >
                 Weekly
               </button>
               <button
                 onClick={() => setBillingPeriod('monthly')}
-                className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${billingPeriod === 'monthly'
-                    ? 'bg-background shadow-sm'
-                    : 'text-muted-foreground hover:text-foreground'
-                  }`}
+                className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                  billingPeriod === 'monthly'
+                    ? 'bg-bg shadow-sm'
+                    : 'text-fg-2 hover:text-fg-1'
+                }`}
               >
                 Monthly
               </button>
               <button
                 onClick={() => setBillingPeriod('annual')}
-                className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${billingPeriod === 'annual'
-                    ? 'bg-background shadow-sm'
-                    : 'text-muted-foreground hover:text-foreground'
-                  }`}
+                className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                  billingPeriod === 'annual'
+                    ? 'bg-bg shadow-sm'
+                    : 'text-fg-2 hover:text-fg-1'
+                }`}
               >
                 Annual
-                <Badge variant="secondary" className="ml-2">Save up to 23%</Badge>
+                <Badge variant="secondary" className="ml-2">
+                  Save up to 23%
+                </Badge>
               </button>
             </div>
 
@@ -415,7 +461,9 @@ export function PricingPage() {
                   <Button
                     key={location.id}
                     size="sm"
-                    variant={selectedLocationId === location.id ? 'default' : 'outline'}
+                    variant={
+                      selectedLocationId === location.id ? 'default' : 'outline'
+                    }
                     onClick={() => setSelectedLocationId(location.id)}
                     className="px-4"
                   >
@@ -441,14 +489,17 @@ export function PricingPage() {
               Coworking &amp; private office
             </h2>
             <p className="text-muted-foreground mt-2 max-w-2xl mx-auto">
-              Day passes, hot desks, dedicated desks, and private suites — all on-site at our locations.
+              Day passes, hot desks, dedicated desks, and private suites — all
+              on-site at our locations.
             </p>
           </div>
 
           {loading ? (
             <div className="flex flex-col items-center justify-center py-16 text-center">
-              <Loader2 className="h-10 w-10 animate-spin text-primary mb-4" />
-              <p className="text-muted-foreground">Loading the latest plan and location data…</p>
+              <Loader2 className="h-10 w-10 animate-spin text-clay mb-4" />
+              <p className="text-fg-2">
+                Loading the latest plan and location data…
+              </p>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
@@ -456,31 +507,41 @@ export function PricingPage() {
                 const Icon = plan.icon
                 const planId = getPlanIdForCard(plan)
                 const planPricing = getPlanPricingForCard(plan)
-                const planType = planMetadata[plan.supabaseName]?.type || plan.planType
-                const isPopular = plan.popular || planMetadata[plan.supabaseName]?.popular
-                const priceForSelectedPeriod = planType === 'day_pass'
-                  ? planPricing.daily
-                  : planPricing[billingPeriod]
-                const fallbackPrice = planType === 'day_pass'
-                  ? planPricing.daily
-                  : planPricing.monthly || planPricing.weekly || planPricing.annual
+                const planType =
+                  planMetadata[plan.supabaseName]?.type || plan.planType
+                const isPopular =
+                  plan.popular || planMetadata[plan.supabaseName]?.popular
+                const priceForSelectedPeriod =
+                  planType === 'day_pass'
+                    ? planPricing.daily
+                    : planPricing[billingPeriod]
+                const fallbackPrice =
+                  planType === 'day_pass'
+                    ? planPricing.daily
+                    : planPricing.monthly ||
+                      planPricing.weekly ||
+                      planPricing.annual
                 const price = priceForSelectedPeriod ?? fallbackPrice ?? 0
-                const period = planType === 'day_pass'
-                  ? 'day'
-                  : priceForSelectedPeriod
-                    ? billingPeriod === 'annual'
-                      ? 'year'
-                      : billingPeriod === 'weekly'
-                        ? 'week'
-                        : 'month'
-                    : planPricing.monthly
-                      ? 'month'
-                      : planPricing.weekly
-                        ? 'week'
-                        : planPricing.annual
-                          ? 'year'
+                const period =
+                  planType === 'day_pass'
+                    ? 'day'
+                    : priceForSelectedPeriod
+                      ? billingPeriod === 'annual'
+                        ? 'year'
+                        : billingPeriod === 'weekly'
+                          ? 'week'
                           : 'month'
-                const missingSelectedPeriod = planType !== 'day_pass' && !priceForSelectedPeriod && Boolean(fallbackPrice)
+                      : planPricing.monthly
+                        ? 'month'
+                        : planPricing.weekly
+                          ? 'week'
+                          : planPricing.annual
+                            ? 'year'
+                            : 'month'
+                const missingSelectedPeriod =
+                  planType !== 'day_pass' &&
+                  !priceForSelectedPeriod &&
+                  Boolean(fallbackPrice)
 
                 return (
                   <motion.div
@@ -489,11 +550,14 @@ export function PricingPage() {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5, delay: index * 0.1 }}
                   >
-                    <Card className={`relative h-full transition-all duration-300 hover:shadow-xl hover:-translate-y-1 ${isPopular ? 'ring-2 ring-primary scale-105' : ''
-                      }`}>
+                    <Card
+                      className={`relative h-full transition-all duration-300 hover:shadow-xl hover:-translate-y-1 ${
+                        isPopular ? 'ring-2 ring-primary scale-105' : ''
+                      }`}
+                    >
                       {isPopular && (
                         <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-                          <Badge className="bg-primary text-primary-foreground">
+                          <Badge className="bg-clay text-fg-on-ink-1">
                             <Star className="h-3 w-3 mr-1 fill-current" />
                             Most Popular
                           </Badge>
@@ -501,54 +565,107 @@ export function PricingPage() {
                       )}
 
                       <CardHeader className="text-center pb-4">
-                        <div className="mx-auto mb-4 w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center">
-                          <Icon className="h-6 w-6 text-primary" />
+                        <div className="mx-auto mb-4 w-12 h-12 bg-clay/10 rounded-lg flex items-center justify-center">
+                          <Icon className="h-6 w-6 text-clay" />
                         </div>
                         <CardTitle className="text-xl">{plan.name}</CardTitle>
-                        <p className="text-sm text-muted-foreground">{plan.description}</p>
+                        <p className="text-sm text-fg-2">{plan.description}</p>
 
                         <div className="pt-4">
                           {plan.id === 'private-office' && (
-                            <p className="text-sm text-muted-foreground text-center mb-1">
+                            <p className="text-sm text-fg-2 text-center mb-1">
                               Starting from
                             </p>
                           )}
                           <div className="flex items-baseline justify-center">
                             <span className="text-3xl font-bold">
-                              {price > 0 ? formatCurrency(price, 'NPR') : 'Contact'}
+                              {price > 0
+                                ? formatCurrency(price, 'NPR')
+                                : 'Contact'}
                             </span>
-                            <span className="text-muted-foreground ml-1">
-                              /{period}
-                            </span>
+                            <span className="text-fg-2 ml-1">/{period}</span>
                           </div>
-                          {plan.planType === 'private_office' && plan.pricing.originalMonthly && billingPeriod === 'monthly' && (
-                            <div className="flex items-center justify-center gap-2 mt-1">
-                              <span className="text-sm text-muted-foreground line-through">
-                                {formatCurrency(plan.pricing.originalMonthly, 'NPR')}
-                              </span>
-                              <Badge variant="destructive" className="text-xs">
-                                Save {formatCurrency(plan.pricing.originalMonthly - (price || 0), 'NPR')}
-                              </Badge>
-                            </div>
-                          )}
-                          {plan.planType === 'private_office' && billingPeriod === 'monthly' && (
+                          {plan.planType === 'day_pass' &&
+                            (plan.pricing as PlanPricing).originalDaily && (
+                              <div className="flex items-center justify-center gap-2 mt-1">
+                                <span className="text-sm text-fg-2 line-through">
+                                  {formatCurrency(
+                                    (plan.pricing as PlanPricing)
+                                      .originalDaily!,
+                                    'NPR'
+                                  )}
+                                </span>
+                                <Badge
+                                  variant="destructive"
+                                  className="text-xs"
+                                >
+                                  Save{' '}
+                                  {formatCurrency(
+                                    (plan.pricing as PlanPricing)
+                                      .originalDaily! - (price || 0),
+                                    'NPR'
+                                  )}
+                                </Badge>
+                              </div>
+                            )}
+                          {plan.planType === 'private_office' &&
+                            plan.pricing.originalMonthly &&
+                            billingPeriod === 'monthly' && (
+                              <div className="flex items-center justify-center gap-2 mt-1">
+                                <span className="text-sm text-fg-2 line-through">
+                                  {formatCurrency(
+                                    plan.pricing.originalMonthly,
+                                    'NPR'
+                                  )}
+                                </span>
+                                <Badge
+                                  variant="destructive"
+                                  className="text-xs"
+                                >
+                                  Save{' '}
+                                  {formatCurrency(
+                                    plan.pricing.originalMonthly - (price || 0),
+                                    'NPR'
+                                  )}
+                                </Badge>
+                              </div>
+                            )}
+                          {plan.planType === 'day_pass' && (
                             <p className="text-xs text-amber-600 mt-1">
-                              Special offer — limited time only
+                              Promotional price — limited time only
                             </p>
                           )}
-                          {billingPeriod === 'annual' && planPricing.annual && planPricing.monthly && (
-                            <p className="text-xs text-green-600 mt-1">
-                              Save {formatCurrency((planPricing.monthly * 12) - planPricing.annual, 'NPR')} per year
-                            </p>
-                          )}
-                          {billingPeriod === 'weekly' && planPricing.weekly && planPricing.monthly && (
-                            <p className="text-xs text-muted-foreground mt-1">
-                              Monthly: {formatCurrency(planPricing.monthly, 'NPR')}
-                            </p>
-                          )}
+                          {plan.planType === 'private_office' &&
+                            billingPeriod === 'monthly' && (
+                              <p className="text-xs text-amber-600 mt-1">
+                                Special offer — limited time only
+                              </p>
+                            )}
+                          {billingPeriod === 'annual' &&
+                            planPricing.annual &&
+                            planPricing.monthly && (
+                              <p className="text-xs text-green-600 mt-1">
+                                Save{' '}
+                                {formatCurrency(
+                                  planPricing.monthly * 12 - planPricing.annual,
+                                  'NPR'
+                                )}{' '}
+                                per year
+                              </p>
+                            )}
+                          {billingPeriod === 'weekly' &&
+                            planPricing.weekly &&
+                            planPricing.monthly && (
+                              <p className="text-xs text-fg-2 mt-1">
+                                Monthly:{' '}
+                                {formatCurrency(planPricing.monthly, 'NPR')}
+                              </p>
+                            )}
                           {missingSelectedPeriod && (
                             <p className="text-xs text-amber-600 mt-1">
-                              No {billingPeriod} pricing at {selectedLocation?.name || 'this location'} yet. Showing {period} rate.
+                              No {billingPeriod} pricing at{' '}
+                              {selectedLocation?.name || 'this location'} yet.
+                              Showing {period} rate.
                             </p>
                           )}
                         </div>
@@ -558,7 +675,7 @@ export function PricingPage() {
                         <ul className="space-y-3">
                           {plan.features.map((feature) => (
                             <li key={feature} className="flex items-start">
-                              <Check className="h-4 w-4 text-primary mr-3 flex-shrink-0 mt-0.5" />
+                              <Check className="h-4 w-4 text-clay mr-3 flex-shrink-0 mt-0.5" />
                               <span className="text-sm">{feature}</span>
                             </li>
                           ))}
@@ -567,7 +684,9 @@ export function PricingPage() {
                         {plan.planType === 'private_office' ? (
                           <div className="space-y-3">
                             <div className="bg-gradient-to-r from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20 rounded-lg p-4 space-y-3">
-                              <p className="text-sm font-semibold text-center">Enquire Now for Private Office</p>
+                              <p className="text-sm font-semibold text-center">
+                                Enquire Now for Private Office
+                              </p>
                               <div className="flex flex-col gap-2">
                                 <a
                                   href="https://wa.me/9779803171819?text=Hi!%20I'm%20interested%20in%20the%20Private%20Office%20plan."
@@ -580,7 +699,7 @@ export function PricingPage() {
                                 </a>
                                 <a
                                   href="tel:+9779700045256"
-                                  className="flex items-center justify-center gap-2 bg-primary hover:bg-primary/90 text-primary-foreground px-4 py-2 rounded-md text-sm font-medium transition-colors"
+                                  className="flex items-center justify-center gap-2 bg-clay hover:bg-clay/90 text-fg-on-ink-1 px-4 py-2 rounded-md text-sm font-medium transition-colors"
                                 >
                                   <Phone className="h-4 w-4" />
                                   Call: +977 9700045256
@@ -595,22 +714,29 @@ export function PricingPage() {
                               variant={isPopular ? 'default' : 'outline'}
                               asChild
                             >
-                              <Link to={`${ROUTES.BOOKING}?plan=${planId}${selectedLocationId ? `&location=${selectedLocationId}` : ''}`}>
+                              <Link
+                                to={`${ROUTES.BOOKING}?plan=${planId}${selectedLocationId ? `&location=${selectedLocationId}` : ''}`}
+                              >
                                 {plan.cta}
                               </Link>
                             </Button>
 
-                            <p className="text-xs text-muted-foreground text-center">
+                            <p className="text-xs text-fg-2 text-center">
                               No setup fees • Cancel anytime
                             </p>
                           </>
                         ) : (
                           <>
-                            <Button className="w-full" variant="secondary" disabled>
+                            <Button
+                              className="w-full"
+                              variant="secondary"
+                              disabled
+                            >
                               Plan not available yet
                             </Button>
-                            <p className="text-xs text-muted-foreground text-center">
-                              Add “{plan.supabaseName}” to Supabase to enable bookings.
+                            <p className="text-xs text-fg-2 text-center">
+                              Add “{plan.supabaseName}” to Supabase to enable
+                              bookings.
                             </p>
                           </>
                         )}
@@ -622,13 +748,13 @@ export function PricingPage() {
             </div>
           )}
           {error && (
-            <p className="text-center text-destructive mt-6 text-sm">{error}</p>
+            <p className="text-center text-clay-deep mt-6 text-sm">{error}</p>
           )}
         </div>
       </section>
 
       {/* Add-ons */}
-      <section className="section-padding bg-muted/30">
+      <section className="section-padding bg-bg-band/30">
         <div className="container">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -640,7 +766,7 @@ export function PricingPage() {
             <h2 className="text-3xl md:text-4xl font-display font-bold">
               Optional Add-ons
             </h2>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+            <p className="text-lg text-fg-2 max-w-2xl mx-auto">
               Enhance your workspace experience with our additional services.
             </p>
           </motion.div>
@@ -657,12 +783,10 @@ export function PricingPage() {
                 <Card className="h-full text-center">
                   <CardContent className="p-6 space-y-4">
                     <h3 className="font-semibold">{addon.name}</h3>
-                    <p className="text-2xl font-bold text-primary">
+                    <p className="text-2xl font-bold text-clay">
                       {formatCurrency(addon.price, 'NPR')}
                     </p>
-                    <p className="text-sm text-muted-foreground">
-                      {addon.description}
-                    </p>
+                    <p className="text-sm text-fg-2">{addon.description}</p>
                   </CardContent>
                 </Card>
               </motion.div>
@@ -689,29 +813,36 @@ export function PricingPage() {
           <div className="space-y-6">
             {[
               {
-                question: "Can I upgrade or downgrade my plan?",
-                answer: "Yes, you can change your plan at any time. Upgrades take effect immediately, while downgrades take effect at your next billing cycle."
+                question: 'Can I upgrade or downgrade my plan?',
+                answer:
+                  'Yes, you can change your plan at any time. Upgrades take effect immediately, while downgrades take effect at your next billing cycle.',
               },
               {
-                question: "Is there a minimum commitment?",
-                answer: "No minimum commitment required. You can cancel your membership at any time with 30 days notice."
+                question: 'Is there a minimum commitment?',
+                answer:
+                  'No minimum commitment required. You can cancel your membership at any time with 30 days notice.',
               },
               {
                 question: "What's included in meeting room credits?",
-                answer: "Meeting room credits allow you to book our conference rooms. Each credit represents one hour of room usage during business hours."
+                answer:
+                  'Meeting room credits allow you to book our conference rooms. Each credit represents one hour of room usage during business hours.',
               },
               {
-                question: "Can I use multiple locations?",
-                answer: "Yes, all plans include access to any of our locations across Kathmandu. Just book your preferred spot through our app."
+                question: 'Can I use multiple locations?',
+                answer:
+                  'Yes, all plans include access to any of our locations across Kathmandu. Just book your preferred spot through our app.',
               },
               {
-                question: "How is Virtual Office different from coworking/private office?",
-                answer: "Virtual Office is a business-presence product (professional address + mail handling) without a physical desk or room. Coworking and Private Office are physical workspace products."
+                question:
+                  'How is Virtual Office different from coworking/private office?',
+                answer:
+                  'Virtual Office is a business-presence product (professional address + mail handling) without a physical desk or room. Coworking and Private Office are physical workspace products.',
               },
               {
-                question: "What happens if I exceed my printing allowance?",
-                answer: "Additional printing is charged at NPR 2 per page for black & white and NPR 5 per page for color printing."
-              }
+                question: 'What happens if I exceed my printing allowance?',
+                answer:
+                  'Additional printing is charged at NPR 2 per page for black & white and NPR 5 per page for color printing.',
+              },
             ].map((faq, index) => (
               <motion.div
                 key={index}
@@ -723,7 +854,7 @@ export function PricingPage() {
                 <Card>
                   <CardContent className="p-6">
                     <h3 className="font-semibold mb-2">{faq.question}</h3>
-                    <p className="text-muted-foreground">{faq.answer}</p>
+                    <p className="text-fg-2">{faq.answer}</p>
                   </CardContent>
                 </Card>
               </motion.div>
@@ -733,7 +864,7 @@ export function PricingPage() {
       </section>
 
       {/* CTA */}
-      <section className="section-padding bg-primary text-primary-foreground">
+      <section className="section-padding bg-clay text-fg-on-ink-1">
         <div className="container text-center">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -745,14 +876,20 @@ export function PricingPage() {
             <h2 className="text-3xl md:text-4xl font-display font-bold">
               Ready to Get Started?
             </h2>
-            <p className="text-lg text-primary-foreground/80">
-              Join hundreds of professionals who have made CreatrixSpace their workspace of choice.
+            <p className="text-lg text-fg-on-ink-1/80">
+              Join hundreds of professionals who have made CreatrixSpace their
+              workspace of choice.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button size="lg" variant="secondary" asChild>
                 <Link to={ROUTES.BOOKING}>Start Your Journey</Link>
               </Button>
-              <Button size="lg" variant="outline" className="border-2 border-white/30 bg-white/10 text-white hover:bg-white hover:text-primary backdrop-blur-sm" asChild>
+              <Button
+                size="lg"
+                variant="outline"
+                className="border-2 border-white/30 bg-white/10 text-white hover:bg-white hover:text-clay backdrop-blur-sm"
+                asChild
+              >
                 <Link to={ROUTES.CONTACT}>Contact Sales</Link>
               </Button>
             </div>

@@ -1,5 +1,6 @@
 export const APP_NAME = 'CreatrixSpace'
-export const APP_DESCRIPTION = 'Premium coworking spaces for modern professionals'
+export const APP_DESCRIPTION =
+  'Premium coworking spaces for modern professionals'
 
 export const ROUTES = {
   HOME: '/',
@@ -28,6 +29,19 @@ export const ROUTES = {
   ADMIN_BOOKINGS: '/admin/bookings',
   ADMIN_MEMBERSHIPS: '/admin/memberships',
   ADMIN_PRICING: '/admin/pricing',
+  ADMIN_LOCATIONS: '/admin/locations',
+  ADMIN_SITE_STATS: '/admin/site-stats',
+  ADMIN_HERO: '/admin/hero',
+  ADMIN_MEMBERSHIP: '/admin/membership',
+  ADMIN_SPACES: '/admin/spaces',
+  ADMIN_AMENITIES: '/admin/amenities',
+  ADMIN_BOOK_TOUR: '/admin/book-tour',
+  ADMIN_TESTIMONIALS: '/admin/testimonials',
+  ADMIN_FAQ: '/admin/faq',
+  ADMIN_MEMBER_COMPANIES: '/admin/member-companies',
+  ADMIN_CTA: '/admin/cta',
+  ADMIN_FORM_SUBMISSIONS: '/admin/form-submissions',
+  ADMIN_PLANS: '/admin/plans',
 } as const
 
 export const AMENITIES = [
@@ -92,4 +106,24 @@ export const ANIMATION_DURATION = {
   FAST: 150,
   NORMAL: 300,
   SLOW: 500,
+} as const
+
+export const WHATSAPP = {
+  NUMBER: '9779803171819',
+  DISPLAY: '+977 9803171819',
+  DEFAULT_MESSAGE: "Hello CreatrixSpace — I'd like to know more.",
+  get url() {
+    return `https://wa.me/${this.NUMBER}?text=${encodeURIComponent(this.DEFAULT_MESSAGE)}`
+  },
+} as const
+
+export const CONTACT = {
+  PHONE: '+977 1 5453000',
+  PHONE_HREF: '+97715453000',
+  EMAIL: 'hello@creatrixventures.space',
+} as const
+
+export const SOCIAL = {
+  INSTAGRAM: 'https://www.instagram.com/creatrix_space/',
+  SUBSTACK: '#',
 } as const

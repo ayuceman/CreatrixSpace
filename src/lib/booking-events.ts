@@ -19,15 +19,22 @@ export function appendBooking(booking: NewBookingEvent) {
     const list = raw ? JSON.parse(raw) : []
     list.unshift(booking)
     localStorage.setItem(BOOKINGS_KEY, JSON.stringify(list))
-  } catch {}
+  } catch {
+    /* noop */
+  }
 }
 
 export function notifyNewBooking(booking: NewBookingEvent) {
   // Persist and then emit a storage event via setItem to notify other tabs
   appendBooking(booking)
   try {
-    localStorage.setItem(BOOKING_NEW_KEY, JSON.stringify({ ...booking, _ts: Date.now() }))
-  } catch {}
+    localStorage.setItem(
+      BOOKING_NEW_KEY,
+      JSON.stringify({ ...booking, _ts: Date.now() })
+    )
+  } catch {
+    /* noop */
+  }
 }
 
 export function onNewBooking(callback: (booking: NewBookingEvent) => void) {
@@ -36,11 +43,11 @@ export function onNewBooking(callback: (booking: NewBookingEvent) => void) {
       try {
         const data = JSON.parse(e.newValue) as NewBookingEvent
         callback(data)
-      } catch {}
+      } catch {
+        /* noop */
+      }
     }
   }
   window.addEventListener('storage', handler)
   return () => window.removeEventListener('storage', handler)
 }
-
-

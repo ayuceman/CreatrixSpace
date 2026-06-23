@@ -1,201 +1,305 @@
-import { Link } from 'react-router-dom'
-import { MapPin, MessageCircle, Phone, Twitter, Linkedin } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { ArrowRight, MessageCircle, Phone, Mail } from 'lucide-react'
+import { WHATSAPP, CONTACT, SOCIAL } from '@/lib/constants'
+import {
+  locationService,
+  membershipService,
+  formSubmissionService,
+} from '@/services/supabase-service'
 
-// Minimal TikTok icon (fallback because current lucide-react version lacks Tiktok export)
-const TikTokIcon = (props: React.SVGProps<SVGSVGElement>) => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    viewBox="0 0 24 24"
-    width="24"
-    height="24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    {...props}
-  >
-    <path d="M10 3v12.5a3.5 3.5 0 1 1-3.5-3.5c.5 0 1 .08 1.46.23V9.5c-1.29-.26-2.38-.97-3.21-2.01M13 3a6 6 0 0 0 6 6" />
-  </svg>
-)
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { ROUTES, APP_NAME } from '@/lib/constants'
-
-const footerLinks = {
-  company: [
-    { name: 'About', href: ROUTES.ABOUT },
-    { name: 'Careers', href: ROUTES.CAREERS },
-    { name: 'Blog', href: ROUTES.BLOG },
-    { name: 'Contact', href: ROUTES.CONTACT },
-  ],
-  services: [
-    { name: 'Locations', href: ROUTES.LOCATIONS },
-    { name: 'Pricing', href: ROUTES.PRICING },
-    { name: 'Membership', href: ROUTES.MEMBERSHIP },
-    { name: 'Book a Tour', href: ROUTES.BOOKING },
-  ],
-  legal: [
-    { name: 'Terms of Service', href: ROUTES.TERMS },
-    { name: 'Privacy Policy', href: ROUTES.PRIVACY },
-  ],
+interface FooterLocation {
+  name: string
+  address: string
+  slug: string
 }
 
-const socialLinks = [
-  { name: 'Twitter', icon: Twitter, href: 'https://x.com/creatrix_tech' },
-  { name: 'TikTok', iconPath: '/tiktok.svg', href: 'https://www.tiktok.com/@creatrixtechnologies' },
-  { name: 'LinkedIn', icon: Linkedin, href: 'https://www.linkedin.com/company/creatrixtechnologies' },
+interface MembershipLink {
+  name: string
+  price: string
+  period: string
+}
+
+const defaultFooterLocations: FooterLocation[] = [
+  {
+    name: 'Dhobighat Hub',
+    address: 'Mandala St, Kathmandu',
+    slug: 'dhobighat',
+  },
+  {
+    name: 'Kausimaa Co-working',
+    address: 'Kupondole, Lalitpur',
+    slug: 'kausimaa',
+  },
+  {
+    name: 'Jhamsikhel Loft',
+    address: 'Jhamsikhel, Lalitpur',
+    slug: 'jhamsikhel',
+  },
+]
+
+const defaultMembershipLinks: MembershipLink[] = [
+  { name: 'Day pass', price: '800', period: '/ day' },
+  { name: 'Week pass', price: '3,000', period: '/ week' },
+  { name: 'Dedicated desk', price: '8,000', period: '/ month' },
+  { name: 'Private offices', price: '5 available', period: '' },
+  { name: 'Virtual office', price: '6,000', period: '/ month' },
 ]
 
 export function Footer() {
+  const [locations, setLocations] = useState<FooterLocation[]>(
+    defaultFooterLocations
+  )
+  const [membershipLinks, setMembershipLinks] = useState<MembershipLink[]>(
+    defaultMembershipLinks
+  )
+  const [email, setEmail] = useState('')
+  const [subscribed, setSubscribed] = useState(false)
+
+  useEffect(() => {
+    locationService.getAllLocations().then((data) => {
+      if (data && data.length > 0) {
+        setLocations(
+          data.map((l: any) => ({
+            name: l.name,
+            address: l.address || l.city || l.full_address || '',
+            slug: l.slug || l.id,
+          }))
+        )
+      }
+    })
+
+    membershipService.get().then((data) => {
+      if (data) {
+        const tabs = (data.tabs as any[]) ?? []
+        if (tabs.length > 0) {
+          const links: MembershipLink[] = []
+          for (const tab of tabs) {
+            if (tab.mode === 'grid' && tab.cards) {
+              for (const card of tab.cards) {
+                links.push({
+                  name: card.name,
+                  price: card.price ? `NPR ${card.price}` : '',
+                  period: card.period || '',
+                })
+              }
+            } else if (tab.mode === 'single' && tab.single) {
+              links.push({
+                name: tab.single.name,
+                price: tab.single.price ? `NPR ${tab.single.price}` : '',
+                period: tab.single.period || '',
+              })
+            }
+          }
+          if (links.length > 0) setMembershipLinks(links)
+        }
+      }
+    })
+  }, [])
+
+  const handleSubscribe = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!email) return
+    try {
+      await formSubmissionService.create({
+        form_type: 'newsletter',
+        name: email,
+        email,
+      })
+      setSubscribed(true)
+      setEmail('')
+    } catch {
+      // silently fail
+    }
+  }
+
+  const formatPrice = (link: MembershipLink) => {
+    if (link.price === '5 available') return link.price
+    if (!link.price) return ''
+    return `${link.price}${link.period ? ` · ${link.period}` : ''}`
+  }
+
   return (
-    <footer className="bg-muted/50 border-t">
+    <footer className="bg-ink text-fg-on-ink-1 pt-24 pb-8 border-t border-[rgba(243,239,231,0.06)]">
       <div className="container">
-        <div className="py-16">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8">
-            {/* Brand & Newsletter */}
-            <div className="lg:col-span-2 space-y-6">
-              <div>
-                <Link to={ROUTES.HOME} className="flex items-center space-x-2">
-                  <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center">
-                    <MapPin className="h-5 w-5 text-primary-foreground" />
-                  </div>
-                  <span className="font-display font-bold text-xl">{APP_NAME}</span>
-                </Link>
-                <p className="mt-4 text-sm text-muted-foreground max-w-sm">
-                  Premium coworking spaces designed for modern professionals. 
-                  Find your perfect workspace in the heart of the city.
-                </p>
-              </div>
-              
-              <div className="space-y-3">
-                <h4 className="font-semibold">Stay Updated</h4>
-                <div className="flex max-w-sm">
-                  <Input 
-                    type="email" 
-                    placeholder="Enter your email" 
-                    className="rounded-r-none"
-                  />
-                  <Button type="submit" className="rounded-l-none">
-                    Subscribe
-                  </Button>
-                </div>
-                <p className="text-xs text-muted-foreground">
-                  Get the latest updates on new locations and special offers.
-                </p>
-              </div>
+        <div className="grid sm:grid-cols-2 lg:grid-cols-[1.5fr_1fr_1fr_1fr] gap-12 pb-14 border-b border-rule-on-ink">
+          <div className="col-span-1">
+            <div className="font-display text-[40px] tracking-[-0.01em] leading-none">
+              Creatrix<em className="text-clay not-italic">Space</em>
             </div>
+            <p className="text-[15px] leading-[1.6] text-fg-on-ink-2 mt-[22px] max-w-[320px]">
+              A small, premium coworking outfit in Kathmandu and Lalitpur. Three
+              rooms, open from morning to morning.
+            </p>
+            {subscribed ? (
+              <div className="mt-7 text-sm text-moss">
+                You're on the list. Check your inbox.
+              </div>
+            ) : (
+              <form
+                onSubmit={handleSubscribe}
+                className="mt-7 flex gap-0 border-b border-rule-on-ink pb-2 max-w-[320px]"
+              >
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="Email for the letter"
+                  required
+                  className="flex-1 bg-transparent border-0 outline-0 text-fg-on-ink-1 font-body text-sm"
+                />
+                <button
+                  type="submit"
+                  className="bg-transparent border-0 text-clay cursor-pointer font-body text-sm font-medium inline-flex items-center gap-1 shrink-0"
+                >
+                  Subscribe
+                  <ArrowRight size={12} />
+                </button>
+              </form>
+            )}
+            <div className="text-xs text-fg-3 mt-2">
+              Monthly. Field notes, openings, member interviews.
+            </div>
+          </div>
 
-            {/* Company Links */}
-            <div className="space-y-4">
-              <h4 className="font-semibold">Company</h4>
-              <ul className="space-y-2">
-                {footerLinks.company.map((link) => (
-                  <li key={link.name}>
-                    <Link
-                      to={link.href}
-                      className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-                    >
-                      {link.name}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
+          <div>
+            <div className="eyebrow text-clay mb-4.5">Locations</div>
+            {locations.map((loc) => (
+              <a
+                key={loc.slug}
+                href={`/locations#${loc.slug}`}
+                className="text-fg-on-ink-2 no-underline text-sm block py-[5px] transition-colors duration-base ease-out hover:text-fg-on-ink-1"
+              >
+                {loc.name}
+                {loc.address && (
+                  <>
+                    <br />
+                    <span className="font-mono text-xs text-fg-3">
+                      {loc.address}
+                    </span>
+                  </>
+                )}
+              </a>
+            ))}
+          </div>
 
-            {/* Services Links */}
-            <div className="space-y-4">
-              <h4 className="font-semibold">Services</h4>
-              <ul className="space-y-2">
-                {footerLinks.services.map((link) => (
-                  <li key={link.name}>
-                    <Link
-                      to={link.href}
-                      className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-                    >
-                      {link.name}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
+          <div>
+            <div className="eyebrow text-clay mb-4.5">Membership</div>
+            {membershipLinks.map((link, i) => (
+              <a
+                key={`${link.name}-${i}`}
+                href="/#membership"
+                className="text-fg-on-ink-2 no-underline text-sm block py-[5px] transition-colors duration-base ease-out hover:text-fg-on-ink-1"
+              >
+                {link.name}{' '}
+                {formatPrice(link) && <>&middot; {formatPrice(link)}</>}
+              </a>
+            ))}
+            <a
+              href="/#spaces"
+              className="text-fg-on-ink-2 no-underline text-sm block py-[5px] transition-colors duration-base ease-out hover:text-fg-on-ink-1"
+            >
+              Event &amp; training rooms
+            </a>
+            <a
+              href="/booking"
+              className="text-fg-on-ink-2 no-underline text-sm block py-[5px] transition-colors duration-base ease-out hover:text-fg-on-ink-1"
+            >
+              Book a tour
+            </a>
+          </div>
 
-            {/* Contact & Social */}
-            <div className="space-y-4">
-              <h4 className="font-semibold">Connect</h4>
-              <div className="space-y-2 text-sm text-muted-foreground">
-                <div className="flex items-center space-x-2">
-                  <MessageCircle className="h-4 w-4" />
-                  <a 
-                    href="https://wa.me/9779803171819"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="hover:underline"
-                  >
-                    WhatsApp: +977 9803171819
-                  </a>
-                </div>
-                <div className="flex items-start space-x-2">
-                  <Phone className="h-4 w-4 mt-0.5" />
-                  <div className="flex flex-col space-y-1">
-                    <a href="tel:+9779700045256" className="hover:underline">+977 9700045256</a>
-                  </div>
-                </div>
-              </div>
-              
-              <div className="flex space-x-3">
-                {socialLinks.map((social) => {
-                  const Icon = social.icon as any
-                  return (
-                    <a
-                      key={social.name}
-                      href={social.href}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-muted-foreground hover:text-foreground transition-colors"
-                      aria-label={social.name}
-                    >
-                      {social.iconPath ? (
-                        <img src={social.iconPath} alt={social.name} className="h-5 w-5" />
-                      ) : (
-                        <Icon className="h-5 w-5" />
-                      )}
-                    </a>
-                  )
-                })}
-              </div>
-            </div>
+          <div>
+            <div className="eyebrow text-clay mb-4.5">Talk to us</div>
+            <a
+              href={WHATSAPP.url}
+              target="_blank"
+              rel="noopener"
+              className="text-fg-on-ink-2 no-underline text-sm block py-[5px] transition-colors duration-base ease-out hover:text-fg-on-ink-1"
+            >
+              <span className="inline-flex items-center gap-2">
+                <MessageCircle size={14} />
+                WhatsApp
+              </span>
+              <br />
+              <span className="font-mono text-xs text-fg-3">
+                {WHATSAPP.DISPLAY}
+              </span>
+            </a>
+            <a
+              href={`tel:${CONTACT.PHONE_HREF}`}
+              className="text-fg-on-ink-2 no-underline text-sm block py-[5px] transition-colors duration-base ease-out hover:text-fg-on-ink-1"
+            >
+              <span className="inline-flex items-center gap-2">
+                <Phone size={14} />
+                Call us
+              </span>
+              <br />
+              <span className="font-mono text-xs text-fg-3">
+                {CONTACT.PHONE}
+              </span>
+            </a>
+            <a
+              href={`mailto:${CONTACT.EMAIL}`}
+              className="text-fg-on-ink-2 no-underline text-sm block py-[5px] transition-colors duration-base ease-out hover:text-fg-on-ink-1"
+            >
+              <span className="inline-flex items-center gap-2">
+                <Mail size={14} />
+                Email
+              </span>
+              <br />
+              <span className="font-mono text-xs text-fg-3">
+                {CONTACT.EMAIL}
+              </span>
+            </a>
+            <a
+              href="/#concierge"
+              className="text-fg-on-ink-2 no-underline text-sm block py-[5px] transition-colors duration-base ease-out hover:text-fg-on-ink-1"
+            >
+              Concierge chat
+            </a>
+            <a
+              href="/#faq"
+              className="text-fg-on-ink-2 no-underline text-sm block py-[5px] transition-colors duration-base ease-out hover:text-fg-on-ink-1"
+            >
+              FAQ
+            </a>
           </div>
         </div>
 
-        {/* Bottom Bar */}
-        <div className="py-6 border-t flex flex-col sm:flex-row justify-between items-center space-y-4 sm:space-y-0">
-          <div className="flex flex-col items-center sm:items-start space-y-2">
-            <p className="text-sm text-muted-foreground">
-              © 2024 {APP_NAME}. All rights reserved.
-            </p>
-            <p className="text-xs text-muted-foreground">
-              Powered by{' '}
-              <a 
-                href="https://www.creatrixtechnologies.com" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="text-primary hover:text-primary/80 font-medium transition-colors hover:underline"
-              >
-                Creatrix Technologies
-              </a>
-            </p>
+        <div className="pt-7 flex justify-between items-center flex-wrap gap-4">
+          <div className="font-mono text-xs text-fg-3">
+            &copy; CreatrixSpace 2026 &middot; Kathmandu &amp; Lalitpur &middot;
+            Powered by{' '}
+            <a
+              href="#"
+              className="text-fg-on-ink-2 underline underline-offset-3"
+            >
+              Creatrix Technologies
+            </a>
           </div>
-          <div className="flex space-x-4">
-            {footerLinks.legal.map((link) => (
-              <Link
-                key={link.name}
-                to={link.href}
-                className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-              >
-                {link.name}
-              </Link>
-            ))}
+          <div className="flex gap-5.5 text-[13px]">
+            <a
+              href={SOCIAL.INSTAGRAM}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-fg-on-ink-2 no-underline"
+            >
+              Instagram
+            </a>
+            <a
+              href={SOCIAL.SUBSTACK}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-fg-on-ink-2 no-underline"
+            >
+              Substack
+            </a>
+            <a href="#" className="text-fg-on-ink-2 no-underline">
+              Privacy
+            </a>
+            <a href="#" className="text-fg-on-ink-2 no-underline">
+              Terms
+            </a>
           </div>
         </div>
       </div>

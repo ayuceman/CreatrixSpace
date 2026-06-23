@@ -1,128 +1,143 @@
+import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { ChevronDown } from 'lucide-react'
-import { useState } from 'react'
-import { Card, CardContent } from '@/components/ui/card'
-import { cn } from '@/lib/utils'
+import { Plus, Minus, MessageCircle } from 'lucide-react'
+import { WHATSAPP } from '@/lib/constants'
+import { Button } from '@/components/ui/button'
+import { faqsService } from '@/services/supabase-service'
 
-const faqs = [
+const defaultFaqs = [
   {
-    question: 'What is a co working space?',
-    answer: 'A co working space is a shared office environment where freelancers, entrepreneurs, remote workers, and small teams can work independently while sharing common facilities like internet, meeting rooms, and amenities. CreatrixSpace offers premium co working spaces in Nepal with locations in Kathmandu and Lalitpur.'
+    question: 'Can I walk in tomorrow and start working?',
+    answer:
+      'Yes. Day passes don\u2019t need to be booked \u2014 show up between 8 and 8 at any of the three buildings and the host at the desk will get you set up in five minutes. NPR 800 for the day, coffee included.',
   },
   {
-    question: 'Where are your coworking spaces located in Nepal?',
-    answer: 'We have three locations: Dhobighat Hub in Kathmandu, Kausimaa Co-working in Kupondole (Lalitpur), and Jhamsikhel Loft in Lalitpur. All locations offer modern facilities, high-speed internet, and 24/7 access options.'
+    question:
+      'What\u2019s the difference between a hot desk and a dedicated desk?',
+    answer:
+      'A hot desk is any open seat in the room \u2014 first come, first served, leave nothing behind. A dedicated desk is reserved in your name in the open room of your choice; you can leave a monitor on it, get mail there, and come and go 24/7. The open space is only used for these two \u2014 private rooms are separate.',
   },
   {
-    question: 'What amenities are included in your co working space?',
-    answer: 'Our coworking spaces include high-speed internet, meeting rooms, phone booths, printing services, coffee and tea, lounge areas, event spaces, secure lockers, and 24/7 access at select locations. Some locations also feature outdoor terraces and parking facilities.'
+    question: 'Are private offices really available?',
+    answer:
+      'Yes \u2014 five lockable rooms across the three buildings are open for move-in this month. Two at Dhobighat, two at Kausimaa, one at Jhamsikhel. Sizes range from two to eight desks. WhatsApp us and we\u2019ll send the floor plans.',
   },
   {
-    question: 'How much does it cost to use a coworking space in Nepal?',
-    answer: 'We offer flexible pricing plans starting from NPR 800.00/day for Explorer passes to NPR 58,500/month for private offices. Professional plans start at NPR 8,999/month. All plans include access to amenities and can be upgraded, downgraded, or cancelled anytime with no setup fees.'
+    question: 'What does the Virtual Office include?',
+    answer:
+      'A registered business address at Dhobighat Hub for NPR 6,000/month. We sign for and scan your mail, forward what you ask us to, and give you four hours of meeting-room time and two day-passes a month so you can come in for in-person meetings.',
   },
   {
-    question: 'Do you offer meeting rooms in your coworking space?',
-    answer: 'Yes, all our locations have professional meeting rooms equipped with AV technology. Meeting rooms can be booked by members and are available for both small team meetings and larger presentations.'
+    question: 'Can I hire a room for a weekend event?',
+    answer:
+      'Yes. The event room at Dhobighat holds 60, the Jhamsikhel rooftop 40, and the Kausimaa terrace 24. We do half-day and full-day hire on Saturdays and Sundays \u2014 message on WhatsApp with the date and headcount and we\u2019ll send pricing.',
   },
   {
-    question: 'Is internet included in the coworking space membership?',
-    answer: 'Yes, high-speed fiber internet with 99.9% uptime guarantee is included in all membership plans. Our coworking spaces in Kathmandu and Lalitpur provide reliable connectivity essential for remote work.'
+    question: 'Do you host training cohorts \u2014 robotics, coding, language?',
+    answer:
+      'Yes. A dedicated training room runs after-school and evening cohorts for robotics, STEM, coding, design, and languages. We work with the trainer or institute on a 2/3/6-month block. Get in touch with cohort size and timing.',
   },
   {
-    question: 'Can I access the coworking space 24/7?',
-    answer: '24/7 access is available at select locations including our Dhobighat Hub in Kathmandu. This allows members to work on their own schedule, perfect for freelancers and remote workers with flexible hours.'
+    question: 'Do you take WhatsApp?',
+    answer: `Yes \u2014 fastest way to reach us. Tap any WhatsApp button on the site, or write to ${WHATSAPP.DISPLAY}. Replies usually inside a minute, 8am\u20138pm.`,
   },
   {
-    question: 'What makes CreatrixSpace the best coworking space in Nepal?',
-    answer: 'CreatrixSpace combines premium facilities, strategic locations in Kathmandu and Lalitpur, flexible membership plans, vibrant community, and modern amenities. With over 500 members and multiple locations, we provide the infrastructure and networking opportunities that make us a leading co working space in Nepal.'
-  }
+    question: 'How do I cancel a membership?',
+    answer:
+      'Email or WhatsApp before the next renewal. No notice period, no exit fee, no awkward call. Day passes don\u2019t renew automatically \u2014 only the monthly plans do.',
+  },
 ]
 
 export function FAQSection() {
-  const [openIndex, setOpenIndex] = useState<number | null>(0)
+  const [faqs, setFaqs] = useState(defaultFaqs)
 
-  const toggleFAQ = (index: number) => {
-    setOpenIndex(openIndex === index ? null : index)
-  }
-
-  // Generate FAQ schema for SEO
-  const faqSchema = {
-    '@context': 'https://schema.org',
-    '@type': 'FAQPage',
-    mainEntity: faqs.map(faq => ({
-      '@type': 'Question',
-      name: faq.question,
-      acceptedAnswer: {
-        '@type': 'Answer',
-        text: faq.answer
+  useEffect(() => {
+    faqsService.getAll().then((data) => {
+      if (data && data.length > 0) {
+        setFaqs(
+          data.map((f: any) => ({ question: f.question, answer: f.answer }))
+        )
       }
-    }))
+    })
+  }, [])
+  const [openIndex, setOpenIndex] = useState(0)
+
+  const toggle = (index: number) => {
+    setOpenIndex(openIndex === index ? -1 : index)
   }
 
   return (
-    <>
-      {/* Inject FAQ Schema */}
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
-      />
-      
-      <section className="py-16 md:py-20 lg:py-24 bg-gradient-to-b from-purple-50 via-gray-50 to-white dark:from-primary/10 dark:via-primary/5 dark:to-background">
-        <div className="container">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            viewport={{ once: true }}
-            className="max-w-3xl mx-auto"
-          >
-            <div className="text-center mb-12">
-              <h2 className="text-3xl md:text-4xl font-display font-bold mb-4">
-                Frequently Asked Questions
-              </h2>
-              <p className="text-lg text-muted-foreground">
-                Everything you need to know about our co working spaces in Nepal
-              </p>
-            </div>
+    <section
+      id="faq"
+      className="py-16 md:py-24 lg:py-32 bg-bg-band border-t border-b border-rule"
+    >
+      <div className="container">
+        <div className="grid grid-cols-1 lg:grid-cols-[1fr_1.4fr] gap-16 items-start">
+          <div className="lg:sticky lg:top-24">
+            <div className="eyebrow text-clay mb-4.5">Frequently asked</div>
+            <h2 className="font-display font-normal text-[clamp(36px,4.6vw,64px)] leading-[1.05] tracking-[-0.015em] m-0 max-w-[440px]">
+              The things people{' '}
+              <em className="text-clay not-italic">actually ask</em>.
+            </h2>
+            <p className="text-[15px] leading-[1.6] text-fg-2 max-w-[380px] mt-[22px]">
+              If your question isn't here, WhatsApp us &mdash; someone on the
+              floor will reply inside a minute.
+            </p>
+            <Button
+              variant="dark"
+              className="px-7 py-3.5 leading-none mt-6"
+              text={`WhatsApp ${WHATSAPP.DISPLAY}`}
+              icon={MessageCircle}
+              href={`https://wa.me/${WHATSAPP.NUMBER}?text=${encodeURIComponent('Hello CreatrixSpace \u2014 I have a question:')}`}
+              target="_blank"
+              rel="noopener noreferrer"
+            />
+          </div>
 
-            <div className="space-y-4">
-              {faqs.map((faq, index) => (
-                <Card key={index} className="overflow-hidden">
-                  <CardContent className="p-0">
-                    <button
-                      onClick={() => toggleFAQ(index)}
-                      className="w-full px-6 py-4 flex items-center justify-between text-left hover:bg-muted/50 transition-colors"
-                      aria-expanded={openIndex === index}
+          <div className="border-t border-rule-strong">
+            {faqs.map((faq, index) => {
+              const isOpen = openIndex === index
+              return (
+                <div key={index} className="border-b border-rule">
+                  <button
+                    onClick={() => toggle(index)}
+                    className="w-full bg-transparent border-0 py-[22px] flex items-center justify-between gap-6 cursor-pointer text-left text-fg-1"
+                    aria-expanded={isOpen}
+                  >
+                    <span className="font-display text-[clamp(20px,2.2vw,26px)] leading-[1.25] tracking-[-0.005em]">
+                      {faq.question}
+                    </span>
+                    <span
+                      className={`shrink-0 w-9 h-9 rounded-full border border-rule-strong inline-flex items-center justify-center transition-[background,color] duration-200 ease-out ${
+                        isOpen ? 'bg-ink text-bg' : 'bg-transparent text-fg-1'
+                      }`}
                     >
-                      <span className="font-semibold text-lg pr-8">{faq.question}</span>
-                      <ChevronDown
-                        className={cn(
-                          'h-5 w-5 text-muted-foreground flex-shrink-0 transition-transform',
-                          openIndex === index && 'transform rotate-180'
-                        )}
-                      />
-                    </button>
-                    {openIndex === index && (
-                      <motion.div
-                        initial={{ height: 0, opacity: 0 }}
-                        animate={{ height: 'auto', opacity: 1 }}
-                        exit={{ height: 0, opacity: 0 }}
-                        transition={{ duration: 0.3 }}
-                        className="overflow-hidden"
-                      >
-                        <div className="px-6 pb-4 text-muted-foreground leading-relaxed">
-                          {faq.answer}
-                        </div>
-                      </motion.div>
-                    )}
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </motion.div>
+                      {isOpen ? (
+                        <Minus size={16} strokeWidth={1.5} />
+                      ) : (
+                        <Plus size={16} strokeWidth={1.5} />
+                      )}
+                    </span>
+                  </button>
+                  <motion.div
+                    initial={false}
+                    animate={{
+                      height: isOpen ? 'auto' : 0,
+                      opacity: isOpen ? 1 : 0,
+                    }}
+                    transition={{ duration: 0.4, ease: [0.2, 0.7, 0.2, 1] }}
+                    className="overflow-hidden"
+                  >
+                    <p className="m-0 pb-6 pr-[60px] text-base leading-[1.65] text-fg-2 max-w-[720px]">
+                      {faq.answer}
+                    </p>
+                  </motion.div>
+                </div>
+              )
+            })}
+          </div>
         </div>
-      </section>
-    </>
+      </div>
+    </section>
   )
 }

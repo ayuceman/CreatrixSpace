@@ -1,6 +1,11 @@
 import { useEffect } from 'react'
 import { useLocation } from 'react-router-dom'
-import { SEOData, updateSEO, generateStructuredData, injectStructuredData } from '@/lib/seo'
+import {
+  SEOData,
+  updateSEO,
+  generateStructuredData,
+  injectStructuredData,
+} from '@/lib/seo'
 
 interface SEOHeadProps extends SEOData {
   structuredData?: Record<string, any>
@@ -13,7 +18,8 @@ export function SEOHead({
   ...seoData
 }: SEOHeadProps) {
   const location = useLocation()
-  const baseUrl = import.meta.env.VITE_APP_URL || 'https://creatrixventures.space'
+  const baseUrl =
+    import.meta.env.VITE_APP_URL || 'https://creatrixventures.space'
 
   useEffect(() => {
     // Update SEO meta tags
@@ -27,11 +33,13 @@ export function SEOHead({
     if (structuredData) {
       injectStructuredData(structuredData)
     } else if (structuredDataType) {
-      const defaultStructuredData = generateStructuredData(structuredDataType, {})
+      const defaultStructuredData = generateStructuredData(
+        structuredDataType,
+        {}
+      )
       injectStructuredData(defaultStructuredData)
     }
   }, [location.pathname, seoData, structuredData, structuredDataType, baseUrl])
 
   return null
 }
-

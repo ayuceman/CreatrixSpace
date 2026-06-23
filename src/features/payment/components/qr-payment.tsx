@@ -1,10 +1,17 @@
 import { useState, useRef } from 'react'
-import { Upload, Camera, Clock, CheckCircle, AlertCircle, X } from 'lucide-react'
+import {
+  Upload,
+  Camera,
+  Clock,
+  CheckCircle,
+  AlertCircle,
+  X,
+} from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
+
 import { PAYMENT_CONFIG } from '@/lib/payment-config'
 import { formatCurrency } from '@/lib/utils'
 import { useBookingStore } from '@/store/booking-store'
@@ -17,14 +24,25 @@ interface QRPaymentProps {
   onCancel: () => void
 }
 
-type VerificationStatus = 'pending' | 'uploading' | 'verifying' | 'success' | 'failed'
+type VerificationStatus =
+  | 'pending'
+  | 'uploading'
+  | 'verifying'
+  | 'success'
+  | 'failed'
 
-export function QRPayment({ amount, bookingId, onPaymentComplete, onCancel }: QRPaymentProps) {
-  const [verificationStatus, setVerificationStatus] = useState<VerificationStatus>('pending')
+export function QRPayment({
+  amount,
+  bookingId,
+  onPaymentComplete,
+  onCancel,
+}: QRPaymentProps) {
+  const [verificationStatus, setVerificationStatus] =
+    useState<VerificationStatus>('pending')
   const [uploadedFile, setUploadedFile] = useState<File | null>(null)
   const [uploadPreview, setUploadPreview] = useState<string | null>(null)
   const [verificationResult, setVerificationResult] = useState<any>(null)
-  const [timeRemaining, setTimeRemaining] = useState(300) // 5 minutes
+  const [timeRemaining] = useState(300) // 5 minutes
   const fileInputRef = useRef<HTMLInputElement>(null)
   const { bookingData, locations, plans, addOns, rooms } = useBookingStore()
 
@@ -33,7 +51,8 @@ export function QRPayment({ amount, bookingId, onPaymentComplete, onCancel }: QR
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
     if (file) {
-      if (file.size > 5 * 1024 * 1024) { // 5MB limit
+      if (file.size > 5 * 1024 * 1024) {
+        // 5MB limit
         alert('File size must be less than 5MB')
         return
       }
@@ -44,7 +63,7 @@ export function QRPayment({ amount, bookingId, onPaymentComplete, onCancel }: QR
       }
 
       setUploadedFile(file)
-      
+
       // Create preview
       const reader = new FileReader()
       reader.onload = (e) => {
@@ -61,13 +80,13 @@ export function QRPayment({ amount, bookingId, onPaymentComplete, onCancel }: QR
 
     try {
       // Simulate file upload
-      await new Promise(resolve => setTimeout(resolve, 1000))
-      
+      await new Promise((resolve) => setTimeout(resolve, 1000))
+
       setVerificationStatus('verifying')
-      
+
       // Simulate verification process
-      await new Promise(resolve => setTimeout(resolve, 2000))
-      
+      await new Promise((resolve) => setTimeout(resolve, 2000))
+
       // Mock verification result
       const mockResult = {
         success: true,
@@ -82,26 +101,29 @@ export function QRPayment({ amount, bookingId, onPaymentComplete, onCancel }: QR
       }
 
       setVerificationResult(mockResult)
-      
+
       if (mockResult.success && mockResult.confidence > 0.8) {
         setVerificationStatus('success')
-        
+
         // Send email notification to admin when payment is verified
         try {
           // Get location, plan, and room names for email
-          const location = locations.find(l => l.id === bookingData.locationId)
-          const plan = plans.find(p => p.id === bookingData.planId)
-          const room = rooms.find(r => r.id === bookingData.roomId)
+          const location = locations.find(
+            (l) => l.id === bookingData.locationId
+          )
+          const plan = plans.find((p) => p.id === bookingData.planId)
+          const room = rooms.find((r) => r.id === bookingData.roomId)
           const selectedAddOnNames = bookingData.addOns
-            .map(addOnId => {
-              const addOn = addOns.find(a => a.id === addOnId)
+            .map((addOnId) => {
+              const addOn = addOns.find((a) => a.id === addOnId)
               return addOn?.name || 'Unknown Add-on'
             })
             .filter(Boolean)
-          
+
           // Send email asynchronously (don't block payment completion)
           sendBookingEmail({
-            customerName: `${bookingData.contactInfo.firstName} ${bookingData.contactInfo.lastName}`.trim(),
+            customerName:
+              `${bookingData.contactInfo.firstName} ${bookingData.contactInfo.lastName}`.trim(),
             customerEmail: bookingData.contactInfo.email,
             customerPhone: bookingData.contactInfo.phone,
             company: bookingData.contactInfo.company || undefined,
@@ -111,8 +133,12 @@ export function QRPayment({ amount, bookingId, onPaymentComplete, onCancel }: QR
             planType: plan?.type || 'unknown',
             roomName: room?.name,
             roomStatus: room?.status,
-            startDate: bookingData.startDate ? bookingData.startDate.toISOString() : '',
-            endDate: bookingData.endDate ? bookingData.endDate.toISOString() : '',
+            startDate: bookingData.startDate
+              ? bookingData.startDate.toISOString()
+              : '',
+            endDate: bookingData.endDate
+              ? bookingData.endDate.toISOString()
+              : '',
             startTime: bookingData.startTime || undefined,
             endTime: bookingData.endTime || undefined,
             selectedAddOns: selectedAddOnNames,
@@ -122,10 +148,12 @@ export function QRPayment({ amount, bookingId, onPaymentComplete, onCancel }: QR
             currency: bookingData.currency,
             notes: bookingData.notes || undefined,
             status: 'pending',
-            bookingSource: room ? 'Online Checkout (Room Selected)' : 'Online Checkout',
+            bookingSource: room
+              ? 'Online Checkout (Room Selected)'
+              : 'Online Checkout',
             paymentMethod: 'QR Payment',
             paymentStatus: 'Pending Verification',
-          }).catch(error => {
+          }).catch((error) => {
             // Log error but don't fail the payment
             console.error('Failed to send booking email:', error)
           })
@@ -133,7 +161,7 @@ export function QRPayment({ amount, bookingId, onPaymentComplete, onCancel }: QR
           // Log error but don't fail the payment
           console.error('Error preparing email data:', error)
         }
-        
+
         setTimeout(() => {
           onPaymentComplete({
             success: true,
@@ -146,7 +174,7 @@ export function QRPayment({ amount, bookingId, onPaymentComplete, onCancel }: QR
       } else {
         setVerificationStatus('failed')
       }
-    } catch (error) {
+    } catch {
       setVerificationStatus('failed')
     }
   }
@@ -163,49 +191,62 @@ export function QRPayment({ amount, bookingId, onPaymentComplete, onCancel }: QR
       case 'uploading':
         return (
           <div className="text-center py-4">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-2"></div>
-            <p className="text-sm text-muted-foreground">Uploading screenshot...</p>
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-clay mx-auto mb-2"></div>
+            <p className="text-sm text-fg-2">Uploading screenshot...</p>
           </div>
         )
-      
+
       case 'verifying':
         return (
           <div className="text-center py-4">
             <div className="animate-pulse">
-              <Camera className="h-8 w-8 text-primary mx-auto mb-2" />
+              <Camera className="h-8 w-8 text-clay mx-auto mb-2" />
             </div>
-            <p className="text-sm text-muted-foreground">Verifying payment details...</p>
+            <p className="text-sm text-fg-2">Verifying payment details...</p>
           </div>
         )
-      
+
       case 'success':
         return (
           <div className="text-center py-4">
             <CheckCircle className="h-8 w-8 text-green-600 mx-auto mb-2" />
-            <p className="text-sm font-medium text-green-600">Payment verified successfully!</p>
+            <p className="text-sm font-medium text-green-600">
+              Payment verified successfully!
+            </p>
             {verificationResult && (
-              <div className="mt-3 text-xs text-muted-foreground">
+              <div className="mt-3 text-xs text-fg-2">
                 <p>Amount: {verificationResult.extractedData.amount}</p>
-                <p>Transaction ID: {verificationResult.extractedData.transactionId}</p>
+                <p>
+                  Transaction ID:{' '}
+                  {verificationResult.extractedData.transactionId}
+                </p>
               </div>
             )}
           </div>
         )
-      
+
       case 'failed':
         return (
           <div className="text-center py-4">
             <AlertCircle className="h-8 w-8 text-red-600 mx-auto mb-2" />
-            <p className="text-sm font-medium text-red-600">Verification failed</p>
-            <p className="text-xs text-muted-foreground mt-1">
-              Please ensure the screenshot is clear and shows the complete payment details
+            <p className="text-sm font-medium text-red-600">
+              Verification failed
             </p>
-            <Button size="sm" variant="outline" onClick={handleRetry} className="mt-2">
+            <p className="text-xs text-fg-2 mt-1">
+              Please ensure the screenshot is clear and shows the complete
+              payment details
+            </p>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={handleRetry}
+              className="mt-2"
+            >
               Try Again
             </Button>
           </div>
         )
-      
+
       default:
         return null
     }
@@ -217,7 +258,7 @@ export function QRPayment({ amount, bookingId, onPaymentComplete, onCancel }: QR
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-lg font-semibold">QR Payment</h2>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-sm text-fg-2">
             Scan QR code and upload payment screenshot
           </p>
         </div>
@@ -227,16 +268,14 @@ export function QRPayment({ amount, bookingId, onPaymentComplete, onCancel }: QR
       </div>
 
       {/* Payment Amount */}
-      <Card className="border-primary/20">
+      <Card className="border-clay/20">
         <CardContent className="p-4">
           <div className="text-center">
-            <p className="text-sm text-muted-foreground">Amount to Pay</p>
-            <p className="text-2xl font-bold text-primary">
+            <p className="text-sm text-fg-2">Amount to Pay</p>
+            <p className="text-2xl font-bold text-clay">
               {formatCurrency(amount, 'NPR')}
             </p>
-            <p className="text-xs text-muted-foreground">
-              Booking ID: {bookingId}
-            </p>
+            <p className="text-xs text-fg-2">Booking ID: {bookingId}</p>
           </div>
         </CardContent>
       </Card>
@@ -248,7 +287,8 @@ export function QRPayment({ amount, bookingId, onPaymentComplete, onCancel }: QR
             <span>Step 1: Scan QR Code</span>
             <Badge variant="outline" className="ml-2">
               <Clock className="h-3 w-3 mr-1" />
-              {Math.floor(timeRemaining / 60)}:{(timeRemaining % 60).toString().padStart(2, '0')}
+              {Math.floor(timeRemaining / 60)}:
+              {(timeRemaining % 60).toString().padStart(2, '0')}
             </Badge>
           </CardTitle>
         </CardHeader>
@@ -261,8 +301,8 @@ export function QRPayment({ amount, bookingId, onPaymentComplete, onCancel }: QR
                 alt="Company QR Code for Payment"
                 className="w-full h-full object-contain"
                 onError={(e) => {
-                  const target = e.target as HTMLImageElement;
-                  target.style.display = 'none';
+                  const target = e.target as HTMLImageElement
+                  target.style.display = 'none'
                   target.parentElement!.innerHTML = `
                     <div class="w-full h-full flex items-center justify-center">
                       <div class="text-xs text-center p-4">
@@ -270,22 +310,29 @@ export function QRPayment({ amount, bookingId, onPaymentComplete, onCancel }: QR
                         <p class="text-xs text-gray-400 mt-2">Please add company-qr-code.png to public folder</p>
                       </div>
                     </div>
-                  `;
+                  `
                 }}
               />
             </div>
           </div>
-          
+
           <div className="text-center space-y-2">
             <p className="text-sm font-medium">Scan with your banking app</p>
-            <div className="text-xs text-muted-foreground space-y-1">
-              <p><strong>Account:</strong> {qrConfig.companyName}</p>
-              <p><strong>Bank:</strong> {qrConfig.bankName}</p>
-              <p><strong>Amount:</strong> {formatCurrency(amount, 'NPR')}</p>
+            <div className="text-xs text-fg-2 space-y-1">
+              <p>
+                <strong>Account:</strong> {qrConfig.companyName}
+              </p>
+              <p>
+                <strong>Bank:</strong> {qrConfig.bankName}
+              </p>
+              <p>
+                <strong>Amount:</strong> {formatCurrency(amount, 'NPR')}
+              </p>
             </div>
             <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 mt-2">
               <p className="text-xs text-yellow-800">
-                📝 <strong>Please enter the amount manually:</strong> {formatCurrency(amount, 'NPR')}
+                📝 <strong>Please enter the amount manually:</strong>{' '}
+                {formatCurrency(amount, 'NPR')}
               </p>
               <p className="text-xs text-yellow-700 mt-1">
                 After scanning, enter this exact amount in your banking app
@@ -295,7 +342,8 @@ export function QRPayment({ amount, bookingId, onPaymentComplete, onCancel }: QR
 
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
             <p className="text-xs text-blue-800">
-              <strong>Supported Banks:</strong> {qrConfig.supportedBanks.join(', ')}
+              <strong>Supported Banks:</strong>{' '}
+              {qrConfig.supportedBanks.join(', ')}
             </p>
           </div>
         </CardContent>
@@ -304,14 +352,16 @@ export function QRPayment({ amount, bookingId, onPaymentComplete, onCancel }: QR
       {/* Screenshot Upload Section */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Step 2: Upload Payment Screenshot</CardTitle>
+          <CardTitle className="text-base">
+            Step 2: Upload Payment Screenshot
+          </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           {verificationStatus === 'pending' && (
             <>
               <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
                 <Upload className="h-8 w-8 text-gray-400 mx-auto mb-2" />
-                <p className="text-sm text-muted-foreground mb-2">
+                <p className="text-sm text-fg-2 mb-2">
                   Upload your payment screenshot
                 </p>
                 <Button
@@ -350,7 +400,7 @@ export function QRPayment({ amount, bookingId, onPaymentComplete, onCancel }: QR
                       <X className="h-4 w-4" />
                     </Button>
                   </div>
-                  
+
                   <div className="text-center">
                     <Button onClick={handleUpload} disabled={!uploadedFile}>
                       Verify Payment
@@ -365,8 +415,9 @@ export function QRPayment({ amount, bookingId, onPaymentComplete, onCancel }: QR
 
           <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
             <p className="text-xs text-yellow-800">
-              <strong>Important:</strong> Ensure your screenshot clearly shows the amount, date/time, 
-              transaction ID, and recipient details for successful verification.
+              <strong>Important:</strong> Ensure your screenshot clearly shows
+              the amount, date/time, transaction ID, and recipient details for
+              successful verification.
             </p>
           </div>
         </CardContent>

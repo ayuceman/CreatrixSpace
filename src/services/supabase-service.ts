@@ -6,16 +6,23 @@ import type { BookingData } from '@/store/booking-store'
 type Profile = Database['public']['Tables']['profiles']['Row']
 type Location = Database['public']['Tables']['locations']['Row']
 type LocationRoom = Database['public']['Tables']['location_rooms']['Row']
-type LocationRoomUpdate = Database['public']['Tables']['location_rooms']['Update']
-type LocationRoomInsert = Database['public']['Tables']['location_rooms']['Insert']
+type LocationRoomUpdate =
+  Database['public']['Tables']['location_rooms']['Update']
+type LocationRoomInsert =
+  Database['public']['Tables']['location_rooms']['Insert']
 type Plan = Database['public']['Tables']['plans']['Row']
 type AddOn = Database['public']['Tables']['add_ons']['Row']
-type LocationPlanPricing = Database['public']['Tables']['location_plan_pricing']['Row']
-type LocationPlanPricingInsert = Database['public']['Tables']['location_plan_pricing']['Insert']
+type LocationPlanPricing =
+  Database['public']['Tables']['location_plan_pricing']['Row']
+type LocationPlanPricingInsert =
+  Database['public']['Tables']['location_plan_pricing']['Insert']
 type RoomPlanPricing = Database['public']['Tables']['room_plan_pricing']['Row']
-type RoomPlanPricingInsert = Database['public']['Tables']['room_plan_pricing']['Insert']
-type ManualAdminEntry = Database['public']['Tables']['manual_admin_entries']['Row']
-type ManualAdminEntryInsert = Database['public']['Tables']['manual_admin_entries']['Insert']
+type RoomPlanPricingInsert =
+  Database['public']['Tables']['room_plan_pricing']['Insert']
+type ManualAdminEntry =
+  Database['public']['Tables']['manual_admin_entries']['Row']
+type ManualAdminEntryInsert =
+  Database['public']['Tables']['manual_admin_entries']['Insert']
 type Booking = Database['public']['Tables']['bookings']['Row']
 type BookingInsert = Database['public']['Tables']['bookings']['Insert']
 type ProfileUpdate = Database['public']['Tables']['profiles']['Update']
@@ -33,7 +40,17 @@ type PlanPricingPayload = {
 // ============================================
 
 export const authService = {
-  async signUp(email: string, password: string, metadata?: { full_name?: string; first_name?: string; last_name?: string; phone?: string; company?: string }) {
+  async signUp(
+    email: string,
+    password: string,
+    metadata?: {
+      full_name?: string
+      first_name?: string
+      last_name?: string
+      phone?: string
+      company?: string
+    }
+  ) {
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
@@ -74,13 +91,19 @@ export const authService = {
   },
 
   async getCurrentUser() {
-    const { data: { user }, error } = await supabase.auth.getUser()
+    const {
+      data: { user },
+      error,
+    } = await supabase.auth.getUser()
     if (error) throw error
     return user
   },
 
   async getCurrentSession() {
-    const { data: { session }, error } = await supabase.auth.getSession()
+    const {
+      data: { session },
+      error,
+    } = await supabase.auth.getSession()
     if (error) throw error
     return session
   },
@@ -101,7 +124,7 @@ export const profileService = {
       .select('*')
       .eq('id', userId)
       .single()
-    
+
     if (error) throw error
     return data
   },
@@ -112,14 +135,17 @@ export const profileService = {
     return this.getProfile(user.id)
   },
 
-  async updateProfile(userId: string, updates: ProfileUpdate): Promise<Profile> {
+  async updateProfile(
+    userId: string,
+    updates: ProfileUpdate
+  ): Promise<Profile> {
     const { data, error } = await supabase
       .from('profiles')
       .update(updates)
       .eq('id', userId)
       .select()
       .single()
-    
+
     if (error) throw error
     return data
   },
@@ -144,17 +170,23 @@ export const locationService = {
         .select('*')
         .eq('available', true)
         .order('name', { ascending: true })
-      
+
       // If any error occurs (table doesn't exist, RLS error, 500 error, etc.), return empty array
       if (error) {
         // Log warning but don't throw - return empty array so app can use fallback data
-        console.warn('Could not load locations from Supabase:', error.message || error)
+        console.warn(
+          'Could not load locations from Supabase:',
+          error.message || error
+        )
         return []
       }
       return data || []
     } catch (error: any) {
       // Catch all errors including network errors, 500 errors, etc.
-      console.warn('Error loading locations (using fallback):', error?.message || error)
+      console.warn(
+        'Error loading locations (using fallback):',
+        error?.message || error
+      )
       return []
     }
   },
@@ -165,7 +197,7 @@ export const locationService = {
       .select('*')
       .eq('id', id)
       .single()
-    
+
     if (error) throw error
     return data
   },
@@ -176,9 +208,52 @@ export const locationService = {
       .select('*')
       .eq('slug', slug)
       .single()
-    
+
     if (error) throw error
     return data
+  },
+
+  async createLocation(payload: any): Promise<any> {
+    const client = supabaseAdmin ?? supabase
+    const { data, error } = await client
+      .from('locations')
+      .insert(payload)
+      .select()
+      .single()
+    if (error) throw error
+    return data
+  },
+
+  async updateLocation(id: string, payload: any): Promise<any> {
+    const client = supabaseAdmin ?? supabase
+    const { data, error } = await client
+      .from('locations')
+      .update(payload)
+      .eq('id', id)
+      .select()
+      .single()
+    if (error) throw error
+    return data
+  },
+
+  async deleteLocation(id: string): Promise<void> {
+    const client = supabaseAdmin ?? supabase
+    const { error } = await client.from('locations').delete().eq('id', id)
+    if (error) throw error
+  },
+
+  async getAllLocationsSimple(): Promise<
+    { name: string; full_address: string }[]
+  > {
+    const { data, error } = await supabase
+      .from('locations')
+      .select('name, full_address')
+      .order('name', { ascending: true })
+    if (error) return []
+    return (data || []).map((l) => ({
+      name: l.name,
+      full_address: l.full_address ?? '',
+    }))
   },
 }
 
@@ -195,7 +270,10 @@ export const roomService = {
         .order('name', { ascending: true })
 
       if (error) {
-        console.warn('Could not load rooms from Supabase:', error.message || error)
+        console.warn(
+          'Could not load rooms from Supabase:',
+          error.message || error
+        )
         return []
       }
 
@@ -215,7 +293,10 @@ export const roomService = {
         .order('name', { ascending: true })
 
       if (error) {
-        console.warn('Could not load rooms for location:', error.message || error)
+        console.warn(
+          'Could not load rooms for location:',
+          error.message || error
+        )
         return []
       }
 
@@ -226,7 +307,10 @@ export const roomService = {
     }
   },
 
-  async updateRoom(roomId: string, updates: Partial<LocationRoomUpdate>): Promise<LocationRoom | null> {
+  async updateRoom(
+    roomId: string,
+    updates: Partial<LocationRoomUpdate>
+  ): Promise<LocationRoom | null> {
     const client = supabaseAdmin ?? supabase
     const { data, error } = await client
       .from('location_rooms')
@@ -290,11 +374,14 @@ export const planService = {
         .select('*')
         .eq('active', true)
         .order('name', { ascending: true })
-      
+
       // If any error occurs (table doesn't exist, RLS error, 500 error, etc.), return empty array
       if (error) {
         // Log warning but don't throw - return empty array so app can use fallback data
-        console.warn('Could not load plans from Supabase:', error.message || error)
+        console.warn(
+          'Could not load plans from Supabase:',
+          error.message || error
+        )
         return []
       }
       const plans = data || []
@@ -302,7 +389,10 @@ export const planService = {
       // Pricing overrides (keeps the website consistent even if DB is stale)
       // Note: prices are stored in paisa (e.g. 80000 = NPR 800.00)
       return plans.map((plan) => {
-        if (plan.type === 'day_pass' && plan.name?.toLowerCase() === 'explorer') {
+        if (
+          plan.type === 'day_pass' &&
+          plan.name?.toLowerCase() === 'explorer'
+        ) {
           const pricing = (plan.pricing as PlanPricingPayload) || {}
           return {
             ...plan,
@@ -316,7 +406,10 @@ export const planService = {
       })
     } catch (error: any) {
       // Catch all errors including network errors, 500 errors, etc.
-      console.warn('Error loading plans (using fallback):', error?.message || error)
+      console.warn(
+        'Error loading plans (using fallback):',
+        error?.message || error
+      )
       return []
     }
   },
@@ -327,9 +420,48 @@ export const planService = {
       .select('*')
       .eq('id', id)
       .single()
-    
+
     if (error) throw error
     return data
+  },
+
+  async getAllPlansAdmin(): Promise<Plan[]> {
+    const client = supabaseAdmin ?? supabase
+    const { data, error } = await client
+      .from('plans')
+      .select('*')
+      .order('name', { ascending: true })
+    if (error) throw error
+    return data || []
+  },
+
+  async createPlan(payload: any): Promise<Plan> {
+    const client = supabaseAdmin ?? supabase
+    const { data, error } = await client
+      .from('plans')
+      .insert(payload)
+      .select()
+      .single()
+    if (error) throw error
+    return data
+  },
+
+  async updatePlan(id: string, payload: any): Promise<Plan> {
+    const client = supabaseAdmin ?? supabase
+    const { data, error } = await client
+      .from('plans')
+      .update(payload)
+      .eq('id', id)
+      .select()
+      .single()
+    if (error) throw error
+    return data
+  },
+
+  async deletePlan(id: string): Promise<void> {
+    const client = supabaseAdmin ?? supabase
+    const { error } = await client.from('plans').delete().eq('id', id)
+    if (error) throw error
   },
 }
 
@@ -337,7 +469,9 @@ export const planService = {
 // LOCATION PLAN PRICING SERVICES
 // ============================================
 
-const transformPlanPricingPayload = (pricing: PlanPricingPayload): PlanPricingPayload => {
+const transformPlanPricingPayload = (
+  pricing: PlanPricingPayload
+): PlanPricingPayload => {
   const sanitized: PlanPricingPayload = {}
   if (typeof pricing.daily === 'number') sanitized.daily = pricing.daily
   if (typeof pricing.weekly === 'number') sanitized.weekly = pricing.weekly
@@ -352,12 +486,15 @@ export const locationPricingService = {
       const { data, error } = await supabase
         .from('location_plan_pricing')
         .select('*')
-      
+
       if (error) {
-        console.warn('Could not load location pricing from Supabase:', error.message || error)
+        console.warn(
+          'Could not load location pricing from Supabase:',
+          error.message || error
+        )
         return []
       }
-      
+
       return data || []
     } catch (error: any) {
       console.warn('Error loading location pricing:', error?.message || error)
@@ -365,26 +502,39 @@ export const locationPricingService = {
     }
   },
 
-  async getLocationPricingForLocation(locationId: string): Promise<LocationPlanPricing[]> {
+  async getLocationPricingForLocation(
+    locationId: string
+  ): Promise<LocationPlanPricing[]> {
     try {
       const { data, error } = await supabase
         .from('location_plan_pricing')
         .select('*')
         .eq('location_id', locationId)
-      
+
       if (error) {
-        console.warn('Could not load location pricing for location:', error.message || error)
+        console.warn(
+          'Could not load location pricing for location:',
+          error.message || error
+        )
         return []
       }
-      
+
       return data || []
     } catch (error: any) {
-      console.warn('Error loading location pricing for location:', error?.message || error)
+      console.warn(
+        'Error loading location pricing for location:',
+        error?.message || error
+      )
       return []
     }
   },
 
-  async upsertLocationPricing(params: { locationId: string; planId: string; pricing: PlanPricingPayload; currency?: string }) {
+  async upsertLocationPricing(params: {
+    locationId: string
+    planId: string
+    pricing: PlanPricingPayload
+    currency?: string
+  }) {
     const { locationId, planId, pricing, currency = 'NPR' } = params
     const payload: LocationPlanPricingInsert = {
       location_id: locationId,
@@ -399,7 +549,7 @@ export const locationPricingService = {
     const { error } = await client
       .from('location_plan_pricing')
       .upsert(payload, { onConflict: 'location_id,plan_id' })
-    
+
     if (error) throw error
   },
 }
@@ -416,7 +566,10 @@ export const roomPricingService = {
         .select('*')
 
       if (error) {
-        console.warn('Could not load room pricing from Supabase:', error.message || error)
+        console.warn(
+          'Could not load room pricing from Supabase:',
+          error.message || error
+        )
         return []
       }
 
@@ -435,18 +588,29 @@ export const roomPricingService = {
         .eq('room_id', roomId)
 
       if (error) {
-        console.warn('Could not load room pricing for room:', error.message || error)
+        console.warn(
+          'Could not load room pricing for room:',
+          error.message || error
+        )
         return []
       }
 
       return data || []
     } catch (error: any) {
-      console.warn('Error loading room pricing for room:', error?.message || error)
+      console.warn(
+        'Error loading room pricing for room:',
+        error?.message || error
+      )
       return []
     }
   },
 
-  async upsertRoomPricing(params: { roomId: string; planId: string; pricing: PlanPricingPayload; currency?: string }) {
+  async upsertRoomPricing(params: {
+    roomId: string
+    planId: string
+    pricing: PlanPricingPayload
+    currency?: string
+  }) {
     const { roomId, planId, pricing, currency = 'NPR' } = params
     const payload: RoomPlanPricingInsert = {
       room_id: roomId,
@@ -479,17 +643,23 @@ export const addOnService = {
         .select('*')
         .eq('active', true)
         .order('name', { ascending: true })
-      
+
       // If any error occurs (table doesn't exist, RLS error, 500 error, etc.), return empty array
       if (error) {
         // Log warning but don't throw - return empty array so app can use fallback data
-        console.warn('Could not load add-ons from Supabase:', error.message || error)
+        console.warn(
+          'Could not load add-ons from Supabase:',
+          error.message || error
+        )
         return []
       }
       return data || []
     } catch (error: any) {
       // Catch all errors including network errors, 500 errors, etc.
-      console.warn('Error loading add-ons (using fallback):', error?.message || error)
+      console.warn(
+        'Error loading add-ons (using fallback):',
+        error?.message || error
+      )
       return []
     }
   },
@@ -500,7 +670,7 @@ export const addOnService = {
       .select('*')
       .eq('id', id)
       .single()
-    
+
     if (error) throw error
     return data
   },
@@ -513,12 +683,16 @@ export const addOnService = {
 // Helper function to check if a string is a valid UUID
 const isValidUUID = (str: string): boolean => {
   if (!str) return false
-  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+  const uuidRegex =
+    /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
   return uuidRegex.test(str)
 }
 
 export const bookingService = {
-  async createBooking(bookingData: BookingData, userId: string | null): Promise<Booking> {
+  async createBooking(
+    bookingData: BookingData,
+    userId: string | null
+  ): Promise<Booking> {
     // Validate required fields
     if (!bookingData.locationId || !bookingData.planId) {
       throw new Error('Location and plan are required')
@@ -531,17 +705,23 @@ export const bookingService = {
     // Validate that IDs are valid UUIDs (from Supabase)
     if (!isValidUUID(bookingData.locationId)) {
       console.error('Invalid location ID format:', bookingData.locationId)
-      throw new Error('Invalid location selected. Please refresh the page and select a location again.')
+      throw new Error(
+        'Invalid location selected. Please refresh the page and select a location again.'
+      )
     }
 
     if (!isValidUUID(bookingData.planId)) {
       console.error('Invalid plan ID format:', bookingData.planId)
-      throw new Error('Invalid plan selected. Please refresh the page and select a plan again.')
+      throw new Error(
+        'Invalid plan selected. Please refresh the page and select a plan again.'
+      )
     }
 
     if (bookingData.roomId && !isValidUUID(bookingData.roomId)) {
       console.error('Invalid room ID format:', bookingData.roomId)
-      throw new Error('Invalid room selected. Please refresh the page and select a room again.')
+      throw new Error(
+        'Invalid room selected. Please refresh the page and select a room again.'
+      )
     }
 
     // For day passes, endDate should be the same as startDate
@@ -589,26 +769,47 @@ export const bookingService = {
       .insert(bookingInsert)
       .select()
       .single()
-    
+
     if (error) {
       // Check if it's a NOT NULL constraint error for user_id
-      if (error.code === '23502' || error.message?.includes('null value in column "user_id"') || error.message?.includes('violates not-null constraint')) {
-        console.error('Database schema error: user_id column is still set to NOT NULL. Please run the ALTER TABLE statement in schema.sql to make user_id nullable.')
-        throw new Error('Database configuration error. Please contact support or ensure the database schema allows guest bookings.')
+      if (
+        error.code === '23502' ||
+        error.message?.includes('null value in column "user_id"') ||
+        error.message?.includes('violates not-null constraint')
+      ) {
+        console.error(
+          'Database schema error: user_id column is still set to NOT NULL. Please run the ALTER TABLE statement in schema.sql to make user_id nullable.'
+        )
+        throw new Error(
+          'Database configuration error. Please contact support or ensure the database schema allows guest bookings.'
+        )
       }
-      
+
       // Check if it's a foreign key constraint error (invalid location_id or plan_id)
-      if (error.code === '23503' || error.message?.includes('foreign key') || error.message?.includes('violates foreign key')) {
-        console.error('Invalid location or plan ID. Please ensure the location and plan exist in Supabase.')
-        throw new Error('Invalid location or plan selected. Please refresh the page and try again.')
+      if (
+        error.code === '23503' ||
+        error.message?.includes('foreign key') ||
+        error.message?.includes('violates foreign key')
+      ) {
+        console.error(
+          'Invalid location or plan ID. Please ensure the location and plan exist in Supabase.'
+        )
+        throw new Error(
+          'Invalid location or plan selected. Please refresh the page and try again.'
+        )
       }
-      
+
       // Check if it's an invalid UUID format error
-      if (error.code === '22P02' || error.message?.includes('invalid input syntax for type uuid')) {
+      if (
+        error.code === '22P02' ||
+        error.message?.includes('invalid input syntax for type uuid')
+      ) {
         console.error('Invalid UUID format for location or plan ID.')
-        throw new Error('Invalid location or plan format. Please refresh the page and try again.')
+        throw new Error(
+          'Invalid location or plan format. Please refresh the page and try again.'
+        )
       }
-      
+
       // Log detailed error for debugging
       console.error('Booking creation error:', {
         error,
@@ -623,11 +824,11 @@ export const bookingService = {
           startDate,
           formattedEndDate,
           userId,
-        }
+        },
       })
       throw new Error(error.message || 'Failed to create booking')
     }
-    
+
     return data
   },
 
@@ -637,7 +838,7 @@ export const bookingService = {
       .select('*')
       .eq('id', id)
       .single()
-    
+
     if (error) throw error
     return data
   },
@@ -648,7 +849,7 @@ export const bookingService = {
       .select('*')
       .eq('user_id', userId)
       .order('created_at', { ascending: false })
-    
+
     if (error) throw error
     return data || []
   },
@@ -663,15 +864,17 @@ export const bookingService = {
     // Ensure updated_at is set
     const updateData: any = {
       ...updates,
-      updated_at: new Date().toISOString()
+      updated_at: new Date().toISOString(),
     }
-    
+
     // Check if user is authenticated
-    const { data: { user } } = await supabase.auth.getUser()
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
     if (!user) {
       console.warn('No authenticated user - update may fail due to RLS')
     }
-    
+
     // First, update the booking
     const { data: updateResult, error: updateError } = await supabase
       .from('bookings')
@@ -679,7 +882,7 @@ export const bookingService = {
       .eq('id', id)
       .select('*')
       .single()
-    
+
     if (updateError) {
       console.error('Error updating booking:', {
         error: updateError,
@@ -689,15 +892,15 @@ export const bookingService = {
         hint: updateError.hint,
         userId: user?.id,
         bookingId: id,
-        updates: updateData
+        updates: updateData,
       })
       throw updateError
     }
-    
+
     if (!updateResult) {
       throw new Error('No data returned from update')
     }
-    
+
     return updateResult
   },
 
@@ -711,10 +914,7 @@ export const bookingService = {
 
   async deleteBooking(id: string): Promise<void> {
     const client = supabaseAdmin ?? supabase
-    const { error } = await client
-      .from('bookings')
-      .delete()
-      .eq('id', id)
+    const { error } = await client.from('bookings').delete().eq('id', id)
 
     if (error) throw error
   },
@@ -725,64 +925,85 @@ export const bookingService = {
       .from('bookings')
       .select('*')
       .order('created_at', { ascending: false })
-    
+
     if (bookingsError) {
       console.error('Error fetching bookings:', bookingsError)
       throw bookingsError
     }
-    
+
     if (!bookings || bookings.length === 0) {
       return []
     }
-    
+
     // Get unique location and plan IDs
-    const locationIds = [...new Set(bookings.map(b => b.location_id))]
-    const roomIds = [...new Set(bookings.map(b => b.room_id).filter(Boolean))] as string[]
-    const planIds = [...new Set(bookings.map(b => b.plan_id))]
-    
+    const locationIds = [...new Set(bookings.map((b) => b.location_id))]
+    const roomIds = [
+      ...new Set(bookings.map((b) => b.room_id).filter(Boolean)),
+    ] as string[]
+    const planIds = [...new Set(bookings.map((b) => b.plan_id))]
+
     // Fetch locations and plans
     const [locationsResult, roomsResult, plansResult] = await Promise.all([
       supabase.from('locations').select('id, name').in('id', locationIds),
       roomIds.length
         ? supabase.from('location_rooms').select('id, name').in('id', roomIds)
-        : Promise.resolve({ data: [], error: null } as { data: LocationRoom[] | null; error: any }),
-      supabase.from('plans').select('id, name').in('id', planIds)
+        : Promise.resolve({ data: [], error: null } as {
+            data: LocationRoom[] | null
+            error: any
+          }),
+      supabase.from('plans').select('id, name').in('id', planIds),
     ])
-    
+
     if (locationsResult.error) {
       console.error('Error fetching locations:', locationsResult.error)
     }
     if (plansResult.error) {
       console.error('Error fetching plans:', plansResult.error)
     }
-    
+
     // Create lookup maps
     const locationsMap = new Map(
-      (locationsResult.data || []).map(loc => [loc.id, loc.name])
+      (locationsResult.data || []).map((loc) => [loc.id, loc.name])
     )
     const roomsMap = new Map(
-      (roomsResult.data || []).map(room => [room.id, room.name])
+      (roomsResult.data || []).map((room) => [room.id, room.name])
     )
     const plansMap = new Map(
-      (plansResult.data || []).map(plan => [plan.id, plan.name])
+      (plansResult.data || []).map((plan) => [plan.id, plan.name])
     )
-    
+
     // Attach location and plan names to bookings
-    return bookings.map(booking => ({
+    return bookings.map((booking) => ({
       ...booking,
-      locations: { id: booking.location_id, name: locationsMap.get(booking.location_id) || 'Unknown Location' },
-      rooms: booking.room_id ? { id: booking.room_id, name: roomsMap.get(booking.room_id) || 'Unassigned Room' } : null,
-      plans: { id: booking.plan_id, name: plansMap.get(booking.plan_id) || 'Unknown Plan' }
+      locations: {
+        id: booking.location_id,
+        name: locationsMap.get(booking.location_id) || 'Unknown Location',
+      },
+      rooms: booking.room_id
+        ? {
+            id: booking.room_id,
+            name: roomsMap.get(booking.room_id) || 'Unassigned Room',
+          }
+        : null,
+      plans: {
+        id: booking.plan_id,
+        name: plansMap.get(booking.plan_id) || 'Unknown Plan',
+      },
     })) as any
   },
 
-  async getBookingsByDateRange(startDate: string, endDate: string, locationId?: string, roomId?: string): Promise<Booking[]> {
+  async getBookingsByDateRange(
+    startDate: string,
+    endDate: string,
+    locationId?: string,
+    roomId?: string
+  ): Promise<Booking[]> {
     let query = supabase
       .from('bookings')
       .select('*')
       .or(`start_date.lte.${endDate},end_date.gte.${startDate}`)
       .in('status', ['pending', 'confirmed'])
-    
+
     if (locationId) {
       query = query.eq('location_id', locationId)
     }
@@ -790,9 +1011,9 @@ export const bookingService = {
     if (roomId) {
       query = query.eq('room_id', roomId)
     }
-    
+
     const { data, error } = await query
-    
+
     if (error) throw error
     return data || []
   },
@@ -803,8 +1024,11 @@ export const bookingService = {
 // ============================================
 
 export const manualEntryService = {
-  async getEntries(entryType?: ManualAdminEntry['entry_type']): Promise<ManualAdminEntry[]> {
-    let query = supabase
+  async getEntries(
+    entryType?: ManualAdminEntry['entry_type']
+  ): Promise<ManualAdminEntry[]> {
+    const client = supabaseAdmin ?? supabase
+    let query = client
       .from('manual_admin_entries')
       .select('*')
       .order('created_at', { ascending: false })
@@ -823,7 +1047,11 @@ export const manualEntryService = {
     return data || []
   },
 
-  async addEntry(params: { entryType: ManualAdminEntry['entry_type']; data: Record<string, any>; createdBy?: string | null }) {
+  async addEntry(params: {
+    entryType: ManualAdminEntry['entry_type']
+    data: Record<string, any>
+    createdBy?: string | null
+  }) {
     const sanitizedData = JSON.parse(JSON.stringify(params.data ?? {}))
     const payload: ManualAdminEntryInsert = {
       entry_type: params.entryType,
@@ -885,7 +1113,7 @@ export const paymentService = {
       .insert(paymentData)
       .select()
       .single()
-    
+
     if (error) throw error
     return data
   },
@@ -896,7 +1124,7 @@ export const paymentService = {
       .select('*')
       .eq('id', id)
       .single()
-    
+
     if (error) throw error
     return data
   },
@@ -909,7 +1137,7 @@ export const paymentService = {
       .order('created_at', { ascending: false })
       .limit(1)
       .single()
-    
+
     if (error && error.code !== 'PGRST116') throw error // PGRST116 = no rows returned
     return data
   },
@@ -921,17 +1149,384 @@ export const paymentService = {
       .eq('id', id)
       .select()
       .single()
-    
+
     if (error) throw error
     return data
   },
 
-  async updatePaymentStatus(id: string, status: Payment['status'], transactionId?: string): Promise<Payment> {
+  async updatePaymentStatus(
+    id: string,
+    status: Payment['status'],
+    transactionId?: string
+  ): Promise<Payment> {
     const updates: Partial<Payment> = { status }
     if (transactionId) {
       updates.transaction_id = transactionId
     }
     return this.updatePayment(id, updates)
+  },
+}
+
+// ============================================
+// AMENITIES
+// ============================================
+export const amenitiesService = {
+  async getAll(): Promise<any[]> {
+    const { data } = await supabase
+      .from('amenities')
+      .select('*')
+      .order('sort_order', { ascending: true })
+    return data || []
+  },
+}
+
+// ============================================
+// TESTIMONIALS
+// ============================================
+export const testimonialsService = {
+  async getAll(): Promise<any[]> {
+    const { data } = await supabase
+      .from('testimonials')
+      .select('*')
+      .order('sort_order', { ascending: true })
+    return data || []
+  },
+  async create(payload: any): Promise<any> {
+    const client = supabaseAdmin ?? supabase
+    const { data, error } = await client
+      .from('testimonials')
+      .insert(payload)
+      .select()
+      .single()
+    if (error) throw error
+    return data
+  },
+  async update(id: string, payload: any): Promise<any> {
+    const client = supabaseAdmin ?? supabase
+    const { data, error } = await client
+      .from('testimonials')
+      .update(payload)
+      .eq('id', id)
+      .select()
+      .single()
+    if (error) throw error
+    return data
+  },
+  async delete(id: string): Promise<void> {
+    const client = supabaseAdmin ?? supabase
+    const { error } = await client.from('testimonials').delete().eq('id', id)
+    if (error) throw error
+  },
+}
+
+// ============================================
+// FAQS
+// ============================================
+export const faqsService = {
+  async getAll(): Promise<any[]> {
+    const { data } = await supabase
+      .from('faqs')
+      .select('*')
+      .order('sort_order', { ascending: true })
+    return data || []
+  },
+  async create(payload: any): Promise<any> {
+    const client = supabaseAdmin ?? supabase
+    const { data, error } = await client
+      .from('faqs')
+      .insert(payload)
+      .select()
+      .single()
+    if (error) throw error
+    return data
+  },
+  async update(id: string, payload: any): Promise<any> {
+    const client = supabaseAdmin ?? supabase
+    const { data, error } = await client
+      .from('faqs')
+      .update(payload)
+      .eq('id', id)
+      .select()
+      .single()
+    if (error) throw error
+    return data
+  },
+  async delete(id: string): Promise<void> {
+    const client = supabaseAdmin ?? supabase
+    const { error } = await client.from('faqs').delete().eq('id', id)
+    if (error) throw error
+  },
+}
+
+// ============================================
+// MEMBER COMPANIES
+// ============================================
+export const memberCompaniesService = {
+  async getAll(): Promise<any[]> {
+    const { data } = await supabase
+      .from('member_companies')
+      .select('*')
+      .order('sort_order', { ascending: true })
+    return data || []
+  },
+  async create(payload: any): Promise<any> {
+    const client = supabaseAdmin ?? supabase
+    const { data, error } = await client
+      .from('member_companies')
+      .insert(payload)
+      .select()
+      .single()
+    if (error) throw error
+    return data
+  },
+  async update(id: string, payload: any): Promise<any> {
+    const client = supabaseAdmin ?? supabase
+    const { data, error } = await client
+      .from('member_companies')
+      .update(payload)
+      .eq('id', id)
+      .select()
+      .single()
+    if (error) throw error
+    return data
+  },
+  async delete(id: string): Promise<void> {
+    const client = supabaseAdmin ?? supabase
+    const { error } = await client
+      .from('member_companies')
+      .delete()
+      .eq('id', id)
+    if (error) throw error
+  },
+}
+
+// ============================================
+// SITE STATS
+// ============================================
+export const siteStatsService = {
+  async getAll(): Promise<any[]> {
+    const { data } = await supabase
+      .from('site_stats')
+      .select('*')
+      .order('sort_order', { ascending: true })
+    return data || []
+  },
+
+  async create(payload: any): Promise<any> {
+    const client = supabaseAdmin ?? supabase
+    const { data, error } = await client
+      .from('site_stats')
+      .insert(payload)
+      .select()
+      .single()
+    if (error) throw error
+    return data
+  },
+
+  async update(id: string, payload: any): Promise<any> {
+    const client = supabaseAdmin ?? supabase
+    const { data, error } = await client
+      .from('site_stats')
+      .update(payload)
+      .eq('id', id)
+      .select()
+      .single()
+    if (error) throw error
+    return data
+  },
+
+  async delete(id: string): Promise<void> {
+    const client = supabaseAdmin ?? supabase
+    const { error } = await client.from('site_stats').delete().eq('id', id)
+    if (error) throw error
+  },
+}
+
+// ============================================
+// HERO CONTENT
+// ============================================
+export const heroService = {
+  async get(): Promise<any | null> {
+    const { data, error } = await supabase
+      .from('hero_content')
+      .select('*')
+      .limit(1)
+      .maybeSingle()
+    if (error) return null
+    return data || null
+  },
+
+  async upsert(payload: any): Promise<any> {
+    const client = supabaseAdmin ?? supabase
+    const { data: existing } = await client
+      .from('hero_content')
+      .select('id')
+      .limit(1)
+      .maybeSingle()
+    const id = existing?.id ?? undefined
+    const { data, error } = await client
+      .from('hero_content')
+      .upsert({ id, ...payload })
+      .select()
+      .single()
+    if (error) throw error
+    return data
+  },
+}
+
+// ============================================
+// MEMBERSHIP CONTENT
+// ============================================
+export const membershipService = {
+  async get(): Promise<any | null> {
+    const { data, error } = await supabase
+      .from('membership_content')
+      .select('*')
+      .limit(1)
+      .maybeSingle()
+    if (error) return null
+    return data || null
+  },
+
+  async upsert(payload: any): Promise<any> {
+    const client = supabaseAdmin ?? supabase
+    const { data: existing } = await client
+      .from('membership_content')
+      .select('id')
+      .limit(1)
+      .maybeSingle()
+    const id = existing?.id ?? undefined
+    const { data, error } = await client
+      .from('membership_content')
+      .upsert({ id, ...payload })
+      .select()
+      .single()
+    if (error) throw error
+    return data
+  },
+}
+
+// ============================================
+// SPACES CONTENT
+// ============================================
+export const spacesService = {
+  async get(): Promise<any | null> {
+    const { data, error } = await supabase
+      .from('spaces_content')
+      .select('*')
+      .limit(1)
+      .maybeSingle()
+    if (error) return null
+    return data || null
+  },
+
+  async upsert(payload: any): Promise<any> {
+    const client = supabaseAdmin ?? supabase
+    const { data: existing } = await client
+      .from('spaces_content')
+      .select('id')
+      .limit(1)
+      .maybeSingle()
+    const id = existing?.id ?? undefined
+    const { data, error } = await client
+      .from('spaces_content')
+      .upsert({ id, ...payload })
+      .select()
+      .single()
+    if (error) throw error
+    return data
+  },
+}
+
+// ============================================
+// BOOK TOUR CONTENT
+// ============================================
+export const bookTourContentService = {
+  async get(): Promise<any | null> {
+    const { data, error } = await supabase
+      .from('book_tour_content')
+      .select('*')
+      .limit(1)
+      .maybeSingle()
+    if (error) return null
+    return data || null
+  },
+
+  async upsert(payload: any): Promise<any> {
+    const client = supabaseAdmin ?? supabase
+    const { data: existing } = await client
+      .from('book_tour_content')
+      .select('id')
+      .limit(1)
+      .maybeSingle()
+    const id = existing?.id ?? undefined
+    const { data, error } = await client
+      .from('book_tour_content')
+      .upsert({ id, ...payload })
+      .select()
+      .single()
+    if (error) throw error
+    return data
+  },
+}
+
+// ============================================
+// CTA CONTENT
+// ============================================
+export const ctaContentService = {
+  async get(): Promise<any | null> {
+    const { data, error } = await supabase
+      .from('cta_content')
+      .select('*')
+      .limit(1)
+      .maybeSingle()
+    if (error) return null
+    return data || null
+  },
+
+  async upsert(payload: any): Promise<any> {
+    const client = supabaseAdmin ?? supabase
+    const { data: existing } = await client
+      .from('cta_content')
+      .select('id')
+      .limit(1)
+      .maybeSingle()
+    const id = existing?.id ?? undefined
+    const { data, error } = await client
+      .from('cta_content')
+      .upsert({ id, ...payload })
+      .select()
+      .single()
+    if (error) throw error
+    return data
+  },
+}
+
+// ============================================
+// FORM SUBMISSIONS
+// ============================================
+export const formSubmissionService = {
+  async getAll(): Promise<any[]> {
+    const client = supabaseAdmin ?? supabase
+    const { data } = await client
+      .from('form_submissions')
+      .select('*')
+      .order('created_at', { ascending: false })
+    return data || []
+  },
+
+  async create(payload: any): Promise<void> {
+    const { error } = await supabase.from('form_submissions').insert(payload)
+    if (error) throw error
+  },
+
+  async delete(id: string): Promise<void> {
+    const client = supabaseAdmin ?? supabase
+    const { error } = await client
+      .from('form_submissions')
+      .delete()
+      .eq('id', id)
+    if (error) throw error
   },
 }
 
@@ -943,7 +1538,8 @@ export const realtimeService = {
   subscribeToBookings(callback: (payload: any) => void) {
     return supabase
       .channel('bookings')
-      .on('postgres_changes', 
+      .on(
+        'postgres_changes',
         { event: '*', schema: 'public', table: 'bookings' },
         callback
       )
@@ -953,16 +1549,16 @@ export const realtimeService = {
   subscribeToUserBookings(userId: string, callback: (payload: any) => void) {
     return supabase
       .channel(`user-bookings-${userId}`)
-      .on('postgres_changes',
-        { 
-          event: '*', 
-          schema: 'public', 
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
           table: 'bookings',
-          filter: `user_id=eq.${userId}`
+          filter: `user_id=eq.${userId}`,
         },
         callback
       )
       .subscribe()
   },
 }
-
