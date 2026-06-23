@@ -423,7 +423,7 @@ export function PaymentPage() {
         </div>
 
         <div className="text-center mb-8">
-          <h1 className="text-3xl md:text-4xl font-display font-bold mb-2">
+          <h1 className="text-3xl md:text-4xl font-display font-normal mb-2">
             Complete Your Payment
           </h1>
           <p className="text-fg-2">

@@ -93,7 +93,7 @@ export function SEOContentSection() {
                 <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500 to-purple-700 mb-4 group-hover:scale-110 transition-transform">
                   <feature.icon className="h-6 w-6 text-white" />
                 </div>
-                <h3 className="font-semibold text-lg mb-2 text-gray-900 dark:text-white">
+                <h3 className="font-normal text-lg mb-2 text-gray-900 dark:text-white">
                   {feature.title}
                 </h3>
                 <p className="text-sm text-gray-600 dark:text-muted-foreground leading-relaxed">

@@ -550,7 +550,7 @@ export function AdminMembershipsPage() {
       {showManualForm && (
         <Card>
           <CardContent className="p-4 space-y-4">
-            <h2 className="font-semibold text-lg">Manual Membership Entry</h2>
+            <h2 className="font-normal text-lg">Manual Membership Entry</h2>
             <form
               className="grid gap-4 md:grid-cols-2"
               onSubmit={handleManualMembershipSubmit}

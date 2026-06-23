@@ -42,6 +42,7 @@ export const ROUTES = {
   ADMIN_CTA: '/admin/cta',
   ADMIN_FORM_SUBMISSIONS: '/admin/form-submissions',
   ADMIN_PLANS: '/admin/plans',
+  ADMIN_ADDONS: '/admin/add-ons',
 } as const
 
 export const AMENITIES = [

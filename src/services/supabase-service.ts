@@ -674,6 +674,45 @@ export const addOnService = {
     if (error) throw error
     return data
   },
+
+  async getAllAddOnsAdmin(): Promise<AddOn[]> {
+    const client = supabaseAdmin ?? supabase
+    const { data, error } = await client
+      .from('add_ons')
+      .select('*')
+      .order('name', { ascending: true })
+    if (error) throw error
+    return data || []
+  },
+
+  async createAddOn(payload: any): Promise<AddOn> {
+    const client = supabaseAdmin ?? supabase
+    const { data, error } = await client
+      .from('add_ons')
+      .insert(payload)
+      .select()
+      .single()
+    if (error) throw error
+    return data
+  },
+
+  async updateAddOn(id: string, payload: any): Promise<AddOn> {
+    const client = supabaseAdmin ?? supabase
+    const { data, error } = await client
+      .from('add_ons')
+      .update(payload)
+      .eq('id', id)
+      .select()
+      .single()
+    if (error) throw error
+    return data
+  },
+
+  async deleteAddOn(id: string): Promise<void> {
+    const client = supabaseAdmin ?? supabase
+    const { error } = await client.from('add_ons').delete().eq('id', id)
+    if (error) throw error
+  },
 }
 
 // ============================================

@@ -570,7 +570,7 @@ export function AdminBookingsPage() {
         >
           <Card>
             <div className="bg-clay p-6 text-white">
-              <h2 className="text-xl font-bold">
+              <h2 className="text-xl font-normal text-fg-on-ink-1">
                 {editingBooking ? 'Edit Booking' : 'Add Manual Booking'}
               </h2>
               <p className="text-white/80 text-sm mt-1">
@@ -1017,7 +1017,7 @@ export function AdminBookingsPage() {
                       b.addOns.guestPasses > 0 ||
                       b.notes) && (
                       <div className="pt-4 border-t">
-                        <div className="text-xs font-semibold mb-2">
+                        <div className="text-xs font-normal mb-2">
                           Add-ons & Extras
                         </div>
                         <div className="flex flex-wrap gap-2">

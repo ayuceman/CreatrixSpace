@@ -114,7 +114,7 @@ export function AboutPage() {
               transition={{ duration: 0.6 }}
               viewport={{ once: true }}
             >
-              <h2 className="text-3xl md:text-4xl font-display font-bold mb-6">
+              <h2 className="text-3xl md:text-4xl font-display font-normal mb-6">
                 Our Story
               </h2>
               <div className="space-y-4 text-fg-2 leading-relaxed">
@@ -170,7 +170,7 @@ export function AboutPage() {
             viewport={{ once: true }}
             className="text-center mb-16"
           >
-            <h2 className="text-3xl md:text-4xl font-display font-bold mb-6">
+            <h2 className="text-3xl md:text-4xl font-display font-normal mb-6">
               Our Values
             </h2>
             <p className="text-xl text-fg-2 max-w-2xl mx-auto">
@@ -220,7 +220,7 @@ export function AboutPage() {
             viewport={{ once: true }}
             className="max-w-4xl mx-auto text-center"
           >
-            <h2 className="text-3xl md:text-4xl font-display font-bold mb-6">
+            <h2 className="text-3xl md:text-4xl font-display font-normal mb-6">
               Our Mission
             </h2>
             <p className="text-xl text-fg-2 leading-relaxed mb-8">

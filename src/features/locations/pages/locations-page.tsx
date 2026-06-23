@@ -185,8 +185,8 @@ export function LocationsPage() {
         transition={{ duration: 0.6 }}
         className="text-center mb-16"
       >
-        <h1 className="text-4xl md:text-5xl font-display font-bold mb-6">
-          Our <span className="gradient-text">Locations</span>
+        <h1 className="text-4xl md:text-5xl font-display font-normal mb-6">
+          Our <span className="text-clay">Locations</span>
         </h1>
         <p className="text-lg text-fg-2 max-w-2xl mx-auto">
           Discover our premium coworking spaces across Kathmandu. Each location

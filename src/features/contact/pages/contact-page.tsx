@@ -12,19 +12,21 @@ import {
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
-import { ROUTES } from '@/lib/constants'
+import { ROUTES, WHATSAPP, CONTACT } from '@/lib/constants'
+import { locationService } from '@/services/supabase-service'
+import { FAQSection } from '@/features/home/components/faq-section'
 
 const contactInfo = [
   {
     icon: Phone,
     title: 'Phone',
-    content: '+977 9851357889',
+    content: CONTACT.PHONE,
     description: 'Call us for immediate assistance',
   },
   {
     icon: MessageCircle,
     title: 'WhatsApp',
-    content: '+977 9803171819',
+    content: WHATSAPP.DISPLAY,
     description: 'Message us anytime on WhatsApp',
   },
   {
@@ -41,7 +43,17 @@ const contactInfo = [
   },
 ]
 
-const locations = [
+type LocationCard = {
+  name: string
+  fullAddress: string
+  phone: string
+  email: string
+  hours: string
+  status: string
+  googleMapsUrl?: string
+}
+
+const fallbackLocations: LocationCard[] = [
   {
     name: 'Dhobighat (WashingTown) Hub',
     fullAddress: 'Dhobighat Chowk, Kathmandu 44600',
@@ -69,38 +81,36 @@ const locations = [
   },
 ]
 
-const faqs = [
-  {
-    question: 'How do I book a workspace?',
-    answer:
-      'You can book a workspace through our online booking system. Simply select your preferred location, choose your plan, and complete the booking process.',
-  },
-  {
-    question: 'What amenities are included?',
-    answer:
-      'All our locations include high-speed WiFi, coffee & tea, printing services, meeting rooms, and access to our community events.',
-  },
-  {
-    question: 'Can I cancel my membership?',
-    answer:
-      'Yes, you can cancel your membership at any time with 30 days notice. No long-term commitments required.',
-  },
-  {
-    question: 'Do you offer day passes?',
-    answer:
-      'Yes, we offer flexible day passes starting from NPR 800 per day. Perfect for trying out our spaces.',
-  },
-]
-
 export function ContactPage() {
   const [isFormReady, setIsFormReady] = useState(false)
   const [formError, setFormError] = useState(false)
+  const [locations, setLocations] = useState<LocationCard[]>(fallbackLocations)
+
   const getWhatsAppLink = (rawPhone: string) => {
     const digits = (rawPhone || '').replace(/\D/g, '')
     if (!digits) return undefined
     const withCountry = digits.startsWith('977') ? digits : `977${digits}`
     return `https://wa.me/${withCountry}`
   }
+
+  useEffect(() => {
+    locationService.getAllLocations().then((data) => {
+      if (data && data.length > 0) {
+        const mapped = data
+          .filter((loc: any) => loc.available !== false)
+          .map((loc: any) => ({
+            name: loc.name,
+            fullAddress: loc.full_address || '',
+            phone: loc.contact_phone || '',
+            email: loc.contact_email || '',
+            hours: '',
+            status: loc.status || 'Available',
+            googleMapsUrl: loc.google_maps_url || undefined,
+          }))
+        if (mapped.length > 0) setLocations(mapped)
+      }
+    })
+  }, [])
 
   useEffect(() => {
     const src = 'https://js.hsforms.net/forms/v2.js'
@@ -165,7 +175,7 @@ export function ContactPage() {
   }, [])
 
   return (
-    <div className="overflow-x-hidden">
+    <>
       {/* Hero Section */}
       <section className="section-padding bg-gradient-to-br from-bg via-bg to-clay/5">
         <div className="container">
@@ -175,15 +185,12 @@ export function ContactPage() {
             transition={{ duration: 0.6 }}
             className="text-center space-y-6 max-w-3xl mx-auto"
           >
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 text-sm font-medium mb-4">
-              <MessageCircle className="h-4 w-4" />
+            <div className="eyebrow text-clay">
+              <MessageCircle className="h-4 w-4 inline mr-1.5" />
               We respond within 24 hours
             </div>
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-display font-bold">
-              Let's{' '}
-              <span className="bg-gradient-to-r from-purple-600 to-purple-800 bg-clip-text text-transparent">
-                Connect
-              </span>
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-display font-normal">
+              Let's <span className="text-clay italic">Connect</span>
             </h1>
             <p className="text-lg text-fg-2">
               Have questions about our coworking spaces? We're here to help!
@@ -194,7 +201,7 @@ export function ContactPage() {
       </section>
 
       {/* Contact Information */}
-      <section className="py-16 md:py-20 bg-white dark:bg-background">
+      <section className="section-padding bg-bg">
         <div className="container">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
             {contactInfo.map((info, index) => {
@@ -212,7 +219,7 @@ export function ContactPage() {
                       <div className="w-12 h-12 bg-clay/10 rounded-lg flex items-center justify-center mx-auto">
                         <Icon className="h-6 w-6 text-clay" />
                       </div>
-                      <h3 className="font-semibold text-lg">{info.title}</h3>
+                      <h3 className="font-normal text-lg">{info.title}</h3>
                       <p className="font-medium text-clay">{info.content}</p>
                       <p className="text-sm text-fg-2">{info.description}</p>
                     </CardContent>
@@ -234,33 +241,36 @@ export function ContactPage() {
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.6 }}
             >
-              <div className="h-full rounded-3xl border-2 border-purple-200 dark:border-purple-900/50 bg-white dark:bg-background shadow-lg overflow-hidden">
-                <div className="bg-gradient-to-r from-purple-600 to-purple-700 p-6 text-white">
-                  <h2 className="text-2xl font-bold flex items-center gap-2">
+              <div className="h-full rounded-2xl border border-clay/20 dark:border-clay/40 bg-bg shadow-lg overflow-hidden">
+                <div className="bg-clay p-6 text-fg-on-ink-1">
+                  <h2 className="text-2xl font-normal text-fg-on-ink-1 flex items-center gap-2">
                     <Mail className="h-6 w-6" />
                     Send us a Message
                   </h2>
-                  <p className="text-purple-100 text-sm mt-2">
+                  <p className="text-fg-on-ink-1/80 text-sm mt-2">
                     We'll respond within 24 hours
                   </p>
                 </div>
                 <div className="p-6">
                   {!isFormReady && !formError && (
-                    <div className="flex items-center gap-3 text-sm text-gray-600 dark:text-gray-400 mb-4 p-4 bg-purple-50 dark:bg-purple-950/20 rounded-lg">
-                      <Loader2 className="h-4 w-4 animate-spin text-purple-600" />
+                    <div className="flex items-center gap-3 text-sm text-fg-2 mb-4 p-4 bg-clay/5 rounded-lg">
+                      <Loader2 className="h-4 w-4 animate-spin text-clay" />
                       Loading form…
                     </div>
                   )}
 
                   {formError && !isFormReady && (
-                    <div className="text-sm text-gray-700 dark:text-gray-300 mb-4 p-4 bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 rounded-lg">
+                    <div className="text-sm text-fg-2 mb-4 p-4 bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 rounded-lg">
                       The form couldn't load (often blocked by
                       ad‑blockers/privacy settings). Please use WhatsApp or call
                       us above, or try disabling blockers and refresh.
                     </div>
                   )}
 
-                  <div id="hubspot-contact-form" className="min-h-[420px]" />
+                  <div
+                    id="hubspot-contact-form"
+                    className="min-h-[420px] [&_.hs-form-header]:hidden"
+                  />
                 </div>
               </div>
             </motion.div>
@@ -287,7 +297,7 @@ export function ContactPage() {
                       <CardContent className="p-6">
                         <div className="space-y-3">
                           <div className="flex items-start justify-between">
-                            <h3 className="font-semibold text-lg">
+                            <h3 className="font-normal text-lg">
                               {location.name}
                             </h3>
                             <span
@@ -305,16 +315,18 @@ export function ContactPage() {
 
                           <div className="space-y-2 text-sm text-fg-2">
                             <div className="flex items-center">
-                              <MapPin className="h-4 w-4 mr-2" />
+                              <MapPin className="h-4 w-4 mr-2 shrink-0" />
                               <span>{location.fullAddress}</span>
                             </div>
-                            <div className="flex items-center">
-                              <Phone className="h-4 w-4 mr-2" />
-                              <span>{location.phone}</span>
-                            </div>
-                            <div className="flex items-center">
-                              <MessageCircle className="h-4 w-4 mr-2" />
-                              {location.phone ? (
+                            {location.phone && (
+                              <div className="flex items-center">
+                                <Phone className="h-4 w-4 mr-2 shrink-0" />
+                                <span>{location.phone}</span>
+                              </div>
+                            )}
+                            {location.phone && (
+                              <div className="flex items-center">
+                                <MessageCircle className="h-4 w-4 mr-2 shrink-0" />
                                 <a
                                   href={getWhatsAppLink(location.phone)}
                                   target="_blank"
@@ -323,17 +335,17 @@ export function ContactPage() {
                                 >
                                   WhatsApp
                                 </a>
-                              ) : (
-                                <span>WhatsApp</span>
-                              )}
-                            </div>
-                            <div className="flex items-center">
-                              <Clock className="h-4 w-4 mr-2" />
-                              <span>{location.hours}</span>
-                            </div>
+                              </div>
+                            )}
+                            {location.hours && (
+                              <div className="flex items-center">
+                                <Clock className="h-4 w-4 mr-2 shrink-0" />
+                                <span>{location.hours}</span>
+                              </div>
+                            )}
                             {location.googleMapsUrl && (
                               <div className="flex items-center">
-                                <MapPin className="h-4 w-4 mr-2" />
+                                <MapPin className="h-4 w-4 mr-2 shrink-0" />
                                 <a
                                   href={location.googleMapsUrl}
                                   target="_blank"
@@ -357,52 +369,10 @@ export function ContactPage() {
         </div>
       </section>
 
-      {/* FAQ Section - Accordion Style */}
-      <section className="py-16 md:py-20 bg-white dark:bg-background">
-        <div className="container max-w-4xl">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            viewport={{ once: true }}
-            className="text-center space-y-4 mb-12"
-          >
-            <h2 className="text-3xl md:text-4xl font-display font-bold">
-              Frequently Asked{' '}
-              <span className="bg-gradient-to-r from-purple-600 to-purple-800 bg-clip-text text-transparent">
-                Questions
-              </span>
-            </h2>
-            <p className="text-lg text-fg-2">
-              Quick answers to common questions about our coworking spaces.
-            </p>
-          </motion.div>
-
-          <div className="space-y-4">
-            {faqs.map((faq, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-                viewport={{ once: true }}
-              >
-                <Card>
-                  <CardContent className="p-6">
-                    <h3 className="font-semibold text-lg mb-2">
-                      {faq.question}
-                    </h3>
-                    <p className="text-fg-2">{faq.answer}</p>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
+      <FAQSection />
 
       {/* CTA Section */}
-      <section className="section-padding bg-clay text-fg-on-ink-1">
+      <section className="section-padding bg-ink text-fg-on-ink-1">
         <div className="container text-center">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -411,7 +381,7 @@ export function ContactPage() {
             viewport={{ once: true }}
             className="space-y-6 max-w-2xl mx-auto"
           >
-            <h2 className="text-3xl md:text-4xl font-display font-bold">
+            <h2 className="text-3xl md:text-4xl font-display font-normal text-fg-on-ink-1">
               Ready to Join Our Community?
             </h2>
             <p className="text-lg text-fg-on-ink-1/80">
@@ -421,7 +391,7 @@ export function ContactPage() {
             <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
               <Button
                 size="lg"
-                className="bg-white text-purple-700 hover:bg-purple-50"
+                className="bg-white text-ink hover:bg-white/90"
                 asChild
               >
                 <a href={ROUTES.BOOKING}>
@@ -431,11 +401,11 @@ export function ContactPage() {
               </Button>
               <Button
                 size="lg"
-                variant="secondary"
-                className="border-clay-foreground/20  hover:bg-clay-foreground hover:text-clay"
+                variant="outline"
+                className="border-white/30 bg-white/10 text-white hover:bg-white hover:text-ink border-2"
                 asChild
               >
-                <a href="tel:+9779851357889">
+                <a href={`tel:${CONTACT.PHONE_HREF}`}>
                   <Phone className="mr-2 h-4 w-4" />
                   Call Now
                 </a>
@@ -444,6 +414,6 @@ export function ContactPage() {
           </motion.div>
         </div>
       </section>
-    </div>
+    </>
   )
 }
