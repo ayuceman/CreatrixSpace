@@ -15,6 +15,12 @@ import {
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
+import {
+  Accordion,
+  AccordionItem,
+  AccordionTrigger,
+  AccordionContent,
+} from '@/components/ui/accordion'
 import { amenitiesService } from '@/services/supabase-service'
 import { supabase } from '@/lib/supabase'
 import { supabaseAdmin } from '@/lib/supabase-admin'
@@ -26,6 +32,12 @@ interface AmenityItem {
   description: string
   icon: string | null
   sort_order: number | null
+  _key?: string
+}
+
+let itemKeyCounter = Date.now()
+function nextKey() {
+  return `item_${itemKeyCounter++}`
 }
 
 export function AdminAmenitiesPage() {
@@ -76,16 +88,15 @@ export function AdminAmenitiesPage() {
   }, [])
 
   const addItem = () => {
-    setItems((prev) => [
-      ...prev,
-      {
-        id: '',
-        title: '',
-        description: '',
-        icon: 'clock',
-        sort_order: prev.length + 1,
-      },
-    ])
+    const newItem: AmenityItem & { _key: string } = {
+      id: '',
+      title: '',
+      description: '',
+      icon: 'clock',
+      sort_order: 1,
+      _key: nextKey(),
+    }
+    setItems((prev) => [newItem, ...prev])
   }
 
   const updateItem = (i: number, patch: Partial<AmenityItem>) => {
@@ -107,11 +118,12 @@ export function AdminAmenitiesPage() {
       const savedIds = new Set<string>()
 
       for (const item of items) {
-        if (item.id) {
-          await client.from('amenities').update(item).eq('id', item.id)
-          savedIds.add(item.id)
+        const { _key, ...dbItem } = item
+        if (dbItem.id) {
+          await client.from('amenities').update(dbItem).eq('id', dbItem.id)
+          savedIds.add(dbItem.id)
         } else {
-          const { id: _id, ...rest } = item
+          const { id: _id, ...rest } = dbItem
           const { data } = await client.from('amenities').insert(rest).select()
           if (data?.[0]?.id) savedIds.add(data[0].id)
         }
@@ -166,7 +178,7 @@ export function AdminAmenitiesPage() {
       </div>
 
       {items.map((item, i) => (
-        <Card key={i}>
+        <Card key={item._key || item.id || i}>
           <CardHeader>
             <div className="flex items-center justify-between">
               <h2 className="text-h4 font-display text-fg-1">
@@ -180,74 +192,96 @@ export function AdminAmenitiesPage() {
               />
             </div>
           </CardHeader>
-          <CardContent className="space-y-3">
-            <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-1">
-                <label className="text-caption text-fg-3">Title</label>
-                <input
-                  value={item.title}
-                  onChange={(e) => updateItem(i, { title: e.target.value })}
-                  placeholder="24/7 access"
-                  className="w-full border border-rule rounded-sm px-2 py-1.5 text-xs bg-transparent text-fg-1"
-                />
-              </div>
-              <div className="space-y-1 relative">
-                <label className="text-caption text-fg-3">Icon</label>
-                <button
-                  type="button"
-                  onClick={() => setOpenDropdown(openDropdown === i ? null : i)}
-                  className="w-full flex items-center gap-2 border border-rule rounded-sm px-2 py-1.5 text-xs bg-transparent text-fg-1"
-                >
-                  {(() => {
-                    const Icon = iconPreview[item.icon ?? 'clock'] || Clock
-                    return <Icon size={14} />
-                  })()}
-                  <span>{item.icon || 'clock'}</span>
-                </button>
-                {openDropdown === i && (
-                  <div
-                    ref={dropdownRef}
-                    className="absolute z-10 top-full mt-1 left-0 w-full border border-rule rounded-sm bg-white shadow-lg"
-                  >
-                    {iconOptions.map(({ label, Icon }) => (
-                      <button
-                        key={label}
-                        type="button"
-                        onClick={() => {
-                          updateItem(i, { icon: label })
-                          setOpenDropdown(null)
-                        }}
-                        className={`w-full flex items-center gap-2 px-2 py-1.5 text-xs hover:bg-gray-100 text-left ${item.icon === label ? 'bg-blue-100 font-semibold' : ''}`}
-                      >
-                        <Icon size={14} />
-                        <span>{label}</span>
-                      </button>
-                    ))}
+          <CardContent>
+            <Accordion type="multiple" defaultValue={['details']}>
+              <AccordionItem value="details">
+                <AccordionTrigger>Item Details</AccordionTrigger>
+                <AccordionContent>
+                  <div className="space-y-3 pt-2">
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="space-y-1">
+                        <label className="text-caption text-fg-3">Title</label>
+                        <input
+                          value={item.title}
+                          onChange={(e) =>
+                            updateItem(i, { title: e.target.value })
+                          }
+                          placeholder="24/7 access"
+                          className="w-full border border-rule rounded-sm px-2 py-1.5 text-xs bg-transparent text-fg-1"
+                        />
+                      </div>
+                      <div className="space-y-1 relative">
+                        <label className="text-caption text-fg-3">Icon</label>
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setOpenDropdown(openDropdown === i ? null : i)
+                          }
+                          className="w-full flex items-center gap-2 border border-rule rounded-sm px-2 py-1.5 text-xs bg-transparent text-fg-1"
+                        >
+                          {(() => {
+                            const Icon =
+                              iconPreview[item.icon ?? 'clock'] || Clock
+                            return <Icon size={14} />
+                          })()}
+                          <span>{item.icon || 'clock'}</span>
+                        </button>
+                        {openDropdown === i && (
+                          <div
+                            ref={dropdownRef}
+                            className="absolute z-10 top-full mt-1 left-0 w-full border border-rule rounded-sm bg-white shadow-lg"
+                          >
+                            {iconOptions.map(({ label, Icon }) => (
+                              <button
+                                key={label}
+                                type="button"
+                                onClick={() => {
+                                  updateItem(i, { icon: label })
+                                  setOpenDropdown(null)
+                                }}
+                                className={`w-full flex items-center gap-2 px-2 py-1.5 text-xs hover:bg-gray-100 text-left ${item.icon === label ? 'bg-blue-100 font-semibold' : ''}`}
+                              >
+                                <Icon size={14} />
+                                <span>{label}</span>
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-caption text-fg-3">
+                        Description
+                      </label>
+                      <textarea
+                        rows={2}
+                        value={item.description}
+                        onChange={(e) =>
+                          updateItem(i, { description: e.target.value })
+                        }
+                        placeholder="Key fob for residents…"
+                        className="w-full border border-rule rounded-sm px-2 py-1.5 text-xs bg-transparent text-fg-1"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-caption text-fg-3">
+                        Sort Order
+                      </label>
+                      <input
+                        type="number"
+                        value={item.sort_order ?? ''}
+                        onChange={(e) =>
+                          updateItem(i, {
+                            sort_order: parseInt(e.target.value) || 0,
+                          })
+                        }
+                        className="w-full border border-rule rounded-sm px-2 py-1.5 text-xs bg-transparent text-fg-1"
+                      />
+                    </div>
                   </div>
-                )}
-              </div>
-            </div>
-            <div className="space-y-1">
-              <label className="text-caption text-fg-3">Description</label>
-              <textarea
-                rows={2}
-                value={item.description}
-                onChange={(e) => updateItem(i, { description: e.target.value })}
-                placeholder="Key fob for residents…"
-                className="w-full border border-rule rounded-sm px-2 py-1.5 text-xs bg-transparent text-fg-1"
-              />
-            </div>
-            <div className="space-y-1">
-              <label className="text-caption text-fg-3">Sort Order</label>
-              <input
-                type="number"
-                value={item.sort_order ?? ''}
-                onChange={(e) =>
-                  updateItem(i, { sort_order: parseInt(e.target.value) || 0 })
-                }
-                className="w-full border border-rule rounded-sm px-2 py-1.5 text-xs bg-transparent text-fg-1"
-              />
-            </div>
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
           </CardContent>
         </Card>
       ))}

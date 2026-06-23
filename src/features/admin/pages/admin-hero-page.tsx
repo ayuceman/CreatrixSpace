@@ -2,6 +2,12 @@ import { useState, useEffect, useRef } from 'react'
 import { Plus, X, GripVertical } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
+import {
+  Accordion,
+  AccordionItem,
+  AccordionTrigger,
+  AccordionContent,
+} from '@/components/ui/accordion'
 import { heroService } from '@/services/supabase-service'
 import { supabase } from '@/lib/supabase'
 import { supabaseAdmin } from '@/lib/supabase-admin'
@@ -201,72 +207,95 @@ export function AdminHeroPage() {
               )}
             </div>
 
-            {form.images.map((img, i) => (
-              <div
-                key={i}
-                className="flex gap-4 items-start border border-rule rounded-sm p-4 bg-bg-raised"
-              >
-                <div className="shrink-0 pt-1 text-fg-3">
-                  <GripVertical size={16} />
-                </div>
-                <img
-                  src={img.src}
-                  alt={img.alt}
-                  className="size-20 object-cover rounded-sm border border-rule shrink-0"
-                />
-                <div className="flex-1 grid grid-cols-2 gap-3">
-                  <div className="space-y-1.5">
-                    <label className="text-caption text-fg-3">Label</label>
-                    <input
-                      value={img.label}
-                      onChange={(e) => updateImage(i, 'label', e.target.value)}
-                      className="w-full border border-rule rounded-sm px-2.5 py-1.5 text-sm bg-transparent text-fg-1"
-                    />
-                  </div>
-                  <div className="space-y-1.5">
-                    <label className="text-caption text-fg-3">Location</label>
-                    <input
-                      value={img.location}
-                      onChange={(e) =>
-                        updateImage(i, 'location', e.target.value)
-                      }
-                      className="w-full border border-rule rounded-sm px-2.5 py-1.5 text-sm bg-transparent text-fg-1"
-                    />
-                  </div>
-                  <div className="space-y-1.5 col-span-2">
-                    <label className="text-caption text-fg-3">Alt Text</label>
-                    <input
-                      value={img.alt}
-                      onChange={(e) => updateImage(i, 'alt', e.target.value)}
-                      className="w-full border border-rule rounded-sm px-2.5 py-1.5 text-sm bg-transparent text-fg-1"
-                    />
-                  </div>
-                  <div className="space-y-1.5 col-span-2">
-                    <label className="text-caption text-fg-3">
-                      Change image
-                    </label>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      key={img.src}
-                      onChange={(e) => {
-                        const file = e.target.files?.[0]
-                        if (file) replaceImage(i, file)
-                        e.target.value = ''
-                      }}
-                      className="w-full text-xs text-fg-2 file:mr-2 file:py-1 file:px-2 file:rounded-sm file:border file:border-rule file:text-xs file:bg-bg file:text-fg-1 hover:file:bg-bg-raised file:cursor-pointer"
-                    />
-                  </div>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => removeImage(i)}
-                  className="shrink-0 text-fg-3 hover:text-clay transition-colors cursor-pointer pt-1"
+            <Accordion type="multiple" className="space-y-2">
+              {form.images.map((img, i) => (
+                <AccordionItem
+                  key={i}
+                  value={`image-${i}`}
+                  className="border border-rule rounded-sm bg-bg-raised px-0"
                 >
-                  <X size={16} />
-                </button>
-              </div>
-            ))}
+                  <AccordionTrigger className="flex items-center gap-3 px-4 py-3 hover:no-underline [&>svg]:shrink-0">
+                    <GripVertical size={16} className="text-fg-3 shrink-0" />
+                    <img
+                      src={img.src}
+                      alt={img.alt}
+                      className="size-10 object-cover rounded-sm border border-rule shrink-0"
+                    />
+                    <span className="flex-1 text-left text-sm font-medium text-fg-1 truncate">
+                      {img.label || img.location || `Image ${i + 1}`}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        removeImage(i)
+                      }}
+                      className="shrink-0 text-fg-3 hover:text-clay transition-colors cursor-pointer"
+                    >
+                      <X size={14} />
+                    </button>
+                  </AccordionTrigger>
+                  <AccordionContent>
+                    <div className="px-4 pb-4 pt-2 space-y-3">
+                      <div className="grid grid-cols-2 gap-3">
+                        <div className="space-y-1.5">
+                          <label className="text-caption text-fg-3">
+                            Label
+                          </label>
+                          <input
+                            value={img.label}
+                            onChange={(e) =>
+                              updateImage(i, 'label', e.target.value)
+                            }
+                            className="w-full border border-rule rounded-sm px-2.5 py-1.5 text-sm bg-transparent text-fg-1"
+                          />
+                        </div>
+                        <div className="space-y-1.5">
+                          <label className="text-caption text-fg-3">
+                            Location
+                          </label>
+                          <input
+                            value={img.location}
+                            onChange={(e) =>
+                              updateImage(i, 'location', e.target.value)
+                            }
+                            className="w-full border border-rule rounded-sm px-2.5 py-1.5 text-sm bg-transparent text-fg-1"
+                          />
+                        </div>
+                        <div className="space-y-1.5 col-span-2">
+                          <label className="text-caption text-fg-3">
+                            Alt Text
+                          </label>
+                          <input
+                            value={img.alt}
+                            onChange={(e) =>
+                              updateImage(i, 'alt', e.target.value)
+                            }
+                            className="w-full border border-rule rounded-sm px-2.5 py-1.5 text-sm bg-transparent text-fg-1"
+                          />
+                        </div>
+                        <div className="space-y-1.5 col-span-2">
+                          <label className="text-caption text-fg-3">
+                            Change image
+                          </label>
+                          <input
+                            type="file"
+                            accept="image/*"
+                            key={img.src}
+                            onChange={(e) => {
+                              const file = e.target.files?.[0]
+                              if (file) replaceImage(i, file)
+                              e.target.value = ''
+                            }}
+                            className="w-full text-xs text-fg-2 file:mr-2 file:py-1 file:px-2 file:rounded-sm file:border file:border-rule file:text-xs file:bg-bg file:text-fg-1 hover:file:bg-bg-raised file:cursor-pointer"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </AccordionContent>
+                </AccordionItem>
+              ))}
+            </Accordion>
           </CardContent>
         </Card>
 

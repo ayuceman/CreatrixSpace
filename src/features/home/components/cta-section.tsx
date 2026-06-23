@@ -248,21 +248,21 @@ export function CTASection() {
                   </span>
                 </Link>
 
-                <div className="grid grid-cols-2 gap-2">
-                  <a
-                    href={`tel:${CONTACT.PHONE_HREF}`}
+                <div className="grid md:grid-cols-2 gap-2">
+                  <Link
+                    to={`tel:${CONTACT.PHONE_HREF}`}
                     className="inline-flex items-center justify-center gap-2 px-3 py-2.5 rounded-sm bg-bg-raised border border-rule-strong text-fg-1 no-underline font-body text-[13px]"
                   >
                     <Phone size={14} />
                     <span>{CONTACT.PHONE}</span>
-                  </a>
-                  <a
-                    href={`mailto:${CONTACT.EMAIL}`}
+                  </Link>
+                  <Link
+                    to={`mailto:${CONTACT.EMAIL}`}
                     className="inline-flex items-center justify-center gap-2 px-3 py-2.5 rounded-sm bg-bg-raised border border-rule-strong text-fg-1 no-underline font-body text-[13px]"
                   >
                     <Mail size={14} />
                     <span>{CONTACT.EMAIL}</span>
-                  </a>
+                  </Link>
                 </div>
 
                 <button

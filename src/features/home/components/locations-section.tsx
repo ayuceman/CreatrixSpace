@@ -6,6 +6,23 @@ import { ROUTES } from '@/lib/constants'
 import { Button } from '@/components/ui/button'
 import { locationService } from '@/services/supabase-service'
 
+const numberWords = [
+  'zero',
+  'one',
+  'two',
+  'three',
+  'four',
+  'five',
+  'six',
+  'seven',
+  'eight',
+  'nine',
+  'ten',
+]
+function numberToWords(n: number): string {
+  return numberWords[n] ?? String(n)
+}
+
 interface LocationView {
   id: string
   name: string
@@ -178,7 +195,7 @@ export function LocationsSection({ onBookTour }: LocationsSectionProps) {
         <div className="grid grid-cols-1 lg:grid-cols-[1.4fr_1fr] gap-12 items-end mb-16">
           <div>
             <div className="text-clay text-xs uppercase tracking-widest font-medium mb-4.5">
-              {roomCount} {roomCount === 1 ? 'room' : 'rooms'}
+              {numberToWords(roomCount)} {roomCount === 1 ? 'room' : 'rooms'}
             </div>
             <h2 className="font-display font-normal text-[clamp(40px,5vw,80px)] leading-[1.02] tracking-[-0.015em] m-0 max-w-[880px] text-pretty">
               Rooms across Kathmandu &amp; Lalitpur — each a little different.

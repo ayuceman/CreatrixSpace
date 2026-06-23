@@ -2,6 +2,12 @@ import { useState, useEffect, useRef } from 'react'
 import { Plus, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
+import {
+  Accordion,
+  AccordionItem,
+  AccordionTrigger,
+  AccordionContent,
+} from '@/components/ui/accordion'
 import { spacesService } from '@/services/supabase-service'
 import { supabase } from '@/lib/supabase'
 import { supabaseAdmin } from '@/lib/supabase-admin'
@@ -22,14 +28,21 @@ interface SpaceCard {
   tags: string[]
   waMsg: string
   cta: string
+  _key?: string
 }
 
 interface FormState {
   cards: SpaceCard[]
 }
 
-function emptyCard(): SpaceCard {
+let cardKeyCounter = Date.now()
+function nextCardKey() {
+  return `space_card_${cardKeyCounter++}`
+}
+
+function emptyCard(): SpaceCard & { _key: string } {
   return {
+    _key: nextCardKey(),
     id: '',
     badge: '',
     imageSrc: '',
@@ -75,7 +88,7 @@ export function AdminSpacesPage() {
   }
 
   const addCard = () =>
-    setForm((f) => ({ ...f, cards: [...f.cards, emptyCard()] }))
+    setForm((f) => ({ ...f, cards: [emptyCard(), ...f.cards] }))
   const removeCard = (i: number) =>
     setForm((f) => ({ ...f, cards: f.cards.filter((_, k) => k !== i) }))
   const updateCard = (i: number, patch: Partial<SpaceCard>) =>
@@ -184,7 +197,7 @@ export function AdminSpacesPage() {
       </div>
 
       {form.cards.map((card, ci) => (
-        <Card key={ci}>
+        <Card key={card._key || card.id || ci}>
           <CardHeader>
             <div className="flex items-center justify-between">
               <h2 className="text-h4 font-display text-fg-1">
@@ -198,178 +211,203 @@ export function AdminSpacesPage() {
               />
             </div>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-1">
-                <label className="text-caption text-fg-3">Title</label>
-                <input
-                  value={card.title}
-                  onChange={(e) => updateCard(ci, { title: e.target.value })}
-                  placeholder="Event space"
-                  className="w-full border border-rule rounded-sm px-2 py-1.5 text-xs bg-transparent text-fg-1"
-                />
-              </div>
-              <div className="space-y-1">
-                <label className="text-caption text-fg-3">CTA</label>
-                <input
-                  value={card.cta}
-                  onChange={(e) => updateCard(ci, { cta: e.target.value })}
-                  placeholder="Enquire for an event"
-                  className="w-full border border-rule rounded-sm px-2 py-1.5 text-xs bg-transparent text-fg-1"
-                />
-              </div>
-              <div className="space-y-1">
-                <label className="text-caption text-fg-3">Badge</label>
-                <input
-                  value={card.badge}
-                  onChange={(e) => updateCard(ci, { badge: e.target.value })}
-                  placeholder="Weekends"
-                  className="w-full border border-rule rounded-sm px-2 py-1.5 text-xs bg-transparent text-fg-1"
-                />
-              </div>
-              <div className="space-y-1">
-                <label className="text-caption text-fg-3">Image Alt</label>
-                <input
-                  value={card.imageAlt}
-                  onChange={(e) => updateCard(ci, { imageAlt: e.target.value })}
-                  placeholder="Event space at CreatrixSpace"
-                  className="w-full border border-rule rounded-sm px-2 py-1.5 text-xs bg-transparent text-fg-1"
-                />
-              </div>
-            </div>
+          <CardContent>
+            <Accordion type="multiple" defaultValue={['details']}>
+              <AccordionItem value="details">
+                <AccordionTrigger>Card Details</AccordionTrigger>
+                <AccordionContent>
+                  <div className="space-y-4 pt-2">
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="space-y-1">
+                        <label className="text-caption text-fg-3">Title</label>
+                        <input
+                          value={card.title}
+                          onChange={(e) =>
+                            updateCard(ci, { title: e.target.value })
+                          }
+                          placeholder="Event space"
+                          className="w-full border border-rule rounded-sm px-2 py-1.5 text-xs bg-transparent text-fg-1"
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <label className="text-caption text-fg-3">CTA</label>
+                        <input
+                          value={card.cta}
+                          onChange={(e) =>
+                            updateCard(ci, { cta: e.target.value })
+                          }
+                          placeholder="Enquire for an event"
+                          className="w-full border border-rule rounded-sm px-2 py-1.5 text-xs bg-transparent text-fg-1"
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <label className="text-caption text-fg-3">Badge</label>
+                        <input
+                          value={card.badge}
+                          onChange={(e) =>
+                            updateCard(ci, { badge: e.target.value })
+                          }
+                          placeholder="Weekends"
+                          className="w-full border border-rule rounded-sm px-2 py-1.5 text-xs bg-transparent text-fg-1"
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <label className="text-caption text-fg-3">
+                          Image Alt
+                        </label>
+                        <input
+                          value={card.imageAlt}
+                          onChange={(e) =>
+                            updateCard(ci, { imageAlt: e.target.value })
+                          }
+                          placeholder="Event space at CreatrixSpace"
+                          className="w-full border border-rule rounded-sm px-2 py-1.5 text-xs bg-transparent text-fg-1"
+                        />
+                      </div>
+                    </div>
 
-            <div className="space-y-1.5">
-              <label className="text-caption text-fg-3">Image</label>
-              <div className="flex items-start gap-3">
-                <div className="flex-1">
-                  <input
-                    type="file"
-                    accept="image/*"
-                    ref={fileInputRef}
-                    onChange={(e) => {
-                      uploadIndexRef.current = ci
-                      handleImageUpload(e)
-                    }}
-                    className="w-full text-sm text-fg-2 file:mr-3 file:py-1.5 file:px-3 file:rounded-sm file:border file:border-rule file:text-sm file:bg-bg-raised file:text-fg-1 hover:file:bg-bg file:cursor-pointer"
-                  />
-                  {uploading === ci && (
-                    <span className="text-xs text-clay mt-1 block">
-                      Uploading...
-                    </span>
-                  )}
-                </div>
-                {card.imageSrc && (
-                  <div className="relative group shrink-0">
-                    <img
-                      src={card.imageSrc}
-                      alt={card.imageAlt}
-                      className="size-20 object-cover rounded-sm border border-rule"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => updateCard(ci, { imageSrc: '' })}
-                      className="absolute -top-1.5 -right-1.5 size-5 rounded-full bg-clay text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
-                    >
-                      <X size={10} />
-                    </button>
+                    <div className="space-y-1.5">
+                      <label className="text-caption text-fg-3">Image</label>
+                      <div className="flex items-start gap-3">
+                        <div className="flex-1">
+                          <input
+                            type="file"
+                            accept="image/*"
+                            ref={fileInputRef}
+                            onChange={(e) => {
+                              uploadIndexRef.current = ci
+                              handleImageUpload(e)
+                            }}
+                            className="w-full text-sm text-fg-2 file:mr-3 file:py-1.5 file:px-3 file:rounded-sm file:border file:border-rule file:text-sm file:bg-bg-raised file:text-fg-1 hover:file:bg-bg file:cursor-pointer"
+                          />
+                          {uploading === ci && (
+                            <span className="text-xs text-clay mt-1 block">
+                              Uploading...
+                            </span>
+                          )}
+                        </div>
+                        {card.imageSrc && (
+                          <div className="relative group shrink-0">
+                            <img
+                              src={card.imageSrc}
+                              alt={card.imageAlt}
+                              className="size-20 object-cover rounded-sm border border-rule"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => updateCard(ci, { imageSrc: '' })}
+                              className="absolute -top-1.5 -right-1.5 size-5 rounded-full bg-clay text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                            >
+                              <X size={10} />
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="space-y-1">
+                      <label className="text-caption text-fg-3">
+                        Description
+                      </label>
+                      <textarea
+                        rows={3}
+                        value={card.description}
+                        onChange={(e) =>
+                          updateCard(ci, { description: e.target.value })
+                        }
+                        placeholder="Sixty-seat event room at Dhobighat…"
+                        className="w-full border border-rule rounded-sm px-2 py-1.5 text-xs bg-transparent text-fg-1"
+                      />
+                    </div>
+
+                    <div className="space-y-1">
+                      <label className="text-caption text-fg-3">
+                        WhatsApp Message
+                      </label>
+                      <textarea
+                        rows={2}
+                        value={card.waMsg}
+                        onChange={(e) =>
+                          updateCard(ci, { waMsg: e.target.value })
+                        }
+                        placeholder="Hello CreatrixSpace — I'd like to enquire…"
+                        className="w-full border border-rule rounded-sm px-2 py-1.5 text-xs bg-transparent text-fg-1 font-mono"
+                      />
+                    </div>
+
+                    <div>
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-caption text-fg-3">Stats</span>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          text="+"
+                          onClick={() => addStat(ci)}
+                          className="!px-2 !py-0.5 text-xs"
+                        />
+                      </div>
+                      {card.stats.map((stat, si) => (
+                        <div key={si} className="flex gap-2 mb-1 items-center">
+                          <input
+                            value={stat.value}
+                            onChange={(e) =>
+                              updateStat(ci, si, { value: e.target.value })
+                            }
+                            placeholder="6 → 60"
+                            className="flex-1 border border-rule rounded-sm px-2 py-1 text-xs bg-transparent text-fg-1"
+                          />
+                          <input
+                            value={stat.label}
+                            onChange={(e) =>
+                              updateStat(ci, si, { label: e.target.value })
+                            }
+                            placeholder="Seats per room"
+                            className="flex-1 border border-rule rounded-sm px-2 py-1 text-xs bg-transparent text-fg-1"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => removeStat(ci, si)}
+                            className="text-fg-3 hover:text-clay cursor-pointer text-xs"
+                          >
+                            <X size={14} />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+
+                    <div>
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-caption text-fg-3">Tags</span>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          text="+"
+                          onClick={() => addTag(ci)}
+                          className="!px-2 !py-0.5 text-xs"
+                        />
+                      </div>
+                      {card.tags.map((tag, ti) => (
+                        <div key={ti} className="flex gap-2 mb-1">
+                          <input
+                            value={tag}
+                            onChange={(e) => updateTag(ci, ti, e.target.value)}
+                            placeholder="Product launches"
+                            className="flex-1 border border-rule rounded-sm px-2 py-1 text-xs bg-transparent text-fg-1"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => removeTag(ci, ti)}
+                            className="text-fg-3 hover:text-clay cursor-pointer text-xs"
+                          >
+                            <X size={14} />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
                   </div>
-                )}
-              </div>
-            </div>
-
-            <div className="space-y-1">
-              <label className="text-caption text-fg-3">Description</label>
-              <textarea
-                rows={3}
-                value={card.description}
-                onChange={(e) =>
-                  updateCard(ci, { description: e.target.value })
-                }
-                placeholder="Sixty-seat event room at Dhobighat…"
-                className="w-full border border-rule rounded-sm px-2 py-1.5 text-xs bg-transparent text-fg-1"
-              />
-            </div>
-
-            <div className="space-y-1">
-              <label className="text-caption text-fg-3">WhatsApp Message</label>
-              <textarea
-                rows={2}
-                value={card.waMsg}
-                onChange={(e) => updateCard(ci, { waMsg: e.target.value })}
-                placeholder="Hello CreatrixSpace — I'd like to enquire…"
-                className="w-full border border-rule rounded-sm px-2 py-1.5 text-xs bg-transparent text-fg-1 font-mono"
-              />
-            </div>
-
-            <div>
-              <div className="flex items-center justify-between mb-1">
-                <span className="text-caption text-fg-3">Stats</span>
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  text="+"
-                  onClick={() => addStat(ci)}
-                  className="!px-2 !py-0.5 text-xs"
-                />
-              </div>
-              {card.stats.map((stat, si) => (
-                <div key={si} className="flex gap-2 mb-1 items-center">
-                  <input
-                    value={stat.value}
-                    onChange={(e) =>
-                      updateStat(ci, si, { value: e.target.value })
-                    }
-                    placeholder="6 → 60"
-                    className="flex-1 border border-rule rounded-sm px-2 py-1 text-xs bg-transparent text-fg-1"
-                  />
-                  <input
-                    value={stat.label}
-                    onChange={(e) =>
-                      updateStat(ci, si, { label: e.target.value })
-                    }
-                    placeholder="Seats per room"
-                    className="flex-1 border border-rule rounded-sm px-2 py-1 text-xs bg-transparent text-fg-1"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => removeStat(ci, si)}
-                    className="text-fg-3 hover:text-clay cursor-pointer text-xs"
-                  >
-                    <X size={14} />
-                  </button>
-                </div>
-              ))}
-            </div>
-
-            <div>
-              <div className="flex items-center justify-between mb-1">
-                <span className="text-caption text-fg-3">Tags</span>
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  text="+"
-                  onClick={() => addTag(ci)}
-                  className="!px-2 !py-0.5 text-xs"
-                />
-              </div>
-              {card.tags.map((tag, ti) => (
-                <div key={ti} className="flex gap-2 mb-1">
-                  <input
-                    value={tag}
-                    onChange={(e) => updateTag(ci, ti, e.target.value)}
-                    placeholder="Product launches"
-                    className="flex-1 border border-rule rounded-sm px-2 py-1 text-xs bg-transparent text-fg-1"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => removeTag(ci, ti)}
-                    className="text-fg-3 hover:text-clay cursor-pointer text-xs"
-                  >
-                    <X size={14} />
-                  </button>
-                </div>
-              ))}
-            </div>
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
           </CardContent>
         </Card>
       ))}
