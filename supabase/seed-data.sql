@@ -17,15 +17,13 @@
 -- Using deterministic UUIDs based on slugs for consistency
 -- You can change these UUIDs if needed
 
-INSERT INTO public.locations (id, name, slug, description, address, full_address, city, available, popular, amenities, features, capacity, rating) VALUES
+INSERT INTO public.locations (id, name, slug, description, full_address, available, popular, amenities, features, capacity, rating) VALUES
 (
   'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11'::uuid,
   'Dhobighat (WashingTown) Hub',
   'dhobighat-hub',
   'A modern coworking space in the heart of Kathmandu, perfect for professionals and entrepreneurs.',
-  'Dhobighat, Kathmandu',
   'Dhobighat, Kathmandu, Nepal',
-  'Kathmandu',
   true,
   true,
   ARRAY['Fast Wi-Fi', '24/7 Access', 'Coffee & Tea', 'Meeting Rooms', 'Parking', 'Kitchen', 'Cleaning Service', 'Reception', 'Lockers', 'Phone Booths'],
@@ -38,9 +36,7 @@ INSERT INTO public.locations (id, name, slug, description, address, full_address
   'Kausimaa Co-working',
   'kausimaa-coworking',
   'A vibrant coworking space in Jwagal/Kupondole, designed for creative professionals and startups.',
-  'Jwagal/Kupondole, Lalitpur',
   'Jwagal/Kupondole, Lalitpur, Nepal',
-  'Lalitpur',
   true,
   false,
   ARRAY['Fast Wi-Fi', '24/7 Access', 'Coffee & Tea', 'Meeting Rooms', 'Event Space', 'Parking', 'Kitchen', 'Cleaning Service'],
@@ -53,9 +49,7 @@ INSERT INTO public.locations (id, name, slug, description, address, full_address
   'Jhamsikhel Loft',
   'jhamsikhel-loft',
   'A premium coworking space in Jhamsikhel, currently reserved for long-term members.',
-  'Jhamsikhel, Lalitpur',
   'Jhamsikhel, Lalitpur, Nepal',
-  'Lalitpur',
   false,
   false,
   ARRAY['Fast Wi-Fi', '24/7 Access', 'Coffee & Tea', 'Meeting Rooms', 'Parking', 'Kitchen'],
@@ -66,7 +60,6 @@ INSERT INTO public.locations (id, name, slug, description, address, full_address
 ON CONFLICT (slug) DO UPDATE SET
   name = EXCLUDED.name,
   description = EXCLUDED.description,
-  address = EXCLUDED.address,
   available = EXCLUDED.available,
   popular = EXCLUDED.popular;
 

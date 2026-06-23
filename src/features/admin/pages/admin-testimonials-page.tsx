@@ -127,9 +127,21 @@ export function AdminTestimonialsPage() {
                 <input
                   required
                   value={form.author_name}
-                  onChange={(e) =>
-                    setForm((f) => ({ ...f, author_name: e.target.value }))
-                  }
+                  onChange={(e) => {
+                    const name = e.target.value
+                    const initials = name
+                      .split(' ')
+                      .filter(Boolean)
+                      .map((w) => w[0])
+                      .join('')
+                      .toUpperCase()
+                      .slice(0, 2)
+                    setForm((f) => ({
+                      ...f,
+                      author_name: name,
+                      author_initials: initials,
+                    }))
+                  }}
                   placeholder="Sunaina Pradhan"
                   className="w-full border border-rule rounded-sm px-3 py-2 text-sm bg-transparent text-fg-1"
                 />
@@ -145,17 +157,7 @@ export function AdminTestimonialsPage() {
                   className="w-full border border-rule rounded-sm px-3 py-2 text-sm bg-transparent text-fg-1"
                 />
               </div>
-              <div className="space-y-1.5">
-                <label className="text-label text-fg-2">Initials</label>
-                <input
-                  value={form.author_initials}
-                  onChange={(e) =>
-                    setForm((f) => ({ ...f, author_initials: e.target.value }))
-                  }
-                  placeholder="SP"
-                  className="w-full border border-rule rounded-sm px-3 py-2 text-sm bg-transparent text-fg-1 max-w-[100px] ml-2"
-                />
-              </div>
+
               <div className="space-y-1.5">
                 <label className="text-label text-fg-2">Sort Order</label>
                 <input

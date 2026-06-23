@@ -109,8 +109,8 @@ export const ANIMATION_DURATION = {
 } as const
 
 export const WHATSAPP = {
-  NUMBER: '9779851000000',
-  DISPLAY: '+977 9851 000 000',
+  NUMBER: '9779803171819',
+  DISPLAY: '+977 9803171819',
   DEFAULT_MESSAGE: "Hello CreatrixSpace — I'd like to know more.",
   get url() {
     return `https://wa.me/${this.NUMBER}?text=${encodeURIComponent(this.DEFAULT_MESSAGE)}`

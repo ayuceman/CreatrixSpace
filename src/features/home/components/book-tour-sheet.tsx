@@ -16,13 +16,12 @@ interface BookTourSheetProps {
 interface SheetLocation {
   id: string
   name: string
-  address: string
 }
 
 const defaultSheetLocations: SheetLocation[] = [
-  { id: 'dhobighat', name: 'Dhobighat', address: 'Kathmandu' },
-  { id: 'kausimaa', name: 'Kausimaa', address: 'Kupondole' },
-  { id: 'jhamsikhel', name: 'Jhamsikhel', address: 'Lalitpur' },
+  { id: 'dhobighat', name: 'Dhobighat' },
+  { id: 'kausimaa', name: 'Kausimaa' },
+  { id: 'jhamsikhel', name: 'Jhamsikhel' },
 ]
 
 interface InterestOption {
@@ -121,7 +120,6 @@ export function BookTourSheet({ open, onClose, seed }: BookTourSheetProps) {
       const mapped: SheetLocation[] = (locData || []).map((l: any) => ({
         id: l.slug || l.id,
         name: l.name,
-        address: l.address || '',
       }))
       const loadedLocations = mapped.length > 0 ? mapped : defaultSheetLocations
       const loadedOptions =
@@ -332,12 +330,6 @@ export function BookTourSheet({ open, onClose, seed }: BookTourSheetProps) {
                           }}
                         >
                           <div className="text-sm font-medium">{loc.name}</div>
-                          <div
-                            className="font-mono text-[11px] mt-1"
-                            style={{ opacity: 0.65 }}
-                          >
-                            {loc.address}
-                          </div>
                         </button>
                       ))}
                     </div>

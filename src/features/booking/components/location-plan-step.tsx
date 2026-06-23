@@ -162,7 +162,7 @@ export function LocationPlanStep() {
                     <div className="flex items-center justify-between">
                       <div>
                         <h3 className="font-medium">{location.name}</h3>
-                        <p className="text-sm text-fg-2">{location.address}</p>
+                        <p className="text-sm text-fg-2">{location.name}</p>
                       </div>
                       <div className="flex items-center space-x-2">
                         {!location.available && (

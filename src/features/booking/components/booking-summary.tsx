@@ -104,7 +104,6 @@ export function BookingSummary() {
               Location
             </div>
             <p className="font-medium">{selectedLocation.name}</p>
-            <p className="text-sm text-fg-2">{selectedLocation.address}</p>
           </div>
 
           {selectedRoom && (

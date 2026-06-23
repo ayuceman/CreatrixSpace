@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { MapPin, Users, Star, Clock, ExternalLink } from 'lucide-react'
+import { MapPin, Users, Star, ExternalLink } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -11,13 +11,13 @@ import { locationService } from '@/services/supabase-service'
 interface LocationData {
   id: string
   name: string
-  address: string
+  full_address: string
   image: string
   capacity: number
   rating: number
   features: string[]
   amenities: string[]
-  openingHours: { open: string; close: string }
+  openingHours: Record<string, { open: string; close: string } | null>
   available: boolean
   popular: boolean
   status?: string
@@ -27,8 +27,8 @@ interface LocationData {
 const defaultLocations: LocationData[] = [
   {
     id: 'dhobighat-hub',
-    name: 'Dhobighat (WashingTown) Hub',
-    address: 'Dhobighat, Kathmandu',
+    name: 'Dhobighat Hub',
+    full_address: 'Dhobighat, Kathmandu, Nepal',
     image:
       '/images/locations/dhobighat-hub/dhobighat-coworking-space-main.webp',
     capacity: 30,
@@ -46,7 +46,15 @@ const defaultLocations: LocationData[] = [
       'Phone Booths',
       'Lounge Areas',
     ],
-    openingHours: { open: '06:00', close: '22:00' },
+    openingHours: {
+      monday: { open: '06:00', close: '22:00' },
+      tuesday: { open: '06:00', close: '22:00' },
+      wednesday: { open: '06:00', close: '22:00' },
+      thursday: { open: '06:00', close: '22:00' },
+      friday: { open: '06:00', close: '22:00' },
+      saturday: { open: '08:00', close: '20:00' },
+      sunday: { open: '08:00', close: '20:00' },
+    },
     available: true,
     popular: true,
     googleMapsUrl: 'https://maps.app.goo.gl/88JRCRwL5ttdaPpu6',
@@ -54,7 +62,7 @@ const defaultLocations: LocationData[] = [
   {
     id: 'kausimaa-coworking',
     name: 'Kausimaa Co-working',
-    address: 'Kupondole, Lalitpur',
+    full_address: 'Kupondole, Lalitpur, Nepal',
     image:
       'https://coworker.imgix.net/photos/nepal/lalitpur/kausimaa/2-1639371534.jpg?w=800&h=0&q=90&auto=format,compress&fit=crop&mark=/template/img/wm_icon.png&markscale=5&markalign=center,middle',
     capacity: 40,
@@ -70,14 +78,22 @@ const defaultLocations: LocationData[] = [
       'Free Drinking Water',
       'Parking',
     ],
-    openingHours: { open: '10:00', close: '18:00' },
+    openingHours: {
+      monday: { open: '10:00', close: '18:00' },
+      tuesday: { open: '10:00', close: '18:00' },
+      wednesday: { open: '10:00', close: '18:00' },
+      thursday: { open: '10:00', close: '18:00' },
+      friday: { open: '10:00', close: '18:00' },
+      saturday: { open: '10:00', close: '18:00' },
+      sunday: { open: '10:00', close: '18:00' },
+    },
     available: true,
     popular: false,
   },
   {
     id: 'jhamsikhel-loft',
     name: 'Jhamsikhel Loft',
-    address: 'Jhamsikhel, Lalitpur',
+    full_address: 'Jhamsikhel, Lalitpur, Nepal',
     image:
       'https://images.unsplash.com/photo-1524758631624-e2822e304c36?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
     capacity: 80,
@@ -89,7 +105,15 @@ const defaultLocations: LocationData[] = [
       'Event Space',
       'Storage Lockers',
     ],
-    openingHours: { open: '07:00', close: '21:00' },
+    openingHours: {
+      monday: { open: '07:00', close: '21:00' },
+      tuesday: { open: '07:00', close: '21:00' },
+      wednesday: { open: '07:00', close: '21:00' },
+      thursday: { open: '07:00', close: '21:00' },
+      friday: { open: '07:00', close: '21:00' },
+      saturday: { open: '09:00', close: '19:00' },
+      sunday: { open: '09:00', close: '19:00' },
+    },
     available: false,
     status: 'Reserved for 6 months',
     popular: false,
@@ -97,7 +121,12 @@ const defaultLocations: LocationData[] = [
 ]
 
 function toGoogleMapsUrl(url: string): string {
-  return url.includes('/embed') ? url.replace('/embed', '') : url
+  const trimmed = url.trim()
+  if (!trimmed || !trimmed.includes('/embed')) return trimmed
+  const lat = trimmed.match(/!3d(-?\d+\.?\d*)/)?.[1]
+  const lng = trimmed.match(/!2d(-?\d+\.?\d*)/)?.[1]
+  if (lat && lng) return `https://www.google.com/maps?q=${lat},${lng}`
+  return trimmed
 }
 
 function toAmPm(time: string): string {
@@ -115,23 +144,20 @@ function mapDbLocation(db: any): LocationData {
     (cap.hotDesks || 0) + (cap.dedicatedDesks || 0) + (cap.privateOffices || 0)
   const imgs = db.images || []
   const imageSrc = db.image_url || (imgs.length > 0 ? imgs[0] : '')
-  const hours = db.opening_hours || {}
-  const openTime = hours.monday?.open || hours.open || '08:00'
-  const closeTime = hours.monday?.close || hours.close || '20:00'
   return {
     id: db.slug || db.id,
     name: db.name,
-    address: db.address || '',
     image: imageSrc,
     capacity: totalCapacity || 0,
     rating: db.rating ? Number(db.rating) : 4.5,
     features: (db.features as string[]) || [],
     amenities: (db.amenities as string[]) || [],
-    openingHours: { open: openTime, close: closeTime },
+    openingHours: db.opening_hours || {},
     available: db.available ?? true,
     popular: db.popular ?? false,
     status: db.status || undefined,
     googleMapsUrl: db.google_maps_url || undefined,
+    full_address: db.full_address || '',
   }
 }
 
@@ -219,7 +245,7 @@ export function LocationsPage() {
                   <div className="flex items-center justify-between flex-wrap gap-2">
                     <div className="flex items-center text-fg-2">
                       <MapPin className="h-4 w-4 mr-1" />
-                      <span className="text-sm">{location.address}</span>
+                      <span className="text-sm">{location.full_address}</span>
                     </div>
                     {location.googleMapsUrl && (
                       <a
@@ -243,13 +269,6 @@ export function LocationsPage() {
                     <Users className="h-4 w-4 mr-1" />
                     <span className="text-sm">
                       {location.capacity} capacity
-                    </span>
-                  </div>
-                  <div className="flex items-center text-fg-2">
-                    <Clock className="h-4 w-4 mr-1" />
-                    <span className="text-sm">
-                      {toAmPm(location.openingHours.open)} -{' '}
-                      {toAmPm(location.openingHours.close)}
                     </span>
                   </div>
                 </div>
@@ -290,25 +309,45 @@ export function LocationsPage() {
                   )}
                 </div>
 
-                <div className="space-y-2">
-                  <h4 className="font-medium text-sm">Opening Hours</h4>
-                  <div className="text-xs text-fg-2 space-y-1">
-                    <div className="flex justify-between">
-                      <span>Mon - Fri</span>
-                      <span>
-                        {toAmPm(location.openingHours.open)} -{' '}
-                        {toAmPm(location.openingHours.close)}
-                      </span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Weekend</span>
-                      <span>
-                        {toAmPm(location.openingHours.open)} -{' '}
-                        {toAmPm(location.openingHours.close)}
-                      </span>
+                {[
+                  'monday',
+                  'tuesday',
+                  'wednesday',
+                  'thursday',
+                  'friday',
+                  'saturday',
+                  'sunday',
+                ].filter((day) => location.openingHours[day]?.open).length >
+                  0 && (
+                  <div className="space-y-2">
+                    <h4 className="font-medium text-sm">Opening Hours</h4>
+                    <div className="text-xs text-fg-2 space-y-1">
+                      {[
+                        'monday',
+                        'tuesday',
+                        'wednesday',
+                        'thursday',
+                        'friday',
+                        'saturday',
+                        'sunday',
+                      ]
+                        .filter((day) => location.openingHours[day]?.open)
+                        .map((day) => {
+                          const hours = location.openingHours[day]!
+                          return (
+                            <div key={day} className="flex justify-between">
+                              <span className="capitalize">
+                                {day.slice(0, 3)}
+                              </span>
+                              <span>
+                                {toAmPm(hours.open)} - {toAmPm(hours.close)}
+                              </span>
+                            </div>
+                          )
+                        })}
                     </div>
                   </div>
-                </div>
+                )}
 
                 {location.available ? (
                   <Button className="w-full" variant="outline" asChild>

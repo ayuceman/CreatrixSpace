@@ -57,11 +57,7 @@ export interface Database {
           name: string
           slug: string
           description: string | null
-          address: string
           full_address: string | null
-          city: string | null
-          latitude: number | null
-          longitude: number | null
           image_url: string | null
           images: string[] | null
           amenities: string[] | null
@@ -83,11 +79,7 @@ export interface Database {
           name: string
           slug: string
           description?: string | null
-          address: string
           full_address?: string | null
-          city?: string | null
-          latitude?: number | null
-          longitude?: number | null
           image_url?: string | null
           images?: string[] | null
           amenities?: string[] | null
@@ -109,11 +101,7 @@ export interface Database {
           name?: string
           slug?: string
           description?: string | null
-          address?: string
           full_address?: string | null
-          city?: string | null
-          latitude?: number | null
-          longitude?: number | null
           image_url?: string | null
           images?: string[] | null
           amenities?: string[] | null

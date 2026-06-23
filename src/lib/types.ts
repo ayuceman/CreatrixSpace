@@ -13,13 +13,7 @@ export interface Location {
   name: string
   slug?: string
   description: string
-  address: string
   fullAddress?: string
-  city?: string
-  coordinates?: {
-    lat: number
-    lng: number
-  }
   image?: string
   images?: string[]
   amenities: string[]

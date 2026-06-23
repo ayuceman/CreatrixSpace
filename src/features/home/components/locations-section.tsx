@@ -9,17 +9,14 @@ import { locationService } from '@/services/supabase-service'
 interface LocationView {
   id: string
   name: string
-  city: string
   status: string
+  full_address: string
   description: string
-  address: string
   hours: string
   hotDesk: string
   privateOffice: string
   mapQuery: string
   mapEmbedUrl: string | null
-  lat: number | null
-  lng: number | null
   stats: {
     openDesks: number
     privateOffices: number
@@ -33,18 +30,15 @@ const defaultLocations: LocationView[] = [
   {
     id: 'dhobighat',
     name: 'Dhobighat Hub',
-    city: 'Kathmandu',
     status: 'Open today · 2 private offices left',
+    full_address: 'Dhobighat, Kathmandu, Nepal',
     description:
       'Our original space in the heart of Kathmandu. Two floors, 30 desks, a meeting room, and a terrace for when you need air.',
-    address: 'Dhobighat — two floors, above the bakery',
     hours: '24/7 access · staffed 7am–9pm',
     hotDesk: 'Open · 12 spots today',
     privateOffice: '2 rooms — available',
     mapQuery: 'Dhobighat+Kathmandu+Nepal',
     mapEmbedUrl: null,
-    lat: null,
-    lng: null,
     stats: {
       openDesks: 30,
       privateOffices: 4,
@@ -60,18 +54,15 @@ const defaultLocations: LocationView[] = [
   {
     id: 'kausimaa',
     name: 'Kausimaa Co-working',
-    city: 'Lalitpur',
     status: 'Open today · full today',
+    full_address: 'Kupondole, Lalitpur, Nepal',
     description:
       'A quieter spot in Kupondole with outdoor seating, phone booths, and a café downstairs. Popular with freelancers and small teams.',
-    address: 'Kupondole — quiet street, café downstairs',
     hours: '24/7 access · staffed 8am–8pm',
     hotDesk: 'Full · waiting list open',
     privateOffice: '1 room — available',
     mapQuery: 'Kupondole+Lalitpur+Nepal',
     mapEmbedUrl: null,
-    lat: null,
-    lng: null,
     stats: {
       openDesks: 20,
       privateOffices: 3,
@@ -87,18 +78,15 @@ const defaultLocations: LocationView[] = [
   {
     id: 'jhamsikhel',
     name: 'Jhamsikhel Loft',
-    city: 'Lalitpur',
     status: 'Open today · 1 private office left',
+    full_address: 'Jhamsikhel, Lalitpur, Nepal',
     description:
       'Brick walls and a rooftop with a view of Patan. The café downstairs opens at seven and shuts at eleven.',
-    address: 'Jhamsikhel — top floor, brick building above Le Sherpa',
     hours: '24/7 access · staffed 8am–10pm',
     hotDesk: 'Open · 8 spots today',
     privateOffice: '1 room — available',
     mapQuery: 'Jhamsikhel+Lalitpur+Nepal',
     mapEmbedUrl: null,
-    lat: null,
-    lng: null,
     stats: {
       openDesks: 40,
       privateOffices: 6,
@@ -116,32 +104,15 @@ const defaultLocations: LocationView[] = [
 function toLocationView(db: any): LocationView {
   const cap = db.capacity || {}
   const imgs = db.images || []
-  const lat = db.latitude ? Number(db.latitude) : null
-  const lng = db.longitude ? Number(db.longitude) : null
   const gmaps = db.google_maps_url || ''
-  const mapEmbedUrl = gmaps.includes('/embed')
-    ? gmaps
-    : lat && lng
-      ? `https://www.google.com/maps?q=${lat},${lng}&output=embed`
-      : null
+  const mapEmbedUrl = gmaps.includes('/embed') ? gmaps : null
   return {
     id: db.slug || db.id,
     name: db.name,
-    city:
-      db.city ||
-      (db.full_address
-        ? db.full_address
-            .split(',')
-            .pop()
-            ?.trim()
-            .replace(/Nepal/i, '')
-            .trim() || ''
-        : ''),
     status:
       (db.status && db.status !== 'active' ? db.status : null) ||
       (db.available ? 'Open today' : 'Closed'),
     description: db.description || '',
-    address: db.address || db.full_address || '',
     hours: db.opening_hours
       ? typeof db.opening_hours === 'string'
         ? db.opening_hours
@@ -153,14 +124,9 @@ function toLocationView(db: any): LocationView {
     privateOffice: cap.privateOffices
       ? `${cap.privateOffices} rooms — available`
       : 'Available',
-    mapQuery: db.full_address
-      ? db.full_address.replace(/\s+/g, '+')
-      : db.city
-        ? `${db.name}+${db.city}+Nepal`.replace(/\s+/g, '+')
-        : '',
+    full_address: db.full_address || '',
+    mapQuery: db.full_address ? db.full_address.replace(/\s+/g, '+') : '',
     mapEmbedUrl,
-    lat,
-    lng,
     stats: {
       openDesks: cap.hotDesks || cap.openDesks || 0,
       privateOffices: cap.privateOffices || cap.dedicatedDesks || 0,
@@ -254,7 +220,7 @@ export function LocationsSection({ onBookTour }: LocationsSectionProps) {
                         isActive ? 'text-clay' : 'text-fg-3'
                       }`}
                     >
-                      {num} · {location.city}
+                      {num} · {location.full_address}
                     </div>
                     <div
                       className={`font-display text-[clamp(28px,3.4vw,44px)] leading-[1.05] tracking-[-0.01em] transition-colors duration-300 ${
@@ -411,11 +377,10 @@ export function LocationsSection({ onBookTour }: LocationsSectionProps) {
                     Address
                   </dt>
                   <dd className="text-[13px] font-mono text-right text-fg-1">
-                    {activeLocation.address}
+                    {activeLocation.full_address}
                   </dd>
                 </div>
               </dl>
-
               <div className="flex gap-2.5 mt-[4px] flex-wrap">
                 <Button
                   variant="dark"
@@ -482,8 +447,7 @@ export function LocationsSection({ onBookTour }: LocationsSectionProps) {
                     />
                   ) : (
                     <div className="h-[220px] flex items-center justify-center text-sm text-fg-3 bg-bg-raised">
-                      No map data — add an address, coordinates, or Google Maps
-                      URL
+                      No map data — add a Google Maps URL
                     </div>
                   )}
                 </motion.div>

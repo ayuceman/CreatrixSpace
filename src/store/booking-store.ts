@@ -76,9 +76,7 @@ interface BookingStore {
   locations: Array<{
     id: string
     name: string
-    address: string
     available: boolean
-    city?: string | null
     popular?: boolean
     slug?: string | null
   }>
@@ -177,9 +175,7 @@ const DEFAULT_LOCATION_NAME = 'Dhobighat (WashingTown) Hub'
 const convertLocation = (loc: Location) => ({
   id: loc.id,
   name: loc.name,
-  address: loc.address,
   available: loc.available,
-  city: loc.city,
   popular: loc.popular,
   slug: (loc as Location & { slug?: string }).slug ?? null,
 })

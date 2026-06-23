@@ -23,9 +23,7 @@ const emptyForm: Database['public']['Tables']['locations']['Insert'] = {
   name: '',
   slug: '',
   description: '',
-  address: '',
   full_address: '',
-  city: '',
   image_url: '',
   status: 'active',
   available: true,
@@ -119,9 +117,7 @@ export function AdminLocationsPage() {
       name: loc.name,
       slug: loc.slug,
       description: loc.description,
-      address: loc.address,
       full_address: loc.full_address,
-      city: loc.city,
       image_url: loc.image_url,
       images: loc.images ?? [],
       status: loc.status,
@@ -285,12 +281,6 @@ export function AdminLocationsPage() {
                       {fieldErrors.name}
                     </span>
                   )}
-                </div>
-                <div className="space-y-1.5">
-                  <label className="text-label text-fg-2">Slug</label>
-                  <div className="text-sm text-fg-3 font-mono px-3 py-2 border border-dashed border-rule rounded-sm bg-bg-raised">
-                    {form.slug || 'auto-generated from name'}
-                  </div>
                 </div>
                 <div className="space-y-1.5 md:col-span-2">
                   <label className="text-label text-fg-2">Description</label>

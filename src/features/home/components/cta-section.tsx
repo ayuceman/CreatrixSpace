@@ -25,7 +25,7 @@ export function CTASection() {
   const [headlineEm, setHeadlineEm] = useState(defaultHeadlineEm)
   const [headline2, setHeadline2] = useState(defaultHeadline2)
   const [description, setDescription] = useState(defaultDescription)
-  const [rooms, setRooms] = useState<{ name: string; city: string }[]>([])
+  const [rooms, setRooms] = useState<{ name: string }[]>([])
   const [features, setFeatures] = useState(defaultFeatures)
 
   const [selectedRoom, setSelectedRoom] = useState('')
@@ -49,15 +49,14 @@ export function CTASection() {
       if (data && data.length > 0) {
         const mapped = data.map((l: any) => ({
           name: l.name,
-          city: l.city || '',
         }))
         setRooms(mapped)
         setSelectedRoom(mapped[0].name)
       } else {
         const fallback = [
-          { name: 'Dhobighat', city: 'Kathmandu' },
-          { name: 'Kausimaa', city: 'Kupondole' },
-          { name: 'Jhamsikhel', city: 'Lalitpur' },
+          { name: 'Dhobighat' },
+          { name: 'Kausimaa' },
+          { name: 'Jhamsikhel' },
         ]
         setRooms(fallback)
         setSelectedRoom(fallback[0].name)
@@ -202,9 +201,6 @@ export function CTASection() {
                         }`}
                       >
                         {room.name}
-                        <div className="font-mono text-[10px] opacity-60 mt-0.5">
-                          {room.city}
-                        </div>
                       </button>
                     ))}
                   </div>

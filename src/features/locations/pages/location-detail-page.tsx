@@ -25,8 +25,7 @@ import {
 const locationData: Record<string, Location> = {
   'dhobighat-hub': {
     id: 'dhobighat-hub',
-    name: 'Dhobighat (WashingTown) Hub',
-    address: 'Dhobighat, Kathmandu',
+    name: 'Dhobighat Hub',
     fullAddress: 'Dhobighat Chowk, Kathmandu 44600, Nepal',
     image:
       '/images/locations/dhobighat-hub/dhobighat-coworking-space-main.webp',
@@ -67,7 +66,6 @@ const locationData: Record<string, Location> = {
   kausimaa: {
     id: 'kausimaa',
     name: 'Kausimaa Co-working',
-    address: 'Kupondole, Lalitpur',
     fullAddress: 'Jwagal/Kupondole, Lalitpur, Nepal',
     image:
       'https://coworker.imgix.net/photos/nepal/lalitpur/kausimaa/2-1639371534.jpg?w=800&h=0&q=90&auto=format,compress&fit=crop&mark=/template/img/wm_icon.png&markscale=5&markalign=center,middle',
@@ -106,7 +104,6 @@ const locationData: Record<string, Location> = {
   'jhamsikhel-loft': {
     id: 'jhamsikhel-loft',
     name: 'Jhamsikhel Loft',
-    address: 'Jhamsikhel, Lalitpur',
     fullAddress: 'Jhamsikhel, Lalitpur 44600, Nepal',
     image:
       'https://images.unsplash.com/photo-1524758631624-e2822e304c36?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
@@ -318,13 +315,7 @@ function mapDbLocationDetail(db: any): Location {
     name: db.name,
     slug: db.slug,
     description: db.description || '',
-    address: db.address || '',
-    fullAddress: db.full_address || db.address || '',
-    city: db.city || '',
-    coordinates:
-      db.latitude != null && db.longitude != null
-        ? { lat: Number(db.latitude), lng: Number(db.longitude) }
-        : undefined,
+    fullAddress: db.full_address || '',
     image: db.image_url || db.images?.[0] || '',
     images: db.images || [],
     amenities: (db.amenities as string[]) || [],
@@ -344,7 +335,12 @@ function mapDbLocationDetail(db: any): Location {
 }
 
 function toGoogleMapsUrl(url: string): string {
-  return url.includes('/embed') ? url.replace('/embed', '') : url
+  const trimmed = url.trim()
+  if (!trimmed || !trimmed.includes('/embed')) return trimmed
+  const lat = trimmed.match(/!3d(-?\d+\.?\d*)/)?.[1]
+  const lng = trimmed.match(/!2d(-?\d+\.?\d*)/)?.[1]
+  if (lat && lng) return `https://www.google.com/maps?q=${lat},${lng}`
+  return trimmed
 }
 
 function toAmPm(time: string): string {

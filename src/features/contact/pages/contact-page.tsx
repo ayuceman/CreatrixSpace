@@ -42,7 +42,7 @@ const contactInfo = [
 const locations = [
   {
     name: 'Dhobighat (WashingTown) Hub',
-    address: 'Dhobighat Chowk, Kathmandu 44600',
+    fullAddress: 'Dhobighat Chowk, Kathmandu 44600',
     phone: '+977 9851357889',
     email: 'dhobighat@creatrixspace.com',
     hours: '24/7 Access',
@@ -51,7 +51,7 @@ const locations = [
   },
   {
     name: 'Kausimaa Co-working',
-    address: 'Jwagal/Kupondole, Lalitpur',
+    fullAddress: 'Jwagal/Kupondole, Lalitpur',
     phone: '9823900033',
     email: '',
     hours: 'Mon-Sun: 10:00 AM - 6:00 PM',
@@ -59,7 +59,7 @@ const locations = [
   },
   {
     name: 'Jhamsikhel Loft',
-    address: 'Jhamsikhel, Lalitpur 44600',
+    fullAddress: 'Jhamsikhel, Lalitpur 44600',
     phone: '+977 9803171819',
     email: 'jhamsikhel@creatrixspace.com',
     hours: 'Mon-Fri: 7:00 AM - 9:00 PM',
@@ -232,7 +232,7 @@ export function ContactPage() {
                           <div className="space-y-2 text-sm text-fg-2">
                             <div className="flex items-center">
                               <MapPin className="h-4 w-4 mr-2" />
-                              <span>{location.address}</span>
+                              <span>{location.fullAddress}</span>
                             </div>
                             <div className="flex items-center">
                               <Phone className="h-4 w-4 mr-2" />
