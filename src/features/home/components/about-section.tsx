@@ -10,7 +10,7 @@ function AnimatedNumber({
   suffix?: string
 }) {
   const ref = useRef<HTMLSpanElement>(null)
-  const isInView = useInView(ref, { once: true, margin: '-100px' })
+  const isInView = useInView(ref, { once: true })
 
   useEffect(() => {
     if (!isInView) return
@@ -123,7 +123,7 @@ export function AboutSection() {
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, delay: 0.2 }}
           viewport={{ once: true }}
-          className="mt-24 grid grid-cols-2 lg:grid-cols-4 gap-6 pt-12 border-t border-rule-strong"
+          className="md:mt-24 mt-12 grid grid-cols-2 lg:grid-cols-4 gap-6 pt-12 border-t border-rule-strong"
         >
           {stats.map((stat) => {
             const { value, suffix } = parseStat(stat.raw)

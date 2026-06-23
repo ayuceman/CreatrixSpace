@@ -198,7 +198,7 @@ export function HeroSection({ onBookTour: _onBookTour }: HeroSectionProps) {
               <ChevronRight className="h-5 w-5 text-fg-1" />
             </button>
 
-            <div className="absolute left-8 right-8 bottom-7 z-10 flex items-end justify-between gap-6 flex-wrap text-fg-on-ink-1">
+            <div className="absolute md:left-8 md:right-8 md:bottom-7 left-4 right-4 bottom-4 z-10 flex items-end justify-between gap-6 flex-wrap text-fg-on-ink-1">
               <div>
                 <div className="text-xs uppercase tracking-widest font-medium mb-2 text-white/70">
                   {String(currentImageIndex + 1).padStart(2, '0')} /{' '}
