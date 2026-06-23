@@ -366,7 +366,7 @@ export function AdminPricingPage() {
       const storage = supabaseAdmin?.storage ?? supabase.storage
       const ext = file.name.split('.').pop()
       const filePath = `rooms/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`
-      const { data, error } = await storage
+      const { error } = await storage
         .from('images')
         .upload(filePath, file, { cacheControl: '3600', upsert: false })
       if (error) throw error

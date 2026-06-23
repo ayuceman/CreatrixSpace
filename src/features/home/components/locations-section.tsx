@@ -179,7 +179,7 @@ export function LocationsSection({ onBookTour }: LocationsSectionProps) {
   const activeLocation = locations[activeIndex]
 
   useEffect(() => {
-    setSlideIndex(0)
+    setSlideIndex(0) // eslint-disable-line react-hooks/set-state-in-effect
   }, [activeIndex])
 
   useEffect(() => {

@@ -399,7 +399,6 @@ export function LocationDetailPage() {
 
   useEffect(() => {
     if (!id) return
-    setLoading(true)
     locationService
       .getLocationBySlug(id)
       .then((dbLocation) => {
@@ -768,7 +767,7 @@ export function LocationDetailPage() {
               viewport={{ once: true }}
               className="space-y-6 max-w-2xl mx-auto"
             >
-              <h2 className="text-3xl md:text-4xl font-display font-bold">
+              <h2 className="text-3xl md:text-4xl font-display font-normal">
                 Ready to Experience {location.name}?
               </h2>
               <p className="text-lg text-fg-on-ink-1/80">

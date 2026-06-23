@@ -119,7 +119,7 @@ export function VirtualOfficeHighlight({ variant = 'full' }: Props) {
             <Badge className="bg-emerald-100 text-emerald-700 border border-emerald-200 dark:bg-emerald-900/20 dark:text-emerald-300 dark:border-emerald-700/40 hover:bg-emerald-100 dark:hover:bg-emerald-900/30">
               Not coworking — a business presence
             </Badge>
-            <h2 className="text-3xl md:text-4xl font-display font-bold text-gray-900 dark:text-white leading-tight">
+            <h2 className="text-3xl md:text-4xl font-display font-normal text-gray-900 dark:text-white leading-tight">
               Virtual office
               <span className="block text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 to-teal-600 dark:from-emerald-400 dark:to-teal-400">
                 for modern businesses

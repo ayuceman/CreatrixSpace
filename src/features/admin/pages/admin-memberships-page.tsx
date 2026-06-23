@@ -21,24 +21,10 @@ import {
   transformBookingsToAdmin,
   type AdminBookingRecord,
 } from '@/features/admin/utils/admin-bookings'
-import {
-  Plus,
-  Trash2,
-  Download,
-  Filter,
-  SortAsc,
-  Users,
-  Calendar,
-  TrendingUp,
-  Clock,
-  Loader2,
-  Edit,
-} from 'lucide-react'
+import { Plus, Trash2, Download, Users, Loader2, Edit } from 'lucide-react'
 import { showToast } from '@/components/ui/toast'
 import { ConfirmModal } from '@/components/ui/confirm-modal'
 import { Textarea } from '@/components/ui/textarea'
-import { motion } from 'framer-motion'
-
 type MembershipRow = AdminBookingRecord & {
   billingCycle?: string
   autoRenew?: boolean
@@ -46,8 +32,6 @@ type MembershipRow = AdminBookingRecord & {
   eventId?: string
   manualEntryId?: string
 }
-
-const MONTH_IN_DAYS = 28
 
 const getStatusLabel = (status: string) =>
   status.charAt(0).toUpperCase() + status.slice(1)
@@ -156,12 +140,9 @@ export function AdminMembershipsPage() {
     guestPasses: '',
     notes: '',
   })
-  const [locationLookup, setLocationLookup] = useState<Record<string, string>>(
-    {}
-  )
-  const [statusFilter, setStatusFilter] = useState<string>('all')
-  const [sortBy, setSortBy] = useState<'date' | 'expiry' | 'name'>('expiry')
-  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc')
+  const [statusFilter] = useState<string>('all')
+  const [sortBy] = useState<'date' | 'expiry' | 'name'>('expiry')
+  const [sortOrder] = useState<'asc' | 'desc'>('asc')
 
   const loadMemberships = async () => {
     setLoading(true)
@@ -268,11 +249,12 @@ export function AdminMembershipsPage() {
           comparison =
             new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
           break
-        case 'expiry':
+        case 'expiry': {
           const aEnd = a.endDate ? new Date(a.endDate).getTime() : Infinity
           const bEnd = b.endDate ? new Date(b.endDate).getTime() : Infinity
           comparison = aEnd - bEnd
           break
+        }
         case 'name':
           comparison = a.customerName.localeCompare(b.customerName)
           break
@@ -283,6 +265,7 @@ export function AdminMembershipsPage() {
     return result
   }, [memberships, query, statusFilter, sortBy, sortOrder])
 
+  const [now] = useState(Date.now)
   const stats = useMemo(() => {
     const total = memberships.length
     const active = memberships.filter((m) => m.status === 'active').length
@@ -291,13 +274,13 @@ export function AdminMembershipsPage() {
     const expiringSoon = memberships.filter((m) => {
       if (!m.endDate) return false
       const daysLeft = Math.floor(
-        (new Date(m.endDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24)
+        (new Date(m.endDate).getTime() - now) / (1000 * 60 * 60 * 24)
       )
       return daysLeft > 0 && daysLeft <= 14
     }).length
 
     return { total, active, expired, pending, expiringSoon }
-  }, [memberships])
+  }, [memberships, now])
 
   const handleStatusChange = async (row: MembershipRow, newStatus: string) => {
     if (row.source === 'manual' && row.manualEntryId) {
@@ -567,7 +550,7 @@ export function AdminMembershipsPage() {
       {showManualForm && (
         <Card>
           <CardContent className="p-4 space-y-4">
-            <h2 className="font-semibold text-lg">Manual Membership Entry</h2>
+            <h2 className="font-normal text-lg">Manual Membership Entry</h2>
             <form
               className="grid gap-4 md:grid-cols-2"
               onSubmit={handleManualMembershipSubmit}

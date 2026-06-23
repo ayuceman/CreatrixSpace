@@ -51,7 +51,6 @@ export function useHotDeskPricing(): HotDeskPricing {
 
   useEffect(() => {
     let cancelled = false
-    setLoading(true)
     ;(async () => {
       try {
         const [locations, plans, pricingRows] = await Promise.all([

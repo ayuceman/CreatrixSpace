@@ -118,12 +118,14 @@ export function AdminAmenitiesPage() {
       const savedIds = new Set<string>()
 
       for (const item of items) {
-        const { _key, ...dbItem } = item
+        const { _key: _k, ...dbItem } = item
+        void _k
         if (dbItem.id) {
           await client.from('amenities').update(dbItem).eq('id', dbItem.id)
           savedIds.add(dbItem.id)
         } else {
           const { id: _id, ...rest } = dbItem
+          void _id
           const { data } = await client.from('amenities').insert(rest).select()
           if (data?.[0]?.id) savedIds.add(data[0].id)
         }

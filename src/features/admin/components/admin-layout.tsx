@@ -27,6 +27,7 @@ const pageTitles: Record<string, string> = {
   [ROUTES.ADMIN_CTA]: 'CTA Section',
   [ROUTES.ADMIN_FORM_SUBMISSIONS]: 'Form Submissions',
   [ROUTES.ADMIN_PLANS]: 'Plans',
+  [ROUTES.ADMIN_ADDONS]: 'Add-ons',
 }
 
 // ── Nav structure ────────────────────────────────────────────────────────────
@@ -65,6 +66,7 @@ const navEntries: NavEntry[] = [
     name: 'Settings',
     items: [
       { name: 'Plans', path: ROUTES.ADMIN_PLANS },
+      { name: 'Add-ons', path: ROUTES.ADMIN_ADDONS },
       { name: 'Pricing', path: ROUTES.ADMIN_PRICING },
       { name: 'Site Stats', path: ROUTES.ADMIN_SITE_STATS },
     ],

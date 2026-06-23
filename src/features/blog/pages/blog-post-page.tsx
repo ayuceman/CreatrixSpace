@@ -413,7 +413,7 @@ export function BlogPostPage() {
               </div>
             </div>
 
-            <h1 className="text-4xl md:text-5xl font-display font-bold mb-6 leading-tight">
+            <h1 className="text-4xl md:text-5xl font-display font-normal mb-6 leading-tight">
               {post.title}
             </h1>
 

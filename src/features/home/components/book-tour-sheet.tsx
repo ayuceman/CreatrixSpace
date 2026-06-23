@@ -97,6 +97,7 @@ export function BookTourSheet({ open, onClose, seed }: BookTourSheetProps) {
   const [step2Headline, setStep2Headline] = useState('')
   const [confirmationEyebrow, setConfirmationEyebrow] = useState('')
   const [confirmationTourDetails, setConfirmationTourDetails] = useState('')
+  void confirmationTourDetails
 
   const dates = useMemo(() => generateDates(), [])
 

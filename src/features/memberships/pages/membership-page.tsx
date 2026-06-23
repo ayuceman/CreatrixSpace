@@ -268,7 +268,7 @@ export function MembershipPage() {
             viewport={{ once: true }}
             className="text-center mb-16"
           >
-            <h2 className="text-3xl md:text-4xl font-display font-bold mb-6">
+            <h2 className="text-3xl md:text-4xl font-display font-normal mb-6">
               Choose Your Perfect Plan
             </h2>
             <p className="text-xl text-fg-2 max-w-2xl mx-auto">
@@ -414,7 +414,7 @@ export function MembershipPage() {
             viewport={{ once: true }}
             className="text-center mb-16"
           >
-            <h2 className="text-3xl md:text-4xl font-display font-bold mb-6">
+            <h2 className="text-3xl md:text-4xl font-display font-normal mb-6">
               Why Choose CreatrixSpace?
             </h2>
             <p className="text-xl text-fg-2 max-w-2xl mx-auto">
@@ -464,7 +464,7 @@ export function MembershipPage() {
             viewport={{ once: true }}
             className="text-center mb-16"
           >
-            <h2 className="text-3xl md:text-4xl font-display font-bold mb-6">
+            <h2 className="text-3xl md:text-4xl font-display font-normal mb-6">
               What Our Members Say
             </h2>
             <p className="text-xl text-fg-2 max-w-2xl mx-auto">
@@ -528,7 +528,7 @@ export function MembershipPage() {
             viewport={{ once: true }}
             className="max-w-4xl mx-auto text-center"
           >
-            <h2 className="text-3xl md:text-4xl font-display font-bold mb-6">
+            <h2 className="text-3xl md:text-4xl font-display font-normal mb-6">
               Ready to Transform Your Work Experience?
             </h2>
             <p className="text-xl mb-8 opacity-90">
