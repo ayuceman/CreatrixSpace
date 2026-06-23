@@ -237,7 +237,7 @@ export function CTASection() {
                   to={`https://wa.me/${WHATSAPP.NUMBER}?text=${encodeURIComponent("Hello CreatrixSpace — I'd like to enquire.")}`}
                   target="_blank"
                   rel="noopener"
-                  className="flex items-center justify-between px-3.5 py-3 rounded-sm bg-[#25D366] text-white no-underline text-sm font-medium"
+                  className="flex flex-col items-start sm:flex-row sm:items-center justify-between px-3.5 py-3 rounded-sm bg-[#25D366] text-white no-underline text-sm font-medium"
                 >
                   <span className="inline-flex items-center gap-2.5">
                     <MessageCircle size={16} />
