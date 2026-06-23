@@ -128,11 +128,6 @@ export function AdminSpacesPage() {
     updateCard(ci, { tags: card.tags.filter((_, k) => k !== ti) })
   }
 
-  const triggerUpload = (ci: number) => {
-    uploadIndexRef.current = ci
-    fileInputRef.current?.click()
-  }
-
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return

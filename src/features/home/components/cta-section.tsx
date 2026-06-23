@@ -196,7 +196,7 @@ export function CTASection() {
                   <span className="text-[11px] tracking-[0.12em] uppercase text-fg-2 font-medium">
                     Which room
                   </span>
-                  <div className="grid grid-cols-3 gap-1.5">
+                  <div className="grid md:grid-cols-3 gap-1.5">
                     {rooms.map((room) => (
                       <button
                         key={room.name}

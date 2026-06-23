@@ -101,6 +101,7 @@ export function AdminLocationsPage() {
 
   useEffect(() => {
     load()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const openCreate = () => {
@@ -156,9 +157,7 @@ export function AdminLocationsPage() {
       const ext = file.name.split('.').pop()
       const folder = editingId ? `locations/${editingId}` : 'locations/temp'
       const filePath = `${folder}/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`
-      const { data, error } = await storage
-        .from('images')
-        .upload(filePath, file)
+      const { error } = await storage.from('images').upload(filePath, file)
       if (error) throw error
       const {
         data: { publicUrl },

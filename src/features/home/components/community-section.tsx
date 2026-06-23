@@ -232,7 +232,7 @@ export function CommunitySection() {
             ) : (
               <div
                 key={`${c.name}-${i}`}
-                className={`shrink-0 font-display text-[clamp(28px,3.4vw,44px)] tracking-[-0.01em] text-fg-2 py-3 whitespace-nowrap ${
+                className={`shrink-0 capitalize font-display text-[clamp(28px,3.4vw,44px)] tracking-[-0.01em] text-fg-2 py-3 whitespace-nowrap ${
                   c.italic ? 'italic' : 'not-italic'
                 }`}
               >

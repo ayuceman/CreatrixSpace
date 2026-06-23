@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion } from 'framer-motion'
 import {
   MapPin,
   Phone,
@@ -9,7 +9,6 @@ import {
   ExternalLink,
   Loader2,
   Mail,
-  ChevronDown,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
@@ -96,8 +95,6 @@ const faqs = [
 export function ContactPage() {
   const [isFormReady, setIsFormReady] = useState(false)
   const [formError, setFormError] = useState(false)
-  const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(0)
-
   const getWhatsAppLink = (rawPhone: string) => {
     const digits = (rawPhone || '').replace(/\D/g, '')
     if (!digits) return undefined
@@ -162,8 +159,6 @@ export function ContactPage() {
         if (createHubspotForm()) setIsFormReady(true)
       }
       document.body.appendChild(script)
-    } else {
-      if (createHubspotForm()) setIsFormReady(true)
     }
 
     return () => window.clearInterval(interval)
@@ -204,20 +199,6 @@ export function ContactPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
             {contactInfo.map((info, index) => {
               const Icon = info.icon
-              const isClickable =
-                info.title === 'Phone' || info.title === 'WhatsApp'
-              const href =
-                info.title === 'Phone'
-                  ? `tel:+9779700045256`
-                  : info.title === 'WhatsApp'
-                    ? `https://wa.me/9779803171819`
-                    : undefined
-
-              const CardWrapper = isClickable ? 'a' : 'div'
-              const cardProps = isClickable
-                ? { href, target: '_blank', rel: 'noopener noreferrer' }
-                : {}
-
               return (
                 <motion.div
                   key={info.title}

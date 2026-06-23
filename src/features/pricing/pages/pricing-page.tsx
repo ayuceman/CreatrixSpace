@@ -9,7 +9,6 @@ import {
   Phone,
   MessageCircle,
   Loader2,
-  MapPin,
   Globe2,
   Sparkles,
 } from 'lucide-react'

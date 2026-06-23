@@ -399,7 +399,6 @@ export function LocationDetailPage() {
 
   useEffect(() => {
     if (!id) return
-    setLoading(true)
     locationService
       .getLocationBySlug(id)
       .then((dbLocation) => {

@@ -6,7 +6,6 @@ interface ToastMessage {
   type: 'success' | 'error'
 }
 
-let toastId = 0
 const listeners = new Set<(msg: ToastMessage) => void>()
 
 export function showToast(text: string, type: 'success' | 'error' = 'success') {
