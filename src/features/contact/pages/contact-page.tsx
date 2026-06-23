@@ -1,5 +1,5 @@
-import { useEffect } from 'react'
-import { motion } from 'framer-motion'
+import { useEffect, useState } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
 import {
   MapPin,
   Phone,
@@ -7,9 +7,12 @@ import {
   MessageCircle,
   Calendar,
   ExternalLink,
+  Loader2,
+  Mail,
+  ChevronDown,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent } from '@/components/ui/card'
 import { ROUTES } from '@/lib/constants'
 
 const contactInfo = [
@@ -91,6 +94,10 @@ const faqs = [
 ]
 
 export function ContactPage() {
+  const [isFormReady, setIsFormReady] = useState(false)
+  const [formError, setFormError] = useState(false)
+  const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(0)
+
   const getWhatsAppLink = (rawPhone: string) => {
     const digits = (rawPhone || '').replace(/\D/g, '')
     if (!digits) return undefined
@@ -99,18 +106,71 @@ export function ContactPage() {
   }
 
   useEffect(() => {
-    const src = 'https://js.hsforms.net/forms/embed/44777363.js'
-    const existing = document.querySelector(`script[src="${src}"]`)
+    const src = 'https://js.hsforms.net/forms/v2.js'
+    const targetId = 'hubspot-contact-form'
+    let readyTimeout: number | undefined
+
+    const createHubspotForm = () => {
+      const hbspt = (window as any)?.hbspt
+      if (!hbspt?.forms?.create) return false
+
+      const target = document.getElementById(targetId)
+      if (!target) return false
+
+      target.innerHTML = ''
+
+      hbspt.forms.create({
+        region: 'na1',
+        portalId: '44777363',
+        formId: '29e4175e-1983-4c51-9887-74bd94d8c42d',
+        target: `#${targetId}`,
+        onFormReady: () => {
+          if (readyTimeout) window.clearTimeout(readyTimeout)
+          setIsFormReady(true)
+          setFormError(false)
+        },
+      })
+
+      if (readyTimeout) window.clearTimeout(readyTimeout)
+      readyTimeout = window.setTimeout(() => setFormError(true), 15000)
+      return true
+    }
+
+    const existing = document.querySelector(
+      `script[src="${src}"]`
+    ) as HTMLScriptElement | null
+
+    let attempts = 0
+    const maxAttempts = 100
+    const interval = window.setInterval(() => {
+      attempts += 1
+      if (createHubspotForm()) {
+        setIsFormReady(true)
+        window.clearInterval(interval)
+      } else if (attempts >= maxAttempts) {
+        setFormError(true)
+        window.clearInterval(interval)
+      }
+    }, 200)
+
     if (!existing) {
       const script = document.createElement('script')
       script.src = src
-      script.defer = true
+      script.async = true
+      script.onerror = () => setFormError(true)
+      script.onload = () => {
+        if (createHubspotForm()) setIsFormReady(true)
+      }
       document.body.appendChild(script)
+    } else {
+      if (createHubspotForm()) setIsFormReady(true)
     }
+
+    return () => window.clearInterval(interval)
   }, [])
 
   return (
-    <div className="overflow-hidden">
+    <div className="overflow-x-hidden">
       {/* Hero Section */}
       <section className="section-padding bg-gradient-to-br from-bg via-bg to-clay/5">
         <div className="container">
@@ -120,8 +180,15 @@ export function ContactPage() {
             transition={{ duration: 0.6 }}
             className="text-center space-y-6 max-w-3xl mx-auto"
           >
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 text-sm font-medium mb-4">
+              <MessageCircle className="h-4 w-4" />
+              We respond within 24 hours
+            </div>
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-display font-bold">
-              Get in <span className="gradient-text">Touch</span>
+              Let's{' '}
+              <span className="bg-gradient-to-r from-purple-600 to-purple-800 bg-clip-text text-transparent">
+                Connect
+              </span>
             </h1>
             <p className="text-lg text-fg-2">
               Have questions about our coworking spaces? We're here to help!
@@ -132,17 +199,32 @@ export function ContactPage() {
       </section>
 
       {/* Contact Information */}
-      <section className="section-padding">
+      <section className="py-16 md:py-20 bg-white dark:bg-background">
         <div className="container">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
             {contactInfo.map((info, index) => {
               const Icon = info.icon
+              const isClickable =
+                info.title === 'Phone' || info.title === 'WhatsApp'
+              const href =
+                info.title === 'Phone'
+                  ? `tel:+9779700045256`
+                  : info.title === 'WhatsApp'
+                    ? `https://wa.me/9779803171819`
+                    : undefined
+
+              const CardWrapper = isClickable ? 'a' : 'div'
+              const cardProps = isClickable
+                ? { href, target: '_blank', rel: 'noopener noreferrer' }
+                : {}
+
               return (
                 <motion.div
                   key={info.title}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5, delay: index * 0.1 }}
+                  className="h-full"
                 >
                   <Card className="text-center h-full">
                     <CardContent className="p-6 space-y-4">
@@ -164,31 +246,42 @@ export function ContactPage() {
       {/* Contact Form & Locations */}
       <section className="section-padding bg-bg-band/30">
         <div className="container">
-          <div className="grid lg:grid-cols-2 gap-12">
+          <div className="grid lg:grid-cols-2 gap-10 lg:gap-12">
             {/* Contact Form */}
             <motion.div
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.6 }}
             >
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center">
-                    <MessageCircle className="mr-2 h-5 w-5" />
+              <div className="h-full rounded-3xl border-2 border-purple-200 dark:border-purple-900/50 bg-white dark:bg-background shadow-lg overflow-hidden">
+                <div className="bg-gradient-to-r from-purple-600 to-purple-700 p-6 text-white">
+                  <h2 className="text-2xl font-bold flex items-center gap-2">
+                    <Mail className="h-6 w-6" />
                     Send us a Message
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-6">
-                    <div
-                      className="hs-form-frame"
-                      data-region="na1"
-                      data-form-id="29e4175e-1983-4c51-9887-74bd94d8c42d"
-                      data-portal-id="44777363"
-                    />
-                  </div>
-                </CardContent>
-              </Card>
+                  </h2>
+                  <p className="text-purple-100 text-sm mt-2">
+                    We'll respond within 24 hours
+                  </p>
+                </div>
+                <div className="p-6">
+                  {!isFormReady && !formError && (
+                    <div className="flex items-center gap-3 text-sm text-gray-600 dark:text-gray-400 mb-4 p-4 bg-purple-50 dark:bg-purple-950/20 rounded-lg">
+                      <Loader2 className="h-4 w-4 animate-spin text-purple-600" />
+                      Loading form…
+                    </div>
+                  )}
+
+                  {formError && !isFormReady && (
+                    <div className="text-sm text-gray-700 dark:text-gray-300 mb-4 p-4 bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 rounded-lg">
+                      The form couldn't load (often blocked by
+                      ad‑blockers/privacy settings). Please use WhatsApp or call
+                      us above, or try disabling blockers and refresh.
+                    </div>
+                  )}
+
+                  <div id="hubspot-contact-form" className="min-h-[420px]" />
+                </div>
+              </div>
             </motion.div>
 
             {/* Locations */}
@@ -283,8 +376,8 @@ export function ContactPage() {
         </div>
       </section>
 
-      {/* FAQ Section */}
-      <section className="section-padding">
+      {/* FAQ Section - Accordion Style */}
+      <section className="py-16 md:py-20 bg-white dark:bg-background">
         <div className="container max-w-4xl">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -294,14 +387,17 @@ export function ContactPage() {
             className="text-center space-y-4 mb-12"
           >
             <h2 className="text-3xl md:text-4xl font-display font-bold">
-              Frequently Asked Questions
+              Frequently Asked{' '}
+              <span className="bg-gradient-to-r from-purple-600 to-purple-800 bg-clip-text text-transparent">
+                Questions
+              </span>
             </h2>
             <p className="text-lg text-fg-2">
               Quick answers to common questions about our coworking spaces.
             </p>
           </motion.div>
 
-          <div className="space-y-6">
+          <div className="space-y-4">
             {faqs.map((faq, index) => (
               <motion.div
                 key={index}
@@ -341,10 +437,14 @@ export function ContactPage() {
               Book a tour today and experience the perfect workspace for your
               needs.
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button size="lg" variant="secondary" asChild>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
+              <Button
+                size="lg"
+                className="bg-white text-purple-700 hover:bg-purple-50"
+                asChild
+              >
                 <a href={ROUTES.BOOKING}>
-                  <Calendar className="mr-2 h-4 w-4" />
+                  <Calendar className="mr-2 h-5 w-5" />
                   Book a Tour
                 </a>
               </Button>

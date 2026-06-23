@@ -22,8 +22,8 @@ INSERT INTO public.locations (id, name, slug, description, full_address, availab
   'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11'::uuid,
   'Dhobighat (WashingTown) Hub',
   'dhobighat-hub',
-  'A modern coworking space in the heart of Kathmandu, perfect for professionals and entrepreneurs.',
-  'Dhobighat, Kathmandu, Nepal',
+  'A modern coworking space in the heart of Lalitpur, perfect for professionals and entrepreneurs.',
+  'Dhobighat, Jhamsikhel, Lalitpur, Nepal (Near Thado Dhunga)',
   true,
   true,
   ARRAY['Fast Wi-Fi', '24/7 Access', 'Coffee & Tea', 'Meeting Rooms', 'Parking', 'Kitchen', 'Cleaning Service', 'Reception', 'Lockers', 'Phone Booths'],
@@ -105,6 +105,19 @@ INSERT INTO public.location_rooms (id, location_id, name, slug, description, ima
   ARRAY['Modular seating', 'Living wall', 'Skylight'],
   ARRAY['Focus pods', 'Team huddle system', 'Dedicated storage wall'],
   '360 sq.ft'
+),
+(
+  'd3eebc99-9c0b-4ef8-bb6d-6bb9bd380a44'::uuid,
+  'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11'::uuid,
+  'Jupiter',
+  'jupiter-hall',
+  'Spacious collaborative space designed for large teams and dynamic workshops.',
+  '/images/hero-slider/dhobighat-workspace-view-1.jpg',
+  12,
+  'available',
+  ARRAY['High ceilings', 'Flexible layout', 'Premium acoustics'],
+  ARRAY['Large projection screen', 'Movable furniture', 'Breakout areas'],
+  '500 sq.ft'
 )
 ON CONFLICT (location_id, slug) DO UPDATE SET
   name = EXCLUDED.name,
@@ -329,6 +342,31 @@ INSERT INTO public.room_plan_pricing (room_id, plan_id, pricing, currency) VALUE
   'b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a44'::uuid,
   '{"weekly": 650000, "monthly": 2400000, "annual": 29500000}'::jsonb,
   'NPR'
+),
+-- Jupiter Hall
+(
+  'd3eebc99-9c0b-4ef8-bb6d-6bb9bd380a44'::uuid,
+  'b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a11'::uuid,
+  '{"daily": 75000}'::jsonb,
+  'NPR'
+),
+(
+  'd3eebc99-9c0b-4ef8-bb6d-6bb9bd380a44'::uuid,
+  'b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a22'::uuid,
+  '{"weekly": 280000, "monthly": 1200000, "annual": 7500000}'::jsonb,
+  'NPR'
+),
+(
+  'd3eebc99-9c0b-4ef8-bb6d-6bb9bd380a44'::uuid,
+  'b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a33'::uuid,
+  '{"weekly": 400000, "monthly": 1350000, "annual": 12500000}'::jsonb,
+  'NPR'
+),
+(
+  'd3eebc99-9c0b-4ef8-bb6d-6bb9bd380a44'::uuid,
+  'b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a44'::uuid,
+  '{"weekly": 800000, "monthly": 3000000, "annual": 35000000}'::jsonb,
+  'NPR'
 )
 ON CONFLICT (room_id, plan_id) DO UPDATE SET
   pricing = EXCLUDED.pricing,
@@ -363,7 +401,7 @@ INSERT INTO public.add_ons (id, name, description, price, currency, type, active
   'c2eebc99-9c0b-4ef8-bb6d-6bb9bd380a33'::uuid,
   'Virtual Office Address',
   'Use our professional address for your business registration and correspondence. Includes mail receiving service.',
-  300000,
+  600000,
   'NPR',
   'virtual_office',
   true

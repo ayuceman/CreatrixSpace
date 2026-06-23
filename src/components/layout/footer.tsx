@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { ArrowRight, MessageCircle, Phone, Mail } from 'lucide-react'
-import { WHATSAPP } from '@/lib/constants'
+import { WHATSAPP, CONTACT, SOCIAL } from '@/lib/constants'
 import {
   locationService,
   membershipService,
@@ -226,7 +226,7 @@ export function Footer() {
               </span>
             </a>
             <a
-              href="tel:+97715453000"
+              href={`tel:${CONTACT.PHONE_HREF}`}
               className="text-fg-on-ink-2 no-underline text-sm block py-[5px] transition-colors duration-base ease-out hover:text-fg-on-ink-1"
             >
               <span className="inline-flex items-center gap-2">
@@ -235,11 +235,11 @@ export function Footer() {
               </span>
               <br />
               <span className="font-mono text-xs text-fg-3">
-                +977 1 5453000
+                {CONTACT.PHONE}
               </span>
             </a>
             <a
-              href="mailto:hello@creatrixventures.space"
+              href={`mailto:${CONTACT.EMAIL}`}
               className="text-fg-on-ink-2 no-underline text-sm block py-[5px] transition-colors duration-base ease-out hover:text-fg-on-ink-1"
             >
               <span className="inline-flex items-center gap-2">
@@ -248,7 +248,7 @@ export function Footer() {
               </span>
               <br />
               <span className="font-mono text-xs text-fg-3">
-                hello@creatrixventures.space
+                {CONTACT.EMAIL}
               </span>
             </a>
             <a
@@ -278,10 +278,20 @@ export function Footer() {
             </a>
           </div>
           <div className="flex gap-5.5 text-[13px]">
-            <a href="#" className="text-fg-on-ink-2 no-underline">
+            <a
+              href={SOCIAL.INSTAGRAM}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-fg-on-ink-2 no-underline"
+            >
               Instagram
             </a>
-            <a href="#" className="text-fg-on-ink-2 no-underline">
+            <a
+              href={SOCIAL.SUBSTACK}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-fg-on-ink-2 no-underline"
+            >
               Substack
             </a>
             <a href="#" className="text-fg-on-ink-2 no-underline">

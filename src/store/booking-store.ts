@@ -362,6 +362,8 @@ export const useBookingStore = create<BookingStore>()(
           resolvedPricing = plan?.pricing || {}
         }
 
+        // Force Explorer day pass pricing to the correct public price (NPR 500/day).
+        // Prices are stored in paisa (50000 = NPR 500.00).
         if (
           plan?.type === 'day_pass' &&
           plan.name?.toLowerCase() === 'explorer'

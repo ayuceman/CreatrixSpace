@@ -173,7 +173,6 @@ export function AdminBookingsPage() {
     setUpdatingIds((prev) => new Set(prev).add(bookingId))
 
     try {
-      // Clear any previous errors
       setError(null)
 
       if (booking.source === 'manual' && booking.manualEntryId) {
@@ -427,6 +426,7 @@ export function AdminBookingsPage() {
     const csv = [headers, ...rows]
       .map((row) => row.map((cell) => `"${cell}"`).join(','))
       .join('\n')
+
     const blob = new Blob([csv], { type: 'text/csv' })
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
@@ -565,6 +565,7 @@ export function AdminBookingsPage() {
         <motion.div
           initial={{ opacity: 0, height: 0 }}
           animate={{ opacity: 1, height: 'auto' }}
+          exit={{ opacity: 0, height: 0 }}
           transition={{ duration: 0.3 }}
         >
           <Card>

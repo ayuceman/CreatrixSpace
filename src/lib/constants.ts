@@ -116,3 +116,14 @@ export const WHATSAPP = {
     return `https://wa.me/${this.NUMBER}?text=${encodeURIComponent(this.DEFAULT_MESSAGE)}`
   },
 } as const
+
+export const CONTACT = {
+  PHONE: '+977 1 5453000',
+  PHONE_HREF: '+97715453000',
+  EMAIL: 'hello@creatrixventures.space',
+} as const
+
+export const SOCIAL = {
+  INSTAGRAM: 'https://www.instagram.com/creatrix_space/',
+  SUBSTACK: '#',
+} as const

@@ -83,8 +83,8 @@ Go to **Table Editor** → `locations` and add your locations:
 {
   "name": "Dhobighat (WashingTown) Hub",
   "slug": "dhobighat-hub",
-  "address": "Dhobighat, Kathmandu",
-  "description": "A modern coworking space in the heart of Kathmandu",
+  "address": "Dhobighat, Jhamsikhel, Lalitpur (Near Thado Dhunga)",
+  "description": "A modern coworking space in the heart of Lalitpur",
   "available": true,
   "amenities": ["Fast Wi-Fi", "24/7 Access", "Coffee & Tea", "Meeting Rooms"],
   "capacity": {

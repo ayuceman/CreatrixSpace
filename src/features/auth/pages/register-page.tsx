@@ -147,7 +147,7 @@ export function RegisterPage() {
                 <Input
                   id="phone"
                   type="tel"
-                  placeholder="+977 9851357889"
+                  placeholder="+977 9700045256"
                   value={formData.phone}
                   onChange={(e) => handleChange('phone', e.target.value)}
                   className="pl-10"

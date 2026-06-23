@@ -14,9 +14,10 @@ export interface SEOData {
 const DEFAULT_SEO: Required<
   Omit<SEOData, 'keywords' | 'image' | 'url' | 'type' | 'noindex' | 'canonical'>
 > = {
-  title: 'CreatrixSpace - Premium Coworking Spaces in Nepal',
+  title: 'CreatrixSpace - Premium Coworking Spaces in Kathmandu & Lalitpur',
   description:
-    'Premium coworking spaces for modern professionals. Flexible plans, 24/7 access, high-speed internet, and vibrant community in Kathmandu, Nepal.',
+    'Premium coworking spaces in Kathmandu and Lalitpur. 24/7 access, high-speed internet, meeting rooms, and modern facilities. Perfect for freelancers, entrepreneurs, and remote workers in Nepal.',
+
   siteName: 'CreatrixSpace',
   locale: 'en_US',
 }
@@ -122,10 +123,22 @@ export function generateStructuredData(
       image: `${baseUrl}/creatrix-logo.png`,
       address: {
         '@type': 'PostalAddress',
-        addressLocality: 'Kathmandu',
+        addressLocality: 'Kathmandu, Lalitpur',
         addressRegion: 'Bagmati',
         addressCountry: 'NP',
       },
+      areaServed: [
+        {
+          '@type': 'City',
+          name: 'Kathmandu',
+          addressCountry: 'NP',
+        },
+        {
+          '@type': 'City',
+          name: 'Lalitpur',
+          addressCountry: 'NP',
+        },
+      ],
       ...data,
     },
     Article: {

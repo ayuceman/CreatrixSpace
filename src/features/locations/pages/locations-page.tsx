@@ -27,8 +27,8 @@ interface LocationData {
 const defaultLocations: LocationData[] = [
   {
     id: 'dhobighat-hub',
-    name: 'Dhobighat Hub',
-    full_address: 'Dhobighat, Kathmandu, Nepal',
+    name: 'Dhobighat (WashingTown) Hub',
+    full_address: 'Dhobighat, Jhamsikhel, Lalitpur (Near Thado Dhunga)',
     image:
       '/images/locations/dhobighat-hub/dhobighat-coworking-space-main.webp',
     capacity: 30,

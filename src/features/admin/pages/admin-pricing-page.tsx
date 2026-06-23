@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState, useRef } from 'react'
-import { Plus, Loader2, AlertCircle, X, Pencil } from 'lucide-react'
+import { Plus, Loader2, AlertCircle, X, Pencil, Trash2 } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
@@ -470,6 +470,27 @@ export function AdminPricingPage() {
     }
   }
 
+  const handleDeleteRoom = async (roomId: string) => {
+    if (
+      !confirm(
+        'Delete this room? This will also remove all associated pricing.'
+      )
+    )
+      return
+
+    try {
+      await roomService.deleteRoom(roomId)
+      setRooms((prev) => prev.filter((r) => r.id !== roomId))
+      if (selectedRoomId === roomId) {
+        setSelectedRoomId('')
+      }
+      alert('Room deleted successfully.')
+    } catch (err) {
+      console.error(err)
+      alert('Failed to delete room. Please try again.')
+    }
+  }
+
   return (
     <div className="space-y-6">
       <div>
@@ -845,6 +866,14 @@ export function AdminPricingPage() {
                           ) : (
                             'Mark Booked'
                           )}
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => handleDeleteRoom(room.id)}
+                          className="text-red-600 hover:text-red-700"
+                        >
+                          <Trash2 className="h-3 w-3" />
                         </Button>
                       </div>
                     </div>

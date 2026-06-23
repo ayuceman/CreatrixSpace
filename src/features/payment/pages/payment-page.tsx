@@ -186,7 +186,7 @@ export function PaymentPage() {
               ? `${bookingData.contactInfo.firstName} ${bookingData.contactInfo.lastName}`
               : 'Test User',
           email: bookingData.contactInfo?.email || 'test@example.com',
-          phone: bookingData.contactInfo?.phone || '+977 9851357889',
+          phone: bookingData.contactInfo?.phone || '+977 9700045256',
         },
         metadata: {
           locationId: bookingData.locationId || 'thamel-hub',

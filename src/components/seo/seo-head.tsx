@@ -18,7 +18,8 @@ export function SEOHead({
   ...seoData
 }: SEOHeadProps) {
   const location = useLocation()
-  const baseUrl = import.meta.env.VITE_APP_URL || 'https://creatrixspace.com'
+  const baseUrl =
+    import.meta.env.VITE_APP_URL || 'https://creatrixventures.space'
 
   useEffect(() => {
     // Update SEO meta tags

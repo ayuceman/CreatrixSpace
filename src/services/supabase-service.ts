@@ -8,6 +8,8 @@ type Location = Database['public']['Tables']['locations']['Row']
 type LocationRoom = Database['public']['Tables']['location_rooms']['Row']
 type LocationRoomUpdate =
   Database['public']['Tables']['location_rooms']['Update']
+type LocationRoomInsert =
+  Database['public']['Tables']['location_rooms']['Insert']
 type Plan = Database['public']['Tables']['plans']['Row']
 type AddOn = Database['public']['Tables']['add_ons']['Row']
 type LocationPlanPricing =
@@ -239,6 +241,20 @@ export const locationService = {
     const { error } = await client.from('locations').delete().eq('id', id)
     if (error) throw error
   },
+
+  async getAllLocationsSimple(): Promise<
+    { name: string; full_address: string }[]
+  > {
+    const { data, error } = await supabase
+      .from('locations')
+      .select('name, full_address')
+      .order('name', { ascending: true })
+    if (error) return []
+    return (data || []).map((l) => ({
+      name: l.name,
+      full_address: l.full_address ?? '',
+    }))
+  },
 }
 
 // ============================================
@@ -314,6 +330,35 @@ export const roomService = {
   async setRoomStatus(roomId: string, status: LocationRoom['status']) {
     return this.updateRoom(roomId, { status })
   },
+
+  async createRoom(roomData: LocationRoomInsert): Promise<LocationRoom | null> {
+    const client = supabaseAdmin ?? supabase
+    const { data, error } = await client
+      .from('location_rooms')
+      .insert(roomData)
+      .select('*')
+      .single()
+
+    if (error) {
+      console.error('Failed to create room:', error)
+      throw error
+    }
+
+    return data
+  },
+
+  async deleteRoom(roomId: string): Promise<void> {
+    const client = supabaseAdmin ?? supabase
+    const { error } = await client
+      .from('location_rooms')
+      .delete()
+      .eq('id', roomId)
+
+    if (error) {
+      console.error('Failed to delete room:', error)
+      throw error
+    }
+  },
 }
 
 // ============================================
@@ -339,7 +384,26 @@ export const planService = {
         )
         return []
       }
-      return data || []
+      const plans = data || []
+
+      // Pricing overrides (keeps the website consistent even if DB is stale)
+      // Note: prices are stored in paisa (e.g. 80000 = NPR 800.00)
+      return plans.map((plan) => {
+        if (
+          plan.type === 'day_pass' &&
+          plan.name?.toLowerCase() === 'explorer'
+        ) {
+          const pricing = (plan.pricing as PlanPricingPayload) || {}
+          return {
+            ...plan,
+            pricing: {
+              ...pricing,
+              daily: 50000,
+            } as any,
+          }
+        }
+        return plan
+      })
     } catch (error: any) {
       // Catch all errors including network errors, 500 errors, etc.
       console.warn(

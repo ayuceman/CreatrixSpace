@@ -3,7 +3,7 @@ import { motion } from 'framer-motion'
 import { Check, MessageCircle, Phone, Mail } from 'lucide-react'
 import { HiArrowRight } from 'react-icons/hi2'
 import { Button } from '@/components/ui/button'
-import { WHATSAPP } from '@/lib/constants'
+import { WHATSAPP, CONTACT } from '@/lib/constants'
 import { Link } from 'react-router-dom'
 import {
   ctaContentService,
@@ -25,7 +25,9 @@ export function CTASection() {
   const [headlineEm, setHeadlineEm] = useState(defaultHeadlineEm)
   const [headline2, setHeadline2] = useState(defaultHeadline2)
   const [description, setDescription] = useState(defaultDescription)
-  const [rooms, setRooms] = useState<{ name: string }[]>([])
+  const [rooms, setRooms] = useState<{ name: string; full_address: string }[]>(
+    []
+  )
   const [features, setFeatures] = useState(defaultFeatures)
 
   const [selectedRoom, setSelectedRoom] = useState('')
@@ -45,18 +47,24 @@ export function CTASection() {
       const loadedFeatures = (data.features as string[]) ?? []
       setFeatures(loadedFeatures.length > 0 ? loadedFeatures : defaultFeatures)
     })
-    locationService.getAllLocations().then((data) => {
+    locationService.getAllLocationsSimple().then((data) => {
       if (data && data.length > 0) {
-        const mapped = data.map((l: any) => ({
-          name: l.name,
-        }))
-        setRooms(mapped)
-        setSelectedRoom(mapped[0].name)
+        setRooms(data)
+        setSelectedRoom(data[0].name)
       } else {
         const fallback = [
-          { name: 'Dhobighat' },
-          { name: 'Kausimaa' },
-          { name: 'Jhamsikhel' },
+          {
+            name: 'Dhobighat (WashingTown) Hub',
+            full_address: 'Dhobighat, Jhamsikhel, Lalitpur, Nepal',
+          },
+          {
+            name: 'Kausimaa Co-working',
+            full_address: 'Jwagal/Kupondole, Lalitpur, Nepal',
+          },
+          {
+            name: 'Jhamsikhel Loft',
+            full_address: 'Jhamsikhel, Lalitpur, Nepal',
+          },
         ]
         setRooms(fallback)
         setSelectedRoom(fallback[0].name)
@@ -200,7 +208,10 @@ export function CTASection() {
                             : 'bg-bg-raised text-fg-1 border border-rule'
                         }`}
                       >
-                        {room.name}
+                        <span>{room.name}</span>
+                        <span className="block text-[10px] opacity-70 mt-0.5">
+                          {room.full_address}
+                        </span>
                       </button>
                     ))}
                   </div>
@@ -239,18 +250,18 @@ export function CTASection() {
 
                 <div className="grid grid-cols-2 gap-2">
                   <a
-                    href="tel:+97715453000"
+                    href={`tel:${CONTACT.PHONE_HREF}`}
                     className="inline-flex items-center justify-center gap-2 px-3 py-2.5 rounded-sm bg-bg-raised border border-rule-strong text-fg-1 no-underline font-body text-[13px]"
                   >
                     <Phone size={14} />
-                    <span>+977 1 5453000</span>
+                    <span>{CONTACT.PHONE}</span>
                   </a>
                   <a
-                    href="mailto:hello@creatrixventures.space"
+                    href={`mailto:${CONTACT.EMAIL}`}
                     className="inline-flex items-center justify-center gap-2 px-3 py-2.5 rounded-sm bg-bg-raised border border-rule-strong text-fg-1 no-underline font-body text-[13px]"
                   >
                     <Mail size={14} />
-                    <span>Email</span>
+                    <span>{CONTACT.EMAIL}</span>
                   </a>
                 </div>
 

@@ -21,10 +21,23 @@ import {
   transformBookingsToAdmin,
   type AdminBookingRecord,
 } from '@/features/admin/utils/admin-bookings'
-import { Plus, Trash2 } from 'lucide-react'
+import {
+  Plus,
+  Trash2,
+  Download,
+  Filter,
+  SortAsc,
+  Users,
+  Calendar,
+  TrendingUp,
+  Clock,
+  Loader2,
+  Edit,
+} from 'lucide-react'
 import { showToast } from '@/components/ui/toast'
 import { ConfirmModal } from '@/components/ui/confirm-modal'
 import { Textarea } from '@/components/ui/textarea'
+import { motion } from 'framer-motion'
 
 type MembershipRow = AdminBookingRecord & {
   billingCycle?: string
@@ -47,19 +60,42 @@ const durationInDays = (record: { startDate?: string; endDate?: string }) => {
 }
 
 const formatCountdown = (endDate?: string) => {
-  if (!endDate) return { label: 'No end date', variant: 'secondary' as const }
+  if (!endDate)
+    return {
+      label: 'No end date',
+      variant: 'secondary' as const,
+      color: 'gray',
+    }
   const end = new Date(endDate)
   const diffMs = end.getTime() - Date.now()
   if (diffMs <= 0) {
     const daysAgo = Math.abs(Math.floor(diffMs / (1000 * 60 * 60 * 24)))
-    return { label: `Expired ${daysAgo}d ago`, variant: 'destructive' as const }
+    return {
+      label: `Expired ${daysAgo}d ago`,
+      variant: 'destructive' as const,
+      color: 'red',
+    }
   }
   const days = Math.floor(diffMs / (1000 * 60 * 60 * 24))
   const hours = Math.floor((diffMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))
-  let variant: 'secondary' | 'destructive' | 'default' = 'default'
-  if (days <= 7) variant = 'destructive'
-  else if (days <= 14) variant = 'secondary'
-  return { label: `${days}d ${hours}h left`, variant }
+
+  if (days <= 7)
+    return {
+      label: `${days}d ${hours}h left`,
+      variant: 'destructive' as const,
+      color: 'red',
+    }
+  if (days <= 14)
+    return {
+      label: `${days}d ${hours}h left`,
+      variant: 'secondary' as const,
+      color: 'amber',
+    }
+  return {
+    label: `${days}d ${hours}h left`,
+    variant: 'default' as const,
+    color: 'green',
+  }
 }
 
 const normalizeAddOns = (addOns?: AdminBookingRecord['addOns']) => ({
@@ -120,6 +156,12 @@ export function AdminMembershipsPage() {
     guestPasses: '',
     notes: '',
   })
+  const [locationLookup, setLocationLookup] = useState<Record<string, string>>(
+    {}
+  )
+  const [statusFilter, setStatusFilter] = useState<string>('all')
+  const [sortBy, setSortBy] = useState<'date' | 'expiry' | 'name'>('expiry')
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc')
 
   const loadMemberships = async () => {
     setLoading(true)
@@ -167,7 +209,8 @@ export function AdminMembershipsPage() {
       const bookingRows = normalizedBookings
         .filter((record) => {
           const duration = durationInDays(record)
-          return duration !== null && duration >= MONTH_IN_DAYS
+          // Include all bookings with dates set, regardless of duration
+          return duration !== null
         })
         .map<MembershipRow>((record) => ({
           ...record,
@@ -203,22 +246,57 @@ export function AdminMembershipsPage() {
   }, [])
 
   const filtered = useMemo(() => {
+    let result = [...memberships]
+
+    if (statusFilter !== 'all') {
+      result = result.filter((m) => m.status === statusFilter)
+    }
+
     const q = query.trim().toLowerCase()
-    if (!q) return memberships
-    return memberships.filter((m) =>
-      [m.customerName, m.email, m.phone, m.planName, m.locationName, m.status]
-        .filter(Boolean)
-        .some((value) => String(value).toLowerCase().includes(q))
-    )
-  }, [memberships, query])
+    if (q) {
+      result = result.filter((m) =>
+        [m.customerName, m.email, m.phone, m.planName, m.locationName, m.status]
+          .filter(Boolean)
+          .some((value) => String(value).toLowerCase().includes(q))
+      )
+    }
+
+    result.sort((a, b) => {
+      let comparison = 0
+      switch (sortBy) {
+        case 'date':
+          comparison =
+            new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+          break
+        case 'expiry':
+          const aEnd = a.endDate ? new Date(a.endDate).getTime() : Infinity
+          const bEnd = b.endDate ? new Date(b.endDate).getTime() : Infinity
+          comparison = aEnd - bEnd
+          break
+        case 'name':
+          comparison = a.customerName.localeCompare(b.customerName)
+          break
+      }
+      return sortOrder === 'asc' ? comparison : -comparison
+    })
+
+    return result
+  }, [memberships, query, statusFilter, sortBy, sortOrder])
 
   const stats = useMemo(() => {
-    return {
-      total: memberships.length,
-      active: memberships.filter((m) => m.status === 'active').length,
-      expired: memberships.filter((m) => m.status === 'expired').length,
-      pending: memberships.filter((m) => m.status === 'pending').length,
-    }
+    const total = memberships.length
+    const active = memberships.filter((m) => m.status === 'active').length
+    const expired = memberships.filter((m) => m.status === 'expired').length
+    const pending = memberships.filter((m) => m.status === 'pending').length
+    const expiringSoon = memberships.filter((m) => {
+      if (!m.endDate) return false
+      const daysLeft = Math.floor(
+        (new Date(m.endDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24)
+      )
+      return daysLeft > 0 && daysLeft <= 14
+    }).length
+
+    return { total, active, expired, pending, expiringSoon }
   }, [memberships])
 
   const handleStatusChange = async (row: MembershipRow, newStatus: string) => {
@@ -236,11 +314,45 @@ export function AdminMembershipsPage() {
     }
   }
 
+  const handleEditMembership = async (row: MembershipRow) => {
+    const newCustomerName = prompt('Customer Name:', row.customerName)
+    if (!newCustomerName) return
+
+    const newEmail = prompt('Email:', row.email || '')
+    const newPhone = prompt('Phone:', row.phone || '')
+    const newAmount = prompt('Amount (NPR):', String(row.amount / 100))
+    const newNotes = prompt('Notes:', row.notes || '')
+
+    const updatedRow: MembershipRow = {
+      ...row,
+      customerName: newCustomerName,
+      email: newEmail || undefined,
+      phone: newPhone || undefined,
+      amount: newAmount ? Math.round(Number(newAmount) * 100) : row.amount,
+      notes: newNotes || undefined,
+    }
+
+    if (row.source === 'manual' && row.manualEntryId) {
+      await manualEntryService.updateEntry(row.manualEntryId, updatedRow)
+    } else if (row.source === 'local_event' && row.eventId) {
+      updateMembership(row.eventId, {
+        customerName: updatedRow.customerName,
+        email: updatedRow.email,
+        phone: updatedRow.phone,
+        amount: updatedRow.amount,
+        notes: updatedRow.notes,
+      })
+    }
+
+    await loadMemberships()
+  }
+
   const handleRenew = async (row: MembershipRow) => {
     const duration = durationInDays(row) || 30
     const start = row.endDate ? new Date(row.endDate) : new Date()
     const end = new Date(start)
     end.setDate(end.getDate() + duration)
+
     await manualEntryService.addEntry({
       entryType: 'membership',
       data: {
@@ -381,8 +493,57 @@ export function AdminMembershipsPage() {
     }
   }
 
+  const exportToCSV = () => {
+    const headers = [
+      'Date',
+      'Customer',
+      'Email',
+      'Phone',
+      'Location',
+      'Plan',
+      'Amount (NPR)',
+      'Status',
+      'Start Date',
+      'End Date',
+      'Days Left',
+    ]
+    const rows = filtered.map((m) => {
+      const daysLeft = m.endDate
+        ? Math.floor(
+            (new Date(m.endDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24)
+          )
+        : ''
+      return [
+        new Date(m.createdAt).toLocaleDateString(),
+        m.customerName,
+        m.email || '',
+        m.phone || '',
+        m.locationName,
+        m.planName,
+        (m.amount / 100).toFixed(2),
+        m.status,
+        m.startDate ? new Date(m.startDate).toLocaleDateString() : '',
+        m.endDate ? new Date(m.endDate).toLocaleDateString() : '',
+        daysLeft,
+      ]
+    })
+
+    const csv = [headers, ...rows]
+      .map((row) => row.map((cell) => `"${cell}"`).join(','))
+      .join('\n')
+
+    const blob = new Blob([csv], { type: 'text/csv' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `memberships-${new Date().toISOString().split('T')[0]}.csv`
+    a.click()
+    URL.revokeObjectURL(url)
+  }
+
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
+      {/* Header */}
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <h1 className="text-2xl font-normal">Memberships</h1>
         <div className="flex items-center gap-3">
@@ -392,6 +553,10 @@ export function AdminMembershipsPage() {
           >
             <Plus className="h-4 w-4 mr-1" />
             {showManualForm ? 'Close' : 'Add Membership'}
+          </Button>
+          <Button variant="outline" onClick={exportToCSV}>
+            <Download className="h-4 w-4 mr-1" />
+            Export CSV
           </Button>
           <Button variant="outline" onClick={loadMemberships}>
             Refresh
@@ -582,15 +747,20 @@ export function AdminMembershipsPage() {
 
       <Separator />
 
+      {/* Memberships List */}
       {loading ? (
-        <p className="text-sm text-fg-2 py-8 text-center">
-          Loading memberships...
-        </p>
+        <div className="flex items-center justify-center py-12">
+          <Loader2 className="h-8 w-8 animate-spin text-purple-600" />
+          <span className="ml-2 text-gray-600 dark:text-gray-400">
+            Loading memberships...
+          </span>
+        </div>
       ) : (
-        <div className="grid gap-4">
+        <div className="space-y-4">
           {filtered.map((m) => {
             const countdown = formatCountdown(m.endDate)
             const duration = durationInDays(m)
+
             return (
               <Card key={m.id} className="hover:shadow-md transition-shadow">
                 <CardContent className="p-4 space-y-4">
@@ -665,6 +835,14 @@ export function AdminMembershipsPage() {
                         <Button
                           size="sm"
                           variant="outline"
+                          onClick={() => handleEditMembership(m)}
+                        >
+                          <Edit className="h-4 w-4 mr-1" />
+                          Edit
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
                           onClick={() => handleRenew(m)}
                         >
                           Renew Package
@@ -722,9 +900,17 @@ export function AdminMembershipsPage() {
           })}
 
           {filtered.length === 0 && (
-            <p className="text-sm text-fg-2 text-center py-8">
-              No memberships found.
-            </p>
+            <Card className="border-dashed border-2 border-gray-300 dark:border-gray-700">
+              <CardContent className="p-12 text-center">
+                <Users className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                <p className="text-gray-600 dark:text-gray-400">
+                  No memberships found
+                </p>
+                <p className="text-sm text-gray-500 dark:text-gray-500 mt-1">
+                  Try adjusting your filters or search query
+                </p>
+              </CardContent>
+            </Card>
           )}
         </div>
       )}
