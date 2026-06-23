@@ -7,5 +7,3 @@ export function AdminProtectedRoute() {
   if (!ok) return <Navigate to={ROUTES.ADMIN_LOGIN} replace />
   return <Outlet />
 }
-
-

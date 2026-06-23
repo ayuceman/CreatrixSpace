@@ -12,12 +12,34 @@ export default defineConfig([
     extends: [
       js.configs.recommended,
       tseslint.configs.recommended,
-      reactHooks.configs['recommended-latest'],
+      reactHooks.configs.flat['recommended-latest'],
       reactRefresh.configs.vite,
     ],
     languageOptions: {
       ecmaVersion: 2020,
       globals: globals.browser,
+    },
+    rules: {
+      '@typescript-eslint/no-explicit-any': 'off',
+      '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
+      'react-refresh/only-export-components': 'off',
+    },
+  },
+  {
+    files: [
+      'src/features/admin/**/*.tsx',
+      'src/features/pricing/**/*.tsx',
+      'src/features/payment/**/*.tsx',
+    ],
+    rules: {
+      'react-hooks/set-state-in-effect': 'off',
+    },
+  },
+  {
+    files: ['src/**/*.ts', 'src/**/*.tsx'],
+    rules: {
+      'no-empty': ['error', { allowEmptyCatch: true }],
+      'react-hooks/exhaustive-deps': 'warn',
     },
   },
 ])

@@ -4,11 +4,27 @@ import { Input } from '@/components/ui/input'
 import { Separator } from '@/components/ui/separator'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { getMemberships, updateMembership, deleteMembership, type MembershipEvent } from '@/lib/membership-events'
+import {
+  getMemberships,
+  updateMembership,
+  deleteMembership,
+  type MembershipEvent,
+} from '@/lib/membership-events'
 import { MEMBERSHIP_STATUS } from '@/lib/constants'
-import { bookingService, addOnService, locationService, manualEntryService } from '@/services/supabase-service'
-import { transformBookingsToAdmin, type AdminBookingRecord } from '@/features/admin/utils/admin-bookings'
-import { Trash2 } from 'lucide-react'
+import {
+  bookingService,
+  addOnService,
+  locationService,
+  manualEntryService,
+} from '@/services/supabase-service'
+import {
+  transformBookingsToAdmin,
+  type AdminBookingRecord,
+} from '@/features/admin/utils/admin-bookings'
+import { Plus, Trash2 } from 'lucide-react'
+import { showToast } from '@/components/ui/toast'
+import { ConfirmModal } from '@/components/ui/confirm-modal'
+import { Textarea } from '@/components/ui/textarea'
 
 type MembershipRow = AdminBookingRecord & {
   billingCycle?: string
@@ -20,7 +36,8 @@ type MembershipRow = AdminBookingRecord & {
 
 const MONTH_IN_DAYS = 28
 
-const getStatusLabel = (status: string) => status.charAt(0).toUpperCase() + status.slice(1)
+const getStatusLabel = (status: string) =>
+  status.charAt(0).toUpperCase() + status.slice(1)
 
 const durationInDays = (record: { startDate?: string; endDate?: string }) => {
   if (!record.startDate || !record.endDate) return null
@@ -62,7 +79,9 @@ const mapMembershipEventToRow = (
   email: membership.email,
   phone: membership.phone,
   locationId: membership.locationId,
-  locationName: membership.locationId ? locationLookup[membership.locationId] || 'Location' : 'Location',
+  locationName: membership.locationId
+    ? locationLookup[membership.locationId] || 'Location'
+    : 'Location',
   planId: membership.membershipType,
   planName: membership.membershipType,
   roomName: null,
@@ -83,7 +102,24 @@ export function AdminMembershipsPage() {
   const [query, setQuery] = useState('')
   const [memberships, setMemberships] = useState<MembershipRow[]>([])
   const [loading, setLoading] = useState(true)
-  const [locationLookup, setLocationLookup] = useState<Record<string, string>>({})
+  const [showManualForm, setShowManualForm] = useState(false)
+  const [deleteTarget, setDeleteTarget] = useState<MembershipRow | null>(null)
+  const [manualForm, setManualForm] = useState({
+    customerName: '',
+    email: '',
+    phone: '',
+    locationName: '',
+    planName: '',
+    roomName: '',
+    amountNpr: '',
+    startDate: '',
+    endDate: '',
+    billingCycle: 'monthly' as 'monthly' | 'annual',
+    addOns: '',
+    meetingRoomHours: '',
+    guestPasses: '',
+    notes: '',
+  })
 
   const loadMemberships = async () => {
     setLoading(true)
@@ -104,24 +140,29 @@ export function AdminMembershipsPage() {
         manualEntryService.getEntries('booking'),
       ])
 
-      const locationMap = locations.reduce<Record<string, string>>((acc, loc) => {
-        acc[loc.id] = loc.name
-        return acc
-      }, {})
-      setLocationLookup(locationMap)
+      const locationMap = locations.reduce<Record<string, string>>(
+        (acc, loc) => {
+          acc[loc.id] = loc.name
+          return acc
+        },
+        {}
+      )
+      const manualBookingRecords: AdminBookingRecord[] =
+        manualBookingEntries.map((entry) => {
+          const data = entry.data as AdminBookingRecord
+          return {
+            ...data,
+            id: entry.id,
+            manualEntryId: entry.id,
+            source: 'manual',
+            addOns: normalizeAddOns(data.addOns),
+          }
+        })
 
-      const manualBookingRecords: AdminBookingRecord[] = manualBookingEntries.map((entry) => {
-        const data = entry.data as AdminBookingRecord
-        return {
-          ...data,
-          id: entry.id,
-          manualEntryId: entry.id,
-          source: 'manual',
-          addOns: normalizeAddOns(data.addOns),
-        }
-      })
-
-      const normalizedBookings = [...manualBookingRecords, ...transformBookingsToAdmin(bookingsData, addOnsData)]
+      const normalizedBookings = [
+        ...manualBookingRecords,
+        ...transformBookingsToAdmin(bookingsData, addOnsData),
+      ]
 
       const bookingRows = normalizedBookings
         .filter((record) => {
@@ -165,14 +206,7 @@ export function AdminMembershipsPage() {
     const q = query.trim().toLowerCase()
     if (!q) return memberships
     return memberships.filter((m) =>
-      [
-        m.customerName,
-        m.email,
-        m.phone,
-        m.planName,
-        m.locationName,
-        m.status,
-      ]
+      [m.customerName, m.email, m.phone, m.planName, m.locationName, m.status]
         .filter(Boolean)
         .some((value) => String(value).toLowerCase().includes(q))
     )
@@ -187,112 +221,371 @@ export function AdminMembershipsPage() {
     }
   }, [memberships])
 
-const handleStatusChange = async (row: MembershipRow, newStatus: string) => {
-  if (row.source === 'manual' && row.manualEntryId) {
-    await manualEntryService.updateEntry(row.manualEntryId, { ...row, status: newStatus })
-    loadMemberships()
-    return
+  const handleStatusChange = async (row: MembershipRow, newStatus: string) => {
+    if (row.source === 'manual' && row.manualEntryId) {
+      await manualEntryService.updateEntry(row.manualEntryId, {
+        ...row,
+        status: newStatus,
+      })
+      loadMemberships()
+      return
+    }
+    if (row.source === 'local_event' && row.eventId) {
+      updateMembership(row.eventId, { status: newStatus as any })
+      loadMemberships()
+    }
   }
-  if (row.source === 'local_event' && row.eventId) {
-    updateMembership(row.eventId, { status: newStatus as any })
-    loadMemberships()
-  }
-}
 
-const handleRenew = async (row: MembershipRow) => {
+  const handleRenew = async (row: MembershipRow) => {
     const duration = durationInDays(row) || 30
     const start = row.endDate ? new Date(row.endDate) : new Date()
     const end = new Date(start)
     end.setDate(end.getDate() + duration)
-  await manualEntryService.addEntry({
-    entryType: 'membership',
-    data: {
-    id: '',
-    customerName: row.customerName,
-    email: row.email,
-    phone: row.phone,
-    planName: row.planName,
-    membershipType: row.planName,
-    roomName: row.roomName || undefined,
-    status: 'active',
-    startDate: start.toISOString(),
-    endDate: end.toISOString(),
-    amount: row.amount,
-    billingCycle: row.billingCycle === 'annual' ? 'annual' : 'monthly',
-    locationId: row.locationId,
-    locationName: row.locationName,
-    autoRenew: false,
-    createdAt: new Date().toISOString(),
-      notes: `Renewed from ${row.id}`,
-      addOns: normalizeAddOns(row.addOns),
-    },
-  })
-  loadMemberships()
+    await manualEntryService.addEntry({
+      entryType: 'membership',
+      data: {
+        id: '',
+        customerName: row.customerName,
+        email: row.email,
+        phone: row.phone,
+        planName: row.planName,
+        membershipType: row.planName,
+        roomName: row.roomName || undefined,
+        status: 'active',
+        startDate: start.toISOString(),
+        endDate: end.toISOString(),
+        amount: row.amount,
+        billingCycle: row.billingCycle === 'annual' ? 'annual' : 'monthly',
+        locationId: row.locationId,
+        locationName: row.locationName,
+        autoRenew: false,
+        createdAt: new Date().toISOString(),
+        notes: `Renewed from ${row.id}`,
+        addOns: normalizeAddOns(row.addOns),
+      },
+    })
+    loadMemberships()
   }
 
-const handleDeleteMembershipRow = async (row: MembershipRow) => {
-  if (!confirm('Delete this membership record?')) return
-  try {
-    if (row.source === 'manual' && row.manualEntryId) {
-      await manualEntryService.deleteEntry(row.manualEntryId)
-    } else if (row.source === 'booking') {
-      await bookingService.deleteBooking(row.id)
-    } else if (row.source === 'local_event' && row.eventId) {
-      deleteMembership(row.eventId)
-    }
-    await loadMemberships()
-  } catch (err) {
-    console.error('Failed to delete membership record', err)
-    alert('Failed to delete membership. Please try again.')
+  const handleDeleteMembershipRow = async (row: MembershipRow) => {
+    setDeleteTarget(row)
   }
-}
+
+  const confirmDelete = async () => {
+    if (!deleteTarget) return
+    const row = deleteTarget
+    setDeleteTarget(null)
+    try {
+      if (row.source === 'manual' && row.manualEntryId) {
+        await manualEntryService.deleteEntry(row.manualEntryId)
+      } else if (row.source === 'booking') {
+        await bookingService.deleteBooking(row.id)
+      } else if (row.source === 'local_event' && row.eventId) {
+        deleteMembership(row.eventId)
+      }
+      await loadMemberships()
+      showToast('Membership deleted', 'success')
+    } catch (err) {
+      console.error('Failed to delete membership record', err)
+      showToast('Failed to delete membership. Please try again.', 'error')
+    }
+  }
+
+  const handleManualMembershipSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (
+      !manualForm.customerName ||
+      !manualForm.locationName ||
+      !manualForm.planName
+    ) {
+      showToast(
+        'Please fill in customer, location, and plan information.',
+        'error'
+      )
+      return
+    }
+
+    const startDate =
+      manualForm.startDate || new Date().toISOString().split('T')[0]
+    const durationDays = manualForm.billingCycle === 'annual' ? 365 : 30
+    const end = new Date(startDate)
+    end.setDate(end.getDate() + durationDays)
+    const endDate = manualForm.endDate || end.toISOString().split('T')[0]
+
+    const payload = {
+      id: '',
+      customerName: manualForm.customerName,
+      email: manualForm.email || undefined,
+      phone: manualForm.phone || undefined,
+      locationName: manualForm.locationName,
+      planName: manualForm.planName,
+      roomName: manualForm.roomName || undefined,
+      amount: Math.round(Number(manualForm.amountNpr || 0) * 100),
+      status: 'active',
+      createdAt: new Date().toISOString(),
+      startDate,
+      endDate,
+      billingCycle: manualForm.billingCycle,
+      autoRenew: false,
+      addOns: {
+        selectedAddOns: manualForm.addOns
+          ? manualForm.addOns
+              .split(',')
+              .map((item) => item.trim())
+              .filter(Boolean)
+          : [],
+        meetingRoomHours: Number(manualForm.meetingRoomHours || 0),
+        guestPasses: Number(manualForm.guestPasses || 0),
+      },
+      notes: manualForm.notes || undefined,
+      source: 'manual' as const,
+    }
+
+    try {
+      const inserted = await manualEntryService.addEntry({
+        entryType: 'membership',
+        data: payload,
+      })
+
+      setMemberships((prev) => [
+        {
+          ...payload,
+          id: inserted.id,
+          manualEntryId: inserted.id,
+          addOns: normalizeAddOns(payload.addOns),
+        },
+        ...prev,
+      ])
+
+      setManualForm({
+        customerName: '',
+        email: '',
+        phone: '',
+        locationName: '',
+        planName: '',
+        roomName: '',
+        amountNpr: '',
+        startDate: '',
+        endDate: '',
+        billingCycle: 'monthly',
+        addOns: '',
+        meetingRoomHours: '',
+        guestPasses: '',
+        notes: '',
+      })
+      setShowManualForm(false)
+      showToast('Membership added successfully', 'success')
+    } catch (err) {
+      console.error('Failed to add membership:', err)
+      showToast('Failed to add membership. Please try again.', 'error')
+    }
+  }
 
   return (
     <div className="space-y-4">
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-        <h1 className="text-2xl font-semibold">Memberships</h1>
-        <Button variant="outline" onClick={loadMemberships}>Refresh</Button>
+        <h1 className="text-2xl font-normal">Memberships</h1>
+        <div className="flex items-center gap-3">
+          <Button
+            variant="outline"
+            onClick={() => setShowManualForm((prev) => !prev)}
+          >
+            <Plus className="h-4 w-4 mr-1" />
+            {showManualForm ? 'Close' : 'Add Membership'}
+          </Button>
+          <Button variant="outline" onClick={loadMemberships}>
+            Refresh
+          </Button>
+        </div>
       </div>
+
+      {showManualForm && (
+        <Card>
+          <CardContent className="p-4 space-y-4">
+            <h2 className="font-semibold text-lg">Manual Membership Entry</h2>
+            <form
+              className="grid gap-4 md:grid-cols-2"
+              onSubmit={handleManualMembershipSubmit}
+            >
+              <Input
+                required
+                placeholder="Customer name *"
+                value={manualForm.customerName}
+                onChange={(e) =>
+                  setManualForm((p) => ({ ...p, customerName: e.target.value }))
+                }
+              />
+              <Input
+                placeholder="Email"
+                value={manualForm.email}
+                onChange={(e) =>
+                  setManualForm((p) => ({ ...p, email: e.target.value }))
+                }
+              />
+              <Input
+                placeholder="Phone"
+                value={manualForm.phone}
+                onChange={(e) =>
+                  setManualForm((p) => ({ ...p, phone: e.target.value }))
+                }
+              />
+              <Input
+                required
+                placeholder="Location name *"
+                value={manualForm.locationName}
+                onChange={(e) =>
+                  setManualForm((p) => ({ ...p, locationName: e.target.value }))
+                }
+              />
+              <Input
+                required
+                placeholder="Plan name *"
+                value={manualForm.planName}
+                onChange={(e) =>
+                  setManualForm((p) => ({ ...p, planName: e.target.value }))
+                }
+              />
+              <Input
+                placeholder="Room name (optional)"
+                value={manualForm.roomName}
+                onChange={(e) =>
+                  setManualForm((p) => ({ ...p, roomName: e.target.value }))
+                }
+              />
+              <Input
+                placeholder="Amount (NPR)"
+                type="number"
+                min="0"
+                value={manualForm.amountNpr}
+                onChange={(e) =>
+                  setManualForm((p) => ({ ...p, amountNpr: e.target.value }))
+                }
+              />
+              <div className="grid grid-cols-2 gap-2">
+                <Input
+                  type="date"
+                  value={manualForm.startDate}
+                  onChange={(e) =>
+                    setManualForm((p) => ({ ...p, startDate: e.target.value }))
+                  }
+                />
+                <Input
+                  type="date"
+                  value={manualForm.endDate}
+                  onChange={(e) =>
+                    setManualForm((p) => ({ ...p, endDate: e.target.value }))
+                  }
+                />
+              </div>
+              <select
+                className="border rounded px-3 py-2 text-sm"
+                value={manualForm.billingCycle}
+                onChange={(e) =>
+                  setManualForm((p) => ({
+                    ...p,
+                    billingCycle: e.target.value as 'monthly' | 'annual',
+                  }))
+                }
+              >
+                <option value="monthly">Monthly</option>
+                <option value="annual">Annual</option>
+              </select>
+              <Input
+                placeholder="Add-ons (comma separated)"
+                value={manualForm.addOns}
+                onChange={(e) =>
+                  setManualForm((p) => ({ ...p, addOns: e.target.value }))
+                }
+              />
+              <div className="grid grid-cols-2 gap-2">
+                <Input
+                  type="number"
+                  min="0"
+                  placeholder="Meeting room hours"
+                  value={manualForm.meetingRoomHours}
+                  onChange={(e) =>
+                    setManualForm((p) => ({
+                      ...p,
+                      meetingRoomHours: e.target.value,
+                    }))
+                  }
+                />
+                <Input
+                  type="number"
+                  min="0"
+                  placeholder="Guest passes"
+                  value={manualForm.guestPasses}
+                  onChange={(e) =>
+                    setManualForm((p) => ({
+                      ...p,
+                      guestPasses: e.target.value,
+                    }))
+                  }
+                />
+              </div>
+              <Textarea
+                className="md:col-span-2"
+                placeholder="Notes"
+                value={manualForm.notes}
+                onChange={(e) =>
+                  setManualForm((p) => ({ ...p, notes: e.target.value }))
+                }
+              />
+              <div className="md:col-span-2 flex justify-end">
+                <Button type="submit">Save Membership</Button>
+              </div>
+            </form>
+          </CardContent>
+        </Card>
+      )}
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card>
           <CardContent className="p-4">
-            <div className="text-sm text-muted-foreground">Total</div>
+            <div className="text-sm text-fg-2">Total</div>
             <div className="text-2xl font-bold">{stats.total}</div>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="p-4">
-            <div className="text-sm text-muted-foreground">Active</div>
-            <div className="text-2xl font-bold text-green-600">{stats.active}</div>
+            <div className="text-sm text-fg-2">Active</div>
+            <div className="text-2xl font-bold text-green-600">
+              {stats.active}
+            </div>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="p-4">
-            <div className="text-sm text-muted-foreground">Expired</div>
-            <div className="text-2xl font-bold text-gray-600">{stats.expired}</div>
+            <div className="text-sm text-fg-2">Expired</div>
+            <div className="text-2xl font-bold text-gray-600">
+              {stats.expired}
+            </div>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="p-4">
-            <div className="text-sm text-muted-foreground">Pending</div>
-            <div className="text-2xl font-bold text-yellow-600">{stats.pending}</div>
+            <div className="text-sm text-fg-2">Pending</div>
+            <div className="text-2xl font-bold text-yellow-600">
+              {stats.pending}
+            </div>
           </CardContent>
         </Card>
       </div>
 
       <div className="max-w-md">
-        <Input 
-          placeholder="Search name, email, type, status..." 
-          value={query} 
-          onChange={(e) => setQuery(e.target.value)} 
+        <Input
+          placeholder="Search name, email, type, status..."
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
         />
       </div>
 
       <Separator />
 
       {loading ? (
-        <p className="text-sm text-muted-foreground py-8 text-center">Loading memberships...</p>
+        <p className="text-sm text-fg-2 py-8 text-center">
+          Loading memberships...
+        </p>
       ) : (
         <div className="grid gap-4">
           {filtered.map((m) => {
@@ -304,39 +597,42 @@ const handleDeleteMembershipRow = async (row: MembershipRow) => {
                   <div className="grid grid-cols-1 md:grid-cols-5 gap-4 text-sm">
                     <div>
                       <div className="font-medium">{m.customerName}</div>
-                      <div className="text-muted-foreground text-xs">{m.email || '—'}</div>
-                      <div className="text-muted-foreground text-xs">{m.phone || '—'}</div>
+                      <div className="text-fg-2 text-xs">{m.email || '—'}</div>
+                      <div className="text-fg-2 text-xs">{m.phone || '—'}</div>
                     </div>
                     <div>
                       <div className="font-medium">{m.locationName}</div>
-                      <div className="text-muted-foreground text-xs">{m.planName}</div>
-                    <div className="text-muted-foreground text-xs mt-1">
-                      Room: {m.roomName || 'Not assigned'}
-                    </div>
+                      <div className="text-fg-2 text-xs">{m.planName}</div>
+                      <div className="text-fg-2 text-xs mt-1">
+                        Room: {m.roomName || 'Not assigned'}
+                      </div>
                       {duration !== null && (
-                        <div className="text-muted-foreground text-xs mt-1">
+                        <div className="text-fg-2 text-xs mt-1">
                           Duration: {duration} days
                         </div>
                       )}
                     </div>
                     <div>
                       <div className="font-medium">
-                        NPR {(m.amount / 100).toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                        NPR{' '}
+                        {(m.amount / 100).toLocaleString('en-US', {
+                          minimumFractionDigits: 2,
+                        })}
                       </div>
-                      <div className="text-muted-foreground text-xs">
+                      <div className="text-fg-2 text-xs">
                         {m.billingCycle?.replace('-', ' ')}
                       </div>
                     </div>
                     <div>
                       {m.startDate && (
                         <div className="text-xs">
-                          <span className="text-muted-foreground">Start: </span>
+                          <span className="text-fg-2">Start: </span>
                           {new Date(m.startDate).toLocaleDateString()}
                         </div>
                       )}
                       {m.endDate && (
                         <div className="text-xs">
-                          <span className="text-muted-foreground">End: </span>
+                          <span className="text-fg-2">End: </span>
                           {new Date(m.endDate).toLocaleDateString()}
                         </div>
                       )}
@@ -345,7 +641,12 @@ const handleDeleteMembershipRow = async (row: MembershipRow) => {
                       </Badge>
                     </div>
                     <div className="flex flex-col gap-2">
-                      <Badge variant={m.status === 'active' ? 'default' : 'secondary'} className="w-fit">
+                      <Badge
+                        variant={
+                          m.status === 'active' ? 'default' : 'secondary'
+                        }
+                        className="w-fit"
+                      >
                         {getStatusLabel(m.status)}
                       </Badge>
                       <select
@@ -355,20 +656,25 @@ const handleDeleteMembershipRow = async (row: MembershipRow) => {
                         disabled={m.source === 'booking'}
                       >
                         {Object.values(MEMBERSHIP_STATUS).map((status) => (
-                          <option key={status} value={status}>{getStatusLabel(status)}</option>
+                          <option key={status} value={status}>
+                            {getStatusLabel(status)}
+                          </option>
                         ))}
                       </select>
                       <div className="flex gap-2">
-                        <Button size="sm" variant="outline" onClick={() => handleRenew(m)}>
-                        Renew Package
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => handleRenew(m)}
+                        >
+                          Renew Package
                         </Button>
                         <Button
-                          size="icon"
                           variant="ghost"
                           onClick={() => handleDeleteMembershipRow(m)}
                           title="Delete membership"
                         >
-                          <Trash2 className="h-4 w-4 text-destructive" />
+                          <Trash2 className="h-4 w-4 text-clay-deep" />
                         </Button>
                       </div>
                     </div>
@@ -379,10 +685,16 @@ const handleDeleteMembershipRow = async (row: MembershipRow) => {
                     m.addOns.guestPasses > 0 ||
                     m.notes) && (
                     <div className="pt-3 border-t space-y-2">
-                      <div className="text-xs font-medium text-muted-foreground">Details</div>
+                      <div className="text-xs font-medium text-fg-2">
+                        Details
+                      </div>
                       <div className="flex flex-wrap gap-2">
                         {m.addOns.selectedAddOns.map((addOn, idx) => (
-                          <Badge key={idx} variant="secondary" className="text-xs">
+                          <Badge
+                            key={idx}
+                            variant="secondary"
+                            className="text-xs"
+                          >
                             {addOn}
                           </Badge>
                         ))}
@@ -398,7 +710,7 @@ const handleDeleteMembershipRow = async (row: MembershipRow) => {
                         )}
                       </div>
                       {m.notes && (
-                        <div className="text-xs text-muted-foreground bg-muted/50 p-2 rounded">
+                        <div className="text-xs text-fg-2 bg-bg-band/50 p-2 rounded">
                           {m.notes}
                         </div>
                       )}
@@ -410,10 +722,19 @@ const handleDeleteMembershipRow = async (row: MembershipRow) => {
           })}
 
           {filtered.length === 0 && (
-            <p className="text-sm text-muted-foreground text-center py-8">No memberships found.</p>
+            <p className="text-sm text-fg-2 text-center py-8">
+              No memberships found.
+            </p>
           )}
         </div>
       )}
+      <ConfirmModal
+        open={deleteTarget !== null}
+        title="Delete Membership"
+        message={`Delete membership for "${deleteTarget?.customerName}"? This cannot be undone.`}
+        onConfirm={confirmDelete}
+        onCancel={() => setDeleteTarget(null)}
+      />
     </div>
   )
 }

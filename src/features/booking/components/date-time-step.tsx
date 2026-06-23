@@ -15,18 +15,18 @@ export function DateTimeStep() {
     canProceed,
   } = useBookingStore()
 
-  const selectedPlan = plans.find(p => p.id === bookingData.planId)
+  const selectedPlan = plans.find((p) => p.id === bookingData.planId)
   const isDayPass = selectedPlan?.type === 'day_pass'
 
   const handleDateChange = (field: 'startDate' | 'endDate', value: string) => {
     const date = value ? new Date(value) : null
     const updates: Partial<typeof bookingData> = { [field]: date }
-    
+
     // For day passes, automatically set endDate to the same as startDate
     if (field === 'startDate' && isDayPass && date) {
       updates.endDate = date
     }
-    
+
     updateBookingData(updates)
   }
 
@@ -86,7 +86,8 @@ export function DateTimeStep() {
           {isDayPass && (
             <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
               <p className="text-sm text-blue-800">
-                <strong>Day Pass:</strong> Your access will be valid for the selected date from 6:00 AM to 10:00 PM.
+                <strong>Day Pass:</strong> Your access will be valid for the
+                selected date from 6:00 AM to 10:00 PM.
               </p>
             </div>
           )}
@@ -110,7 +111,9 @@ export function DateTimeStep() {
                   id="start-time"
                   type="time"
                   value={bookingData.startTime}
-                  onChange={(e) => handleTimeChange('startTime', e.target.value)}
+                  onChange={(e) =>
+                    handleTimeChange('startTime', e.target.value)
+                  }
                 />
               </div>
 
@@ -127,8 +130,9 @@ export function DateTimeStep() {
 
             <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded-lg">
               <p className="text-sm text-green-800">
-                <strong>Note:</strong> Our spaces are available 24/7 for dedicated desk and private office members. 
-                Hot desk access is available during business hours (6:00 AM - 10:00 PM).
+                <strong>Note:</strong> Our spaces are available 24/7 for
+                dedicated desk and private office members. Hot desk access is
+                available during business hours (6:00 AM - 10:00 PM).
               </p>
             </div>
           </CardContent>
@@ -137,12 +141,12 @@ export function DateTimeStep() {
 
       {/* Date Summary */}
       {bookingData.startDate && (
-        <Card className="bg-primary/5 border-primary/20">
+        <Card className="bg-clay/5 border-clay/20">
           <CardContent className="p-6">
             <h3 className="font-medium mb-4">Schedule Summary</h3>
             <div className="space-y-2 text-sm">
               <div className="flex justify-between">
-                <span className="text-muted-foreground">
+                <span className="text-fg-2">
                   {isDayPass ? 'Date:' : 'Start Date:'}
                 </span>
                 <span className="font-medium">
@@ -157,7 +161,7 @@ export function DateTimeStep() {
 
               {!isDayPass && bookingData.endDate && (
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">End Date:</span>
+                  <span className="text-fg-2">End Date:</span>
                   <span className="font-medium">
                     {bookingData.endDate.toLocaleDateString('en-US', {
                       weekday: 'long',
@@ -171,7 +175,7 @@ export function DateTimeStep() {
 
               {!isDayPass && (
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">Hours:</span>
+                  <span className="text-fg-2">Hours:</span>
                   <span className="font-medium">
                     {bookingData.startTime} - {bookingData.endTime}
                   </span>
@@ -180,7 +184,7 @@ export function DateTimeStep() {
 
               {isDayPass && (
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">Access Hours:</span>
+                  <span className="text-fg-2">Access Hours:</span>
                   <span className="font-medium">6:00 AM - 10:00 PM</span>
                 </div>
               )}
@@ -194,10 +198,7 @@ export function DateTimeStep() {
         <Button variant="outline" onClick={prevStep}>
           Back
         </Button>
-        <Button 
-          onClick={nextStep}
-          disabled={!canProceed()}
-        >
+        <Button onClick={nextStep} disabled={!canProceed()}>
           Continue to Add-ons
         </Button>
       </div>

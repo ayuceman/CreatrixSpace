@@ -34,7 +34,9 @@ export interface CalculatePricingParams {
  * Calculate total pricing for a booking
  * This is the single source of truth for pricing calculations
  */
-export function calculatePricing(params: CalculatePricingParams): PricingBreakdown {
+export function calculatePricing(
+  params: CalculatePricingParams
+): PricingBreakdown {
   const {
     planPricing,
     planType,
@@ -44,25 +46,28 @@ export function calculatePricing(params: CalculatePricingParams): PricingBreakdo
   } = params
 
   // Base plan cost
-  const basePrice = planType === 'day_pass'
-    ? (planPricing.daily || 0)
-    : (planPricing.monthly || 0)
+  const basePrice =
+    planType === 'day_pass' ? planPricing.daily || 0 : planPricing.monthly || 0
 
   // Regular add-ons (selected checkboxes)
-  const addOnsPrice = selectedAddOns.reduce((sum, addon) => sum + addon.price, 0)
+  const addOnsPrice = selectedAddOns.reduce(
+    (sum, addon) => sum + addon.price,
+    0
+  )
 
   // Meeting room hours
-  const meetingRoomHoursPrice = meetingRoomHours > 0
-    ? PRICING_CONSTANTS.MEETING_ROOM_HOUR_PRICE * meetingRoomHours
-    : 0
+  const meetingRoomHoursPrice =
+    meetingRoomHours > 0
+      ? PRICING_CONSTANTS.MEETING_ROOM_HOUR_PRICE * meetingRoomHours
+      : 0
 
   // Guest passes
-  const guestPassesPrice = guestPasses > 0
-    ? PRICING_CONSTANTS.GUEST_PASS_PRICE * guestPasses
-    : 0
+  const guestPassesPrice =
+    guestPasses > 0 ? PRICING_CONSTANTS.GUEST_PASS_PRICE * guestPasses : 0
 
   // Subtotal before discount
-  const subtotal = basePrice + addOnsPrice + meetingRoomHoursPrice + guestPassesPrice
+  const subtotal =
+    basePrice + addOnsPrice + meetingRoomHoursPrice + guestPassesPrice
 
   // Online Booking Discount (5%)
   // Applicable to base price only, to keep it simple and profitable
@@ -92,4 +97,3 @@ export function getMeetingRoomHourPrice(): number {
 export function getGuestPassPrice(): number {
   return PRICING_CONSTANTS.GUEST_PASS_PRICE
 }
-

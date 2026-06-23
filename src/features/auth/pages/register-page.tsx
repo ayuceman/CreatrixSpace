@@ -1,7 +1,13 @@
 import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { Mail, Lock, User, Phone, Building, Loader2 } from 'lucide-react'
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -61,7 +67,11 @@ export function RegisterPage() {
         navigate(ROUTES.DASHBOARD, { replace: true })
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to create account. Please try again.')
+      setError(
+        err instanceof Error
+          ? err.message
+          : 'Failed to create account. Please try again.'
+      )
     } finally {
       setLoading(false)
     }
@@ -88,7 +98,7 @@ export function RegisterPage() {
               <div className="space-y-2">
                 <Label htmlFor="firstName">First Name</Label>
                 <div className="relative">
-                  <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                  <User className="absolute left-3 top-3 h-4 w-4 text-fg-2" />
                   <Input
                     id="firstName"
                     type="text"
@@ -117,7 +127,7 @@ export function RegisterPage() {
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
               <div className="relative">
-                <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                <Mail className="absolute left-3 top-3 h-4 w-4 text-fg-2" />
                 <Input
                   id="email"
                   type="email"
@@ -133,7 +143,7 @@ export function RegisterPage() {
             <div className="space-y-2">
               <Label htmlFor="phone">Phone</Label>
               <div className="relative">
-                <Phone className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                <Phone className="absolute left-3 top-3 h-4 w-4 text-fg-2" />
                 <Input
                   id="phone"
                   type="tel"
@@ -148,7 +158,7 @@ export function RegisterPage() {
             <div className="space-y-2">
               <Label htmlFor="company">Company (Optional)</Label>
               <div className="relative">
-                <Building className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                <Building className="absolute left-3 top-3 h-4 w-4 text-fg-2" />
                 <Input
                   id="company"
                   type="text"
@@ -163,7 +173,7 @@ export function RegisterPage() {
             <div className="space-y-2">
               <Label htmlFor="password">Password</Label>
               <div className="relative">
-                <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                <Lock className="absolute left-3 top-3 h-4 w-4 text-fg-2" />
                 <Input
                   id="password"
                   type="password"
@@ -174,21 +184,21 @@ export function RegisterPage() {
                   className="pl-10"
                 />
               </div>
-              <p className="text-xs text-muted-foreground">
-                Must be at least 6 characters
-              </p>
+              <p className="text-xs text-fg-2">Must be at least 6 characters</p>
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="confirmPassword">Confirm Password</Label>
               <div className="relative">
-                <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                <Lock className="absolute left-3 top-3 h-4 w-4 text-fg-2" />
                 <Input
                   id="confirmPassword"
                   type="password"
                   placeholder="••••••••"
                   value={formData.confirmPassword}
-                  onChange={(e) => handleChange('confirmPassword', e.target.value)}
+                  onChange={(e) =>
+                    handleChange('confirmPassword', e.target.value)
+                  }
                   required
                   className="pl-10"
                 />
@@ -206,9 +216,9 @@ export function RegisterPage() {
               )}
             </Button>
 
-            <div className="text-center text-sm text-muted-foreground">
+            <div className="text-center text-sm text-fg-2">
               Already have an account?{' '}
-              <Link to={ROUTES.LOGIN} className="text-primary hover:underline">
+              <Link to={ROUTES.LOGIN} className="text-clay hover:underline">
                 Sign in
               </Link>
             </div>

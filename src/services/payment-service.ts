@@ -1,4 +1,9 @@
-import { PaymentData, PaymentResult, PaymentMethod, PAYMENT_CONFIG } from '@/lib/payment-config'
+import {
+  PaymentData,
+  PaymentResult,
+  PaymentMethod,
+  PAYMENT_CONFIG,
+} from '@/lib/payment-config'
 
 // Stripe Payment Service
 export class StripePaymentService {
@@ -6,11 +11,11 @@ export class StripePaymentService {
 
   async initialize() {
     if (typeof window === 'undefined') return
-    
+
     // Dynamically import Stripe to avoid SSR issues
     const { loadStripe } = await import('@stripe/stripe-js')
     this.stripe = await loadStripe(PAYMENT_CONFIG.stripe.publishableKey)
-    
+
     if (!this.stripe) {
       throw new Error('Failed to initialize Stripe')
     }
@@ -22,7 +27,7 @@ export class StripePaymentService {
 
       // In a real app, you'd call your backend to create a PaymentIntent
       // For demo purposes, we'll simulate the process
-      
+
       const response = await fetch('/api/create-payment-intent', {
         method: 'POST',
         headers: {
@@ -93,12 +98,12 @@ export class ESewaPaymentService {
         productId: paymentData.bookingId,
         successUrl: PAYMENT_CONFIG.esewa.successUrl,
         failureUrl: PAYMENT_CONFIG.esewa.failureUrl,
-        merchantCode: PAYMENT_CONFIG.esewa.merchantCode
+        merchantCode: PAYMENT_CONFIG.esewa.merchantCode,
       })
 
       // Method 1: Standard form submission (most reliable)
       const esewaUrl = 'https://uat.esewa.com.np/epay/main'
-      
+
       const fields = {
         amt: txAmt.toFixed(2),
         psc: psc.toFixed(2),
@@ -115,7 +120,7 @@ export class ESewaPaymentService {
         url: esewaUrl,
         fields: fields,
         amount: txAmt,
-        bookingId: paymentData.bookingId
+        bookingId: paymentData.bookingId,
       })
 
       // Create and submit form in a way that ensures it works
@@ -123,7 +128,7 @@ export class ESewaPaymentService {
       form.method = 'POST'
       form.action = esewaUrl
       form.style.display = 'none'
-      
+
       // Add all fields
       Object.entries(fields).forEach(([name, value]) => {
         const input = document.createElement('input')
@@ -135,12 +140,12 @@ export class ESewaPaymentService {
 
       // Append to body and submit immediately
       document.body.appendChild(form)
-      
+
       // Add a small delay to ensure DOM is ready
       requestAnimationFrame(() => {
         console.log('Submitting eSewa form to:', esewaUrl)
         console.log('Form HTML:', form.outerHTML)
-        
+
         try {
           form.submit()
         } catch (submitError) {
@@ -151,7 +156,7 @@ export class ESewaPaymentService {
           console.log('Trying fallback redirect:', fallbackUrl)
           window.location.href = fallbackUrl
         }
-        
+
         // Cleanup after delay
         setTimeout(() => {
           if (document.body.contains(form)) {
@@ -181,19 +186,19 @@ export class ESewaPaymentService {
 
   // Verify eSewa payment (called from success callback)
   async verifyPayment(
-    oid: string, 
-    amt: string, 
+    oid: string,
+    amt: string,
     refId: string
   ): Promise<PaymentResult> {
     try {
       // eSewa verification endpoint as per official documentation
       const verificationUrl = 'https://uat.esewa.com.np/epay/transrec'
-      
+
       const verificationData = {
         amt: amt,
         rid: refId,
         pid: oid,
-        scd: PAYMENT_CONFIG.esewa.merchantCode
+        scd: PAYMENT_CONFIG.esewa.merchantCode,
       }
 
       console.log('eSewa verification request:', verificationData)
@@ -223,7 +228,7 @@ export class ESewaPaymentService {
         transactionId: refId,
         metadata: {
           verificationResponse: responseText,
-          verified: isSuccess
+          verified: isSuccess,
         },
       }
     } catch (error) {
@@ -234,8 +239,9 @@ export class ESewaPaymentService {
         amount: parseFloat(amt) * 100,
         error: 'Payment verification failed',
         metadata: {
-          verificationError: error instanceof Error ? error.message : 'Unknown error'
-        }
+          verificationError:
+            error instanceof Error ? error.message : 'Unknown error',
+        },
       }
     }
   }
@@ -251,7 +257,8 @@ export class KhaltiPaymentService {
     // Dynamically load Khalti checkout
     return new Promise((resolve, reject) => {
       const script = document.createElement('script')
-      script.src = 'https://khalti.s3.ap-south-1.amazonaws.com/KPG/dist/2020.12.17.0.0.0/khalti-checkout.iffe.js'
+      script.src =
+        'https://khalti.s3.ap-south-1.amazonaws.com/KPG/dist/2020.12.17.0.0.0/khalti-checkout.iffe.js'
       script.onload = () => {
         this.khalti = (window as any).KhaltiCheckout
         resolve(this.khalti)
@@ -295,8 +302,8 @@ export class KhaltiPaymentService {
       }
 
       const checkout = new this.khalti(config)
-      checkout.show({ 
-        amount: paymentData.amount / 100 * 100, // Khalti expects amount in paisa
+      checkout.show({
+        amount: (paymentData.amount / 100) * 100, // Khalti expects amount in paisa
         mobile: paymentData.customerInfo.phone,
         productIdentity: paymentData.bookingId,
         productName: `CreatrixSpace Booking - ${paymentData.bookingId}`,
@@ -342,7 +349,7 @@ export class KhaltiPaymentService {
         transactionId: token,
         metadata: result,
       }
-    } catch (error) {
+    } catch {
       return {
         success: false,
         method: 'khalti',
@@ -377,14 +384,18 @@ export class QRPaymentService {
   ): Promise<PaymentResult> {
     try {
       // Simulate OCR processing
-      await new Promise(resolve => setTimeout(resolve, 2000))
+      await new Promise((resolve) => setTimeout(resolve, 2000))
 
       // Mock OCR extraction - in production, use actual OCR service
       const extractedData = await this.extractPaymentDetails(screenshot)
-      
+
       // Validate extracted data
-      const isValid = this.validatePaymentData(extractedData, expectedAmount, paymentId)
-      
+      const isValid = this.validatePaymentData(
+        extractedData,
+        expectedAmount,
+        paymentId
+      )
+
       if (isValid) {
         return {
           success: true,
@@ -425,7 +436,7 @@ export class QRPaymentService {
     }
   }
 
-  private async extractPaymentDetails(screenshot: File) {
+  private async extractPaymentDetails(_screenshot: File) {
     // Mock OCR extraction - replace with actual OCR service (Tesseract, Google Vision, etc.)
     const mockExtraction = {
       amount: null as number | null,
@@ -438,7 +449,7 @@ export class QRPaymentService {
     }
 
     // Simulate OCR processing time
-    await new Promise(resolve => setTimeout(resolve, 1500))
+    await new Promise((resolve) => setTimeout(resolve, 1500))
 
     // Mock some validation scenarios
     if (Math.random() > 0.8) {
@@ -452,7 +463,7 @@ export class QRPaymentService {
   private validatePaymentData(
     extractedData: any,
     expectedAmount: number,
-    paymentId: string
+    _paymentId: string
   ): boolean {
     // Check confidence threshold
     if (extractedData.confidence < 0.8) {
@@ -476,8 +487,9 @@ export class QRPaymentService {
     const transactionTime = new Date(extractedData.date).getTime()
     const currentTime = Date.now()
     const timeDifference = currentTime - transactionTime
-    
-    if (timeDifference > 30 * 60 * 1000) { // 30 minutes
+
+    if (timeDifference > 30 * 60 * 1000) {
+      // 30 minutes
       extractedData.errors.push('Transaction too old')
       return false
     }
@@ -525,16 +537,15 @@ export class PaymentService {
           params.refId
         )
       case 'khalti':
-        return this.khaltiService.verifyPayment(
-          params.token,
-          params.amount
-        )
+        return this.khaltiService.verifyPayment(params.token, params.amount)
       default:
         throw new Error(`Verification not supported for method: ${method}`)
     }
   }
 
-  private async processBankTransfer(paymentData: PaymentData): Promise<PaymentResult> {
+  private async processBankTransfer(
+    paymentData: PaymentData
+  ): Promise<PaymentResult> {
     // Bank transfer is manual - just return success with instructions
     return {
       success: true,

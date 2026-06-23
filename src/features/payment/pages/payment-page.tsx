@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useSearchParams, useNavigate } from 'react-router-dom'
 import { ArrowLeft, CheckCircle, XCircle, Clock } from 'lucide-react'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { PaymentGatewaySelector } from '../components/payment-gateway-selector'
 import { PaymentBookingSummary } from '../components/payment-booking-summary'
@@ -10,26 +10,53 @@ import { paymentService } from '@/services/payment-service'
 import { PaymentMethod, PaymentData } from '@/lib/payment-config'
 import { formatCurrency } from '@/lib/utils'
 import { useBookingStore } from '@/store/booking-store'
-import { notifyNewBooking } from '@/lib/booking-events'
-import { notifyNewMembership, type MembershipEvent } from '@/lib/membership-events'
+import { manualEntryService } from '@/services/supabase-service'
 
-type PaymentStatus = 'selecting' | 'processing' | 'success' | 'error' | 'pending' | 'qr_payment'
+type PaymentStatus =
+  | 'selecting'
+  | 'processing'
+  | 'success'
+  | 'error'
+  | 'pending'
+  | 'qr_payment'
+
+async function persistBooking(data: Record<string, any>) {
+  try {
+    await manualEntryService.addEntry({ entryType: 'booking', data })
+  } catch {
+    /* localStorage still works as fallback */
+  }
+}
+
+async function persistMembership(data: Record<string, any>) {
+  try {
+    await manualEntryService.addEntry({ entryType: 'membership', data })
+  } catch {
+    /* localStorage still works as fallback */
+  }
+}
 
 export function PaymentPage() {
   const [searchParams] = useSearchParams()
   const navigate = useNavigate()
   const { bookingData, createBooking } = useBookingStore()
-  
+
   const [paymentStatus, setPaymentStatus] = useState<PaymentStatus>('selecting')
-  const [selectedMethod, setSelectedMethod] = useState<PaymentMethod | null>(null)
-  const [paymentResult, setPaymentResult] = useState<any>(null)
+  const [paymentResult, setPaymentResult] = useState<{
+    success?: boolean
+    transactionId?: string
+    amount?: number
+    paymentId?: string
+    error?: string
+  } | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const [fallbackId] = useState(() => `BK-${Date.now()}`)
 
   // Calculate the actual total amount (same logic as payment summary)
   const calculateTotalAmount = (method: PaymentMethod) => {
     const baseAmount = bookingData.totalAmount || 0
     let fees = 0
-    
+
     // Calculate fees based on payment method
     switch (method) {
       case 'stripe':
@@ -42,24 +69,13 @@ export function PaymentPage() {
         fees = 0
         break
     }
-    
+
     return baseAmount + fees
   }
 
-  // Check if coming from a payment callback
-  useEffect(() => {
-    const oid = searchParams.get('oid') // eSewa
-    const token = searchParams.get('token') // Khalti
-    const status = searchParams.get('status')
-
-    if (oid || token) {
-      handlePaymentCallback()
-    }
-  }, [searchParams])
-
-  const handlePaymentCallback = async () => {
+  const handlePaymentCallback = useCallback(async () => {
     setPaymentStatus('processing')
-    
+
     try {
       const oid = searchParams.get('oid')
       const amt = searchParams.get('amt')
@@ -70,7 +86,11 @@ export function PaymentPage() {
       let result
       if (oid && amt && refId) {
         // eSewa callback
-        result = await paymentService.verifyPayment('esewa', { oid, amt, refId })
+        result = await paymentService.verifyPayment('esewa', {
+          oid,
+          amt,
+          refId,
+        })
       } else if (token && amount) {
         // Khalti callback
         result = await paymentService.verifyPayment('khalti', { token, amount })
@@ -79,74 +99,92 @@ export function PaymentPage() {
       if (result?.success) {
         setPaymentStatus('success')
         setPaymentResult(result)
-        // Emit booking notification (frontend-only)
-        try {
-          notifyNewBooking({
-            id: result.paymentId || `BK-${Date.now()}`,
-            customerName: bookingData.contactInfo?.firstName && bookingData.contactInfo?.lastName ? `${bookingData.contactInfo.firstName} ${bookingData.contactInfo.lastName}` : 'Customer',
+        const bookingEntry = {
+          id: result.paymentId || `BK-${Date.now()}`,
+          customerName:
+            bookingData.contactInfo?.firstName &&
+            bookingData.contactInfo?.lastName
+              ? `${bookingData.contactInfo.firstName} ${bookingData.contactInfo.lastName}`
+              : 'Customer',
+          email: bookingData.contactInfo?.email,
+          phone: bookingData.contactInfo?.phone,
+          locationName: bookingData.locationId || 'Location',
+          planName: bookingData.planId || 'Plan',
+          amount: result.amount,
+          status: 'confirmed',
+          createdAt: new Date().toISOString(),
+        }
+        persistBooking(bookingEntry)
+
+        if (bookingData.planId && bookingData.planId !== 'explorer') {
+          const startDate = bookingData.startDate || new Date()
+          const billingCycle =
+            bookingData.planId === 'explorer' ? 'daily' : 'monthly'
+          const endDate = new Date(startDate)
+          if (billingCycle === 'monthly') {
+            endDate.setMonth(endDate.getMonth() + 1)
+          } else {
+            endDate.setDate(endDate.getDate() + 1)
+          }
+          persistMembership({
+            id: `MEM-${Date.now()}`,
+            customerName:
+              bookingData.contactInfo?.firstName &&
+              bookingData.contactInfo?.lastName
+                ? `${bookingData.contactInfo.firstName} ${bookingData.contactInfo.lastName}`
+                : 'Customer',
             email: bookingData.contactInfo?.email,
             phone: bookingData.contactInfo?.phone,
-            locationName: bookingData.locationId || 'Location',
-            planName: bookingData.planId || 'Plan',
+            membershipType: bookingData.planId,
+            status: 'active',
+            startDate: startDate.toISOString(),
+            endDate: endDate.toISOString(),
             amount: result.amount,
-            status: 'confirmed',
+            billingCycle,
+            locationId: bookingData.locationId,
+            autoRenew: false,
             createdAt: new Date().toISOString(),
           })
-          // Create membership for non-day-pass plans
-          if (bookingData.planId && bookingData.planId !== 'explorer') {
-            const startDate = bookingData.startDate || new Date()
-            const billingCycle = bookingData.planId === 'explorer' ? 'daily' : 'monthly'
-            const endDate = new Date(startDate)
-            if (billingCycle === 'monthly') {
-              endDate.setMonth(endDate.getMonth() + 1)
-            } else {
-              endDate.setDate(endDate.getDate() + 1)
-            }
-            notifyNewMembership({
-              id: `MEM-${Date.now()}`,
-              customerName: bookingData.contactInfo?.firstName && bookingData.contactInfo?.lastName ? `${bookingData.contactInfo.firstName} ${bookingData.contactInfo.lastName}` : 'Customer',
-              email: bookingData.contactInfo?.email,
-              phone: bookingData.contactInfo?.phone,
-              membershipType: bookingData.planId,
-              status: 'active',
-              startDate: startDate.toISOString(),
-              endDate: endDate.toISOString(),
-              amount: result.amount,
-              billingCycle,
-              locationId: bookingData.locationId,
-              autoRenew: false,
-              createdAt: new Date().toISOString(),
-            })
-          }
-        } catch {}
+        }
       } else {
         setPaymentStatus('error')
         setError(result?.error || 'Payment verification failed')
       }
-    } catch (err) {
+    } catch {
       setPaymentStatus('error')
       setError('Payment verification failed')
     }
-  }
+  }, [bookingData, searchParams])
+
+  // Check if coming from a payment callback
+  useEffect(() => {
+    const oid = searchParams.get('oid')
+    const token = searchParams.get('token')
+
+    if (oid || token) {
+      handlePaymentCallback()
+    }
+  }, [handlePaymentCallback, searchParams])
 
   const handlePaymentMethodSelect = async (method: PaymentMethod) => {
-    setSelectedMethod(method)
     setPaymentStatus('processing')
     setError(null)
 
     try {
       // Calculate total amount including fees for this payment method
       const totalAmount = calculateTotalAmount(method)
-      
+
       // Prepare payment data
       const paymentData: PaymentData = {
         amount: totalAmount,
         currency: 'NPR',
         bookingId: `BK-${Date.now()}`,
         customerInfo: {
-          name: bookingData.contactInfo?.firstName && bookingData.contactInfo?.lastName 
-            ? `${bookingData.contactInfo.firstName} ${bookingData.contactInfo.lastName}`
-            : 'Test User',
+          name:
+            bookingData.contactInfo?.firstName &&
+            bookingData.contactInfo?.lastName
+              ? `${bookingData.contactInfo.firstName} ${bookingData.contactInfo.lastName}`
+              : 'Test User',
           email: bookingData.contactInfo?.email || 'test@example.com',
           phone: bookingData.contactInfo?.phone || '+977 9851357889',
         },
@@ -154,7 +192,9 @@ export function PaymentPage() {
           locationId: bookingData.locationId || 'thamel-hub',
           planId: bookingData.planId || 'hot-desk',
           startDate: bookingData.startDate || new Date().toISOString(),
-          endDate: bookingData.endDate || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+          endDate:
+            bookingData.endDate ||
+            new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
         },
       }
 
@@ -166,45 +206,43 @@ export function PaymentPage() {
       } else if (method === 'bank_transfer') {
         setPaymentStatus('success')
         setPaymentResult(result)
-        try {
-          notifyNewBooking({
-            id: result.paymentId || `BK-${Date.now()}`,
-            customerName: paymentData.customerInfo.name,
-            email: paymentData.customerInfo.email,
-            phone: paymentData.customerInfo.phone,
-            locationName: paymentData.metadata?.locationId,
-            planName: paymentData.metadata?.planId,
-            amount: result.amount,
-            status: 'pending_verification',
-            createdAt: new Date().toISOString(),
-          })
-        } catch {}
+        const bankEntry = {
+          id: result.paymentId || `BK-${Date.now()}`,
+          customerName: paymentData.customerInfo.name,
+          email: paymentData.customerInfo.email,
+          phone: paymentData.customerInfo.phone,
+          locationName: paymentData.metadata?.locationId,
+          planName: paymentData.metadata?.planId,
+          amount: result.amount,
+          status: 'pending_verification',
+          createdAt: new Date().toISOString(),
+        }
+        persistBooking(bankEntry)
       } else if (method === 'qr_payment') {
         setPaymentStatus('qr_payment')
         setPaymentResult(result)
       } else if (result.success) {
         setPaymentStatus('success')
         setPaymentResult(result)
-        try {
-          notifyNewBooking({
-            id: result.paymentId || `BK-${Date.now()}`,
-            customerName: paymentData.customerInfo.name,
-            email: paymentData.customerInfo.email,
-            phone: paymentData.customerInfo.phone,
-            locationName: paymentData.metadata?.locationId,
-            planName: paymentData.metadata?.planId,
-            amount: result.amount,
-            status: 'confirmed',
-            createdAt: new Date().toISOString(),
-          })
-        } catch {}
+        const stripeEntry = {
+          id: result.paymentId || `BK-${Date.now()}`,
+          customerName: paymentData.customerInfo.name,
+          email: paymentData.customerInfo.email,
+          phone: paymentData.customerInfo.phone,
+          locationName: paymentData.metadata?.locationId,
+          planName: paymentData.metadata?.planId,
+          amount: result.amount,
+          status: 'confirmed',
+          createdAt: new Date().toISOString(),
+        }
+        persistBooking(stripeEntry)
       } else {
         setPaymentStatus('error')
         setError(result.error || 'Payment failed')
       }
-    } catch (err) {
+    } catch (e) {
       setPaymentStatus('error')
-      setError(err instanceof Error ? err.message : 'Payment failed')
+      setError(e instanceof Error ? e.message : 'Payment failed')
     }
   }
 
@@ -220,22 +258,12 @@ export function PaymentPage() {
 
         setPaymentStatus('success')
         setPaymentResult({ ...result, bookingId })
-
-        notifyNewBooking({
-          id: bookingId || result.paymentId || `BK-${Date.now()}`,
-          customerName: bookingData.contactInfo?.firstName && bookingData.contactInfo?.lastName ? `${bookingData.contactInfo.firstName} ${bookingData.contactInfo.lastName}` : 'Customer',
-          email: bookingData.contactInfo?.email,
-          phone: bookingData.contactInfo?.phone,
-          locationName: bookingData.locationId,
-          planName: bookingData.planId,
-          amount: result.amount,
-          status: 'pending_verification',
-          createdAt: new Date().toISOString(),
-        })
-      } catch (err) {
-        console.error('Failed to create booking after QR verification:', err)
+      } catch (e) {
+        console.error('Failed to create booking after QR verification:', e)
         setPaymentStatus('error')
-        setError('Booking could not be created after payment verification. Please try again.')
+        setError(
+          'Booking could not be created after payment verification. Please try again.'
+        )
       }
     } else {
       setPaymentStatus('error')
@@ -245,7 +273,6 @@ export function PaymentPage() {
 
   const handleQRPaymentCancel = () => {
     setPaymentStatus('selecting')
-    setSelectedMethod(null)
     setPaymentResult(null)
   }
 
@@ -253,12 +280,16 @@ export function PaymentPage() {
     switch (paymentStatus) {
       case 'qr_payment':
         return (
-          <div className="min-h-screen bg-muted/30">
+          <div className="min-h-screen bg-bg-band/30">
             <div className="container py-8">
               <div className="max-w-2xl mx-auto">
                 <QRPayment
                   amount={calculateTotalAmount('qr_payment')}
-                  bookingId={bookingData.bookingId || paymentResult?.paymentId || `BK-${Date.now()}`}
+                  bookingId={
+                    bookingData.bookingId ||
+                    paymentResult?.paymentId ||
+                    fallbackId
+                  }
                   onPaymentComplete={handleQRPaymentComplete}
                   onCancel={handleQRPaymentCancel}
                 />
@@ -273,7 +304,7 @@ export function PaymentPage() {
             <CardContent className="py-12">
               <Clock className="h-16 w-16 mx-auto text-blue-500 mb-4 animate-spin" />
               <h2 className="text-2xl font-bold mb-2">Processing Payment</h2>
-              <p className="text-muted-foreground">
+              <p className="text-fg-2">
                 Please wait while we process your payment...
               </p>
             </CardContent>
@@ -286,9 +317,9 @@ export function PaymentPage() {
             <CardContent className="py-12">
               <Clock className="h-16 w-16 mx-auto text-orange-500 mb-4" />
               <h2 className="text-2xl font-bold mb-2">Payment Redirected</h2>
-              <p className="text-muted-foreground mb-4">
-                You have been redirected to the payment gateway. 
-                Complete your payment to confirm your booking.
+              <p className="text-fg-2 mb-4">
+                You have been redirected to the payment gateway. Complete your
+                payment to confirm your booking.
               </p>
               <Button variant="outline" onClick={handleBackToBooking}>
                 Return to Booking
@@ -305,21 +336,24 @@ export function PaymentPage() {
               <h2 className="text-2xl font-bold text-green-700 mb-2">
                 Payment Successful!
               </h2>
-              <p className="text-muted-foreground mb-6">
-                Your booking has been confirmed. You'll receive a confirmation email shortly.
+              <p className="text-fg-2 mb-6">
+                Your booking has been confirmed. You'll receive a confirmation
+                email shortly.
               </p>
-              
+
               {paymentResult && (
                 <div className="space-y-2 mb-6 text-sm">
                   <div className="flex justify-center space-x-8">
                     <div>
-                      <span className="text-muted-foreground">Transaction ID:</span>
-                      <span className="font-mono ml-2">{paymentResult.transactionId}</span>
+                      <span className="text-fg-2">Transaction ID:</span>
+                      <span className="font-mono ml-2">
+                        {paymentResult.transactionId}
+                      </span>
                     </div>
                     <div>
-                      <span className="text-muted-foreground">Amount:</span>
+                      <span className="text-fg-2">Amount:</span>
                       <span className="font-medium ml-2">
-                        {formatCurrency(paymentResult.amount, 'NPR')}
+                        {formatCurrency(paymentResult.amount ?? 0, 'NPR')}
                       </span>
                     </div>
                   </div>
@@ -346,8 +380,9 @@ export function PaymentPage() {
               <h2 className="text-2xl font-bold text-red-700 mb-2">
                 Payment Failed
               </h2>
-              <p className="text-muted-foreground mb-4">
-                {error || 'Something went wrong with your payment. Please try again.'}
+              <p className="text-fg-2 mb-4">
+                {error ||
+                  'Something went wrong with your payment. Please try again.'}
               </p>
               <div className="flex flex-col sm:flex-row gap-3 justify-center">
                 <Button onClick={() => setPaymentStatus('selecting')}>
@@ -368,18 +403,16 @@ export function PaymentPage() {
 
   if (paymentStatus !== 'selecting') {
     return (
-      <div className="min-h-screen bg-muted/30">
+      <div className="min-h-screen bg-bg-band/30">
         <div className="container py-8">
-          <div className="max-w-2xl mx-auto">
-            {renderPaymentStatus()}
-          </div>
+          <div className="max-w-2xl mx-auto">{renderPaymentStatus()}</div>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-muted/30">
+    <div className="min-h-screen bg-bg-band/30">
       <div className="container py-8">
         {/* Header */}
         <div className="flex items-center space-x-4 mb-8">
@@ -393,7 +426,7 @@ export function PaymentPage() {
           <h1 className="text-3xl md:text-4xl font-display font-bold mb-2">
             Complete Your Payment
           </h1>
-          <p className="text-muted-foreground">
+          <p className="text-fg-2">
             Choose your preferred payment method to confirm your booking
           </p>
         </div>
@@ -403,10 +436,7 @@ export function PaymentPage() {
             {/* Left Column - Payment Methods */}
             <div className="lg:col-span-3">
               <PaymentGatewaySelector
-                amount={bookingData.totalAmount}
                 onPaymentMethodSelect={handlePaymentMethodSelect}
-                isProcessing={false}
-                showSummary={false} // Don't show summary in selector
               />
             </div>
 

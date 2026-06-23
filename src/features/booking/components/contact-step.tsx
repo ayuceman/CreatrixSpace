@@ -10,12 +10,8 @@ import { authService, profileService } from '@/services/supabase-service'
 
 export function ContactStep() {
   const navigate = useNavigate()
-  const {
-    bookingData,
-    updateBookingData,
-    prevStep,
-    canProceed,
-  } = useBookingStore()
+  const { bookingData, updateBookingData, prevStep, canProceed } =
+    useBookingStore()
 
   // Pre-fill contact info from profile if user is authenticated (optional)
   useEffect(() => {
@@ -27,12 +23,13 @@ export function ContactStep() {
           if (profile && !bookingData.contactInfo.email) {
             updateBookingData({
               contactInfo: {
-                firstName: profile.first_name || bookingData.contactInfo.firstName,
+                firstName:
+                  profile.first_name || bookingData.contactInfo.firstName,
                 lastName: profile.last_name || bookingData.contactInfo.lastName,
                 email: profile.email || bookingData.contactInfo.email,
                 phone: profile.phone || bookingData.contactInfo.phone,
                 company: profile.company || bookingData.contactInfo.company,
-              }
+              },
             })
           }
         }
@@ -41,6 +38,7 @@ export function ContactStep() {
       }
     }
     prefillContactInfo()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   // Recalculate total when component mounts (ensures add-ons are included)
@@ -53,7 +51,7 @@ export function ContactStep() {
       contactInfo: {
         ...bookingData.contactInfo,
         [field]: value,
-      }
+      },
     })
   }
 
@@ -75,7 +73,7 @@ export function ContactStep() {
             <User className="h-5 w-5 mr-2" />
             Contact Information
           </CardTitle>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-sm text-fg-2">
             Please provide your contact details to complete the booking
           </p>
         </CardHeader>
@@ -87,7 +85,9 @@ export function ContactStep() {
                 id="firstName"
                 placeholder="John"
                 value={bookingData.contactInfo.firstName}
-                onChange={(e) => handleContactInfoChange('firstName', e.target.value)}
+                onChange={(e) =>
+                  handleContactInfoChange('firstName', e.target.value)
+                }
                 required
               />
             </div>
@@ -98,7 +98,9 @@ export function ContactStep() {
                 id="lastName"
                 placeholder="Doe"
                 value={bookingData.contactInfo.lastName}
-                onChange={(e) => handleContactInfoChange('lastName', e.target.value)}
+                onChange={(e) =>
+                  handleContactInfoChange('lastName', e.target.value)
+                }
                 required
               />
             </div>
@@ -117,7 +119,7 @@ export function ContactStep() {
               onChange={(e) => handleContactInfoChange('email', e.target.value)}
               required
             />
-            <p className="text-xs text-muted-foreground">
+            <p className="text-xs text-fg-2">
               We'll send your booking confirmation to this email
             </p>
           </div>
@@ -135,7 +137,7 @@ export function ContactStep() {
               onChange={(e) => handleContactInfoChange('phone', e.target.value)}
               required
             />
-            <p className="text-xs text-muted-foreground">
+            <p className="text-xs text-fg-2">
               For booking confirmations and important updates
             </p>
           </div>
@@ -149,7 +151,9 @@ export function ContactStep() {
               id="company"
               placeholder="Your Company Name"
               value={bookingData.contactInfo.company}
-              onChange={(e) => handleContactInfoChange('company', e.target.value)}
+              onChange={(e) =>
+                handleContactInfoChange('company', e.target.value)
+              }
             />
           </div>
         </CardContent>
@@ -160,30 +164,43 @@ export function ContactStep() {
         <CardContent className="p-6">
           <div className="space-y-4">
             <h3 className="font-medium">Terms and Conditions</h3>
-            <div className="text-sm text-muted-foreground space-y-2">
+            <div className="text-sm text-fg-2 space-y-2">
               <p>
                 By proceeding with this booking, you agree to our{' '}
-                <a href="/terms" className="text-primary hover:underline" target="_blank">
+                <a
+                  href="/terms"
+                  className="text-clay hover:underline"
+                  target="_blank"
+                >
                   Terms of Service
                 </a>{' '}
                 and{' '}
-                <a href="/privacy" className="text-primary hover:underline" target="_blank">
+                <a
+                  href="/privacy"
+                  className="text-clay hover:underline"
+                  target="_blank"
+                >
                   Privacy Policy
-                </a>.
+                </a>
+                .
               </p>
-              
+
               <ul className="list-disc list-inside space-y-1 ml-4">
                 <li>
-                  <strong>Cancellation Policy:</strong> Cancel up to 24 hours before your booking for a full refund.
+                  <strong>Cancellation Policy:</strong> Cancel up to 24 hours
+                  before your booking for a full refund.
                 </li>
                 <li>
-                  <strong>Access:</strong> You'll receive access instructions via email after payment confirmation.
+                  <strong>Access:</strong> You'll receive access instructions
+                  via email after payment confirmation.
                 </li>
                 <li>
-                  <strong>Amenities:</strong> All listed amenities are included in your booking.
+                  <strong>Amenities:</strong> All listed amenities are included
+                  in your booking.
                 </li>
                 <li>
-                  <strong>Guest Policy:</strong> Guests must be registered and accompanied by members.
+                  <strong>Guest Policy:</strong> Guests must be registered and
+                  accompanied by members.
                 </li>
               </ul>
             </div>
@@ -193,28 +210,35 @@ export function ContactStep() {
 
       {/* Contact Summary */}
       {bookingData.contactInfo.firstName && bookingData.contactInfo.email && (
-        <Card className="bg-primary/5 border-primary/20">
+        <Card className="bg-clay/5 border-clay/20">
           <CardContent className="p-6">
             <h3 className="font-medium mb-4">Contact Summary</h3>
             <div className="space-y-2 text-sm">
               <div className="flex justify-between">
-                <span className="text-muted-foreground">Name:</span>
+                <span className="text-fg-2">Name:</span>
                 <span className="font-medium">
-                  {bookingData.contactInfo.firstName} {bookingData.contactInfo.lastName}
+                  {bookingData.contactInfo.firstName}{' '}
+                  {bookingData.contactInfo.lastName}
                 </span>
               </div>
               <div className="flex justify-between">
-                <span className="text-muted-foreground">Email:</span>
-                <span className="font-medium">{bookingData.contactInfo.email}</span>
+                <span className="text-fg-2">Email:</span>
+                <span className="font-medium">
+                  {bookingData.contactInfo.email}
+                </span>
               </div>
               <div className="flex justify-between">
-                <span className="text-muted-foreground">Phone:</span>
-                <span className="font-medium">{bookingData.contactInfo.phone}</span>
+                <span className="text-fg-2">Phone:</span>
+                <span className="font-medium">
+                  {bookingData.contactInfo.phone}
+                </span>
               </div>
               {bookingData.contactInfo.company && (
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">Company:</span>
-                  <span className="font-medium">{bookingData.contactInfo.company}</span>
+                  <span className="text-fg-2">Company:</span>
+                  <span className="font-medium">
+                    {bookingData.contactInfo.company}
+                  </span>
                 </div>
               )}
             </div>
@@ -227,7 +251,7 @@ export function ContactStep() {
         <Button variant="outline" onClick={prevStep}>
           Back
         </Button>
-        <Button 
+        <Button
           onClick={handleSubmit}
           disabled={!canProceed()}
           size="lg"

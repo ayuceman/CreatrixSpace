@@ -1,21 +1,51 @@
+import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { MapPin, Users, Star, Clock, Wifi, Coffee, Car, Shield, ExternalLink } from 'lucide-react'
+import { MapPin, Users, Star, ExternalLink } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Link } from 'react-router-dom'
 import { ROUTES } from '@/lib/constants'
+import { locationService } from '@/services/supabase-service'
 
-const locations = [
+interface LocationData {
+  id: string
+  name: string
+  full_address: string
+  image: string
+  capacity: number
+  rating: number
+  features: string[]
+  amenities: string[]
+  openingHours: Record<string, { open: string; close: string } | null>
+  available: boolean
+  popular: boolean
+  status?: string
+  googleMapsUrl?: string
+}
+
+const defaultLocations: LocationData[] = [
   {
     id: 'dhobighat-hub',
-    name: 'Dhobighat (WashingTown) Hub',
-    address: 'Dhobighat, Kathmandu',
-    image: '/images/locations/dhobighat-hub/dhobighat-coworking-space-main.webp',
+    name: 'Dhobighat Hub',
+    full_address: 'Dhobighat, Kathmandu, Nepal',
+    image:
+      '/images/locations/dhobighat-hub/dhobighat-coworking-space-main.webp',
     capacity: 30,
     rating: 4.9,
-    features: ['24/7 Access', 'Meeting Rooms', 'Event Space', 'High-Speed WiFi', 'Parking'],
-    amenities: ['Coffee Bar', 'Printing Services', 'Phone Booths', 'Lounge Areas'],
+    features: [
+      '24/7 Access',
+      'Meeting Rooms',
+      'Event Space',
+      'High-Speed WiFi',
+      'Parking',
+    ],
+    amenities: [
+      'Coffee Bar',
+      'Printing Services',
+      'Phone Booths',
+      'Lounge Areas',
+    ],
     openingHours: {
       monday: { open: '06:00', close: '22:00' },
       tuesday: { open: '06:00', close: '22:00' },
@@ -23,21 +53,31 @@ const locations = [
       thursday: { open: '06:00', close: '22:00' },
       friday: { open: '06:00', close: '22:00' },
       saturday: { open: '08:00', close: '20:00' },
-      sunday: { open: '08:00', close: '20:00' }
+      sunday: { open: '08:00', close: '20:00' },
     },
     available: true,
     popular: true,
     googleMapsUrl: 'https://maps.app.goo.gl/88JRCRwL5ttdaPpu6',
   },
   {
-    id: 'kausimaa',
+    id: 'kausimaa-coworking',
     name: 'Kausimaa Co-working',
-    address: 'Kupondole, Lalitpur',
-    image: 'https://coworker.imgix.net/photos/nepal/lalitpur/kausimaa/2-1639371534.jpg?w=800&h=0&q=90&auto=format,compress&fit=crop&mark=/template/img/wm_icon.png&markscale=5&markalign=center,middle',
+    full_address: 'Kupondole, Lalitpur, Nepal',
+    image:
+      'https://coworker.imgix.net/photos/nepal/lalitpur/kausimaa/2-1639371534.jpg?w=800&h=0&q=90&auto=format,compress&fit=crop&mark=/template/img/wm_icon.png&markscale=5&markalign=center,middle',
     capacity: 40,
     rating: 4.6,
     features: ['WiFi', 'Outdoor Terrace', 'Phone Booths', 'Lounge Areas'],
-    amenities: ['WiFi', 'Lounge Area', 'Outdoor Terrace', 'Kitchen', 'Phone Booths', 'Event Space For Rent', 'Free Drinking Water', 'Parking'],
+    amenities: [
+      'WiFi',
+      'Lounge Area',
+      'Outdoor Terrace',
+      'Kitchen',
+      'Phone Booths',
+      'Event Space For Rent',
+      'Free Drinking Water',
+      'Parking',
+    ],
     openingHours: {
       monday: { open: '10:00', close: '18:00' },
       tuesday: { open: '10:00', close: '18:00' },
@@ -45,7 +85,7 @@ const locations = [
       thursday: { open: '10:00', close: '18:00' },
       friday: { open: '10:00', close: '18:00' },
       saturday: { open: '10:00', close: '18:00' },
-      sunday: { open: '10:00', close: '18:00' }
+      sunday: { open: '10:00', close: '18:00' },
     },
     available: true,
     popular: false,
@@ -53,12 +93,18 @@ const locations = [
   {
     id: 'jhamsikhel-loft',
     name: 'Jhamsikhel Loft',
-    address: 'Jhamsikhel, Lalitpur',
-    image: 'https://images.unsplash.com/photo-1524758631624-e2822e304c36?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+    full_address: 'Jhamsikhel, Lalitpur, Nepal',
+    image:
+      'https://images.unsplash.com/photo-1524758631624-e2822e304c36?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
     capacity: 80,
     rating: 4.8,
     features: ['Rooftop Terrace', 'Cafe', 'Parking', 'Natural Light'],
-    amenities: ['Outdoor Seating', 'Kitchen Facilities', 'Event Space', 'Storage Lockers'],
+    amenities: [
+      'Outdoor Seating',
+      'Kitchen Facilities',
+      'Event Space',
+      'Storage Lockers',
+    ],
     openingHours: {
       monday: { open: '07:00', close: '21:00' },
       tuesday: { open: '07:00', close: '21:00' },
@@ -66,7 +112,7 @@ const locations = [
       thursday: { open: '07:00', close: '21:00' },
       friday: { open: '07:00', close: '21:00' },
       saturday: { open: '09:00', close: '19:00' },
-      sunday: { open: '09:00', close: '19:00' }
+      sunday: { open: '09:00', close: '19:00' },
     },
     available: false,
     status: 'Reserved for 6 months',
@@ -74,7 +120,63 @@ const locations = [
   },
 ]
 
+function toGoogleMapsUrl(url: string): string {
+  const trimmed = url.trim()
+  if (!trimmed || !trimmed.includes('/embed')) return trimmed
+  const lat = trimmed.match(/!3d(-?\d+\.?\d*)/)?.[1]
+  const lng = trimmed.match(/!2d(-?\d+\.?\d*)/)?.[1]
+  if (lat && lng) return `https://www.google.com/maps?q=${lat},${lng}`
+  return trimmed
+}
+
+function toAmPm(time: string): string {
+  if (!time) return ''
+  const [h, m] = time.split(':').map(Number)
+  if (isNaN(h)) return time
+  const period = h >= 12 ? 'PM' : 'AM'
+  const hour = h % 12 || 12
+  return `${hour}:${String(m).padStart(2, '0')} ${period}`
+}
+
+function mapDbLocation(db: any): LocationData {
+  const cap = db.capacity || {}
+  const totalCapacity =
+    (cap.hotDesks || 0) + (cap.dedicatedDesks || 0) + (cap.privateOffices || 0)
+  const imgs = db.images || []
+  const imageSrc = db.image_url || (imgs.length > 0 ? imgs[0] : '')
+  return {
+    id: db.slug || db.id,
+    name: db.name,
+    image: imageSrc,
+    capacity: totalCapacity || 0,
+    rating: db.rating ? Number(db.rating) : 4.5,
+    features: (db.features as string[]) || [],
+    amenities: (db.amenities as string[]) || [],
+    openingHours: db.opening_hours || {},
+    available: db.available ?? true,
+    popular: db.popular ?? false,
+    status: db.status || undefined,
+    googleMapsUrl: db.google_maps_url || undefined,
+    full_address: db.full_address || '',
+  }
+}
+
 export function LocationsPage() {
+  const [locations, setLocations] = useState<LocationData[]>(defaultLocations)
+  const [imgErrors, setImgErrors] = useState<Record<string, boolean>>({})
+
+  const handleImgError = (id: string) => {
+    setImgErrors((prev) => ({ ...prev, [id]: true }))
+  }
+
+  useEffect(() => {
+    locationService.getAllLocations().then((data) => {
+      if (data && data.length > 0) {
+        setLocations(data.map(mapDbLocation))
+      }
+    })
+  }, [])
+
   return (
     <div className="container section-padding">
       <motion.div
@@ -86,9 +188,9 @@ export function LocationsPage() {
         <h1 className="text-4xl md:text-5xl font-display font-bold mb-6">
           Our <span className="gradient-text">Locations</span>
         </h1>
-        <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-          Discover our premium coworking spaces across Kathmandu. Each location is designed 
-          to inspire productivity and foster collaboration.
+        <p className="text-lg text-fg-2 max-w-2xl mx-auto">
+          Discover our premium coworking spaces across Kathmandu. Each location
+          is designed to inspire productivity and foster collaboration.
         </p>
       </motion.div>
 
@@ -102,31 +204,35 @@ export function LocationsPage() {
           >
             <Card className="group overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-2">
               <div className="relative aspect-[4/3] overflow-hidden">
-                <img
-                  src={location.image}
-                  alt={location.name}
-                  className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-                />
+                {location.image && !imgErrors[location.id] ? (
+                  <img
+                    src={location.image}
+                    alt={location.name}
+                    className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                    onError={() => handleImgError(location.id)}
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center bg-bg-raised">
+                    <MapPin size={40} className="opacity-20" />
+                  </div>
+                )}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
-                
+
                 {location.popular && (
                   <Badge className="absolute top-4 left-4">
                     🔥 Most Popular
                   </Badge>
                 )}
-                
-                {location.status === 'reserved' && (
-                  <Badge variant="secondary" className="absolute top-4 left-4 bg-orange-100 text-orange-800 border-orange-200">
-                    🔒 Reserved
-                  </Badge>
-                )}
-                
-                {!location.available && location.status && location.status !== 'reserved' && (
-                  <Badge variant="destructive" className="absolute top-4 left-4">
+
+                {!location.available && location.status && (
+                  <Badge
+                    variant="destructive"
+                    className="absolute top-4 left-4"
+                  >
                     {location.status}
                   </Badge>
                 )}
-                
+
                 <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm rounded-lg px-2 py-1 flex items-center space-x-1">
                   <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
                   <span className="text-xs font-medium">{location.rating}</span>
@@ -137,13 +243,13 @@ export function LocationsPage() {
                 <div className="space-y-2">
                   <h3 className="font-semibold text-xl">{location.name}</h3>
                   <div className="flex items-center justify-between flex-wrap gap-2">
-                    <div className="flex items-center text-muted-foreground">
+                    <div className="flex items-center text-fg-2">
                       <MapPin className="h-4 w-4 mr-1" />
-                      <span className="text-sm">{location.address}</span>
+                      <span className="text-sm">{location.full_address}</span>
                     </div>
                     {location.googleMapsUrl && (
                       <a
-                        href={location.googleMapsUrl}
+                        href={toGoogleMapsUrl(location.googleMapsUrl)}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="inline-flex items-center"
@@ -159,71 +265,99 @@ export function LocationsPage() {
                 </div>
 
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center text-muted-foreground">
+                  <div className="flex items-center text-fg-2">
                     <Users className="h-4 w-4 mr-1" />
-                    <span className="text-sm">{location.capacity} capacity</span>
-                  </div>
-                  <div className="flex items-center text-muted-foreground">
-                    <Clock className="h-4 w-4 mr-1" />
-                    <span className="text-sm">Open now</span>
+                    <span className="text-sm">
+                      {location.capacity} capacity
+                    </span>
                   </div>
                 </div>
 
                 <div className="space-y-3">
-                  <div>
-                    <h4 className="font-medium text-sm mb-2">Features</h4>
-                    <div className="flex flex-wrap gap-1">
-                      {location.features.map((feature) => (
-                        <Badge key={feature} variant="secondary" className="text-xs">
-                          {feature}
-                        </Badge>
-                      ))}
+                  {location.features.length > 0 && (
+                    <div>
+                      <h4 className="font-medium text-sm mb-2">Features</h4>
+                      <div className="flex flex-wrap gap-1">
+                        {location.features.map((feature) => (
+                          <Badge
+                            key={feature}
+                            variant="secondary"
+                            className="text-xs"
+                          >
+                            {feature}
+                          </Badge>
+                        ))}
+                      </div>
                     </div>
-                  </div>
+                  )}
 
-                  <div>
-                    <h4 className="font-medium text-sm mb-2">Amenities</h4>
-                    <div className="flex flex-wrap gap-1">
-                      {location.amenities.map((amenity) => (
-                        <Badge key={amenity} variant="outline" className="text-xs">
-                          {amenity}
-                        </Badge>
-                      ))}
+                  {location.amenities.length > 0 && (
+                    <div>
+                      <h4 className="font-medium text-sm mb-2">Amenities</h4>
+                      <div className="flex flex-wrap gap-1">
+                        {location.amenities.map((amenity) => (
+                          <Badge
+                            key={amenity}
+                            variant="outline"
+                            className="text-xs"
+                          >
+                            {amenity}
+                          </Badge>
+                        ))}
+                      </div>
                     </div>
-                  </div>
+                  )}
                 </div>
 
-                <div className="space-y-2">
-                  <h4 className="font-medium text-sm">Opening Hours</h4>
-                  <div className="text-xs text-muted-foreground space-y-1">
-                    <div className="flex justify-between">
-                      <span>Mon - Fri</span>
-                      <span>{location.openingHours.monday.open} - {location.openingHours.monday.close}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Weekend</span>
-                      <span>{location.openingHours.saturday.open} - {location.openingHours.saturday.close}</span>
+                {[
+                  'monday',
+                  'tuesday',
+                  'wednesday',
+                  'thursday',
+                  'friday',
+                  'saturday',
+                  'sunday',
+                ].filter((day) => location.openingHours[day]?.open).length >
+                  0 && (
+                  <div className="space-y-2">
+                    <h4 className="font-medium text-sm">Opening Hours</h4>
+                    <div className="text-xs text-fg-2 space-y-1">
+                      {[
+                        'monday',
+                        'tuesday',
+                        'wednesday',
+                        'thursday',
+                        'friday',
+                        'saturday',
+                        'sunday',
+                      ]
+                        .filter((day) => location.openingHours[day]?.open)
+                        .map((day) => {
+                          const hours = location.openingHours[day]!
+                          return (
+                            <div key={day} className="flex justify-between">
+                              <span className="capitalize">
+                                {day.slice(0, 3)}
+                              </span>
+                              <span>
+                                {toAmPm(hours.open)} - {toAmPm(hours.close)}
+                              </span>
+                            </div>
+                          )
+                        })}
                     </div>
                   </div>
-                </div>
+                )}
 
                 {location.available ? (
-                  <Button 
-                    className="w-full" 
-                    variant="outline"
-                    asChild
-                  >
+                  <Button className="w-full" variant="outline" asChild>
                     <Link to={`${ROUTES.LOCATIONS}/${location.id}`}>
                       View Details
                     </Link>
                   </Button>
                 ) : (
-                  <Button 
-                    className="w-full" 
-                    variant="outline"
-                    disabled
-                  >
-                    {location.status}
+                  <Button className="w-full" variant="outline" disabled>
+                    {location.status || 'Unavailable'}
                   </Button>
                 )}
               </CardContent>
@@ -238,14 +372,15 @@ export function LocationsPage() {
         transition={{ duration: 0.6, delay: 0.4 }}
         className="text-center mt-16"
       >
-        <h2 className="text-2xl font-semibold mb-4">Can't find what you're looking for?</h2>
-        <p className="text-muted-foreground mb-6">
-          We're constantly expanding our network. Get notified when new locations open.
+        <h2 className="text-2xl font-normal mb-4">
+          Can't find what you're looking for?
+        </h2>
+        <p className="text-fg-2 mb-6">
+          We're constantly expanding our network. Get notified when new
+          locations open.
         </p>
         <Button size="lg" asChild>
-          <Link to={ROUTES.CONTACT}>
-            Contact Us
-          </Link>
+          <Link to={ROUTES.CONTACT}>Contact Us</Link>
         </Button>
       </motion.div>
     </div>

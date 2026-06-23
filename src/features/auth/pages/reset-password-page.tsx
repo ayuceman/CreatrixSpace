@@ -1,7 +1,13 @@
 import { useState } from 'react'
 import { useSearchParams, Link } from 'react-router-dom'
 import { Mail, Lock, Loader2 } from 'lucide-react'
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -10,7 +16,7 @@ import { ROUTES } from '@/lib/constants'
 
 export function ResetPasswordPage() {
   const [searchParams] = useSearchParams()
-  const [step, setStep] = useState<'request' | 'reset'>(
+  const [step] = useState<'request' | 'reset'>(
     searchParams.get('token') ? 'reset' : 'request'
   )
   const [email, setEmail] = useState('')
@@ -29,7 +35,9 @@ export function ResetPasswordPage() {
       await authService.resetPassword(email)
       setSuccess(true)
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to send reset email')
+      setError(
+        err instanceof Error ? err.message : 'Failed to send reset email'
+      )
     } finally {
       setLoading(false)
     }
@@ -68,7 +76,8 @@ export function ResetPasswordPage() {
           <CardHeader className="space-y-1">
             <CardTitle className="text-2xl font-bold">Reset Password</CardTitle>
             <CardDescription>
-              Enter your email address and we'll send you a link to reset your password
+              Enter your email address and we'll send you a link to reset your
+              password
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -92,7 +101,7 @@ export function ResetPasswordPage() {
                 <div className="space-y-2">
                   <Label htmlFor="email">Email</Label>
                   <div className="relative">
-                    <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                    <Mail className="absolute left-3 top-3 h-4 w-4 text-fg-2" />
                     <Input
                       id="email"
                       type="email"
@@ -116,8 +125,8 @@ export function ResetPasswordPage() {
                   )}
                 </Button>
 
-                <div className="text-center text-sm text-muted-foreground">
-                  <Link to={ROUTES.LOGIN} className="text-primary hover:underline">
+                <div className="text-center text-sm text-fg-2">
+                  <Link to={ROUTES.LOGIN} className="text-clay hover:underline">
                     Back to login
                   </Link>
                 </div>
@@ -134,15 +143,14 @@ export function ResetPasswordPage() {
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-1">
           <CardTitle className="text-2xl font-bold">Set New Password</CardTitle>
-          <CardDescription>
-            Enter your new password below
-          </CardDescription>
+          <CardDescription>Enter your new password below</CardDescription>
         </CardHeader>
         <CardContent>
           {success ? (
             <div className="space-y-4">
               <div className="p-4 text-sm text-green-600 bg-green-50 border border-green-200 rounded-md">
-                Password reset successfully! You can now sign in with your new password.
+                Password reset successfully! You can now sign in with your new
+                password.
               </div>
               <Link to={ROUTES.LOGIN}>
                 <Button className="w-full">Sign In</Button>
@@ -159,7 +167,7 @@ export function ResetPasswordPage() {
               <div className="space-y-2">
                 <Label htmlFor="password">New Password</Label>
                 <div className="relative">
-                  <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                  <Lock className="absolute left-3 top-3 h-4 w-4 text-fg-2" />
                   <Input
                     id="password"
                     type="password"
@@ -170,7 +178,7 @@ export function ResetPasswordPage() {
                     className="pl-10"
                   />
                 </div>
-                <p className="text-xs text-muted-foreground">
+                <p className="text-xs text-fg-2">
                   Must be at least 6 characters
                 </p>
               </div>
@@ -178,7 +186,7 @@ export function ResetPasswordPage() {
               <div className="space-y-2">
                 <Label htmlFor="confirmPassword">Confirm Password</Label>
                 <div className="relative">
-                  <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                  <Lock className="absolute left-3 top-3 h-4 w-4 text-fg-2" />
                   <Input
                     id="confirmPassword"
                     type="password"

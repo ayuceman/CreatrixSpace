@@ -13,7 +13,14 @@ export function BookingProgress() {
   const { currentStep } = useBookingStore()
 
   return (
-    <div className="w-full" role="progressbar" aria-valuenow={currentStep} aria-valuemin={1} aria-valuemax={4} aria-label="Booking progress">
+    <div
+      className="w-full"
+      role="progressbar"
+      aria-valuenow={currentStep}
+      aria-valuemin={1}
+      aria-valuemax={4}
+      aria-label="Booking progress"
+    >
       <div className="flex items-center justify-between">
         {steps.map((step, index) => {
           const isCompleted = currentStep > step.number
@@ -26,14 +33,15 @@ export function BookingProgress() {
               <div className="flex flex-col items-center">
                 <div
                   className={cn(
-                    "w-10 h-10 rounded-full flex items-center justify-center border-2 transition-all duration-300",
+                    'w-10 h-10 rounded-full flex items-center justify-center border-2 transition-all duration-300',
                     {
-                      "bg-primary border-primary text-primary-foreground shadow-lg": isCompleted || isCurrent,
-                      "border-muted-foreground text-muted-foreground": isUpcoming,
-                      "ring-2 ring-primary/20": isCurrent,
+                      'bg-clay border-clay text-fg-on-ink-1 shadow-lg':
+                        isCompleted || isCurrent,
+                      'border-muted-foreground text-fg-2': isUpcoming,
+                      'ring-2 ring-primary/20': isCurrent,
                     }
                   )}
-                  aria-current={isCurrent ? "step" : undefined}
+                  aria-current={isCurrent ? 'step' : undefined}
                   aria-label={`${isCompleted ? 'Completed' : isCurrent ? 'Current' : 'Upcoming'} step: ${step.title}`}
                 >
                   {isCompleted ? (
@@ -42,22 +50,19 @@ export function BookingProgress() {
                     <span className="text-sm font-medium">{step.number}</span>
                   )}
                 </div>
-                
+
                 {/* Step Info */}
                 <div className="mt-2 text-center hidden sm:block">
-                  <p className={cn(
-                    "text-sm font-medium",
-                    {
-                      "text-primary": isCurrent,
-                      "text-foreground": isCompleted,
-                      "text-muted-foreground": isUpcoming,
-                    }
-                  )}>
+                  <p
+                    className={cn('text-sm font-medium', {
+                      'text-clay': isCurrent,
+                      'text-fg-1': isCompleted,
+                      'text-fg-2': isUpcoming,
+                    })}
+                  >
                     {step.title}
                   </p>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    {step.description}
-                  </p>
+                  <p className="text-xs text-fg-2 mt-1">{step.description}</p>
                 </div>
               </div>
 
@@ -65,10 +70,10 @@ export function BookingProgress() {
               {index < steps.length - 1 && (
                 <div
                   className={cn(
-                    "h-0.5 flex-1 mx-4 transition-all duration-300",
+                    'h-0.5 flex-1 mx-4 transition-all duration-300',
                     {
-                      "bg-primary": isCompleted,
-                      "bg-muted": isUpcoming || isCurrent,
+                      'bg-clay': isCompleted,
+                      'bg-bg-band': isUpcoming || isCurrent,
                     }
                   )}
                 />
@@ -80,10 +85,10 @@ export function BookingProgress() {
 
       {/* Mobile Step Info */}
       <div className="sm:hidden mt-4 text-center">
-        <p className="text-sm font-medium text-primary">
+        <p className="text-sm font-medium text-clay">
           Step {currentStep}: {steps[currentStep - 1]?.title}
         </p>
-        <p className="text-xs text-muted-foreground mt-1">
+        <p className="text-xs text-fg-2 mt-1">
           {steps[currentStep - 1]?.description}
         </p>
       </div>

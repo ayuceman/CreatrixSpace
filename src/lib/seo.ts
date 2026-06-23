@@ -11,21 +11,25 @@ export interface SEOData {
   canonical?: string
 }
 
-const DEFAULT_SEO: Required<Omit<SEOData, 'keywords' | 'image' | 'url' | 'type' | 'noindex' | 'canonical'>> = {
+const DEFAULT_SEO: Required<
+  Omit<SEOData, 'keywords' | 'image' | 'url' | 'type' | 'noindex' | 'canonical'>
+> = {
   title: 'CreatrixSpace - Premium Coworking Spaces in Nepal',
-  description: 'Premium coworking spaces for modern professionals. Flexible plans, 24/7 access, high-speed internet, and vibrant community in Kathmandu, Nepal.',
+  description:
+    'Premium coworking spaces for modern professionals. Flexible plans, 24/7 access, high-speed internet, and vibrant community in Kathmandu, Nepal.',
   siteName: 'CreatrixSpace',
   locale: 'en_US',
 }
 
 export function updateSEO(data: SEOData) {
   const baseUrl = import.meta.env.VITE_APP_URL || 'https://creatrixspace.com'
-  const fullTitle = data.title 
+  const fullTitle = data.title
     ? `${data.title} | ${DEFAULT_SEO.siteName}`
     : DEFAULT_SEO.title
   const description = data.description || DEFAULT_SEO.description
   const image = data.image || `${baseUrl}/creatrix-logo.png`
-  const url = data.url || (typeof window !== 'undefined' ? window.location.href : baseUrl)
+  const url =
+    data.url || (typeof window !== 'undefined' ? window.location.href : baseUrl)
   const canonical = data.canonical || url
 
   // Update title
@@ -34,8 +38,14 @@ export function updateSEO(data: SEOData) {
   }
 
   // Update or create meta tags
-  const updateMetaTag = (name: string, content: string, attribute: 'name' | 'property' = 'name') => {
-    let element = document.querySelector(`meta[${attribute}="${name}"]`) as HTMLMetaElement
+  const updateMetaTag = (
+    name: string,
+    content: string,
+    attribute: 'name' | 'property' = 'name'
+  ) => {
+    let element = document.querySelector(
+      `meta[${attribute}="${name}"]`
+    ) as HTMLMetaElement
     if (!element) {
       element = document.createElement('meta')
       element.setAttribute(attribute, name)
@@ -76,7 +86,9 @@ export function updateSEO(data: SEOData) {
   }
 
   // Canonical URL
-  let canonicalElement = document.querySelector('link[rel="canonical"]') as HTMLLinkElement
+  let canonicalElement = document.querySelector(
+    'link[rel="canonical"]'
+  ) as HTMLLinkElement
   if (!canonicalElement) {
     canonicalElement = document.createElement('link')
     canonicalElement.setAttribute('rel', 'canonical')
@@ -85,9 +97,12 @@ export function updateSEO(data: SEOData) {
   canonicalElement.setAttribute('href', canonical)
 }
 
-export function generateStructuredData(type: 'Organization' | 'LocalBusiness' | 'Article', data: Record<string, any>) {
+export function generateStructuredData(
+  type: 'Organization' | 'LocalBusiness' | 'Article',
+  data: Record<string, any>
+) {
   const baseUrl = import.meta.env.VITE_APP_URL || 'https://creatrixspace.com'
-  
+
   const schemas: Record<string, any> = {
     Organization: {
       '@context': 'https://schema.org',
@@ -125,7 +140,9 @@ export function generateStructuredData(type: 'Organization' | 'LocalBusiness' | 
 
 export function injectStructuredData(data: Record<string, any>) {
   // Remove existing structured data
-  const existingScript = document.querySelector('script[type="application/ld+json"]')
+  const existingScript = document.querySelector(
+    'script[type="application/ld+json"]'
+  )
   if (existingScript) {
     existingScript.remove()
   }
@@ -136,4 +153,3 @@ export function injectStructuredData(data: Record<string, any>) {
   script.textContent = JSON.stringify(data, null, 2)
   document.head.appendChild(script)
 }
-

@@ -57,11 +57,7 @@ export interface Database {
           name: string
           slug: string
           description: string | null
-          address: string
           full_address: string | null
-          city: string | null
-          latitude: number | null
-          longitude: number | null
           image_url: string | null
           images: string[] | null
           amenities: string[] | null
@@ -83,11 +79,7 @@ export interface Database {
           name: string
           slug: string
           description?: string | null
-          address: string
           full_address?: string | null
-          city?: string | null
-          latitude?: number | null
-          longitude?: number | null
           image_url?: string | null
           images?: string[] | null
           amenities?: string[] | null
@@ -109,11 +101,7 @@ export interface Database {
           name?: string
           slug?: string
           description?: string | null
-          address?: string
           full_address?: string | null
-          city?: string | null
-          latitude?: number | null
-          longitude?: number | null
           image_url?: string | null
           images?: string[] | null
           amenities?: string[] | null
@@ -184,7 +172,12 @@ export interface Database {
         Row: {
           id: string
           name: string
-          type: 'day_pass' | 'hot_desk' | 'dedicated_desk' | 'private_office' | 'meeting_room'
+          type:
+            | 'day_pass'
+            | 'hot_desk'
+            | 'dedicated_desk'
+            | 'private_office'
+            | 'meeting_room'
           description: string | null
           features: string[] | null
           pricing: Json
@@ -198,7 +191,12 @@ export interface Database {
         Insert: {
           id?: string
           name: string
-          type: 'day_pass' | 'hot_desk' | 'dedicated_desk' | 'private_office' | 'meeting_room'
+          type:
+            | 'day_pass'
+            | 'hot_desk'
+            | 'dedicated_desk'
+            | 'private_office'
+            | 'meeting_room'
           description?: string | null
           features?: string[] | null
           pricing: Json
@@ -212,7 +210,12 @@ export interface Database {
         Update: {
           id?: string
           name?: string
-          type?: 'day_pass' | 'hot_desk' | 'dedicated_desk' | 'private_office' | 'meeting_room'
+          type?:
+            | 'day_pass'
+            | 'hot_desk'
+            | 'dedicated_desk'
+            | 'private_office'
+            | 'meeting_room'
           description?: string | null
           features?: string[] | null
           pricing?: Json
@@ -292,6 +295,7 @@ export interface Database {
           data: Json
           created_by: string | null
           created_at: string
+          updated_at: string | null
         }
         Insert: {
           id?: string
@@ -299,6 +303,7 @@ export interface Database {
           data: Json
           created_by?: string | null
           created_at?: string
+          updated_at?: string | null
         }
         Update: {
           id?: string
@@ -306,6 +311,7 @@ export interface Database {
           data?: Json
           created_by?: string | null
           created_at?: string
+          updated_at?: string | null
         }
         Relationships: []
       }
@@ -360,7 +366,12 @@ export interface Database {
           total_amount: number
           currency: string
           payment_method: string | null
-          payment_status: 'pending' | 'processing' | 'completed' | 'failed' | 'refunded'
+          payment_status:
+            | 'pending'
+            | 'processing'
+            | 'completed'
+            | 'failed'
+            | 'refunded'
           stripe_session_id: string | null
           stripe_payment_intent_id: string | null
           esewa_transaction_id: string | null
@@ -385,7 +396,12 @@ export interface Database {
           total_amount: number
           currency?: string
           payment_method?: string | null
-          payment_status?: 'pending' | 'processing' | 'completed' | 'failed' | 'refunded'
+          payment_status?:
+            | 'pending'
+            | 'processing'
+            | 'completed'
+            | 'failed'
+            | 'refunded'
           stripe_session_id?: string | null
           stripe_payment_intent_id?: string | null
           esewa_transaction_id?: string | null
@@ -410,7 +426,12 @@ export interface Database {
           total_amount?: number
           currency?: string
           payment_method?: string | null
-          payment_status?: 'pending' | 'processing' | 'completed' | 'failed' | 'refunded'
+          payment_status?:
+            | 'pending'
+            | 'processing'
+            | 'completed'
+            | 'failed'
+            | 'refunded'
           stripe_session_id?: string | null
           stripe_payment_intent_id?: string | null
           esewa_transaction_id?: string | null
@@ -445,7 +466,12 @@ export interface Database {
           amount: number
           currency?: string
           payment_method: string
-          status?: 'pending' | 'processing' | 'completed' | 'failed' | 'refunded'
+          status?:
+            | 'pending'
+            | 'processing'
+            | 'completed'
+            | 'failed'
+            | 'refunded'
           transaction_id?: string | null
           gateway_response?: Json | null
           metadata?: Json | null
@@ -459,10 +485,369 @@ export interface Database {
           amount?: number
           currency?: string
           payment_method?: string
-          status?: 'pending' | 'processing' | 'completed' | 'failed' | 'refunded'
+          status?:
+            | 'pending'
+            | 'processing'
+            | 'completed'
+            | 'failed'
+            | 'refunded'
           transaction_id?: string | null
           gateway_response?: Json | null
           metadata?: Json | null
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      amenities: {
+        Row: {
+          id: string
+          title: string
+          description: string
+          icon: string | null
+          sort_order: number | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          title: string
+          description: string
+          icon?: string | null
+          sort_order?: number | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          title?: string
+          description?: string
+          icon?: string | null
+          sort_order?: number | null
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      book_tour_content: {
+        Row: {
+          id: string
+          step1_headline: string
+          step1_description: string
+          step2_headline: string
+          confirmation_eyebrow: string
+          confirmation_tour_details: string
+          time_slots: Json
+          interest_options: Json
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          step1_headline?: string
+          step1_description?: string
+          step2_headline?: string
+          confirmation_eyebrow?: string
+          confirmation_tour_details?: string
+          time_slots?: Json
+          interest_options?: Json
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          step1_headline?: string
+          step1_description?: string
+          step2_headline?: string
+          confirmation_eyebrow?: string
+          confirmation_tour_details?: string
+          time_slots?: Json
+          interest_options?: Json
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      cta_content: {
+        Row: {
+          id: string
+          eyebrow: string
+          headline_1: string
+          headline_em: string
+          headline_2: string
+          description: string
+          rooms: Json
+          features: Json
+          form_name_label: string
+          form_email_label: string
+          form_room_label: string
+          form_button_text: string
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          eyebrow?: string
+          headline_1?: string
+          headline_em?: string
+          headline_2?: string
+          description?: string
+          rooms?: Json
+          features?: Json
+          form_name_label?: string
+          form_email_label?: string
+          form_room_label?: string
+          form_button_text?: string
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          eyebrow?: string
+          headline_1?: string
+          headline_em?: string
+          headline_2?: string
+          description?: string
+          rooms?: Json
+          features?: Json
+          form_name_label?: string
+          form_email_label?: string
+          form_room_label?: string
+          form_button_text?: string
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      faqs: {
+        Row: {
+          id: string
+          question: string
+          answer: string
+          sort_order: number | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          question: string
+          answer: string
+          sort_order?: number | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          question?: string
+          answer?: string
+          sort_order?: number | null
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      form_submissions: {
+        Row: {
+          id: string
+          form_type: string
+          name: string
+          email: string
+          phone: string | null
+          room: string | null
+          selected_date: string | null
+          time_slot: string | null
+          interest: string | null
+          notes: string | null
+          message: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          form_type: string
+          name: string
+          email: string
+          phone?: string | null
+          room?: string | null
+          selected_date?: string | null
+          time_slot?: string | null
+          interest?: string | null
+          notes?: string | null
+          message?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          form_type?: string
+          name?: string
+          email?: string
+          phone?: string | null
+          room?: string | null
+          selected_date?: string | null
+          time_slot?: string | null
+          interest?: string | null
+          notes?: string | null
+          message?: string | null
+          created_at?: string
+        }
+        Relationships: []
+      }
+      hero_content: {
+        Row: {
+          id: string
+          images: Json
+          pricing: Json
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          images?: Json
+          pricing?: Json
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          images?: Json
+          pricing?: Json
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      member_companies: {
+        Row: {
+          id: string
+          name: string
+          italic: boolean | null
+          sort_order: number | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          name: string
+          italic?: boolean | null
+          sort_order?: number | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          name?: string
+          italic?: boolean | null
+          sort_order?: number | null
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      membership_content: {
+        Row: {
+          id: string
+          tabs: Json
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          tabs?: Json
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          tabs?: Json
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      site_stats: {
+        Row: {
+          id: string
+          label: string
+          value: string
+          suffix: string | null
+          meta: string | null
+          sort_order: number | null
+          section: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          label: string
+          value: string
+          suffix?: string | null
+          meta?: string | null
+          sort_order?: number | null
+          section?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          label?: string
+          value?: string
+          suffix?: string | null
+          meta?: string | null
+          sort_order?: number | null
+          section?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      spaces_content: {
+        Row: {
+          id: string
+          cards: Json
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          cards?: Json
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          cards?: Json
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      testimonials: {
+        Row: {
+          id: string
+          quote: string
+          author_name: string
+          author_role: string | null
+          author_initials: string | null
+          sort_order: number | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          quote: string
+          author_name: string
+          author_role?: string | null
+          author_initials?: string | null
+          sort_order?: number | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          quote?: string
+          author_name?: string
+          author_role?: string | null
+          author_initials?: string | null
+          sort_order?: number | null
           created_at?: string
           updated_at?: string
         }
@@ -480,4 +865,3 @@ export interface Database {
     }
   }
 }
-

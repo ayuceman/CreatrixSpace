@@ -6,8 +6,8 @@ export const PAYMENT_CONFIG = {
     currency: 'npr',
     country: 'NP',
   },
-  
-  // eSewa Configuration  
+
+  // eSewa Configuration
   esewa: {
     merchantCode: import.meta.env.VITE_ESEWA_MERCHANT_CODE || 'EPAYTEST',
     serviceCharge: 0,
@@ -18,10 +18,12 @@ export const PAYMENT_CONFIG = {
     baseUrl: import.meta.env.VITE_ESEWA_BASE_URL || 'https://uat.esewa.com.np', // UAT for testing
     paymentUrl: 'https://uat.esewa.com.np/epay/main', // Updated payment endpoint
   },
-  
+
   // Khalti Configuration
   khalti: {
-    publicKey: import.meta.env.VITE_KHALTI_PUBLIC_KEY || 'test_public_key_dc74e0fd57cb46cd93832aee0a390234',
+    publicKey:
+      import.meta.env.VITE_KHALTI_PUBLIC_KEY ||
+      'test_public_key_dc74e0fd57cb46cd93832aee0a390234',
     productIdentity: 'creatrixspace',
     productName: 'CreatrixSpace Booking',
     productUrl: import.meta.env.VITE_APP_URL || 'http://localhost:5173',
@@ -29,7 +31,7 @@ export const PAYMENT_CONFIG = {
       onSuccess: '/payment/khalti/success',
       onError: '/payment/khalti/error',
       onClose: '/payment/khalti/close',
-    }
+    },
   },
 
   // QR Payment Configuration
@@ -39,14 +41,16 @@ export const PAYMENT_CONFIG = {
     bankName: 'Laxmi Sunrise Bank',
     qrCodeImage: '/company-qr-code.png', // Company QR code image path
     verificationTimeout: 300000, // 5 minutes in milliseconds
-    supportedBanks: [
-      'Laxmi Sunrise Bank',
-      
-    ]
-  }
+    supportedBanks: ['Laxmi Sunrise Bank'],
+  },
 }
 
-export type PaymentMethod = 'stripe' | 'esewa' | 'khalti' | 'bank_transfer' | 'qr_payment'
+export type PaymentMethod =
+  | 'stripe'
+  | 'esewa'
+  | 'khalti'
+  | 'bank_transfer'
+  | 'qr_payment'
 
 export interface PaymentData {
   amount: number // in paisa (1 NPR = 100 paisa)

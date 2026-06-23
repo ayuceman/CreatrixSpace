@@ -12,6 +12,7 @@ export type AdminBookingRecord = {
   roomName?: string | null
   amount: number
   status: string
+  paymentStatus?: string
   createdAt: string
   addOns: {
     selectedAddOns: string[]
@@ -39,7 +40,8 @@ export function transformBookingsToAdmin(
     const contactInfo = booking.contact_info as Record<string, any> | null
     const firstName = contactInfo?.firstName || ''
     const lastName = contactInfo?.lastName || ''
-    const customerName = `${firstName} ${lastName}`.trim() || contactInfo?.name || 'Guest User'
+    const customerName =
+      `${firstName} ${lastName}`.trim() || contactInfo?.name || 'Guest User'
 
     const addOnsPayload = (booking.add_ons as Record<string, any> | null) || {}
     const addOnIds: string[] = addOnsPayload.addOnIds || []
@@ -59,6 +61,7 @@ export function transformBookingsToAdmin(
       roomName: booking.rooms?.name || null,
       amount: Math.round(booking.total_amount || 0),
       status: booking.status || 'pending',
+      paymentStatus: booking.payment_status || 'pending',
       createdAt: booking.created_at || new Date().toISOString(),
       addOns: {
         selectedAddOns,
@@ -74,4 +77,3 @@ export function transformBookingsToAdmin(
     }
   })
 }
-

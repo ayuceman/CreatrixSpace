@@ -31,6 +31,18 @@ import { AdminDashboardPage } from '@/features/admin/pages/admin-dashboard-page'
 import { AdminBookingsPage } from '@/features/admin/pages/admin-bookings-page'
 import { AdminMembershipsPage } from '@/features/admin/pages/admin-memberships-page'
 import { AdminPricingPage } from '@/features/admin/pages/admin-pricing-page'
+import { AdminLocationsPage } from '@/features/admin/pages/admin-locations-page'
+import { AdminSiteStatsPage } from '@/features/admin/pages/admin-site-stats-page'
+import { AdminHeroPage } from '@/features/admin/pages/admin-hero-page'
+import { AdminMembershipPage } from '@/features/admin/pages/admin-membership-page'
+import { AdminSpacesPage } from '@/features/admin/pages/admin-spaces-page'
+import { AdminAmenitiesPage } from '@/features/admin/pages/admin-amenities-page'
+import { AdminBookTourPage } from '@/features/admin/pages/admin-book-tour-page'
+import { AdminTestimonialsPage } from '@/features/admin/pages/admin-testimonials-page'
+import { AdminFaqPage } from '@/features/admin/pages/admin-faq-page'
+import { AdminMemberCompaniesPage } from '@/features/admin/pages/admin-member-companies-page'
+import { AdminFormSubmissionsPage } from '@/features/admin/pages/admin-form-submissions-page'
+import { AdminPlansPage } from '@/features/admin/pages/admin-plans-page'
 
 const router = createBrowserRouter([
   {
@@ -130,6 +142,27 @@ const router = createBrowserRouter([
           { path: ROUTES.ADMIN_BOOKINGS, element: <AdminBookingsPage /> },
           { path: ROUTES.ADMIN_MEMBERSHIPS, element: <AdminMembershipsPage /> },
           { path: ROUTES.ADMIN_PRICING, element: <AdminPricingPage /> },
+          { path: ROUTES.ADMIN_LOCATIONS, element: <AdminLocationsPage /> },
+          { path: ROUTES.ADMIN_SITE_STATS, element: <AdminSiteStatsPage /> },
+          { path: ROUTES.ADMIN_HERO, element: <AdminHeroPage /> },
+          { path: ROUTES.ADMIN_MEMBERSHIP, element: <AdminMembershipPage /> },
+          { path: ROUTES.ADMIN_SPACES, element: <AdminSpacesPage /> },
+          { path: ROUTES.ADMIN_AMENITIES, element: <AdminAmenitiesPage /> },
+          { path: ROUTES.ADMIN_BOOK_TOUR, element: <AdminBookTourPage /> },
+          {
+            path: ROUTES.ADMIN_TESTIMONIALS,
+            element: <AdminTestimonialsPage />,
+          },
+          { path: ROUTES.ADMIN_FAQ, element: <AdminFaqPage /> },
+          {
+            path: ROUTES.ADMIN_MEMBER_COMPANIES,
+            element: <AdminMemberCompaniesPage />,
+          },
+          {
+            path: ROUTES.ADMIN_FORM_SUBMISSIONS,
+            element: <AdminFormSubmissionsPage />,
+          },
+          { path: ROUTES.ADMIN_PLANS, element: <AdminPlansPage /> },
         ],
       },
     ],
