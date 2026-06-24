@@ -319,16 +319,21 @@ export function LocationPlanStep() {
           {selectedLocation &&
             (selectedLocation.slug === 'dhobighat-hub' ||
               selectedLocation.name?.toLowerCase().includes('dhobighat')) && (
-              <div className="mb-4 p-4 bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800 rounded-lg">
-                <p className="text-sm font-medium text-blue-900 dark:text-blue-100 mb-1">
-                  📍 Availability Notice for Dhobighat Hub
-                </p>
-                <p className="text-sm text-blue-800 dark:text-blue-200">
-                  Only <strong>Shared Desk</strong> and{' '}
-                  <strong>Hot Desk</strong> plans are currently available.
-                  Dedicated Desk and Private Office are fully booked for the
-                  next 6 months.
-                </p>
+              <div className="mb-4 p-4 bg-amber-50 dark:bg-amber-950/30 border-2 border-amber-300 dark:border-amber-700 rounded-xl shadow-sm">
+                <div className="flex items-start gap-3">
+                  <span className="text-xl shrink-0 mt-0.5">📌</span>
+                  <div>
+                    <p className="text-sm font-bold text-amber-900 dark:text-amber-100 mb-1">
+                      Availability Notice for Dhobighat Hub
+                    </p>
+                    <p className="text-sm text-amber-800 dark:text-amber-200">
+                      Only <strong>Shared Desk</strong> and{' '}
+                      <strong>Hot Desk</strong> plans are available now.
+                      Dedicated Desk and Private Office are fully booked for the
+                      next 6 months.
+                    </p>
+                  </div>
+                </div>
               </div>
             )}
           {plans.length === 0 ? (

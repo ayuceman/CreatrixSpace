@@ -1,6 +1,7 @@
 import { X, ArrowRight } from 'lucide-react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useState, useMemo, useEffect } from 'react'
+import { cn } from '@/lib/utils'
 import {
   locationService,
   bookTourContentService,
@@ -16,12 +17,12 @@ interface BookTourSheetProps {
 interface SheetLocation {
   id: string
   name: string
+  full_location: string
 }
 
 const defaultSheetLocations: SheetLocation[] = [
-  { id: 'dhobighat', name: 'Dhobighat' },
-  { id: 'kausimaa', name: 'Kausimaa' },
-  { id: 'jhamsikhel', name: 'Jhamsikhel' },
+  { id: 'dhobighat', name: 'Dhobighat', full_location: 'Lalitpur' },
+  { id: 'jhamsikhel', name: 'Jhamsikhel', full_location: 'Lalitpur' },
 ]
 
 interface InterestOption {
@@ -64,14 +65,12 @@ function StepCircle({
   }
   return (
     <span
-      className="w-4.5 h-4.5 rounded-full inline-flex items-center justify-center text-[10px] font-medium"
-      style={{
-        background: active ? 'var(--color-clay)' : 'transparent',
-        border: active
-          ? '1px solid var(--color-clay)'
-          : '1px solid var(--color-rule-strong)',
-        color: active ? 'var(--color-bg)' : 'var(--color-fg-3)',
-      }}
+      className={cn(
+        'w-4.5 h-4.5 rounded-full inline-flex items-center justify-center text-[10px] font-medium',
+        active
+          ? 'bg-clay border border-clay text-bg'
+          : 'bg-transparent border border-rule-strong text-fg-3'
+      )}
     >
       {num}
     </span>
@@ -121,6 +120,7 @@ export function BookTourSheet({ open, onClose, seed }: BookTourSheetProps) {
       const mapped: SheetLocation[] = (locData || []).map((l: any) => ({
         id: l.slug || l.id,
         name: l.name,
+        full_location: l.full_address || l.city || '',
       }))
       const loadedLocations = mapped.length > 0 ? mapped : defaultSheetLocations
       const loadedOptions =
@@ -262,16 +262,10 @@ export function BookTourSheet({ open, onClose, seed }: BookTourSheetProps) {
                     <div key={s} className="flex items-center gap-2">
                       {s > 1 && <span className="flex-1 h-px bg-rule w-6" />}
                       <div
-                        className="flex items-center gap-2"
-                        style={{
-                          color:
-                            s === step
-                              ? 'var(--color-clay)'
-                              : s < step
-                                ? 'var(--color-clay)'
-                                : undefined,
-                          fontWeight: s === step || s < step ? 500 : 400,
-                        }}
+                        className={cn(
+                          'flex items-center gap-2',
+                          s <= step ? 'text-clay font-medium' : 'font-normal'
+                        )}
                       >
                         <StepCircle
                           num={s}
@@ -309,28 +303,24 @@ export function BookTourSheet({ open, onClose, seed }: BookTourSheetProps) {
                     <span className="text-[11px] tracking-[0.12em] uppercase text-fg-2 font-medium">
                       Pick a room
                     </span>
-                    <div className="grid grid-cols-3 gap-2">
+                    <div className="grid md:grid-cols-3 gap-2">
                       {locations.map((loc) => (
                         <button
                           key={loc.id}
                           onClick={() => setSelectedLocation(loc.id)}
-                          className="p-[14px_12px] text-left rounded-sm transition-all"
-                          style={{
-                            background:
-                              selectedLocation === loc.id
-                                ? 'var(--color-ink)'
-                                : 'var(--color-bg-raised)',
-                            color:
-                              selectedLocation === loc.id
-                                ? 'var(--color-bg)'
-                                : 'var(--color-fg-1)',
-                            border:
-                              selectedLocation === loc.id
-                                ? '1px solid transparent'
-                                : '1px solid var(--color-rule)',
-                          }}
+                          className={cn(
+                            'p-[14px_12px] text-center rounded-sm transition-all',
+                            selectedLocation === loc.id
+                              ? 'bg-ink text-bg border border-transparent'
+                              : 'bg-bg-raised text-fg-1 border border-rule'
+                          )}
                         >
-                          <div className="text-sm font-medium">{loc.name}</div>
+                          <span className="text-sm font-medium">
+                            {loc.name}
+                          </span>
+                          <span className="block text-[11px]">
+                            {loc.full_location}
+                          </span>
                         </button>
                       ))}
                     </div>
@@ -346,21 +336,12 @@ export function BookTourSheet({ open, onClose, seed }: BookTourSheetProps) {
                         <button
                           key={d.label}
                           onClick={() => setSelectedDate(d.label)}
-                          className="px-3.5 py-2.5 rounded-pill text-[13px] font-medium transition-all"
-                          style={{
-                            background:
-                              selectedDate === d.label
-                                ? 'var(--color-clay)'
-                                : 'var(--color-bg-raised)',
-                            color:
-                              selectedDate === d.label
-                                ? 'var(--color-bg)'
-                                : 'var(--color-fg-1)',
-                            border:
-                              selectedDate === d.label
-                                ? '1px solid transparent'
-                                : '1px solid var(--color-rule)',
-                          }}
+                          className={cn(
+                            'px-3.5 py-2.5 rounded-pill text-[13px] font-medium transition-all',
+                            selectedDate === d.label
+                              ? 'bg-clay text-bg border border-transparent'
+                              : 'bg-bg-raised text-fg-1 border border-rule'
+                          )}
                         >
                           {d.label}
                         </button>
@@ -378,21 +359,12 @@ export function BookTourSheet({ open, onClose, seed }: BookTourSheetProps) {
                         <button
                           key={t}
                           onClick={() => setSelectedTime(t)}
-                          className="px-4 py-2.5 rounded-pill text-[13px] font-medium font-mono transition-all"
-                          style={{
-                            background:
-                              selectedTime === t
-                                ? 'var(--color-clay)'
-                                : 'var(--color-bg-raised)',
-                            color:
-                              selectedTime === t
-                                ? 'var(--color-bg)'
-                                : 'var(--color-fg-1)',
-                            border:
-                              selectedTime === t
-                                ? '1px solid transparent'
-                                : '1px solid var(--color-rule)',
-                          }}
+                          className={cn(
+                            'px-4 py-2.5 rounded-pill text-[13px] font-medium font-mono transition-all',
+                            selectedTime === t
+                              ? 'bg-clay text-bg border border-transparent'
+                              : 'bg-bg-raised text-fg-1 border border-rule'
+                          )}
                         >
                           {t}
                         </button>
@@ -403,15 +375,12 @@ export function BookTourSheet({ open, onClose, seed }: BookTourSheetProps) {
                   <button
                     disabled={!canContinueStep1}
                     onClick={handleContinue}
-                    className="inline-flex items-center gap-2 self-start mt-3 px-6 py-3 rounded-pill text-sm font-medium transition-all"
-                    style={{
-                      background: canContinueStep1
-                        ? 'var(--color-ink)'
-                        : 'var(--color-fg-3)',
-                      color: 'var(--color-bg)',
-                      opacity: canContinueStep1 ? 1 : 0.6,
-                      cursor: canContinueStep1 ? 'pointer' : 'not-allowed',
-                    }}
+                    className={cn(
+                      'inline-flex items-center gap-2 self-start mt-3 px-6 py-3 rounded-pill text-sm font-medium transition-all text-bg',
+                      canContinueStep1
+                        ? 'bg-ink cursor-pointer'
+                        : 'bg-fg-3 opacity-60 cursor-not-allowed'
+                    )}
                   >
                     Continue
                     <ArrowRight className="h-4 w-4" />
@@ -547,15 +516,12 @@ export function BookTourSheet({ open, onClose, seed }: BookTourSheetProps) {
                     <button
                       disabled={!canConfirmStep2}
                       onClick={handleConfirm}
-                      className="inline-flex items-center gap-2 px-4.5 py-3 rounded-pill text-sm font-medium transition-all"
-                      style={{
-                        background: canConfirmStep2
-                          ? 'var(--color-ink)'
-                          : 'var(--color-fg-3)',
-                        color: 'var(--color-bg)',
-                        opacity: canConfirmStep2 ? 1 : 0.6,
-                        cursor: canConfirmStep2 ? 'pointer' : 'not-allowed',
-                      }}
+                      className={cn(
+                        'inline-flex items-center gap-2 px-4.5 py-3 rounded-pill text-sm font-medium transition-all text-bg',
+                        canConfirmStep2
+                          ? 'bg-ink cursor-pointer'
+                          : 'bg-fg-3 opacity-60 cursor-not-allowed'
+                      )}
                     >
                       Confirm tour
                       <ArrowRight className="h-4 w-4" />

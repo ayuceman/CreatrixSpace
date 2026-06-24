@@ -166,6 +166,7 @@ export function QRPayment({
           onPaymentComplete({
             success: true,
             paymentId: mockResult.extractedData.transactionId,
+            transactionId: mockResult.extractedData.transactionId,
             method: 'qr_payment',
             amount: amount,
             metadata: mockResult.extractedData,

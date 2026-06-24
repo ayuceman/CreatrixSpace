@@ -63,6 +63,9 @@ export interface BookingData {
 
   // Booking ID (set after creation)
   bookingId?: string
+
+  // Payment
+  paymentMethod?: string
 }
 
 interface BookingStore {

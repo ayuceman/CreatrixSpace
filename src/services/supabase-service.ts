@@ -795,6 +795,7 @@ export const bookingService = {
       status: 'pending',
       payment_status: 'pending',
       contact_info: bookingData.contactInfo || null,
+      payment_method: (bookingData as any).paymentMethod || null,
       add_ons: {
         addOnIds: bookingData.addOns || [],
         meetingRoomHours: bookingData.meetingRoomHours || 0,
@@ -874,23 +875,23 @@ export const bookingService = {
   async getBooking(id: string): Promise<Booking | null> {
     const { data, error } = await supabase
       .from('bookings')
-      .select('*')
+      .select('*, locations(name), plans(name)')
       .eq('id', id)
       .single()
 
     if (error) throw error
-    return data
+    return data as any
   },
 
   async getUserBookings(userId: string): Promise<Booking[]> {
     const { data, error } = await supabase
       .from('bookings')
-      .select('*')
+      .select('*, locations(name), plans(name)')
       .eq('user_id', userId)
       .order('created_at', { ascending: false })
 
     if (error) throw error
-    return data || []
+    return (data || []) as any
   },
 
   async getCurrentUserBookings(): Promise<Booking[]> {
@@ -906,16 +907,9 @@ export const bookingService = {
       updated_at: new Date().toISOString(),
     }
 
-    // Check if user is authenticated
-    const {
-      data: { user },
-    } = await supabase.auth.getUser()
-    if (!user) {
-      console.warn('No authenticated user - update may fail due to RLS')
-    }
+    const client = supabaseAdmin ?? supabase
 
-    // First, update the booking
-    const { data: updateResult, error: updateError } = await supabase
+    const { data: updateResult, error: updateError } = await client
       .from('bookings')
       .update(updateData)
       .eq('id', id)
@@ -929,7 +923,6 @@ export const bookingService = {
         message: updateError.message,
         details: updateError.details,
         hint: updateError.hint,
-        userId: user?.id,
         bookingId: id,
         updates: updateData,
       })

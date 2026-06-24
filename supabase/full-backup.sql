@@ -21,7 +21,7 @@ INSERT INTO public.locations (id, name, slug, description, full_address, image_u
   '{"hotDesks":42,"eventSeats":60,"meetingRooms":3,"dedicatedDesks":0,"privateOffices":2}'::jsonb,
   4.00,
   true,
-  'Flagship · Open today',
+  'Flagship — Open today',
   false,
   '9700045256',
   NULL,
@@ -42,7 +42,7 @@ INSERT INTO public.locations (id, name, slug, description, full_address, image_u
   '{"hotDesks":40,"eventSeats":40,"meetingRooms":2,"dedicatedDesks":0,"privateOffices":1}'::jsonb,
   0.00,
   true,
-  'Open today · 1 private office left',
+  'Open today — 1 private office left',
   false,
   '',
   NULL,
@@ -71,7 +71,7 @@ ON CONFLICT (slug) DO UPDATE SET
 -- ============================================
 -- PLANS (4 records)
 -- ============================================
-INSERT INTO public.plans (id, name, type, description, features, pricing, popular, active, stripe_product_id, stripe_price_ids) VALUES
+INSERT INTO public.plans (id, name, type, description, features, pricing, popular, active) VALUES
 (
   'b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a11'::uuid,
   'Explorer',
@@ -80,9 +80,7 @@ INSERT INTO public.plans (id, name, type, description, features, pricing, popula
   ARRAY['Access to hot desks', 'Wi-Fi included', 'Coffee & Tea', 'Common areas', 'Business hours access (6 AM - 10 PM)']::text[],
   '{"daily": 50000}'::jsonb,
   true,
-  true,
-  NULL,
-  NULL
+  true
 ),
 (
   'b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a22'::uuid,
@@ -90,11 +88,9 @@ INSERT INTO public.plans (id, name, type, description, features, pricing, popula
   'hot_desk',
   'Flexible workspace solution for professionals who value flexibility and community.',
   ARRAY['Access to hot desks', '24/7 access', 'Wi-Fi included', 'Coffee & Tea', 'Common areas', 'Meeting room access (limited)', 'Printing & Scanning', 'Lockers']::text[],
-  '{"annual": 9719000, "monthly": 899900}'::jsonb,
+  '{"weekly": 199900, "monthly": 899900, "annual": 6000000}'::jsonb,
   true,
-  true,
-  NULL,
-  NULL
+  true
 ),
 (
   'b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a33'::uuid,
@@ -102,11 +98,9 @@ INSERT INTO public.plans (id, name, type, description, features, pricing, popula
   'dedicated_desk',
   'Your personal workspace with all the amenities you need for focused productivity.',
   ARRAY['Dedicated desk', '24/7 access', 'Wi-Fi included', 'Coffee & Tea', 'Common areas', 'Meeting room access (10 hours/month)', 'Printing & Scanning', 'Lockers', 'Phone booths', 'Mail handling']::text[],
-  '{"annual": 20519000, "monthly": 1899900}'::jsonb,
+  '{"weekly": 299900, "monthly": 1099900, "annual": 10800000}'::jsonb,
   false,
-  true,
-  NULL,
-  NULL
+  true
 ),
 (
   'b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a44'::uuid,
@@ -116,9 +110,7 @@ INSERT INTO public.plans (id, name, type, description, features, pricing, popula
   ARRAY['Private office', '24/7 access', 'Wi-Fi included', 'Coffee & Tea', 'Common areas', 'Unlimited meeting room access', 'Printing & Scanning', 'Lockers', 'Phone booths', 'Mail handling', 'Reception services', 'Customizable space']::text[],
   '{"monthly": 3500000, "annual": 37800000}'::jsonb,
   false,
-  true,
-  NULL,
-  NULL
+  true
 )
 ON CONFLICT (id) DO UPDATE SET
   name = EXCLUDED.name,
@@ -127,8 +119,6 @@ ON CONFLICT (id) DO UPDATE SET
   pricing = EXCLUDED.pricing,
   popular = EXCLUDED.popular,
   active = EXCLUDED.active,
-  stripe_product_id = EXCLUDED.stripe_product_id,
-  stripe_price_ids = EXCLUDED.stripe_price_ids,
   updated_at = NOW();
 
 -- ============================================
@@ -234,7 +224,7 @@ INSERT INTO public.bookings (id, location_id, plan_id, start_date, end_date, sta
   '{"customerName":"Nepali Awaaj"}'::jsonb,
   '{"guestPasses":0,"selectedAddOns":[],"meetingRoomHours":0}'::jsonb,
   '2026-02-05T16:01:10.684+00:00'::timestamptz,
-  '2026-02-05T16:01:15.795+00:00'::timestamptz
+  '2026-02-05T16:01:10.684+00:00'::timestamptz
 ),
 (
   'acf3ccfe-622a-4ac4-b4ec-0069377419e7'::uuid,
@@ -256,13 +246,13 @@ INSERT INTO public.bookings (id, location_id, plan_id, start_date, end_date, sta
   'b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a44'::uuid,
   '2026-01-15',
   '2026-03-15',
-  'pending',
+  'cancelled',
   1200000.00,
   'refunded',
   '{"customerName":"Alina karmacharya"}'::jsonb,
   '{"guestPasses":0,"selectedAddOns":[],"meetingRoomHours":0}'::jsonb,
   '2026-02-05T16:03:34.452+00:00'::timestamptz,
-  '2026-06-24T10:46:43.447528+00:00'::timestamptz
+  '2026-04-21T01:30:23.574+00:00'::timestamptz
 )
 ON CONFLICT (id) DO UPDATE SET
   location_id = EXCLUDED.location_id,
@@ -298,7 +288,7 @@ INSERT INTO public.amenities (id, title, description, icon, sort_order) VALUES
 (
   'b0000001-0001-4000-8000-000000000001'::uuid,
   '24/7 access',
-  'Residents and private-office members get a key fob. Come in at six, leave at four — no one is keeping score.',
+  'Residents and private-office members get a key fob. Come in at six, leave at four - no one is keeping score.',
   'clock',
   1
 ),
@@ -319,7 +309,7 @@ INSERT INTO public.amenities (id, title, description, icon, sort_order) VALUES
 (
   'b0000004-0001-4000-8000-000000000004'::uuid,
   'Event spaces',
-  'Six to sixty seats. Setup, teardown, and a host on the floor — included in the weekend hire.',
+  'Six to sixty seats. Setup, teardown, and a host on the floor - included in the weekend hire.',
   'calendar',
   4
 ),
@@ -364,7 +354,7 @@ ON CONFLICT (id) DO UPDATE SET
 INSERT INTO public.testimonials (id, quote, author_name, author_role, author_initials, sort_order) VALUES
 (
   'd0000001-0001-4000-8000-000000000001'::uuid,
-  'I came in for a week pass and never left. The light is wrong everywhere else now.',
+  'I''ve been at Jhamsikhel for a year and a half. It''s quiet enough to translate, and there''s always someone to have lunch with.',
   'Sunaina Pradhan',
   'Translator · Jhamsikhel resident',
   'SP',
@@ -372,7 +362,7 @@ INSERT INTO public.testimonials (id, quote, author_name, author_role, author_ini
 ),
 (
   'd0000002-0001-4000-8000-000000000002'::uuid,
-  'We grew from two to nine without changing rooms. They just kept finding space.',
+  'We moved into a private office when we were three people. We''re nine now and we still fit — barely.',
   'Anjan Karki',
   'Founder, Loomstack',
   'AK',
@@ -380,7 +370,7 @@ INSERT INTO public.testimonials (id, quote, author_name, author_role, author_ini
 ),
 (
   'd0000003-0001-4000-8000-000000000003'::uuid,
-  'A floor full of people doing serious work, quietly. That is rarer than it sounds.',
+  'I come for a week every three months. Same desk, same coffee, no paperwork. It just works.',
   'Mira Joshi',
   'Visiting fellow · Dhobighat',
   'MJ',
@@ -388,7 +378,7 @@ INSERT INTO public.testimonials (id, quote, author_name, author_role, author_ini
 ),
 (
   'd0000004-0001-4000-8000-000000000004'::uuid,
-  'The terrace at four o''clock is the only meeting room I trust for hard conversations.',
+  'The Kausimaa terrace is where I take all my client calls. The wifi reaches, the plants are real, and the coffee is good.',
   'Aakriti Sharma',
   'Designer · Kausimaa',
   'AS',
@@ -396,7 +386,7 @@ INSERT INTO public.testimonials (id, quote, author_name, author_role, author_ini
 ),
 (
   'd0000005-0001-4000-8000-000000000005'::uuid,
-  'I have a Kathmandu address now. Things arrive. People know where to find me.',
+  'A registered address at Dhobighat costs less than a virtual office anywhere else. Mail arrives same-day within the valley.',
   'Robin Maharjan',
   'Virtual office · 2 yrs',
   'RM',
@@ -404,7 +394,7 @@ INSERT INTO public.testimonials (id, quote, author_name, author_role, author_ini
 ),
 (
   'd0000006-0001-4000-8000-000000000006'::uuid,
-  'I edit better here than at home. The chair is part of it. So is the silence.',
+  'I buy day passes when I need to edit without distractions. No small talk, just good light and strong wifi.',
   'Priya Tamang',
   'Filmmaker · Day pass regular',
   'PT',
@@ -425,49 +415,49 @@ INSERT INTO public.faqs (id, question, answer, sort_order) VALUES
 (
   'e0000001-0001-4000-8000-000000000001'::uuid,
   'Can I walk in tomorrow and start working?',
-  'Yes. Day passes don''t need to be booked — show up between 8 and 8 at any of the three buildings and the host at the desk will get you set up in five minutes. NPR 800 for the day, coffee included.',
+  'Yes. Day passes are first-come, first-served — no booking needed. Just show up, pick a desk, and connect to the wifi. If you want a dedicated desk or a private office, get in touch and we''ll have you set up within 48 hours.',
   1
 ),
 (
   'e0000002-0001-4000-8000-000000000002'::uuid,
   'What''s the difference between a hot desk and a dedicated desk?',
-  'A hot desk is any open seat in the room — first come, first served, leave nothing behind. A dedicated desk is reserved in your name in the open room of your choice; you can leave a monitor on it, get mail there, and come and go 24/7. The open space is only used for these two — private rooms are separate.',
+  'A hot desk is first-come, first-served — you sit where there''s space. A dedicated desk is yours: same spot every day, lockable storage, mail handled. Dedicated desks also include 8 hours of meeting-room time per month and priority event access.',
   2
 ),
 (
   'e0000003-0001-4000-8000-000000000003'::uuid,
-  'Are private offices really available?',
-  'Yes — five lockable rooms across the three buildings are open for move-in this month. Two at Dhobighat, two at Kausimaa, one at Jhamsikhel. Sizes range from two to eight desks. WhatsApp us and we''ll send the floor plans.',
+  'Can I bring a guest?',
+  'Yes. Day-pass holders can bring one guest free on their first visit. Members can bring guests for NPR 500/day. Guest passes are available at the front desk.',
   3
 ),
 (
   'e0000004-0001-4000-8000-000000000004'::uuid,
-  'What does the Virtual Office include?',
-  'A registered business address at Dhobighat Hub for NPR 6,000/month. We sign for and scan your mail, forward what you ask us to, and give you four hours of meeting-room time and two day-passes a month so you can come in for in-person meetings.',
+  'Is there parking?',
+  'Parking is available on a first-come, first-served basis at all three buildings. Jhamsikhel has dedicated member parking at the back. Two-wheelers and bicycles can be parked inside the premises.',
   4
 ),
 (
   'e0000005-0001-4000-8000-000000000005'::uuid,
-  'Can I hire a room for a weekend event?',
-  'Yes. The event room at Dhobighat holds 60, the Jhamsikhel rooftop 40, and the Kausimaa terrace 24. We do half-day and full-day hire on Saturdays and Sundays — message on WhatsApp with the date and headcount and we''ll send pricing.',
+  'What''s the cancellation policy?',
+  'No deposit, no joining fee, cancel any time. Dedicated desks and private offices require a 30-day notice. Day passes and week passes are pay-as-you-go, no strings attached.',
   5
 ),
 (
   'e0000006-0001-4000-8000-000000000006'::uuid,
-  'Do you host training cohorts — robotics, coding, language?',
-  'Yes. A dedicated training room runs after-school and evening cohorts for robotics, STEM, coding, design, and languages. We work with the trainer or institute on a 2/3/6-month block. Get in touch with cohort size and timing.',
+  'Do you offer virtual offices?',
+  'Yes. A Kathmandu business address at Dhobighat Hub with mail handling for NPR 6,000/month. Includes 4 hours of meeting room time and 2 day-passes per month. Used by founders who need a registered address without a physical desk.',
   6
 ),
 (
   'e0000007-0001-4000-8000-000000000007'::uuid,
-  'Do you take WhatsApp?',
-  'Yes — fastest way to reach us. Tap any WhatsApp button on the site, or write to +977 9700045256. Replies usually inside a minute, 8am–8pm.',
+  'Can I host events at CreatrixSpace?',
+  'Yes. Both Dhobighat Hub and Jhamsikhel Loft offer event spaces. Dhobighat can seat up to 60, Jhamsikhel up to 40. Setup and teardown are included in the weekend hire. Get in touch to check availability.',
   7
 ),
 (
   'e0000008-0001-4000-8000-000000000008'::uuid,
-  'How do I cancel a membership?',
-  'Email or WhatsApp before the next renewal. No notice period, no exit fee, no awkward call. Day passes don''t renew automatically — only the monthly plans do.',
+  'Is there a cafeteria or restaurant on site?',
+  'There is a café on the ground floor of both buildings. Members get a discount on drinks and food. The cafés are open from early morning until late evening.',
   8
 )
 ON CONFLICT (id) DO UPDATE SET
@@ -481,6 +471,34 @@ ON CONFLICT (id) DO UPDATE SET
 -- ============================================
 INSERT INTO public.member_companies (id, name, italic, sort_order, logo_url) VALUES
 (
+  '7875ab56-ed75-4479-afc7-1b21a35da6b1'::uuid,
+  'creatrix',
+  false,
+  0,
+  'https://pcnwkdspkpqqchhsmdgq.supabase.co/storage/v1/object/public/images/member-companies/1782208585488-l2pylmbku7.png'
+),
+(
+  'fd64a805-3cd4-4426-8e27-dc7a9317c59f'::uuid,
+  'Mountain Guru',
+  false,
+  0,
+  'https://pcnwkdspkpqqchhsmdgq.supabase.co/storage/v1/object/public/images/member-companies/1782208596712-8866qeg5dqi.png'
+),
+(
+  '9ad4d5b2-6d08-46cb-8e27-3f5d64bd7934'::uuid,
+  'Breadcrumb Technology',
+  false,
+  0,
+  'https://pcnwkdspkpqqchhsmdgq.supabase.co/storage/v1/object/public/images/member-companies/1782208613210-p6fpcnkt6f.png'
+),
+(
+  'a959648a-fce7-4f3a-af8b-fdba69dc4262'::uuid,
+  'inductiv.',
+  false,
+  0,
+  'https://pcnwkdspkpqqchhsmdgq.supabase.co/storage/v1/object/public/images/member-companies/1782208637663-hsll03nzxmh.png'
+),
+(
   'ec2d179b-e871-4932-8ae2-124ef853cab5'::uuid,
   'Nepali Aawaj',
   true,
@@ -493,34 +511,6 @@ INSERT INTO public.member_companies (id, name, italic, sort_order, logo_url) VAL
   false,
   0,
   ''
-),
-(
-  '9ad4d5b2-6d08-46cb-8e27-3f5d64bd7934'::uuid,
-  'Breadcrumb Technology',
-  false,
-  0,
-  'https://pcnwkdspkpqqchhsmdgq.supabase.co/storage/v1/object/public/images/member-companies/1782208613210-p6fpcnkt6f.png'
-),
-(
-  'fd64a805-3cd4-4426-8e27-dc7a9317c59f'::uuid,
-  'Mountain Guru',
-  false,
-  0,
-  'https://pcnwkdspkpqqchhsmdgq.supabase.co/storage/v1/object/public/images/member-companies/1782208596712-8866qeg5dqi.png'
-),
-(
-  '7875ab56-ed75-4479-afc7-1b21a35da6b1'::uuid,
-  'creatrix',
-  false,
-  0,
-  'https://pcnwkdspkpqqchhsmdgq.supabase.co/storage/v1/object/public/images/member-companies/1782208585488-l2pylmbku7.png'
-),
-(
-  'a959648a-fce7-4f3a-af8b-fdba69dc4262'::uuid,
-  'inductiv.',
-  false,
-  0,
-  'https://pcnwkdspkpqqchhsmdgq.supabase.co/storage/v1/object/public/images/member-companies/1782208637663-hsll03nzxmh.png'
 )
 ON CONFLICT (id) DO UPDATE SET
   name = EXCLUDED.name,
@@ -532,42 +522,38 @@ ON CONFLICT (id) DO UPDATE SET
 -- ============================================
 -- SITE STATS (4 records)
 -- ============================================
-INSERT INTO public.site_stats (id, label, value, suffix, meta, sort_order, section) VALUES
+INSERT INTO public.site_stats (id, label, value, suffix, meta, sort_order) VALUES
 (
-  '6ea0b4b8-cde4-407e-8246-7b4d2b6e4d3a'::uuid,
-  'Members across five rooms',
-  '480',
+  'g0000001-0001-4000-8000-000000000001'::uuid,
+  'Private offices',
+  '6',
   '+',
-  'as of this morning',
-  1,
-  'about'
+  '{"description": "Across three buildings"}',
+  1
 ),
 (
-  'b6815b8e-fa6e-4766-9225-47b4889d8126'::uuid,
-  'Cups of coffee a week',
-  '1428',
+  'g0000002-0001-4000-8000-000000000002'::uuid,
+  'Hot desks',
+  '25',
   '',
-  'roasted next door · we count them',
-  2,
-  'about'
+  '{"description": "Open-plan seating across locations"}',
+  2
 ),
 (
-  '5faa7e21-2e0e-4790-a143-bfaad3a7a2a2'::uuid,
-  'Rooms in Lalitpur',
-  '3',
-  '',
-  'opening a fourth in 2027',
-  3,
-  'about'
+  'g0000003-0001-4000-8000-000000000003'::uuid,
+  'Members',
+  '150',
+  '+',
+  '{"description": "Active members across all plans"}',
+  3
 ),
 (
-  '7dfce837-5da3-4122-806b-7f4edd59b92f'::uuid,
-  'Companies, large and small',
-  '86',
-  '',
-  'from one-person studios to teams of twelve',
-  4,
-  'about'
+  'g0000004-0001-4000-8000-000000000004'::uuid,
+  'Years running',
+  '4',
+  '+',
+  '{"description": "Since we opened in 2022"}',
+  4
 )
 ON CONFLICT (id) DO UPDATE SET
   label = EXCLUDED.label,
@@ -575,7 +561,6 @@ ON CONFLICT (id) DO UPDATE SET
   suffix = EXCLUDED.suffix,
   meta = EXCLUDED.meta,
   sort_order = EXCLUDED.sort_order,
-  section = EXCLUDED.section,
   updated_at = NOW();
 
 -- ============================================
@@ -585,8 +570,9 @@ INSERT INTO public.hero_content (id, images, pricing) VALUES
 (
   '2088a3b2-323f-463a-a7d1-0609086af9bf'::uuid,
   '[
-    {"alt":"dhohbighat-image","src":"https://pcnwkdspkpqqchhsmdgq.supabase.co/storage/v1/object/public/images/hero/1782188858384_0.jpeg","label":"Dhobighat Hub","location":"Lalitpur"},
-    {"alt":"Jhamsikhel Loft","src":"https://pcnwkdspkpqqchhsmdgq.supabase.co/storage/v1/object/public/images/hero/1782188868681_2.jpg","label":"Jhamsikhel Loft","location":"Lalitpur"}
+    {"src":"/images/hero-slider/office-meeting-room.webp","alt":"Modern meeting room with conference table","label":"Jhamsikhel Loft","location":"Jhamsikhel, Lalitpur"},
+    {"src":"/images/hero-slider/dhobighat-coworking-space.webp","alt":"Dhobighat coworking space","label":"Dhobighat Hub","location":"Dhobighat, Kathmandu"},
+    {"src":"/images/hero-slider/creatrixspace-workspace-interior-1.webp","alt":"CreatrixSpace workspace interior","label":"Kausimaa Co-working","location":"Kupondole, Lalitpur"}
   ]'::jsonb,
   '[
     {"label":"NPR 800","sublabel":"A day · no deposit"},
@@ -654,35 +640,38 @@ INSERT INTO public.membership_content (id, tabs) VALUES
       "cards": [
         {
           "id": "studio-2",
-          "cta": "Book a viewing",
-          "name": "Studio for five",
-          "price": "30,000",
-          "period": "/ month",
           "eyebrow": "Lockable room",
-          "features": ["Five desks · lockable door", "24/7 access · key card", "16 hrs meeting room / mo", "Mail at your address"],
-          "availability": true
+          "name": "Studio for two",
+          "price": "24,000",
+          "period": "/ month",
+          "description": "A lockable room for a pair. A door that closes, a window that opens, two reserved desks.",
+          "features": ["Two desks · lockable door", "24/7 access · key card", "16 hrs meeting room / mo", "Mail at your address"],
+          "availability": true,
+          "cta": "Book a viewing"
         },
         {
           "id": "studio-4",
-          "cta": "Book a viewing",
-          "name": "Studio for seven",
-          "badge": "Most picked",
-          "price": "45,000",
-          "period": "/ month",
           "eyebrow": "Lockable room",
-          "features": ["Seven desks · lockable door", "24/7 access · key cards", "24 hrs meeting room / mo", "Phone-booth credits"],
-          "availability": true
+          "name": "Studio for four",
+          "price": "46,000",
+          "period": "/ month",
+          "description": "For a small team that has outgrown a corner. Four desks, a whiteboard, and the same coffee.",
+          "features": ["Four desks · lockable door", "24/7 access · key cards", "24 hrs meeting room / mo", "Phone-booth credits"],
+          "badge": "Most picked",
+          "availability": true,
+          "cta": "Book a viewing"
         },
         {
           "id": "studio-68",
-          "cta": "Book a viewing",
-          "name": "Studio for six to Twelve",
-          "price": "50,000",
-          "period": "/ month",
-          "prefix": "From",
           "eyebrow": "Lockable room",
-          "features": ["Twelve desks", "In-room meeting corner", "Custom signage on the door", "Dedicated host on the floor"],
-          "availability": true
+          "name": "Studio for six to eight",
+          "price": "78,000",
+          "prefix": "From",
+          "period": "/ month",
+          "description": "A larger room with its own meeting corner. Suits a team of six to eight that needs door, branding, and privacy.",
+          "features": ["Six to eight desks", "In-room meeting corner", "Custom signage on the door", "Dedicated host on the floor"],
+          "availability": true,
+          "cta": "Book a viewing"
         }
       ]
     },
@@ -724,7 +713,7 @@ INSERT INTO public.spaces_content (id, cards) VALUES
     {
       "id": "event-space",
       "badge": "Weekends",
-      "imageSrc": "https://pcnwkdspkpqqchhsmdgq.supabase.co/storage/v1/object/public/images/spaces/1782206432064-7mj3sjze503.webp",
+      "imageSrc": "/images/hero-slider/creatrixspace-coworking-area-1.webp",
       "imageAlt": "Event space at CreatrixSpace",
       "title": "Event space",
       "description": "Sixty-seat event room at Dhobighat, a forty-seat rooftop at Jhamsikhel, and a twenty-four-seat terrace at Kausimaa. Hire by the half-day or full day on weekends — we handle setup, teardown, and AV.",
@@ -747,7 +736,7 @@ INSERT INTO public.spaces_content (id, cards) VALUES
     {
       "id": "training-classes",
       "badge": "Weekdays · evenings",
-      "imageSrc": "https://pcnwkdspkpqqchhsmdgq.supabase.co/storage/v1/object/public/images/spaces/1782207063227-9qh58d8o55.jpg",
+      "imageSrc": "/images/hero-slider/creatrixspace-modern-workspace-1.webp",
       "imageAlt": "Training & classes at CreatrixSpace",
       "title": "Training & classes",
       "description": "A dedicated room for cohort programmes — robotics for kids, STEM labs, design bootcamps, language schools. Whiteboards, projector, fast wifi, and a setup that can be reconfigured between sessions.",
