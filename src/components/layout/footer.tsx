@@ -294,10 +294,10 @@ export function Footer() {
             >
               Substack
             </a>
-            <a href="#" className="text-fg-on-ink-2 no-underline">
+            <a href="/privacy" className="text-fg-on-ink-2 no-underline">
               Privacy
             </a>
-            <a href="#" className="text-fg-on-ink-2 no-underline">
+            <a href="/terms" className="text-fg-on-ink-2 no-underline">
               Terms
             </a>
           </div>

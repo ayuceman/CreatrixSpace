@@ -333,6 +333,24 @@ export function AdminBookingsPage() {
         } else {
           await bookingService.updateBooking(editingBooking.id, {
             status: payload.status as 'pending' | 'confirmed',
+            payment_status: payload.paymentStatus as
+              | 'pending'
+              | 'processing'
+              | 'completed'
+              | 'failed'
+              | 'refunded',
+            total_amount: payload.amount,
+            contact_info: {
+              customerName: payload.customerName,
+              email: payload.email,
+              phone: payload.phone,
+            },
+            start_date: payload.startDate || undefined,
+            end_date: payload.endDate || undefined,
+            start_time: payload.startTime || null,
+            end_time: payload.endTime || null,
+            add_ons: payload.addOns,
+            notes: payload.notes || null,
           })
         }
         await loadBookings()
@@ -582,96 +600,119 @@ export function AdminBookingsPage() {
             <CardContent className="p-6">
               <form className="space-y-6" onSubmit={handleManualSubmit}>
                 <div className="space-y-4">
-                  <h3 className="font-semibold text-sm">
-                    Customer Information
-                  </h3>
+                  <h3 className="font-normal text-sm">Customer Information</h3>
                   <div className="grid gap-4 md:grid-cols-3">
-                    <Input
-                      required
-                      placeholder="Customer name *"
-                      value={manualForm.customerName}
-                      onChange={(e) =>
-                        setManualForm((prev) => ({
-                          ...prev,
-                          customerName: e.target.value,
-                        }))
-                      }
-                    />
-                    <Input
-                      type="email"
-                      placeholder="Email"
-                      value={manualForm.email}
-                      onChange={(e) =>
-                        setManualForm((prev) => ({
-                          ...prev,
-                          email: e.target.value,
-                        }))
-                      }
-                    />
-                    <Input
-                      placeholder="Phone"
-                      value={manualForm.phone}
-                      onChange={(e) =>
-                        setManualForm((prev) => ({
-                          ...prev,
-                          phone: e.target.value,
-                        }))
-                      }
-                    />
+                    <div className="flex flex-col gap-1">
+                      <label className="text-xs text-fg-2">
+                        Customer Name *
+                      </label>
+                      <Input
+                        required
+                        placeholder="e.g. John Doe"
+                        value={manualForm.customerName}
+                        onChange={(e) =>
+                          setManualForm((prev) => ({
+                            ...prev,
+                            customerName: e.target.value,
+                          }))
+                        }
+                      />
+                    </div>
+                    <div className="flex flex-col gap-1">
+                      <label className="text-xs text-fg-2">Email</label>
+                      <Input
+                        type="email"
+                        placeholder="e.g. john@example.com"
+                        value={manualForm.email}
+                        onChange={(e) =>
+                          setManualForm((prev) => ({
+                            ...prev,
+                            email: e.target.value,
+                          }))
+                        }
+                      />
+                    </div>
+                    <div className="flex flex-col gap-1">
+                      <label className="text-xs text-fg-2">Phone</label>
+                      <Input
+                        placeholder="e.g. 98XXXXXXXX"
+                        value={manualForm.phone}
+                        onChange={(e) =>
+                          setManualForm((prev) => ({
+                            ...prev,
+                            phone: e.target.value,
+                          }))
+                        }
+                      />
+                    </div>
                   </div>
                 </div>
                 <Separator />
                 <div className="space-y-4">
-                  <h3 className="font-semibold text-sm">Booking Details</h3>
+                  <h3 className="font-normal text-sm">Booking Details</h3>
                   <div className="grid gap-4 md:grid-cols-3">
-                    <Input
-                      required
-                      placeholder="Location name *"
-                      value={manualForm.locationName}
-                      onChange={(e) =>
-                        setManualForm((prev) => ({
-                          ...prev,
-                          locationName: e.target.value,
-                        }))
-                      }
-                    />
-                    <Input
-                      required
-                      placeholder="Plan name *"
-                      value={manualForm.planName}
-                      onChange={(e) =>
-                        setManualForm((prev) => ({
-                          ...prev,
-                          planName: e.target.value,
-                        }))
-                      }
-                    />
-                    <Input
-                      placeholder="Room name (optional)"
-                      value={manualForm.roomName}
-                      onChange={(e) =>
-                        setManualForm((prev) => ({
-                          ...prev,
-                          roomName: e.target.value,
-                        }))
-                      }
-                    />
+                    <div className="flex flex-col gap-1">
+                      <label className="text-xs text-fg-2">Location *</label>
+                      <Input
+                        required
+                        placeholder="e.g. Dhobighat Hub"
+                        value={manualForm.locationName}
+                        onChange={(e) =>
+                          setManualForm((prev) => ({
+                            ...prev,
+                            locationName: e.target.value,
+                          }))
+                        }
+                      />
+                    </div>
+                    <div className="flex flex-col gap-1">
+                      <label className="text-xs text-fg-2">Plan *</label>
+                      <Input
+                        required
+                        placeholder="e.g. Private Office"
+                        value={manualForm.planName}
+                        onChange={(e) =>
+                          setManualForm((prev) => ({
+                            ...prev,
+                            planName: e.target.value,
+                          }))
+                        }
+                      />
+                    </div>
+                    <div className="flex flex-col gap-1">
+                      <label className="text-xs text-fg-2">Room</label>
+                      <Input
+                        placeholder="e.g. Sun Room"
+                        value={manualForm.roomName}
+                        onChange={(e) =>
+                          setManualForm((prev) => ({
+                            ...prev,
+                            roomName: e.target.value,
+                          }))
+                        }
+                      />
+                    </div>
                   </div>
                   <div className="grid gap-4 md:grid-cols-3">
-                    <Input
-                      placeholder="Amount (NPR)"
-                      type="number"
-                      min="0"
-                      value={manualForm.amountNpr}
-                      onChange={(e) =>
-                        setManualForm((prev) => ({
-                          ...prev,
-                          amountNpr: e.target.value,
-                        }))
-                      }
-                    />
                     <div className="flex flex-col gap-1">
-                      <span className="text-xs text-fg-2">Payment Status</span>
+                      <label className="text-xs text-fg-2">Amount (NPR)</label>
+                      <Input
+                        placeholder="e.g. 50000"
+                        type="number"
+                        min="0"
+                        value={manualForm.amountNpr}
+                        onChange={(e) =>
+                          setManualForm((prev) => ({
+                            ...prev,
+                            amountNpr: e.target.value,
+                          }))
+                        }
+                      />
+                    </div>
+                    <div className="flex flex-col gap-1">
+                      <label className="text-xs text-fg-2">
+                        Payment Status
+                      </label>
                       <select
                         className="border rounded px-3 py-2 text-sm"
                         value={manualForm.paymentStatus}
@@ -690,105 +731,127 @@ export function AdminBookingsPage() {
                       </select>
                     </div>
                     <div className="grid grid-cols-2 gap-2">
+                      <div className="flex flex-col gap-1">
+                        <label className="text-xs text-fg-2">Start Date</label>
+                        <Input
+                          type="date"
+                          value={manualForm.startDate}
+                          onChange={(e) =>
+                            setManualForm((prev) => ({
+                              ...prev,
+                              startDate: e.target.value,
+                            }))
+                          }
+                        />
+                      </div>
+                      <div className="flex flex-col gap-1">
+                        <label className="text-xs text-fg-2">End Date</label>
+                        <Input
+                          type="date"
+                          value={manualForm.endDate}
+                          onChange={(e) =>
+                            setManualForm((prev) => ({
+                              ...prev,
+                              endDate: e.target.value,
+                            }))
+                          }
+                        />
+                      </div>
+                    </div>
+                  </div>
+                  <div className="grid gap-4 md:grid-cols-2">
+                    <div className="flex flex-col gap-1">
+                      <label className="text-xs text-fg-2">Start Time</label>
                       <Input
-                        type="date"
-                        placeholder="Start"
-                        value={manualForm.startDate}
+                        type="time"
+                        value={manualForm.startTime}
                         onChange={(e) =>
                           setManualForm((prev) => ({
                             ...prev,
-                            startDate: e.target.value,
+                            startTime: e.target.value,
                           }))
                         }
                       />
+                    </div>
+                    <div className="flex flex-col gap-1">
+                      <label className="text-xs text-fg-2">End Time</label>
                       <Input
-                        type="date"
-                        placeholder="End"
-                        value={manualForm.endDate}
+                        type="time"
+                        value={manualForm.endTime}
                         onChange={(e) =>
                           setManualForm((prev) => ({
                             ...prev,
-                            endDate: e.target.value,
+                            endTime: e.target.value,
                           }))
                         }
                       />
                     </div>
                   </div>
-                  <div className="grid gap-4 md:grid-cols-2">
-                    <Input
-                      type="time"
-                      placeholder="Start time"
-                      value={manualForm.startTime}
-                      onChange={(e) =>
-                        setManualForm((prev) => ({
-                          ...prev,
-                          startTime: e.target.value,
-                        }))
-                      }
-                    />
-                    <Input
-                      type="time"
-                      placeholder="End time"
-                      value={manualForm.endTime}
-                      onChange={(e) =>
-                        setManualForm((prev) => ({
-                          ...prev,
-                          endTime: e.target.value,
-                        }))
-                      }
-                    />
-                  </div>
                 </div>
                 <Separator />
                 <div className="space-y-4">
-                  <h3 className="font-semibold text-sm">Add-ons (Optional)</h3>
+                  <h3 className="font-normal text-sm">Add-ons (Optional)</h3>
                   <div className="grid gap-4 md:grid-cols-3">
-                    <Input
-                      placeholder="Add-ons (comma separated)"
-                      value={manualForm.addOns}
+                    <div className="flex flex-col gap-1">
+                      <label className="text-xs text-fg-2">Add-ons</label>
+                      <Input
+                        placeholder="Comma separated (e.g. Guest Passes, Mail)"
+                        value={manualForm.addOns}
+                        onChange={(e) =>
+                          setManualForm((prev) => ({
+                            ...prev,
+                            addOns: e.target.value,
+                          }))
+                        }
+                      />
+                    </div>
+                    <div className="flex flex-col gap-1">
+                      <label className="text-xs text-fg-2">
+                        Meeting Room Hours
+                      </label>
+                      <Input
+                        type="number"
+                        min="0"
+                        placeholder="e.g. 5"
+                        value={manualForm.meetingRoomHours}
+                        onChange={(e) =>
+                          setManualForm((prev) => ({
+                            ...prev,
+                            meetingRoomHours: e.target.value,
+                          }))
+                        }
+                      />
+                    </div>
+                    <div className="flex flex-col gap-1">
+                      <label className="text-xs text-fg-2">Guest Passes</label>
+                      <Input
+                        type="number"
+                        min="0"
+                        placeholder="e.g. 2"
+                        value={manualForm.guestPasses}
+                        onChange={(e) =>
+                          setManualForm((prev) => ({
+                            ...prev,
+                            guestPasses: e.target.value,
+                          }))
+                        }
+                      />
+                    </div>
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <label className="text-xs text-fg-2">Notes</label>
+                    <Textarea
+                      className="md:col-span-3"
+                      placeholder="Any additional notes..."
+                      value={manualForm.notes}
                       onChange={(e) =>
                         setManualForm((prev) => ({
                           ...prev,
-                          addOns: e.target.value,
-                        }))
-                      }
-                    />
-                    <Input
-                      type="number"
-                      min="0"
-                      placeholder="Meeting room hours"
-                      value={manualForm.meetingRoomHours}
-                      onChange={(e) =>
-                        setManualForm((prev) => ({
-                          ...prev,
-                          meetingRoomHours: e.target.value,
-                        }))
-                      }
-                    />
-                    <Input
-                      type="number"
-                      min="0"
-                      placeholder="Guest passes"
-                      value={manualForm.guestPasses}
-                      onChange={(e) =>
-                        setManualForm((prev) => ({
-                          ...prev,
-                          guestPasses: e.target.value,
+                          notes: e.target.value,
                         }))
                       }
                     />
                   </div>
-                  <Textarea
-                    className="md:col-span-3"
-                    placeholder="Notes (optional)"
-                    value={manualForm.notes}
-                    onChange={(e) =>
-                      setManualForm((prev) => ({
-                        ...prev,
-                        notes: e.target.value,
-                      }))
-                    }
-                  />
                 </div>
                 <div className="flex justify-end gap-3">
                   <Button

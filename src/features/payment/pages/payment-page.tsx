@@ -10,7 +10,11 @@ import { paymentService } from '@/services/payment-service'
 import { PaymentMethod, PaymentData } from '@/lib/payment-config'
 import { formatCurrency } from '@/lib/utils'
 import { useBookingStore } from '@/store/booking-store'
-import { manualEntryService } from '@/services/supabase-service'
+import {
+  authService,
+  bookingService,
+  manualEntryService,
+} from '@/services/supabase-service'
 
 type PaymentStatus =
   | 'selecting'
@@ -39,7 +43,39 @@ async function persistMembership(data: Record<string, any>) {
 export function PaymentPage() {
   const [searchParams] = useSearchParams()
   const navigate = useNavigate()
-  const { bookingData, createBooking } = useBookingStore()
+  const store = useBookingStore()
+  const bookingData = store.bookingData
+
+  const createBookingDirect = async (paymentMethod?: string) => {
+    try {
+      store.calculateTotal()
+      const data = store.bookingData
+      if (!data.locationId || !data.planId || !data.startDate) {
+        console.error('Booking missing required fields:', {
+          locationId: data.locationId,
+          planId: data.planId,
+          startDate: data.startDate,
+        })
+        return null
+      }
+      let userId: string | null = null
+      try {
+        const user = await authService.getCurrentUser()
+        userId = user?.id || null
+      } catch {
+        // guest
+      }
+      const booking = await bookingService.createBooking(
+        { ...data, paymentMethod },
+        userId
+      )
+      console.log('Booking created:', booking.id)
+      return booking.id
+    } catch (e) {
+      console.error('createBookingDirect failed:', e)
+      return null
+    }
+  }
 
   const [paymentStatus, setPaymentStatus] = useState<PaymentStatus>('selecting')
   const [paymentResult, setPaymentResult] = useState<{
@@ -84,8 +120,10 @@ export function PaymentPage() {
       const amount = searchParams.get('amount')
 
       let result
+      let callbackMethod: string | undefined
       if (oid && amt && refId) {
         // eSewa callback
+        callbackMethod = 'esewa'
         result = await paymentService.verifyPayment('esewa', {
           oid,
           amt,
@@ -93,12 +131,23 @@ export function PaymentPage() {
         })
       } else if (token && amount) {
         // Khalti callback
+        callbackMethod = 'khalti'
         result = await paymentService.verifyPayment('khalti', { token, amount })
       }
 
       if (result?.success) {
         setPaymentStatus('success')
         setPaymentResult(result)
+
+        try {
+          const bookingId = await createBookingDirect(callbackMethod)
+          if (bookingId) {
+            localStorage.setItem('lastBookingId', bookingId)
+          }
+        } catch (e) {
+          console.error('createBooking failed:', e)
+        }
+
         const bookingEntry = {
           id: result.paymentId || `BK-${Date.now()}`,
           customerName:
@@ -204,8 +253,20 @@ export function PaymentPage() {
         // These methods redirect, so we set pending status
         setPaymentStatus('pending')
       } else if (method === 'bank_transfer') {
+        const bankResult = {
+          ...result,
+          transactionId: result.transactionId || `BANK-${Date.now()}`,
+        }
         setPaymentStatus('success')
-        setPaymentResult(result)
+        setPaymentResult(bankResult)
+
+        try {
+          const bookingId = await createBookingDirect('bank_transfer')
+          if (bookingId) localStorage.setItem('lastBookingId', bookingId)
+        } catch (e) {
+          console.error('createBooking failed:', e)
+        }
+
         const bankEntry = {
           id: result.paymentId || `BK-${Date.now()}`,
           customerName: paymentData.customerInfo.name,
@@ -224,6 +285,14 @@ export function PaymentPage() {
       } else if (result.success) {
         setPaymentStatus('success')
         setPaymentResult(result)
+
+        try {
+          const bookingId = await createBookingDirect(method)
+          if (bookingId) localStorage.setItem('lastBookingId', bookingId)
+        } catch (e) {
+          console.error('createBooking failed:', e)
+        }
+
         const stripeEntry = {
           id: result.paymentId || `BK-${Date.now()}`,
           customerName: paymentData.customerInfo.name,
@@ -254,7 +323,11 @@ export function PaymentPage() {
     if (result.success) {
       try {
         // Create booking in database only after QR payment verification
-        const bookingId = await createBooking()
+        const bookingId = await createBookingDirect('qr_payment')
+
+        if (bookingId) {
+          localStorage.setItem('lastBookingId', bookingId)
+        }
 
         setPaymentStatus('success')
         setPaymentResult({ ...result, bookingId })
