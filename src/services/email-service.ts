@@ -1,10 +1,13 @@
-import emailjs from '@emailjs/browser'
+import emailjs, { EmailJSResponseStatus } from '@emailjs/browser'
+import { CONTACT } from '@/lib/constants'
 
 // Initialize EmailJS with public key from environment variables
 const EMAILJS_PUBLIC_KEY = import.meta.env.VITE_EMAILJS_PUBLIC_KEY || ''
 const EMAILJS_SERVICE_ID = import.meta.env.VITE_EMAILJS_SERVICE_ID || ''
 const EMAILJS_TEMPLATE_ID = import.meta.env.VITE_EMAILJS_TEMPLATE_ID || ''
 const ADMIN_EMAIL = import.meta.env.VITE_ADMIN_EMAIL || ''
+const FALLBACK_ADMIN_EMAIL = CONTACT.EMAIL
+const ADMIN_COPY_EMAIL = CONTACT.EMAIL
 
 interface BookingEmailData {
   // Customer Info
@@ -46,6 +49,33 @@ interface BookingEmailData {
   paymentStatus?: string
   paymentMethod?: string
   bookingSource?: string
+}
+
+interface CtaLeadEmailData {
+  name: string
+  email: string
+  room: string
+}
+
+interface CtaLeadEmailResult {
+  ok: boolean
+  deliveredTo: string
+  error?: string
+  status?: number
+}
+
+function getAdminEmail(): string {
+  return ADMIN_EMAIL || FALLBACK_ADMIN_EMAIL
+}
+
+function getDeliveredToLabel(primaryEmail: string): string {
+  return primaryEmail === ADMIN_COPY_EMAIL
+    ? primaryEmail
+    : `${primaryEmail}, ${ADMIN_COPY_EMAIL}`
+}
+
+function isEmailJsConfigured(): boolean {
+  return !!EMAILJS_PUBLIC_KEY && !!EMAILJS_SERVICE_ID && !!EMAILJS_TEMPLATE_ID
 }
 
 /**
@@ -345,7 +375,7 @@ function formatBookingEmailHTML(data: BookingEmailData): string {
  */
 export async function sendBookingEmail(data: BookingEmailData): Promise<void> {
   // Check if EmailJS is configured
-  if (!EMAILJS_PUBLIC_KEY || !EMAILJS_SERVICE_ID || !EMAILJS_TEMPLATE_ID) {
+  if (!isEmailJsConfigured()) {
     console.warn('EmailJS is not configured. Skipping email send.')
     console.warn(
       'Please set VITE_EMAILJS_PUBLIC_KEY, VITE_EMAILJS_SERVICE_ID, and VITE_EMAILJS_TEMPLATE_ID in your .env file'
@@ -353,9 +383,11 @@ export async function sendBookingEmail(data: BookingEmailData): Promise<void> {
     return
   }
 
-  if (!ADMIN_EMAIL) {
+  const adminEmail = getAdminEmail()
+
+  if (!adminEmail) {
     console.warn('Admin email is not configured. Skipping email send.')
-    console.warn('Please set VITE_ADMIN_EMAIL in your .env file')
+    console.warn('Please set VITE_ADMIN_EMAIL or CONTACT.EMAIL')
     return
   }
 
@@ -420,7 +452,7 @@ export async function sendBookingEmail(data: BookingEmailData): Promise<void> {
 
     // Prepare email template parameters
     const templateParams = {
-      to_email: ADMIN_EMAIL,
+      to_email: adminEmail,
       to_name: 'Creatrix Space Admin',
       from_name: 'Creatrix Space Booking System',
       subject: `New Booking: ${data.customerName} - ${data.planName} at ${data.locationName}`,
@@ -485,5 +517,115 @@ export async function sendBookingEmail(data: BookingEmailData): Promise<void> {
     // Log error but don't throw - we don't want email failures to break the booking process
     console.error('Failed to send booking email:', error)
     // You might want to log this to an error tracking service
+  }
+}
+
+export async function sendCtaLeadEmail(
+  data: CtaLeadEmailData
+): Promise<CtaLeadEmailResult> {
+  const adminEmail = getAdminEmail()
+
+  if (!isEmailJsConfigured()) {
+    console.warn('EmailJS is not configured. Skipping CTA lead email.')
+    return {
+      ok: false,
+      deliveredTo: adminEmail,
+      error:
+        'EmailJS is missing VITE_EMAILJS_PUBLIC_KEY, VITE_EMAILJS_SERVICE_ID, or VITE_EMAILJS_TEMPLATE_ID.',
+    }
+  }
+
+  if (!adminEmail) {
+    console.warn('Admin email is not configured. Skipping CTA lead email.')
+    return {
+      ok: false,
+      deliveredTo: '',
+      error: 'Admin email is not configured.',
+    }
+  }
+
+  try {
+    const submittedAt = new Date().toLocaleString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    })
+
+    const message = [
+      'New desk hold request from the homepage CTA.',
+      '',
+      `Name: ${data.name}`,
+      `Email: ${data.email}`,
+      `Selected room: ${data.room}`,
+      `Submitted: ${submittedAt}`,
+      `Admin copy: ${ADMIN_COPY_EMAIL}`,
+      '',
+      `Reply directly to: ${data.email}`,
+      '',
+      'Follow up with directions and availability confirmation.',
+    ].join('\n')
+
+    const buildTemplateParams = (recipientEmail: string) => ({
+      to_email: recipientEmail,
+      recipient_email: recipientEmail,
+      email_to: recipientEmail,
+      user_email: recipientEmail,
+      cc_email: ADMIN_COPY_EMAIL,
+      admin_copy_email: ADMIN_COPY_EMAIL,
+      to_name: 'Creatrix Space Admin',
+      from_name: 'CreatrixSpace Website',
+      from_email: data.email,
+      reply_to: data.email,
+      reply_email: data.email,
+      subject: `New desk hold request: ${data.name}`,
+      message,
+      html_message: message.replace(/\n/g, '<br>'),
+      form_type: 'cta',
+      name: data.name,
+      customer_name: data.name,
+      customer_email: data.email,
+      email: data.email,
+      room_name: data.room,
+      room: data.room,
+      booking_source: 'Homepage CTA',
+      date: submittedAt,
+    })
+
+    const recipients = [adminEmail, ADMIN_COPY_EMAIL].filter(
+      (email, index, emails) => email && emails.indexOf(email) === index
+    )
+
+    for (const recipient of recipients) {
+      const response = await emailjs.send(
+        EMAILJS_SERVICE_ID,
+        EMAILJS_TEMPLATE_ID,
+        buildTemplateParams(recipient),
+        {
+          publicKey: EMAILJS_PUBLIC_KEY,
+        }
+      )
+      console.log(`CTA lead email sent to ${recipient}:`, response.text)
+    }
+
+    return { ok: true, deliveredTo: recipients.join(', ') }
+  } catch (error) {
+    console.error('Failed to send CTA lead email:', error)
+    if (error instanceof EmailJSResponseStatus) {
+      return {
+        ok: false,
+        deliveredTo: getDeliveredToLabel(adminEmail),
+        status: error.status,
+        error: error.text || 'EmailJS rejected the request.',
+      }
+    }
+
+    return {
+      ok: false,
+      deliveredTo: getDeliveredToLabel(adminEmail),
+      error:
+        error instanceof Error ? error.message : 'EmailJS rejected the request.',
+    }
   }
 }

@@ -10,6 +10,7 @@ import {
   formSubmissionService,
   locationService,
 } from '@/services/supabase-service'
+import { sendCtaLeadEmail } from '@/services/email-service'
 
 const defaultEyebrow = 'Your desk is waiting'
 const defaultHeadline1 = 'Come by '
@@ -35,6 +36,9 @@ export function CTASection() {
   const [inputEmail, setInputEmail] = useState('')
   const [submitted, setSubmitted] = useState(false)
   const [sending, setSending] = useState(false)
+  const [emailSent, setEmailSent] = useState(false)
+  const [emailStatus, setEmailStatus] = useState('')
+  const [submitError, setSubmitError] = useState('')
 
   useEffect(() => {
     ctaContentService.get().then((data) => {
@@ -74,19 +78,41 @@ export function CTASection() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!inputName || !inputEmail) return
+    const name = inputName.trim()
+    const email = inputEmail.trim()
+    if (!name || !email) return
     setSending(true)
+    setSubmitError('')
     try {
       await formSubmissionService.create({
         form_type: 'cta',
-        name: inputName,
-        email: inputEmail,
+        name,
+        email,
         room: selectedRoom,
       })
+      const emailResult = await sendCtaLeadEmail({
+        name,
+        email,
+        room: selectedRoom,
+      })
+      setEmailSent(emailResult.ok)
+      setEmailStatus(
+        emailResult.ok
+          ? `Email notification sent to ${emailResult.deliveredTo}.`
+          : [
+              `Email notification failed for ${emailResult.deliveredTo || 'admin email'}.`,
+              emailResult.status ? `Status ${emailResult.status}.` : '',
+              emailResult.error || '',
+            ]
+              .filter(Boolean)
+              .join(' ')
+      )
       setSubmitted(true)
-    } catch {
-      // silently fail — don't block the user
-      setSubmitted(true)
+    } catch (error) {
+      console.error('CTA lead submission failed:', error)
+      setSubmitError(
+        'We could not submit that request. Please use WhatsApp or call us directly.'
+      )
     }
     setSending(false)
   }
@@ -147,14 +173,23 @@ export function CTASection() {
                   {inputName.split(' ')[0]}.
                 </div>
                 <p className="text-sm text-fg-2">
-                  We'll hold a desk at <b>{selectedRoom}</b>. Check your email
-                  for directions.
+                  We'll hold a desk at <b>{selectedRoom}</b> and contact you at{' '}
+                  <b>{inputEmail}</b> with directions.
                 </p>
+                {!emailSent && (
+                  <p className="text-xs text-fg-3">
+                    Your request is saved in admin. {emailStatus} WhatsApp is
+                    the fastest backup until EmailJS is fixed.
+                  </p>
+                )}
                 <Button
                   variant="outline"
                   text="Send another"
                   onClick={() => {
                     setSubmitted(false)
+                    setEmailSent(false)
+                    setEmailStatus('')
+                    setSubmitError('')
                     setInputName('')
                     setInputEmail('')
                   }}
@@ -226,6 +261,12 @@ export function CTASection() {
                   disabled={sending}
                   className="mt-2 justify-center bg-ink text-bg rounded-sm border-0 hover:opacity-85 w-full"
                 />
+
+                {submitError && (
+                  <p className="text-sm text-clay m-0" role="alert">
+                    {submitError}
+                  </p>
+                )}
 
                 <div className="flex items-center gap-3 my-1 text-fg-3 text-[11px] tracking-[0.16em] uppercase font-mono">
                   <span className="flex-1 h-px bg-rule" />

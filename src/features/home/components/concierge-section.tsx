@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, type FormEvent } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { MessageCircle, Send } from 'lucide-react'
 import { WHATSAPP } from '@/lib/constants'
@@ -7,6 +7,12 @@ interface Message {
   text: string
   isUser: boolean
   id: number
+  whatsappText?: string
+}
+
+interface ConciergeReply {
+  text: string
+  whatsappText?: string
 }
 
 const replies: Record<string, string> = {
@@ -26,6 +32,71 @@ const suggestions = Object.keys(replies)
 
 let nextId = 1
 
+const buildWhatsAppText = (question: string) =>
+  `Hello CreatrixSpace - ${question}`
+
+const buildWhatsAppUrl = (message: string) =>
+  `https://wa.me/${WHATSAPP.NUMBER}?text=${encodeURIComponent(message)}`
+
+const getConciergeReply = (question: string): ConciergeReply => {
+  const exactReply = replies[question]
+  if (exactReply) {
+    return {
+      text: exactReply,
+      whatsappText: buildWhatsAppText(question),
+    }
+  }
+
+  const query = question.toLowerCase()
+
+  if (/price|pricing|cost|rate|membership|plan|day pass|hot desk/.test(query)) {
+    return {
+      text: 'Day passes start from NPR 500, weekly access starts from NPR 1,999, and monthly memberships start from NPR 8,999. If you tell us how often you plan to come in, we can point you to the right plan.',
+      whatsappText: buildWhatsAppText(question),
+    }
+  }
+
+  if (/private|office|team|cabin|room/.test(query)) {
+    return {
+      text: 'Private office availability changes quickly across Dhobighat, Kausimaa, and Jhamsikhel. Send us your team size and preferred location on WhatsApp and we will share the current options.',
+      whatsappText: buildWhatsAppText(question),
+    }
+  }
+
+  if (/tour|visit|see|view|walk.?through/.test(query)) {
+    return {
+      text: 'Tours usually run Tuesday through Saturday between 11 AM and 4 PM. Share your preferred day and location and the team can confirm a slot.',
+      whatsappText: buildWhatsAppText(question),
+    }
+  }
+
+  if (/location|where|dhobighat|kausimaa|jhamsikhel|kathmandu|lalitpur/.test(query)) {
+    return {
+      text: 'CreatrixSpace has locations around Dhobighat, Kausimaa, and Jhamsikhel. Tell us which area is easiest for you and we can recommend the best fit.',
+      whatsappText: buildWhatsAppText(question),
+    }
+  }
+
+  if (/event|workshop|training|weekend|hire|space hire/.test(query)) {
+    return {
+      text: 'Yes, event and training spaces are available at selected locations. The quickest next step is to send your date, headcount, and setup needs so the team can confirm options.',
+      whatsappText: buildWhatsAppText(question),
+    }
+  }
+
+  if (/virtual|address|mail|registered|business address/.test(query)) {
+    return {
+      text: 'The Virtual Office package includes a business address, mail handling, meeting room hours, and day-pass access. Share your company setup and we can confirm the best package.',
+      whatsappText: buildWhatsAppText(question),
+    }
+  }
+
+  return {
+    text: 'Good question. I can pass this to the team with your exact message so they can answer properly on WhatsApp.',
+    whatsappText: buildWhatsAppText(question),
+  }
+}
+
 export function ConciergeSection() {
   const [messages, setMessages] = useState<Message[]>([
     {
@@ -35,6 +106,10 @@ export function ConciergeSection() {
     },
   ])
   const [answering, setAnswering] = useState<string | null>(null)
+  const [input, setInput] = useState('')
+  const [lastWhatsappText, setLastWhatsappText] = useState<string>(
+    WHATSAPP.DEFAULT_MESSAGE
+  )
   const chatRef = useRef<HTMLDivElement>(null)
   const bottomRef = useRef<HTMLDivElement>(null)
 
@@ -46,28 +121,45 @@ export function ConciergeSection() {
   }, [messages])
 
   const ask = (question: string) => {
-    if (answering) return
+    const trimmed = question.trim()
+    if (!trimmed || answering) return
 
     const userId = nextId++
     setMessages((prev) => [
       ...prev,
-      { text: question, isUser: true, id: userId },
+      { text: trimmed, isUser: true, id: userId },
     ])
-    setAnswering(question)
+    setAnswering(trimmed)
+    setLastWhatsappText(buildWhatsAppText(trimmed))
 
-    const delay = Math.max(600, question.length * 12)
+    const delay = Math.max(600, trimmed.length * 12)
     setTimeout(() => {
-      const reply =
-        replies[question] ||
-        'Great question \u2014 send us a WhatsApp and we\u2019ll get back to you right away.'
+      const reply = getConciergeReply(trimmed)
       const replyId = nextId++
       setMessages((prev) => [
         ...prev,
-        { text: reply, isUser: false, id: replyId },
+        {
+          text: reply.text,
+          isUser: false,
+          id: replyId,
+          whatsappText: reply.whatsappText,
+        },
       ])
       setAnswering(null)
     }, delay)
   }
+
+  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+    const trimmed = input.trim()
+    if (!trimmed || answering) return
+    setInput('')
+    ask(trimmed)
+  }
+
+  const currentWhatsappText = input.trim()
+    ? buildWhatsAppText(input.trim())
+    : lastWhatsappText
 
   return (
     <section
@@ -135,6 +227,16 @@ export function ConciergeSection() {
                     }
                   >
                     {msg.text}
+                    {!msg.isUser && msg.whatsappText && (
+                      <a
+                        href={buildWhatsAppUrl(msg.whatsappText)}
+                        target="_blank"
+                        rel="noopener"
+                        className="mt-3 flex w-fit items-center gap-1.5 text-xs font-medium text-inherit underline underline-offset-4"
+                      >
+                        Continue on WhatsApp
+                      </a>
+                    )}
                   </motion.div>
                 ))}
               </AnimatePresence>
@@ -160,7 +262,7 @@ export function ConciergeSection() {
                   <button
                     key={s}
                     onClick={() => ask(s)}
-                    disabled={answering === s}
+                    disabled={!!answering}
                     className="bg-transparent border border-rule text-fg-1 px-3.5 py-[7px] rounded-pill text-xs cursor-pointer transition-all hover:border-rule-strong hover:bg-bg-raised disabled:opacity-40 disabled:cursor-not-allowed"
                   >
                     {s}
@@ -168,13 +270,18 @@ export function ConciergeSection() {
                 ))}
               </div>
 
-              <form className="flex gap-2 items-center border-t border-rule pt-3">
+              <form
+                onSubmit={handleSubmit}
+                className="flex gap-2 items-center border-t border-rule pt-3"
+              >
                 <input
-                  placeholder="Write to the concierge\u2026"
+                  value={input}
+                  onChange={(event) => setInput(event.target.value)}
+                  placeholder="Ask about pricing, tours, or availability..."
                   className="flex-1 px-1 py-2.5 bg-transparent border-0 outline-0 font-body text-sm text-fg-1 placeholder:text-fg-3"
                 />
                 <a
-                  href={`https://wa.me/${WHATSAPP.NUMBER}?text=Hello%20CreatrixSpace%20%E2%80%94%20`}
+                  href={buildWhatsAppUrl(currentWhatsappText)}
                   target="_blank"
                   rel="noopener"
                   aria-label="Continue on WhatsApp"
@@ -186,8 +293,9 @@ export function ConciergeSection() {
                 </a>
                 <button
                   type="submit"
+                  disabled={!input.trim() || !!answering}
                   aria-label="Send"
-                  className="bg-ink text-bg border-0 p-[9px_10px] rounded-full cursor-pointer inline-flex items-center"
+                  className="bg-ink text-bg border-0 p-[9px_10px] rounded-full cursor-pointer inline-flex items-center disabled:opacity-40 disabled:cursor-not-allowed"
                 >
                   <Send size={14} />
                 </button>
