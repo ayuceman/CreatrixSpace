@@ -211,6 +211,86 @@ CREATE POLICY "Anyone can view add-ons" ON public.add_ons FOR SELECT TO public U
 CREATE POLICY "Only admins can manage add-ons" ON public.add_ons FOR ALL USING (public.is_admin());
 
 -- ============================================
+-- MEETINGS
+-- ============================================
+CREATE TABLE IF NOT EXISTS public.meetings (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  name TEXT NOT NULL,
+  email TEXT NOT NULL,
+  organization TEXT NOT NULL DEFAULT '',
+  date TEXT NOT NULL,
+  start_time TEXT NOT NULL,
+  end_time TEXT NOT NULL,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  UNIQUE(date, start_time)
+);
+
+ALTER TABLE public.meetings ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Anyone can insert meetings" ON public.meetings FOR INSERT WITH CHECK (true);
+CREATE POLICY "Anyone can view meetings" ON public.meetings FOR SELECT USING (true);
+CREATE POLICY "Only admins can update meetings" ON public.meetings FOR UPDATE USING (public.is_admin());
+CREATE POLICY "Only admins can delete meetings" ON public.meetings FOR DELETE USING (public.is_admin());
+
+-- RPC functions for email-verified updates and deletes
+CREATE OR REPLACE FUNCTION public.update_meeting(
+  meeting_id UUID,
+  p_name TEXT,
+  p_email TEXT,
+  p_organization TEXT,
+  p_date TEXT,
+  p_start_time TEXT,
+  p_end_time TEXT,
+  p_verify_email TEXT
+)
+RETURNS void
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM public.meetings
+    WHERE id = meeting_id AND email = p_verify_email
+  ) THEN
+    RAISE EXCEPTION 'Email does not match the booking record';
+  END IF;
+
+  UPDATE public.meetings
+  SET
+    name = p_name,
+    email = p_email,
+    organization = p_organization,
+    date = p_date,
+    start_time = p_start_time,
+    end_time = p_end_time
+  WHERE id = meeting_id;
+END;
+$$;
+
+CREATE OR REPLACE FUNCTION public.delete_meeting(
+  meeting_id UUID,
+  p_verify_email TEXT
+)
+RETURNS void
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM public.meetings
+    WHERE id = meeting_id AND email = p_verify_email
+  ) THEN
+    RAISE EXCEPTION 'Email does not match the booking record';
+  END IF;
+
+  DELETE FROM public.meetings WHERE id = meeting_id;
+END;
+$$;
+
+GRANT EXECUTE ON FUNCTION public.update_meeting TO anon, authenticated;
+GRANT EXECUTE ON FUNCTION public.delete_meeting TO anon, authenticated;
+
+-- ============================================
 -- BOOKINGS
 -- ============================================
 CREATE TABLE IF NOT EXISTS public.bookings (

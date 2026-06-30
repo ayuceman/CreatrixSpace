@@ -203,7 +203,7 @@ export function PaymentPage() {
       setPaymentStatus('error')
       setError('Payment verification failed')
     }
-  }, [bookingData, searchParams])
+  }, [bookingData, searchParams]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // Check if coming from a payment callback
   useEffect(() => {

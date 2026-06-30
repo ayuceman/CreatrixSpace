@@ -14,6 +14,7 @@ export const ROUTES = {
   ABOUT: '/about',
   CAREERS: '/careers',
   CONTACT: '/contact',
+  MEETING: '/meeting',
   LOGIN: '/login',
   REGISTER: '/register',
   RESET_PASSWORD: '/reset-password',
