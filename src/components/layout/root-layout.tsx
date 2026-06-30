@@ -6,6 +6,7 @@ import { BookTourProvider } from '@/lib/book-tour-context'
 import { BookTourSheet } from '@/features/home/components/book-tour-sheet'
 import { useBookTour } from '@/lib/book-tour-context'
 import { WhatsappFloat } from '@/features/home/components/whatsapp-float'
+import { ToastContainer } from '@/components/ui/toast'
 
 function BookTourGate() {
   const { open, seed, closeTour } = useBookTour()
@@ -25,6 +26,7 @@ export function RootLayout() {
         {/* <GeminiChatbot /> */}
         <WhatsappFloat />
         <BookTourGate />
+        <ToastContainer />
       </div>
     </BookTourProvider>
   )

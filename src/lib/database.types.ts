@@ -715,6 +715,39 @@ export interface Database {
         }
         Relationships: []
       }
+      meetings: {
+        Row: {
+          id: string
+          name: string
+          email: string
+          organization: string
+          date: string
+          start_time: string
+          end_time: string
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          name: string
+          email: string
+          organization?: string
+          date: string
+          start_time: string
+          end_time: string
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          name?: string
+          email?: string
+          organization?: string
+          date?: string
+          start_time?: string
+          end_time?: string
+          created_at?: string
+        }
+        Relationships: []
+      }
       member_companies: {
         Row: {
           id: string

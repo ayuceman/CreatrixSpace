@@ -28,6 +28,8 @@ type BookingInsert = Database['public']['Tables']['bookings']['Insert']
 type ProfileUpdate = Database['public']['Tables']['profiles']['Update']
 type Payment = Database['public']['Tables']['payments']['Row']
 type PaymentInsert = Database['public']['Tables']['payments']['Insert']
+type Meeting = Database['public']['Tables']['meetings']['Row']
+type MeetingInsert = Database['public']['Tables']['meetings']['Insert']
 type PlanPricingPayload = {
   daily?: number
   weekly?: number
@@ -1558,6 +1560,96 @@ export const formSubmissionService = {
       .from('form_submissions')
       .delete()
       .eq('id', id)
+    if (error) throw error
+  },
+}
+
+// ============================================
+// MEETING BOOKINGS
+// ============================================
+export const meetingService = {
+  async getAll(): Promise<Meeting[]> {
+    const { data } = await supabase
+      .from('meetings')
+      .select('*')
+      .order('date', { ascending: true })
+      .order('start_time', { ascending: true })
+    return data || []
+  },
+
+  async getByDate(date: string): Promise<Meeting[]> {
+    const { data } = await supabase
+      .from('meetings')
+      .select('*')
+      .eq('date', date)
+      .order('start_time', { ascending: true })
+    return data || []
+  },
+
+  async getByDateRange(startDate: string, endDate: string): Promise<Meeting[]> {
+    const { data } = await supabase
+      .from('meetings')
+      .select('*')
+      .gte('date', startDate)
+      .lte('date', endDate)
+      .order('date', { ascending: true })
+      .order('start_time', { ascending: true })
+    return data || []
+  },
+
+  async checkAvailability(
+    date: string,
+    startTime: string,
+    endTime: string
+  ): Promise<boolean> {
+    const meetings = await this.getByDate(date)
+    const start = startTime.padStart(5, '0')
+    const end = endTime.padStart(5, '0')
+    return !meetings.some((m) => {
+      const ms = m.start_time.padStart(5, '0')
+      const me = m.end_time.padStart(5, '0')
+      return start < me && end > ms
+    })
+  },
+
+  async book(data: MeetingInsert): Promise<void> {
+    const { error } = await supabase.from('meetings').insert(data)
+    if (error) {
+      if (error.code === '23505') {
+        throw new Error('This date and time slot is already booked.')
+      }
+      throw error
+    }
+  },
+
+  async update(
+    id: string,
+    data: MeetingInsert,
+    verifyEmail: string
+  ): Promise<void> {
+    const { error } = await supabase.rpc('update_meeting', {
+      meeting_id: id,
+      p_name: data.name,
+      p_email: data.email,
+      p_organization: data.organization ?? '',
+      p_date: data.date,
+      p_start_time: data.start_time,
+      p_end_time: data.end_time,
+      p_verify_email: verifyEmail,
+    })
+    if (error) {
+      if (error.message?.includes('already booked') || error.code === '23505') {
+        throw new Error('This date and time slot is already booked.')
+      }
+      throw error
+    }
+  },
+
+  async delete(id: string, verifyEmail: string): Promise<void> {
+    const { error } = await supabase.rpc('delete_meeting', {
+      meeting_id: id,
+      p_verify_email: verifyEmail,
+    })
     if (error) throw error
   },
 }

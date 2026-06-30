@@ -12,6 +12,7 @@ import { BlogPostPage } from '@/features/blog/pages/blog-post-page'
 import { AboutPage } from '@/features/about/pages/about-page'
 import { CareersPage } from '@/features/careers/pages/careers-page'
 import { ContactPage } from '@/features/contact/pages/contact-page'
+import { MeetingPage } from '@/features/meeting/pages/meeting-page'
 import { LoginPage } from '@/features/auth/pages/login-page'
 import { RegisterPage } from '@/features/auth/pages/register-page'
 import { ResetPasswordPage } from '@/features/auth/pages/reset-password-page'
@@ -105,6 +106,10 @@ const router = createBrowserRouter([
       {
         path: ROUTES.CONTACT,
         element: <ContactPage />,
+      },
+      {
+        path: ROUTES.MEETING,
+        element: <MeetingPage />,
       },
       {
         path: ROUTES.LOGIN,
