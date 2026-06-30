@@ -625,7 +625,9 @@ export async function sendCtaLeadEmail(
       ok: false,
       deliveredTo: getDeliveredToLabel(adminEmail),
       error:
-        error instanceof Error ? error.message : 'EmailJS rejected the request.',
+        error instanceof Error
+          ? error.message
+          : 'EmailJS rejected the request.',
     }
   }
 }

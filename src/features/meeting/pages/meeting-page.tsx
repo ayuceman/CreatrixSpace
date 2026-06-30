@@ -42,7 +42,9 @@ function generate15MinSlots(fromHour: number, toHour: number): string[] {
   for (let h = fromHour; h <= toHour; h++) {
     for (let m = 0; m < 60; m += 15) {
       if (h === toHour && m > 0) break
-      slots.push(`${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`)
+      slots.push(
+        `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`
+      )
     }
   }
   return slots
@@ -70,8 +72,10 @@ function addMinutes(time: string, mins: number): string {
 }
 
 function rangesOverlap(
-  aStart: string, aEnd: string,
-  bStart: string, bEnd: string
+  aStart: string,
+  aEnd: string,
+  bStart: string,
+  bEnd: string
 ): boolean {
   return aStart < bEnd && aEnd > bStart
 }
@@ -100,7 +104,9 @@ export function MeetingPage() {
   const today = startOfDay(new Date())
   const nowStr = format(new Date(), 'HH:mm')
 
-  const calendarStart = startOfWeek(startOfMonth(currentMonth), { weekStartsOn: 0 })
+  const calendarStart = startOfWeek(startOfMonth(currentMonth), {
+    weekStartsOn: 0,
+  })
   const calendarEnd = endOfWeek(endOfMonth(currentMonth), { weekStartsOn: 0 })
 
   const calendarDays = eachDayOfInterval({
@@ -120,9 +126,13 @@ export function MeetingPage() {
 
   useEffect(() => {
     if (selectedDate) {
-      loadMeetings(selectedDate)
+      setLoadingMeetings(true) // eslint-disable-line react-hooks/set-state-in-effect
+      meetingService
+        .getByDate(selectedDate)
+        .then(setMeetings)
+        .finally(() => setLoadingMeetings(false))
     }
-  }, [selectedDate, loadMeetings])
+  }, [selectedDate])
 
   useEffect(() => {
     const start = format(calendarStart, 'yyyy-MM-dd')
@@ -154,7 +164,9 @@ export function MeetingPage() {
 
   function isSlotBooked(time: string): boolean {
     const endTime = addMinutes(time, 15)
-    return bookedRanges.some((m) => rangesOverlap(time, endTime, m.start_time, m.end_time))
+    return bookedRanges.some((m) =>
+      rangesOverlap(time, endTime, m.start_time, m.end_time)
+    )
   }
 
   function isSlotPast(time: string): boolean {
@@ -165,15 +177,6 @@ export function MeetingPage() {
   function isStartSlotAvailable(time: string): boolean {
     if (isSlotPast(time)) return false
     return !isSlotBooked(time)
-  }
-
-  function isDurationAvailable(duration: number): boolean {
-    if (!selectedStart) return false
-    const end = addMinutes(selectedStart, duration)
-    if (end > '17:00') return false
-    return !bookedRanges.some((m) =>
-      rangesOverlap(selectedStart, end, m.start_time, m.end_time)
-    )
   }
 
   const handleDateClick = (day: Date) => {
@@ -228,8 +231,10 @@ export function MeetingPage() {
     setSelectedDate(pendingEdit.date)
     setSelectedStart(pendingEdit.start_time)
     const duration =
-      (Number(pendingEdit.end_time.split(':')[0]) * 60 + Number(pendingEdit.end_time.split(':')[1])) -
-      (Number(pendingEdit.start_time.split(':')[0]) * 60 + Number(pendingEdit.start_time.split(':')[1]))
+      Number(pendingEdit.end_time.split(':')[0]) * 60 +
+      Number(pendingEdit.end_time.split(':')[1]) -
+      (Number(pendingEdit.start_time.split(':')[0]) * 60 +
+        Number(pendingEdit.start_time.split(':')[1]))
     setSelectedDuration(duration)
     setName(pendingEdit.name)
     setEmail(pendingEdit.email)
@@ -246,7 +251,13 @@ export function MeetingPage() {
 
   const handleBook = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!name || !email || !selectedDate || !selectedStart || !selectedDuration) {
+    if (
+      !name ||
+      !email ||
+      !selectedDate ||
+      !selectedStart ||
+      !selectedDuration
+    ) {
       showToast('Please fill in all required fields', 'error')
       return
     }
@@ -260,10 +271,17 @@ export function MeetingPage() {
       const endTime = addMinutes(selectedStart, selectedDuration)
 
       if (editingId) {
-        const available = await meetingService.checkAvailability(selectedDate, selectedStart, endTime)
+        const available = await meetingService.checkAvailability(
+          selectedDate,
+          selectedStart,
+          endTime
+        )
         if (!available) {
           const selfBooked = meetings.some(
-            (m) => m.id === editingId && m.start_time === selectedStart && m.end_time === endTime
+            (m) =>
+              m.id === editingId &&
+              m.start_time === selectedStart &&
+              m.end_time === endTime
           )
           if (!selfBooked) {
             showToast('This time range is no longer available.', 'error')
@@ -272,19 +290,30 @@ export function MeetingPage() {
           }
         }
 
-        await meetingService.update(editingId, {
-          date: selectedDate,
-          start_time: selectedStart,
-          end_time: endTime,
-          name,
-          email,
-          organization,
-        }, verifiedEmail)
+        await meetingService.update(
+          editingId,
+          {
+            date: selectedDate,
+            start_time: selectedStart,
+            end_time: endTime,
+            name,
+            email,
+            organization,
+          },
+          verifiedEmail
+        )
         showToast('Meeting updated!', 'success')
       } else {
-        const available = await meetingService.checkAvailability(selectedDate, selectedStart, endTime)
+        const available = await meetingService.checkAvailability(
+          selectedDate,
+          selectedStart,
+          endTime
+        )
         if (!available) {
-          showToast('This time range is no longer available. Please choose another.', 'error')
+          showToast(
+            'This time range is no longer available. Please choose another.',
+            'error'
+          )
           setBooking(false)
           return
         }
@@ -389,9 +418,16 @@ export function MeetingPage() {
 
                 <div className="p-4">
                   <div className="grid grid-cols-7 mb-2">
-                    {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((d) => (
-                      <div key={d} className="text-center text-xs text-fg-3 font-medium py-1">{d}</div>
-                    ))}
+                    {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(
+                      (d) => (
+                        <div
+                          key={d}
+                          className="text-center text-xs text-fg-3 font-medium py-1"
+                        >
+                          {d}
+                        </div>
+                      )
+                    )}
                   </div>
                   <div className="grid grid-cols-7">
                     {calendarDays.map((day) => {
@@ -410,14 +446,16 @@ export function MeetingPage() {
                           className={`
                             relative aspect-square flex flex-col items-center justify-center text-sm rounded-lg transition-all
                             ${!sameMonth ? 'text-fg-3/30' : ''}
-                            ${isPast ? 'text-fg-3/30 cursor-not-allowed' : (isSelected ? 'cursor-default' : 'hover:bg-clay/10 cursor-pointer')}
+                            ${isPast ? 'text-fg-3/30 cursor-not-allowed' : isSelected ? 'cursor-default' : 'hover:bg-clay/10 cursor-pointer'}
                             ${isToday(day) && !isSelected ? 'border border-clay/40 text-clay font-semibold' : ''}
                             ${isSelected ? 'bg-clay text-fg-on-ink-1 font-semibold' : ''}
                           `}
                         >
                           <span>{format(day, 'd')}</span>
                           {count > 0 && (
-                            <span className={`absolute sm:static bottom-[5px] text-[8px] sm:text-[10px] sm:mt-0.5 leading-none ${isSelected ? 'text-fg-on-ink-1/80' : 'text-clay'}`}>
+                            <span
+                              className={`absolute sm:static bottom-[5px] text-[8px] sm:text-[10px] sm:mt-0.5 leading-none ${isSelected ? 'text-fg-on-ink-1/80' : 'text-clay'}`}
+                            >
                               {count} booked
                             </span>
                           )}
@@ -454,7 +492,9 @@ export function MeetingPage() {
                         <div className="p-5 space-y-5">
                           {/* Start Time */}
                           <div>
-                            <p className="text-sm font-medium text-fg-2 mb-3">Start time</p>
+                            <p className="text-sm font-medium text-fg-2 mb-3">
+                              Start time
+                            </p>
                             <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 gap-1.5 max-h-49 overflow-y-auto">
                               {START_SLOTS.map((time) => {
                                 const available = isStartSlotAvailable(time)
@@ -467,11 +507,12 @@ export function MeetingPage() {
                                     onClick={() => handleStartClick(time)}
                                     className={`
                                       py-2 px-1.5 rounded-lg text-xs font-medium transition-all border
-                                      ${!available
-                                        ? 'bg-fg-3/10 text-fg-3/50 border-transparent cursor-not-allowed line-through'
-                                        : isSelected
-                                          ? 'bg-clay text-fg-on-ink-1 border-clay shadow-md'
-                                          : 'bg-bg-raised text-fg-1 border-rule hover:border-clay/50 hover:bg-clay/5 cursor-pointer'
+                                      ${
+                                        !available
+                                          ? 'bg-fg-3/10 text-fg-3/50 border-transparent cursor-not-allowed line-through'
+                                          : isSelected
+                                            ? 'bg-clay text-fg-on-ink-1 border-clay shadow-md'
+                                            : 'bg-bg-raised text-fg-1 border-rule hover:border-clay/50 hover:bg-clay/5 cursor-pointer'
                                       }
                                     `}
                                   >
@@ -489,29 +530,40 @@ export function MeetingPage() {
                               animate={{ opacity: 1, height: 'auto' }}
                               transition={{ duration: 0.25 }}
                             >
-                              <p className="text-sm font-medium text-fg-2 mb-3">Duration</p>
+                              <p className="text-sm font-medium text-fg-2 mb-3">
+                                Duration
+                              </p>
                               <div className="flex flex-wrap gap-2">
                                 {DURATIONS.map((d) => {
                                   const end = addMinutes(selectedStart, d.value)
                                   const fits = end <= '17:00'
                                   const noOverlap = !bookedRanges.some((m) =>
-                                    rangesOverlap(selectedStart, end, m.start_time, m.end_time)
+                                    rangesOverlap(
+                                      selectedStart,
+                                      end,
+                                      m.start_time,
+                                      m.end_time
+                                    )
                                   )
                                   const disabled = !fits || !noOverlap
-                                  const isSelected = selectedDuration === d.value
+                                  const isSelected =
+                                    selectedDuration === d.value
                                   return (
                                     <button
                                       key={d.value}
                                       type="button"
                                       disabled={disabled}
-                                      onClick={() => setSelectedDuration(d.value)}
+                                      onClick={() =>
+                                        setSelectedDuration(d.value)
+                                      }
                                       className={`
                                         py-2 px-3 rounded-lg text-sm font-medium transition-all border
-                                        ${disabled
-                                          ? 'bg-fg-3/10 text-fg-3/50 border-transparent cursor-not-allowed line-through'
-                                          : isSelected
-                                            ? 'bg-clay text-fg-on-ink-1 border-clay shadow-md'
-                                            : 'bg-bg-raised text-fg-1 border-rule hover:border-clay/50 hover:bg-clay/5 cursor-pointer'
+                                        ${
+                                          disabled
+                                            ? 'bg-fg-3/10 text-fg-3/50 border-transparent cursor-not-allowed line-through'
+                                            : isSelected
+                                              ? 'bg-clay text-fg-on-ink-1 border-clay shadow-md'
+                                              : 'bg-bg-raised text-fg-1 border-rule hover:border-clay/50 hover:bg-clay/5 cursor-pointer'
                                         }
                                       `}
                                     >
@@ -522,7 +574,10 @@ export function MeetingPage() {
                               </div>
                               {selectedDuration && selectedEndTime && (
                                 <p className="text-xs text-fg-3 mt-2">
-                                  End time: <span className="font-medium text-fg-2">{selectedEndTime}</span>
+                                  End time:{' '}
+                                  <span className="font-medium text-fg-2">
+                                    {selectedEndTime}
+                                  </span>
                                 </p>
                               )}
                             </motion.div>
@@ -546,7 +601,9 @@ export function MeetingPage() {
                                       <span className="font-medium text-fg-1 min-w-[4.5rem] shrink-0">
                                         {m.start_time}&ndash;{m.end_time}
                                       </span>
-                                      <span className="text-fg-2 truncate min-w-0">{m.name}</span>
+                                      <span className="text-fg-2 truncate min-w-0">
+                                        {m.name}
+                                      </span>
                                       {m.organization && (
                                         <span className="text-fg-3 truncate hidden sm:inline min-w-0">
                                           &middot; {m.organization}
@@ -615,15 +672,22 @@ export function MeetingPage() {
                     <div className="p-5 space-y-4">
                       <div className="rounded-lg bg-clay/5 border border-clay/10 px-3 py-2.5 text-sm space-y-1">
                         <p className="text-fg-2">
-                          <span className="font-medium text-fg-1">{pendingEdit.name}</span>
-                          {' '}&middot;{' '}{pendingEdit.start_time}&ndash;{pendingEdit.end_time}
+                          <span className="font-medium text-fg-1">
+                            {pendingEdit.name}
+                          </span>{' '}
+                          &middot; {pendingEdit.start_time}&ndash;
+                          {pendingEdit.end_time}
                         </p>
                         {pendingEdit.organization && (
-                          <p className="text-fg-3 text-xs">{pendingEdit.organization}</p>
+                          <p className="text-fg-3 text-xs">
+                            {pendingEdit.organization}
+                          </p>
                         )}
                       </div>
                       <div className="space-y-1.5">
-                        <Label htmlFor="verify-email">Booking Email <span className="text-clay">*</span></Label>
+                        <Label htmlFor="verify-email">
+                          Booking Email <span className="text-clay">*</span>
+                        </Label>
                         <div className="relative">
                           <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-fg-3" />
                           <Input
@@ -646,7 +710,10 @@ export function MeetingPage() {
                     </div>
                   </div>
                 </motion.div>
-              ) : selectedDate && selectedStart && selectedDuration && !success ? (
+              ) : selectedDate &&
+                selectedStart &&
+                selectedDuration &&
+                !success ? (
                 <motion.div
                   key="form"
                   initial={{ opacity: 0, x: 20 }}
@@ -661,7 +728,8 @@ export function MeetingPage() {
                           {editingId ? 'Edit Booking' : 'Complete Booking'}
                         </h3>
                         <p className="text-fg-on-ink-1/70 text-sm mt-0.5">
-                          {selectedDate} &middot; {selectedStart} &ndash; {selectedEndTime}
+                          {selectedDate} &middot; {selectedStart} &ndash;{' '}
+                          {selectedEndTime}
                         </p>
                       </div>
                       <button
@@ -675,30 +743,67 @@ export function MeetingPage() {
 
                     <form onSubmit={handleBook} className="p-5 space-y-4">
                       <div className="space-y-1.5">
-                        <Label htmlFor="name">Full Name <span className="text-clay">*</span></Label>
+                        <Label htmlFor="name">
+                          Full Name <span className="text-clay">*</span>
+                        </Label>
                         <div className="relative">
                           <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-fg-3" />
-                          <Input id="name" placeholder="Your name" value={name} onChange={(e) => setName(e.target.value)} className="pl-9" disabled={booking} required />
+                          <Input
+                            id="name"
+                            placeholder="Your name"
+                            value={name}
+                            onChange={(e) => setName(e.target.value)}
+                            className="pl-9"
+                            disabled={booking}
+                            required
+                          />
                         </div>
                       </div>
                       <div className="space-y-1.5">
-                        <Label htmlFor="email">Email <span className="text-clay">*</span></Label>
+                        <Label htmlFor="email">
+                          Email <span className="text-clay">*</span>
+                        </Label>
                         <div className="relative">
                           <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-fg-3" />
-                          <Input id="email" type="email" placeholder="your@email.com" value={email} onChange={(e) => setEmail(e.target.value)} className="pl-9" disabled={booking} required />
+                          <Input
+                            id="email"
+                            type="email"
+                            placeholder="your@email.com"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            className="pl-9"
+                            disabled={booking}
+                            required
+                          />
                         </div>
                       </div>
                       <div className="space-y-1.5">
-                        <Label htmlFor="organization">Organization <span className="text-fg-3 text-xs">(optional)</span></Label>
+                        <Label htmlFor="organization">
+                          Organization{' '}
+                          <span className="text-fg-3 text-xs">(optional)</span>
+                        </Label>
                         <div className="relative">
                           <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-fg-3" />
-                          <Input id="organization" placeholder="Company or organization" value={organization} onChange={(e) => setOrganization(e.target.value)} className="pl-9" disabled={booking} />
+                          <Input
+                            id="organization"
+                            placeholder="Company or organization"
+                            value={organization}
+                            onChange={(e) => setOrganization(e.target.value)}
+                            className="pl-9"
+                            disabled={booking}
+                          />
                         </div>
                       </div>
                       <Button
                         type="submit"
                         variant="dark"
-                        text={booking ? 'Saving...' : editingId ? 'Update Booking' : 'Confirm Booking'}
+                        text={
+                          booking
+                            ? 'Saving...'
+                            : editingId
+                              ? 'Update Booking'
+                              : 'Confirm Booking'
+                        }
                         icon={booking ? Loader2 : Calendar}
                         iconSize={18}
                         className="w-full py-3 mt-1"
@@ -723,9 +828,18 @@ export function MeetingPage() {
                       {editingId ? 'Meeting Updated!' : 'Meeting Booked!'}
                     </h3>
                     <p className="text-sm text-fg-2 mb-1">{selectedDate}</p>
-                    <p className="text-sm text-fg-2 mb-4">{selectedStart} &ndash; {selectedEndTime}</p>
-                    <p className="text-xs text-fg-3 mb-6">{name} &middot; {organization}</p>
-                    <Button variant="outline" text="Book Another" onClick={resetForm} className="w-full" />
+                    <p className="text-sm text-fg-2 mb-4">
+                      {selectedStart} &ndash; {selectedEndTime}
+                    </p>
+                    <p className="text-xs text-fg-3 mb-6">
+                      {name} &middot; {organization}
+                    </p>
+                    <Button
+                      variant="outline"
+                      text="Book Another"
+                      onClick={resetForm}
+                      className="w-full"
+                    />
                   </div>
                 </motion.div>
               ) : selectedDate ? (
@@ -736,7 +850,9 @@ export function MeetingPage() {
                 >
                   <div className="lg:sticky lg:top-28 rounded-2xl border border-rule bg-bg shadow-lg overflow-hidden p-8 text-center">
                     <Clock className="h-10 w-10 text-fg-3 mx-auto mb-3" />
-                    <p className="text-fg-2 text-sm">Select a start time and duration above.</p>
+                    <p className="text-fg-2 text-sm">
+                      Select a start time and duration above.
+                    </p>
                   </div>
                 </motion.div>
               ) : (
@@ -748,7 +864,9 @@ export function MeetingPage() {
                 >
                   <div className="rounded-2xl border border-rule bg-bg shadow-lg overflow-hidden p-8 text-center">
                     <Calendar className="h-10 w-10 text-fg-3 mx-auto mb-3" />
-                    <p className="text-fg-2 text-sm">Pick a date on the calendar to get started.</p>
+                    <p className="text-fg-2 text-sm">
+                      Pick a date on the calendar to get started.
+                    </p>
                   </div>
                 </motion.div>
               )}

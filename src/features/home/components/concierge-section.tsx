@@ -70,7 +70,11 @@ const getConciergeReply = (question: string): ConciergeReply => {
     }
   }
 
-  if (/location|where|dhobighat|kausimaa|jhamsikhel|kathmandu|lalitpur/.test(query)) {
+  if (
+    /location|where|dhobighat|kausimaa|jhamsikhel|kathmandu|lalitpur/.test(
+      query
+    )
+  ) {
     return {
       text: 'CreatrixSpace has locations around Dhobighat, Kausimaa, and Jhamsikhel. Tell us which area is easiest for you and we can recommend the best fit.',
       whatsappText: buildWhatsAppText(question),

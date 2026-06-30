@@ -894,7 +894,26 @@ export interface Database {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      update_meeting: {
+        Args: {
+          meeting_id: string
+          p_name: string
+          p_email: string
+          p_organization: string
+          p_date: string
+          p_start_time: string
+          p_end_time: string
+          p_verify_email: string
+        }
+        Returns: void
+      }
+      delete_meeting: {
+        Args: {
+          meeting_id: string
+          p_verify_email: string
+        }
+        Returns: void
+      }
     }
     Enums: {
       [_ in never]: never

@@ -1,8 +1,6 @@
 import { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
 import { authService, bookingService } from '@/services/supabase-service'
 import type { Database } from '@/lib/database.types'
-import { ROUTES } from '@/lib/constants'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { formatCurrency, formatDate } from '@/lib/utils'
@@ -23,7 +21,6 @@ const STATUS_COLORS: Record<
 }
 
 export function DashboardBookingsPage() {
-  const navigate = useNavigate()
   const [bookings, setBookings] = useState<Booking[]>([])
   const [loading, setLoading] = useState(true)
 
