@@ -120,8 +120,8 @@ export const WHATSAPP = {
 } as const
 
 export const CONTACT = {
-  PHONE: '+977 1 5453000',
-  PHONE_HREF: '+97715453000',
+  PHONE: '+977 9700045256',
+  PHONE_HREF: '+9779700045256',
   EMAIL: 'hello@creatrixventures.space',
 } as const
 
