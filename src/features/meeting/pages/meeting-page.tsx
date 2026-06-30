@@ -213,6 +213,14 @@ export function MeetingPage() {
     setPendingEdit(m)
     setVerifyEmail('')
     setSuccess(false)
+    setTimeModalOpen(false)
+  }
+
+  const handleDelete = (m: Meeting) => {
+    setPendingEdit(m)
+    setPendingDelete(true)
+    setVerifyEmail('')
+    setTimeModalOpen(false)
   }
 
   const handleVerifyEmail = async () => {
@@ -254,12 +262,6 @@ export function MeetingPage() {
     setEmail(pendingEdit.email)
     setOrganization(pendingEdit.organization)
     setPendingEdit(null)
-    setVerifyEmail('')
-  }
-
-  const handleDelete = (m: Meeting) => {
-    setPendingEdit(m)
-    setPendingDelete(true)
     setVerifyEmail('')
   }
 
