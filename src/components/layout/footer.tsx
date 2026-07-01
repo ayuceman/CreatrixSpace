@@ -3,7 +3,7 @@ import { ArrowRight, MessageCircle, Phone, Mail } from 'lucide-react'
 import { WHATSAPP, CONTACT, SOCIAL } from '@/lib/constants'
 import {
   locationService,
-  membershipService,
+  plansContentService,
   formSubmissionService,
 } from '@/services/supabase-service'
 
@@ -68,7 +68,7 @@ export function Footer() {
       }
     })
 
-    membershipService.get().then((data) => {
+    plansContentService.get().then((data) => {
       if (data) {
         const tabs = (data.tabs as any[]) ?? []
         if (tabs.length > 0) {

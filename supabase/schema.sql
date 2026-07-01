@@ -180,7 +180,7 @@ CREATE POLICY "Only admins can manage room pricing" ON public.room_plan_pricing 
 -- ============================================
 CREATE TABLE IF NOT EXISTS public.manual_admin_entries (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  entry_type TEXT NOT NULL CHECK (entry_type IN ('booking', 'membership')),
+  entry_type TEXT NOT NULL CHECK (entry_type IN ('booking', 'membership', 'menu_item')),
   data JSONB NOT NULL,
   created_by TEXT,
   created_at TIMESTAMPTZ DEFAULT NOW(),
@@ -519,20 +519,20 @@ DROP TRIGGER IF EXISTS update_hero_content_updated_at ON public.hero_content;
 CREATE TRIGGER update_hero_content_updated_at BEFORE UPDATE ON public.hero_content
   FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
-CREATE TABLE IF NOT EXISTS public.membership_content (
+CREATE TABLE IF NOT EXISTS public.plans_content (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   tabs JSONB NOT NULL DEFAULT '[]'::jsonb,
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
-ALTER TABLE public.membership_content ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "Anyone can view membership content" ON public.membership_content FOR SELECT USING (true);
-CREATE POLICY "Only admins can insert membership content" ON public.membership_content FOR INSERT WITH CHECK (public.is_admin());
-CREATE POLICY "Only admins can update membership content" ON public.membership_content FOR UPDATE USING (public.is_admin());
-CREATE POLICY "Only admins can delete membership content" ON public.membership_content FOR DELETE USING (public.is_admin());
-DROP TRIGGER IF EXISTS update_membership_content_updated_at ON public.membership_content;
-CREATE TRIGGER update_membership_content_updated_at BEFORE UPDATE ON public.membership_content
+ALTER TABLE public.plans_content ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Anyone can view plans content" ON public.plans_content FOR SELECT USING (true);
+CREATE POLICY "Only admins can insert plans content" ON public.plans_content FOR INSERT WITH CHECK (public.is_admin());
+CREATE POLICY "Only admins can update plans content" ON public.plans_content FOR UPDATE USING (public.is_admin());
+CREATE POLICY "Only admins can delete plans content" ON public.plans_content FOR DELETE USING (public.is_admin());
+DROP TRIGGER IF EXISTS update_plans_content_updated_at ON public.plans_content;
+CREATE TRIGGER update_plans_content_updated_at BEFORE UPDATE ON public.plans_content
   FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
 CREATE TABLE IF NOT EXISTS public.spaces_content (
@@ -624,6 +624,32 @@ ALTER TABLE public.form_submissions ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Anyone can insert form submissions" ON public.form_submissions FOR INSERT WITH CHECK (true);
 CREATE POLICY "Only admins can view form submissions" ON public.form_submissions FOR SELECT USING (public.is_admin());
 CREATE POLICY "Only admins can delete form submissions" ON public.form_submissions FOR DELETE USING (public.is_admin());
+
+-- ============================================
+-- FOOD ORDERS
+-- ============================================
+CREATE TABLE IF NOT EXISTS public.orders (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  order_date DATE NOT NULL DEFAULT CURRENT_DATE,
+  company_name TEXT NOT NULL DEFAULT '',
+  customer_name TEXT NOT NULL,
+  item_name TEXT NOT NULL,
+  quantity INTEGER NOT NULL DEFAULT 1,
+  price DECIMAL(10, 2) NOT NULL,
+  total_price DECIMAL(10, 2) GENERATED ALWAYS AS (quantity * price) STORED,
+  status TEXT NOT NULL DEFAULT 'unpaid',
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+ALTER TABLE public.orders ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Anyone can view orders" ON public.orders FOR SELECT USING (true);
+CREATE POLICY "Only admins can insert orders" ON public.orders FOR INSERT WITH CHECK (public.is_admin());
+CREATE POLICY "Only admins can update orders" ON public.orders FOR UPDATE USING (public.is_admin());
+CREATE POLICY "Only admins can delete orders" ON public.orders FOR DELETE USING (public.is_admin());
+DROP TRIGGER IF EXISTS update_orders_updated_at ON public.orders;
+CREATE TRIGGER update_orders_updated_at BEFORE UPDATE ON public.orders
+  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
 -- ============================================
 -- STORAGE

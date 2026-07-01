@@ -8,7 +8,7 @@ import {
   AccordionTrigger,
   AccordionContent,
 } from '@/components/ui/accordion'
-import { membershipService } from '@/services/supabase-service'
+import { plansContentService } from '@/services/supabase-service'
 import { showToast } from '@/components/ui/toast'
 
 interface CardData {
@@ -59,7 +59,7 @@ export function AdminMembershipPage() {
   const [saving, setSaving] = useState(false)
 
   useEffect(() => {
-    membershipService
+    plansContentService
       .get()
       .then((data) => {
         if (data) {
@@ -73,7 +73,7 @@ export function AdminMembershipPage() {
   const handleSave = async () => {
     setSaving(true)
     try {
-      await membershipService.upsert({ tabs: form.tabs })
+      await plansContentService.upsert({ tabs: form.tabs })
       showToast('Membership content saved!')
     } catch (err) {
       showToast(`Save failed: ${(err as any)?.message || err}`, 'error')

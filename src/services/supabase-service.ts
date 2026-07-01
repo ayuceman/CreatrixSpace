@@ -427,14 +427,30 @@ export const planService = {
     return data
   },
 
-  async getAllPlansAdmin(): Promise<Plan[]> {
+  async getAllPlansAdmin(options?: {
+    page?: number
+    pageSize?: number
+  }): Promise<Plan[]> {
     const client = supabaseAdmin ?? supabase
-    const { data, error } = await client
+    let query = client
       .from('plans')
       .select('*')
       .order('name', { ascending: true })
+    if (options?.page && options?.pageSize) {
+      const from = (options.page - 1) * options.pageSize
+      const to = from + options.pageSize - 1
+      query = query.range(from, to)
+    }
+    const { data, error } = await query
     if (error) throw error
     return data || []
+  },
+  async countPlans(): Promise<number> {
+    const client = supabaseAdmin ?? supabase
+    const { count } = await client
+      .from('plans')
+      .select('*', { count: 'exact', head: true })
+    return count ?? 0
   },
 
   async createPlan(payload: any): Promise<Plan> {
@@ -677,14 +693,30 @@ export const addOnService = {
     return data
   },
 
-  async getAllAddOnsAdmin(): Promise<AddOn[]> {
+  async getAllAddOnsAdmin(options?: {
+    page?: number
+    pageSize?: number
+  }): Promise<AddOn[]> {
     const client = supabaseAdmin ?? supabase
-    const { data, error } = await client
+    let query = client
       .from('add_ons')
       .select('*')
       .order('name', { ascending: true })
+    if (options?.page && options?.pageSize) {
+      const from = (options.page - 1) * options.pageSize
+      const to = from + options.pageSize - 1
+      query = query.range(from, to)
+    }
+    const { data, error } = await query
     if (error) throw error
     return data || []
+  },
+  async countAddOns(): Promise<number> {
+    const client = supabaseAdmin ?? supabase
+    const { count } = await client
+      .from('add_ons')
+      .select('*', { count: 'exact', head: true })
+    return count ?? 0
   },
 
   async createAddOn(payload: any): Promise<AddOn> {
@@ -1205,12 +1237,24 @@ export const paymentService = {
 // AMENITIES
 // ============================================
 export const amenitiesService = {
-  async getAll(): Promise<any[]> {
-    const { data } = await supabase
+  async getAll(options?: { page?: number; pageSize?: number }): Promise<any[]> {
+    let query = supabase
       .from('amenities')
       .select('*')
       .order('sort_order', { ascending: true })
+    if (options?.page && options?.pageSize) {
+      const from = (options.page - 1) * options.pageSize
+      const to = from + options.pageSize - 1
+      query = query.range(from, to)
+    }
+    const { data } = await query
     return data || []
+  },
+  async count(): Promise<number> {
+    const { count } = await supabase
+      .from('amenities')
+      .select('*', { count: 'exact', head: true })
+    return count ?? 0
   },
 }
 
@@ -1218,12 +1262,24 @@ export const amenitiesService = {
 // TESTIMONIALS
 // ============================================
 export const testimonialsService = {
-  async getAll(): Promise<any[]> {
-    const { data } = await supabase
+  async getAll(options?: { page?: number; pageSize?: number }): Promise<any[]> {
+    let query = supabase
       .from('testimonials')
       .select('*')
       .order('sort_order', { ascending: true })
+    if (options?.page && options?.pageSize) {
+      const from = (options.page - 1) * options.pageSize
+      const to = from + options.pageSize - 1
+      query = query.range(from, to)
+    }
+    const { data } = await query
     return data || []
+  },
+  async count(): Promise<number> {
+    const { count } = await supabase
+      .from('testimonials')
+      .select('*', { count: 'exact', head: true })
+    return count ?? 0
   },
   async create(payload: any): Promise<any> {
     const client = supabaseAdmin ?? supabase
@@ -1257,12 +1313,24 @@ export const testimonialsService = {
 // FAQS
 // ============================================
 export const faqsService = {
-  async getAll(): Promise<any[]> {
-    const { data } = await supabase
+  async getAll(options?: { page?: number; pageSize?: number }): Promise<any[]> {
+    let query = supabase
       .from('faqs')
       .select('*')
       .order('sort_order', { ascending: true })
+    if (options?.page && options?.pageSize) {
+      const from = (options.page - 1) * options.pageSize
+      const to = from + options.pageSize - 1
+      query = query.range(from, to)
+    }
+    const { data } = await query
     return data || []
+  },
+  async count(): Promise<number> {
+    const { count } = await supabase
+      .from('faqs')
+      .select('*', { count: 'exact', head: true })
+    return count ?? 0
   },
   async create(payload: any): Promise<any> {
     const client = supabaseAdmin ?? supabase
@@ -1296,12 +1364,24 @@ export const faqsService = {
 // MEMBER COMPANIES
 // ============================================
 export const memberCompaniesService = {
-  async getAll(): Promise<any[]> {
-    const { data } = await supabase
+  async getAll(options?: { page?: number; pageSize?: number }): Promise<any[]> {
+    let query = supabase
       .from('member_companies')
       .select('*')
       .order('sort_order', { ascending: true })
+    if (options?.page && options?.pageSize) {
+      const from = (options.page - 1) * options.pageSize
+      const to = from + options.pageSize - 1
+      query = query.range(from, to)
+    }
+    const { data } = await query
     return data || []
+  },
+  async count(): Promise<number> {
+    const { count } = await supabase
+      .from('member_companies')
+      .select('*', { count: 'exact', head: true })
+    return count ?? 0
   },
   async create(payload: any): Promise<any> {
     const client = supabaseAdmin ?? supabase
@@ -1338,12 +1418,24 @@ export const memberCompaniesService = {
 // SITE STATS
 // ============================================
 export const siteStatsService = {
-  async getAll(): Promise<any[]> {
-    const { data } = await supabase
+  async getAll(options?: { page?: number; pageSize?: number }): Promise<any[]> {
+    let query = supabase
       .from('site_stats')
       .select('*')
       .order('sort_order', { ascending: true })
+    if (options?.page && options?.pageSize) {
+      const from = (options.page - 1) * options.pageSize
+      const to = from + options.pageSize - 1
+      query = query.range(from, to)
+    }
+    const { data } = await query
     return data || []
+  },
+  async count(): Promise<number> {
+    const { count } = await supabase
+      .from('site_stats')
+      .select('*', { count: 'exact', head: true })
+    return count ?? 0
   },
 
   async create(payload: any): Promise<any> {
@@ -1411,10 +1503,10 @@ export const heroService = {
 // ============================================
 // MEMBERSHIP CONTENT
 // ============================================
-export const membershipService = {
+export const plansContentService = {
   async get(): Promise<any | null> {
     const { data, error } = await supabase
-      .from('membership_content')
+      .from('plans_content')
       .select('*')
       .limit(1)
       .maybeSingle()
@@ -1425,13 +1517,13 @@ export const membershipService = {
   async upsert(payload: any): Promise<any> {
     const client = supabaseAdmin ?? supabase
     const { data: existing } = await client
-      .from('membership_content')
+      .from('plans_content')
       .select('id')
       .limit(1)
       .maybeSingle()
     const id = existing?.id ?? undefined
     const { data, error } = await client
-      .from('membership_content')
+      .from('plans_content')
       .upsert({ id, ...payload })
       .select()
       .single()
@@ -1540,13 +1632,26 @@ export const ctaContentService = {
 // FORM SUBMISSIONS
 // ============================================
 export const formSubmissionService = {
-  async getAll(): Promise<any[]> {
+  async getAll(options?: { page?: number; pageSize?: number }): Promise<any[]> {
     const client = supabaseAdmin ?? supabase
-    const { data } = await client
+    let query = client
       .from('form_submissions')
       .select('*')
       .order('created_at', { ascending: false })
+    if (options?.page && options?.pageSize) {
+      const from = (options.page - 1) * options.pageSize
+      const to = from + options.pageSize - 1
+      query = query.range(from, to)
+    }
+    const { data } = await query
     return data || []
+  },
+  async count(): Promise<number> {
+    const client = supabaseAdmin ?? supabase
+    const { count } = await client
+      .from('form_submissions')
+      .select('*', { count: 'exact', head: true })
+    return count ?? 0
   },
 
   async create(payload: any): Promise<void> {
@@ -1560,6 +1665,92 @@ export const formSubmissionService = {
       .from('form_submissions')
       .delete()
       .eq('id', id)
+    if (error) throw error
+  },
+}
+
+// ============================================
+// FOOD ORDERS
+// ============================================
+export const orderService = {
+  async getAll(options?: {
+    page?: number
+    pageSize?: number
+    order_date?: string
+    company_name?: string
+    item_name?: string
+    status?: string
+  }): Promise<any[]> {
+    const page = options?.page ?? 1
+    const pageSize = options?.pageSize ?? 50
+    const from = (page - 1) * pageSize
+    const to = from + pageSize - 1
+    let query = supabase.from('orders').select('*')
+    if (options?.order_date) {
+      query = query.eq('order_date', options.order_date)
+    }
+    if (options?.company_name) {
+      query = query.ilike('company_name', `%${options.company_name}%`)
+    }
+    if (options?.item_name) {
+      query = query.ilike('item_name', `%${options.item_name}%`)
+    }
+    if (options?.status) {
+      query = (query as any).eq('status', options.status)
+    }
+    const { data } = await query
+      .order('created_at', { ascending: false })
+      .range(from, to)
+    return data || []
+  },
+  async count(options?: {
+    order_date?: string
+    company_name?: string
+    item_name?: string
+    status?: string
+  }): Promise<number> {
+    let query: any = supabase
+      .from('orders')
+      .select('*', { count: 'exact', head: true })
+    if (options?.order_date) {
+      query = query.eq('order_date', options.order_date)
+    }
+    if (options?.company_name) {
+      query = query.ilike('company_name', `%${options.company_name}%`)
+    }
+    if (options?.item_name) {
+      query = query.ilike('item_name', `%${options.item_name}%`)
+    }
+    if (options?.status) {
+      query = query.eq('status', options.status)
+    }
+    const { count } = await query
+    return count ?? 0
+  },
+  async create(payload: any): Promise<any> {
+    const client = supabaseAdmin ?? supabase
+    const { data, error } = await client
+      .from('orders')
+      .insert(payload)
+      .select()
+      .single()
+    if (error) throw error
+    return data
+  },
+  async update(id: string, payload: any): Promise<any> {
+    const client = supabaseAdmin ?? supabase
+    const { data, error } = await client
+      .from('orders')
+      .update(payload)
+      .eq('id', id)
+      .select()
+      .single()
+    if (error) throw error
+    return data
+  },
+  async delete(id: string): Promise<void> {
+    const client = supabaseAdmin ?? supabase
+    const { error } = await client.from('orders').delete().eq('id', id)
     if (error) throw error
   },
 }

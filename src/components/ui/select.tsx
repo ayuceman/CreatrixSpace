@@ -1,24 +1,24 @@
 import * as React from 'react'
-
 import { cn } from '@/lib/utils'
 
-export type InputProps = React.InputHTMLAttributes<HTMLInputElement>
+export type SelectProps = React.SelectHTMLAttributes<HTMLSelectElement>
 
-const Input = React.forwardRef<HTMLInputElement, InputProps>(
-  ({ className, type, ...props }, ref) => {
+const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
+  ({ className, children, ...props }, ref) => {
     return (
-      <input
-        type={type}
+      <select
         className={cn(
           'flex h-10 w-full items-center gap-2 rounded-md border border-rule bg-bg px-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-2 hover:border-clay/50 transition-colors',
           className
         )}
         ref={ref}
         {...props}
-      />
+      >
+        {children}
+      </select>
     )
   }
 )
-Input.displayName = 'Input'
+Select.displayName = 'Select'
 
-export { Input }
+export { Select }

@@ -2,8 +2,9 @@ import { Calendar, Clock } from 'lucide-react'
 import { useBookingStore } from '@/store/booking-store'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { DatePicker } from '@/components/ui/date-picker'
+import { TimePicker } from '@/components/ui/time-picker'
 
 export function DateTimeStep() {
   const {
@@ -60,24 +61,22 @@ export function DateTimeStep() {
               <Label htmlFor="start-date">
                 {isDayPass ? 'Date' : 'Start Date'}
               </Label>
-              <Input
+              <DatePicker
                 id="start-date"
-                type="date"
                 min={minDate}
                 value={formatDateForInput(bookingData.startDate)}
-                onChange={(e) => handleDateChange('startDate', e.target.value)}
+                onChange={(val) => handleDateChange('startDate', val)}
               />
             </div>
 
             {!isDayPass && (
               <div className="space-y-2">
                 <Label htmlFor="end-date">End Date</Label>
-                <Input
+                <DatePicker
                   id="end-date"
-                  type="date"
                   min={formatDateForInput(bookingData.startDate) || minDate}
                   value={formatDateForInput(bookingData.endDate)}
-                  onChange={(e) => handleDateChange('endDate', e.target.value)}
+                  onChange={(val) => handleDateChange('endDate', val)}
                 />
               </div>
             )}
@@ -107,23 +106,19 @@ export function DateTimeStep() {
             <div className="grid md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="start-time">Start Time</Label>
-                <Input
+                <TimePicker
                   id="start-time"
-                  type="time"
                   value={bookingData.startTime}
-                  onChange={(e) =>
-                    handleTimeChange('startTime', e.target.value)
-                  }
+                  onChange={(val) => handleTimeChange('startTime', val)}
                 />
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="end-time">End Time</Label>
-                <Input
+                <TimePicker
                   id="end-time"
-                  type="time"
                   value={bookingData.endTime}
-                  onChange={(e) => handleTimeChange('endTime', e.target.value)}
+                  onChange={(val) => handleTimeChange('endTime', val)}
                 />
               </div>
             </div>

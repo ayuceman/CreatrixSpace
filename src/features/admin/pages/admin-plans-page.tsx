@@ -320,7 +320,7 @@ export function AdminPlansPage() {
         </Card>
       )}
 
-      <Card>
+      <Card className="overflow-hidden">
         <CardContent className="p-0">
           {loading ? (
             <div className="text-sm text-fg-2 p-6 text-center">Loading...</div>

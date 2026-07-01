@@ -44,6 +44,7 @@ export const ROUTES = {
   ADMIN_FORM_SUBMISSIONS: '/admin/form-submissions',
   ADMIN_PLANS: '/admin/plans',
   ADMIN_ADDONS: '/admin/add-ons',
+  ADMIN_ORDERS: '/admin/orders',
 } as const
 
 export const AMENITIES = [

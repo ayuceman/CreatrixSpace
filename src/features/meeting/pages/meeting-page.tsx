@@ -231,8 +231,13 @@ export function MeetingPage() {
     }
 
     if (pendingDelete) {
+      const id = pendingEdit.id
+      const email = verifyEmail
+      setPendingEdit(null)
+      setPendingDelete(false)
+      setVerifyEmail('')
       try {
-        await meetingService.delete(pendingEdit.id, verifyEmail)
+        await meetingService.delete(id, email)
         showToast('Meeting cancelled', 'success')
         loadMeetings(selectedDate!)
         const start = format(calendarStart, 'yyyy-MM-dd')
@@ -242,9 +247,6 @@ export function MeetingPage() {
       } catch {
         showToast('Failed to cancel meeting', 'error')
       }
-      setPendingEdit(null)
-      setPendingDelete(false)
-      setVerifyEmail('')
       return
     }
 

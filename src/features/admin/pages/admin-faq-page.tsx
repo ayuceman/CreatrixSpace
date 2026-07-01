@@ -1,10 +1,12 @@
-import { useState, useEffect } from 'react'
-import { Plus, Pencil, Trash2 } from 'lucide-react'
+import { useState, useEffect, useCallback } from 'react'
+import { Plus, Pencil, Trash2, ChevronLeft, ChevronRight } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { ConfirmModal } from '@/components/ui/confirm-modal'
 import { faqsService } from '@/services/supabase-service'
 import { showToast } from '@/components/ui/toast'
+
+const PAGE_SIZE = 20
 
 interface Faq {
   id: string
@@ -26,17 +28,24 @@ export function AdminFaqPage() {
   const [editingId, setEditingId] = useState<string | null>(null)
   const [deleteTarget, setDeleteTarget] = useState<string | null>(null)
   const [form, setForm] = useState(emptyForm)
+  const [page, setPage] = useState(1)
+  const [totalCount, setTotalCount] = useState(0)
+  const totalPages = Math.max(1, Math.ceil(totalCount / PAGE_SIZE))
 
-  const load = async () => {
+  const load = useCallback(async () => {
     setLoading(true)
-    const data = await faqsService.getAll()
+    const [data, count] = await Promise.all([
+      faqsService.getAll({ page, pageSize: PAGE_SIZE }),
+      faqsService.count(),
+    ])
     setItems(data)
+    setTotalCount(count)
     setLoading(false)
-  }
+  }, [page])
 
   useEffect(() => {
     load()
-  }, [])
+  }, [load])
 
   const openCreate = () => {
     setForm(emptyForm)
@@ -168,37 +177,68 @@ export function AdminFaqPage() {
           <p className="text-body">No FAQs yet.</p>
         </div>
       ) : (
-        <div className="space-y-2">
-          {items.map((item) => (
-            <div
-              key={item.id}
-              className="flex items-start justify-between bg-bg-raised border border-rule rounded-sm px-5 py-4"
-            >
-              <div className="min-w-0 flex-1">
-                <div className="font-medium text-fg-1">{item.question}</div>
-                <div className="text-sm text-fg-2 mt-1 line-clamp-2">
-                  {item.answer}
+        <>
+          <div className="space-y-2">
+            {items.map((item) => (
+              <div
+                key={item.id}
+                className="flex items-start justify-between bg-bg-raised border border-rule rounded-sm px-5 py-4"
+              >
+                <div className="min-w-0 flex-1">
+                  <div className="font-medium text-fg-1">{item.question}</div>
+                  <div className="text-sm text-fg-2 mt-1 line-clamp-2">
+                    {item.answer}
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 shrink-0 ml-4">
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    icon={Pencil}
+                    onClick={() => openEdit(item)}
+                    aria-label="Edit"
+                  />
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    icon={Trash2}
+                    onClick={() => setDeleteTarget(item.id)}
+                    aria-label="Delete"
+                  />
                 </div>
               </div>
-              <div className="flex items-center gap-2 shrink-0 ml-4">
+            ))}
+          </div>
+          {totalPages > 1 && (
+            <div className="flex items-center justify-between pt-2">
+              <p className="text-xs text-fg-3">
+                Showing {(page - 1) * PAGE_SIZE + 1}&ndash;
+                {Math.min(page * PAGE_SIZE, totalCount)} of {totalCount}
+              </p>
+              <div className="flex items-center gap-2">
                 <Button
                   size="sm"
-                  variant="ghost"
-                  icon={Pencil}
-                  onClick={() => openEdit(item)}
-                  aria-label="Edit"
-                />
+                  variant="outline"
+                  disabled={page <= 1}
+                  onClick={() => setPage((p) => p - 1)}
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                </Button>
+                <span className="text-xs text-fg-2 w-10 text-center">
+                  {page} / {totalPages}
+                </span>
                 <Button
                   size="sm"
-                  variant="ghost"
-                  icon={Trash2}
-                  onClick={() => setDeleteTarget(item.id)}
-                  aria-label="Delete"
-                />
+                  variant="outline"
+                  disabled={page >= totalPages}
+                  onClick={() => setPage((p) => p + 1)}
+                >
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
               </div>
             </div>
-          ))}
-        </div>
+          )}
+        </>
       )}
 
       <ConfirmModal

@@ -5,6 +5,7 @@ export type AdminBookingRecord = {
   customerName: string
   email?: string
   phone?: string
+  organization?: string
   locationId?: string
   locationName: string
   planId?: string
@@ -57,6 +58,8 @@ export function transformBookingsToAdmin(
       customerName,
       email: contactInfo?.email || undefined,
       phone: contactInfo?.phone || undefined,
+      organization:
+        booking.organization || contactInfo?.organization || undefined,
       locationId: booking.location_id,
       locationName: booking.locations?.name || 'Unknown Location',
       planId: booking.plan_id,
