@@ -30,7 +30,6 @@ import { AdminProtectedRoute } from '@/features/admin/components/protected-route
 import { AdminLayout } from '@/features/admin/components/admin-layout'
 import { AdminDashboardPage } from '@/features/admin/pages/admin-dashboard-page'
 import { AdminBookingsPage } from '@/features/admin/pages/admin-bookings-page'
-import { AdminMembershipsPage } from '@/features/admin/pages/admin-memberships-page'
 import { AdminPricingPage } from '@/features/admin/pages/admin-pricing-page'
 import { AdminLocationsPage } from '@/features/admin/pages/admin-locations-page'
 import { AdminSiteStatsPage } from '@/features/admin/pages/admin-site-stats-page'
@@ -45,6 +44,7 @@ import { AdminMemberCompaniesPage } from '@/features/admin/pages/admin-member-co
 import { AdminFormSubmissionsPage } from '@/features/admin/pages/admin-form-submissions-page'
 import { AdminPlansPage } from '@/features/admin/pages/admin-plans-page'
 import { AdminAddonsPage } from '@/features/admin/pages/admin-addons-page'
+import { AdminOrdersPage } from '@/features/admin/pages/admin-orders-page'
 
 const router = createBrowserRouter([
   {
@@ -146,7 +146,6 @@ const router = createBrowserRouter([
         children: [
           { index: true, element: <AdminDashboardPage /> },
           { path: ROUTES.ADMIN_BOOKINGS, element: <AdminBookingsPage /> },
-          { path: ROUTES.ADMIN_MEMBERSHIPS, element: <AdminMembershipsPage /> },
           { path: ROUTES.ADMIN_PRICING, element: <AdminPricingPage /> },
           { path: ROUTES.ADMIN_LOCATIONS, element: <AdminLocationsPage /> },
           { path: ROUTES.ADMIN_SITE_STATS, element: <AdminSiteStatsPage /> },
@@ -170,6 +169,7 @@ const router = createBrowserRouter([
           },
           { path: ROUTES.ADMIN_PLANS, element: <AdminPlansPage /> },
           { path: ROUTES.ADMIN_ADDONS, element: <AdminAddonsPage /> },
+          { path: ROUTES.ADMIN_ORDERS, element: <AdminOrdersPage /> },
         ],
       },
     ],

@@ -7,7 +7,7 @@ import { onNewBooking, NewBookingEvent } from '@/lib/booking-events'
 import { onNewMembership, type MembershipEvent } from '@/lib/membership-events'
 import { cn } from '@/lib/utils'
 import { ToastContainer } from '@/components/ui/toast'
-import { ChevronDown } from 'lucide-react'
+import { ChevronDown, ChevronRight, Menu, X } from 'lucide-react'
 
 const pageTitles: Record<string, string> = {
   [ROUTES.ADMIN]: 'Dashboard',
@@ -17,7 +17,7 @@ const pageTitles: Record<string, string> = {
   [ROUTES.ADMIN_LOCATIONS]: 'Locations',
   [ROUTES.ADMIN_SITE_STATS]: 'Site Stats',
   [ROUTES.ADMIN_HERO]: 'Hero Section',
-  [ROUTES.ADMIN_MEMBERSHIP]: 'Membership Section',
+  [ROUTES.ADMIN_MEMBERSHIP]: 'Plans Section',
   [ROUTES.ADMIN_SPACES]: 'Spaces Section',
   [ROUTES.ADMIN_AMENITIES]: 'Amenities Section',
   [ROUTES.ADMIN_BOOK_TOUR]: 'Book a Tour Content',
@@ -28,6 +28,7 @@ const pageTitles: Record<string, string> = {
   [ROUTES.ADMIN_FORM_SUBMISSIONS]: 'Form Submissions',
   [ROUTES.ADMIN_PLANS]: 'Plans',
   [ROUTES.ADMIN_ADDONS]: 'Add-ons',
+  [ROUTES.ADMIN_ORDERS]: 'Food Orders',
 }
 
 // ── Nav structure ────────────────────────────────────────────────────────────
@@ -43,14 +44,14 @@ type NavEntry = FlatItem | GroupItem
 
 const navEntries: NavEntry[] = [
   { kind: 'flat', name: 'Dashboard', path: ROUTES.ADMIN },
-  { kind: 'flat', name: 'Bookings', path: ROUTES.ADMIN_BOOKINGS },
-  { kind: 'flat', name: 'Memberships', path: ROUTES.ADMIN_MEMBERSHIPS },
+  { kind: 'flat', name: 'Bookings & Memberships', path: ROUTES.ADMIN_BOOKINGS },
+  { kind: 'flat', name: 'Orders', path: ROUTES.ADMIN_ORDERS },
   {
     kind: 'group',
     name: 'Content',
     items: [
       { name: 'Hero', path: ROUTES.ADMIN_HERO },
-      { name: 'Membership', path: ROUTES.ADMIN_MEMBERSHIP },
+      { name: 'Plans', path: ROUTES.ADMIN_MEMBERSHIP },
       { name: 'Spaces', path: ROUTES.ADMIN_SPACES },
       { name: 'Amenities', path: ROUTES.ADMIN_AMENITIES },
       { name: 'Locations', path: ROUTES.ADMIN_LOCATIONS },
@@ -163,14 +164,26 @@ function NavDropdown({
 export function AdminLayout() {
   const { pathname } = useLocation()
   const session = typeof window !== 'undefined' ? getAdminSession() : null
+  const [mobileNavOpen, setMobileNavOpen] = useState(false)
+  const [mobileGroupsOpen, setMobileGroupsOpen] = useState<
+    Record<string, boolean>
+  >({})
   const [bookingToast, setBookingToast] = useState<NewBookingEvent | null>(null)
 
   useEffect(() => {
     const title = pageTitles[pathname]
     if (title) document.title = `${title} | CreatrixSpace Admin`
+    setMobileNavOpen(false)
   }, [pathname])
   const [membershipToast, setMembershipToast] =
     useState<MembershipEvent | null>(null)
+
+  useEffect(() => {
+    document.body.style.overflow = mobileNavOpen ? 'hidden' : ''
+    return () => {
+      document.body.style.overflow = ''
+    }
+  }, [mobileNavOpen])
 
   useEffect(() => {
     if (typeof window === 'undefined') return
@@ -228,6 +241,20 @@ export function AdminLayout() {
               </div>
             </Link>
 
+            <button
+              className="md:hidden p-1.5 -ml-1.5 text-fg-2 hover:text-fg-1 transition-colors"
+              onClick={() => setMobileNavOpen((v) => !v)}
+              aria-label={
+                mobileNavOpen ? 'Close navigation' : 'Open navigation'
+              }
+            >
+              {mobileNavOpen ? (
+                <X className="w-5 h-5" />
+              ) : (
+                <Menu className="w-5 h-5" />
+              )}
+            </button>
+
             <nav className="hidden md:flex items-center gap-1">
               {navEntries.map((entry) =>
                 entry.kind === 'flat' ? (
@@ -276,6 +303,82 @@ export function AdminLayout() {
           </div>
         </div>
       </header>
+
+      {/* ── Mobile navigation overlay ── */}
+      {mobileNavOpen && (
+        <div className="md:hidden">
+          {/* Backdrop */}
+          <div
+            className="fixed inset-0 z-30 bg-ink/20 backdrop-blur-sm"
+            onClick={() => setMobileNavOpen(false)}
+          />
+          {/* Panel */}
+          <nav className="fixed left-0 right-0 z-40 top-[57px] bottom-0 bg-bg border-t border-rule overflow-y-auto shadow-soft">
+            <div className="py-3 flex flex-col gap-0.5">
+              {navEntries.map((entry) =>
+                entry.kind === 'flat' ? (
+                  <Link
+                    key={entry.name}
+                    to={entry.path}
+                    className={cn(
+                      'mx-2 px-3 py-2.5 text-sm rounded-sm transition-colors duration-200 no-underline block',
+                      pathname === entry.path
+                        ? 'text-fg-1 bg-clay-soft font-medium'
+                        : 'text-fg-2 hover:text-fg-1 hover:bg-clay-soft/50'
+                    )}
+                  >
+                    {entry.name}
+                  </Link>
+                ) : (
+                  <div key={entry.name}>
+                    <button
+                      onClick={() =>
+                        setMobileGroupsOpen((prev) => ({
+                          ...prev,
+                          [entry.name]: !prev[entry.name],
+                        }))
+                      }
+                      className={cn(
+                        'mx-2 w-[calc(100%-16px)] flex items-center justify-between px-3 py-2.5 text-sm rounded-sm transition-colors duration-200 text-left',
+                        mobileGroupsOpen[entry.name] ||
+                          entry.items.some((i) => i.path === pathname)
+                          ? 'text-fg-1 bg-clay-soft/50 font-medium'
+                          : 'text-fg-2 hover:text-fg-1 hover:bg-clay-soft/50'
+                      )}
+                    >
+                      {entry.name}
+                      <ChevronRight
+                        className={cn(
+                          'w-4 h-4 transition-transform duration-200',
+                          mobileGroupsOpen[entry.name] && 'rotate-90'
+                        )}
+                      />
+                    </button>
+                    {mobileGroupsOpen[entry.name] && (
+                      <div className="ml-4 border-l-2 border-rule mt-0.5 mb-0.5 flex flex-col gap-0.5">
+                        {entry.items.map((item) => (
+                          <Link
+                            key={item.path}
+                            to={item.path}
+                            className={cn(
+                              'ml-2 px-3 py-2 text-sm rounded-sm transition-colors duration-200 no-underline block',
+                              pathname === item.path
+                                ? 'text-fg-1 bg-clay-soft font-medium'
+                                : 'text-fg-2 hover:text-fg-1 hover:bg-clay-soft/50'
+                            )}
+                          >
+                            {item.name}
+                          </Link>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )
+              )}
+            </div>
+          </nav>
+        </div>
+      )}
 
       <main className="container py-8">
         <Outlet />

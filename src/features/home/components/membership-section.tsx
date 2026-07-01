@@ -4,7 +4,7 @@ import { ArrowRight, MessageCircle } from 'lucide-react'
 import { WHATSAPP } from '@/lib/constants'
 import { Button } from '@/components/ui/button'
 import { Link } from 'react-router-dom'
-import { membershipService } from '@/services/supabase-service'
+import { plansContentService } from '@/services/supabase-service'
 
 interface PlanCard {
   id: string
@@ -300,7 +300,7 @@ export function MembershipSection() {
   const [activeId, setActiveId] = useState('open-desks')
 
   useEffect(() => {
-    membershipService
+    plansContentService
       .get()
       .then((data) => {
         if (data) {

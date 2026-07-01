@@ -778,7 +778,7 @@ export interface Database {
         }
         Relationships: []
       }
-      membership_content: {
+      plans_content: {
         Row: {
           id: string
           tabs: Json
@@ -884,6 +884,43 @@ export interface Database {
           author_role?: string | null
           author_initials?: string | null
           sort_order?: number | null
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      orders: {
+        Row: {
+          id: string
+          order_date: string
+          company_name: string
+          customer_name: string
+          item_name: string
+          quantity: number
+          price: number
+          total_price: number
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          order_date?: string
+          company_name?: string
+          customer_name: string
+          item_name: string
+          quantity?: number
+          price: number
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          order_date?: string
+          company_name?: string
+          customer_name?: string
+          item_name?: string
+          quantity?: number
+          price?: number
           created_at?: string
           updated_at?: string
         }
