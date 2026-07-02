@@ -4,6 +4,13 @@ import { Input } from '@/components/ui/input'
 import { Separator } from '@/components/ui/separator'
 import { Switch } from '@/components/ui/switch'
 import { Label } from '@/components/ui/label'
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from '@/components/ui/select'
 import { Badge } from '@/components/ui/badge'
 import {
   Loader2,
@@ -1000,45 +1007,51 @@ export function AdminBookingsPage() {
                   <div className="grid gap-4 md:grid-cols-3">
                     <div className="flex flex-col gap-1">
                       <label className="text-xs text-fg-2">Location *</label>
-                      <select
-                        required
-                        className="border rounded px-3 py-2 text-sm"
+                      <Select
                         value={manualForm.locationName}
-                        onChange={(e) =>
+                        onValueChange={(val) =>
                           setManualForm((prev) => ({
                             ...prev,
-                            locationName: e.target.value,
+                            locationName: val,
                           }))
                         }
                       >
-                        <option value="">Select a location</option>
-                        {locations.map((l) => (
-                          <option key={l.id} value={l.name}>
-                            {l.name}
-                          </option>
-                        ))}
-                      </select>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select a location" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="">Select a location</SelectItem>
+                          {locations.map((l) => (
+                            <SelectItem key={l.id} value={l.name}>
+                              {l.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                     </div>
                     <div className="flex flex-col gap-1">
                       <label className="text-xs text-fg-2">Plan *</label>
-                      <select
-                        required
-                        className="border rounded px-3 py-2 text-sm"
+                      <Select
                         value={manualForm.planName}
-                        onChange={(e) =>
+                        onValueChange={(val) =>
                           setManualForm((prev) => ({
                             ...prev,
-                            planName: e.target.value,
+                            planName: val,
                           }))
                         }
                       >
-                        <option value="">Select a plan</option>
-                        {plans.map((p) => (
-                          <option key={p.id} value={p.name}>
-                            {p.name}
-                          </option>
-                        ))}
-                      </select>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select a plan" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="">Select a plan</SelectItem>
+                          {plans.map((p) => (
+                            <SelectItem key={p.id} value={p.name}>
+                              {p.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                     </div>
                     <div className="flex flex-col gap-1">
                       <label className="text-xs text-fg-2">Room</label>
@@ -1074,22 +1087,26 @@ export function AdminBookingsPage() {
                       <label className="text-xs text-fg-2">
                         Payment Status
                       </label>
-                      <select
-                        className="border rounded px-3 py-2 text-sm"
+                      <Select
                         value={manualForm.paymentStatus}
-                        onChange={(e) =>
+                        onValueChange={(val) =>
                           setManualForm((prev) => ({
                             ...prev,
-                            paymentStatus: e.target.value,
+                            paymentStatus: val,
                           }))
                         }
                       >
-                        {PAYMENT_STATUSES.map((ps) => (
-                          <option key={ps} value={ps}>
-                            {ps.charAt(0).toUpperCase() + ps.slice(1)}
-                          </option>
-                        ))}
-                      </select>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select payment status" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {PAYMENT_STATUSES.map((ps) => (
+                            <SelectItem key={ps} value={ps}>
+                              {ps.charAt(0).toUpperCase() + ps.slice(1)}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                     </div>
                     <div className="grid grid-cols-2 gap-2">
                       <div className="flex flex-col gap-1">
@@ -1245,32 +1262,40 @@ export function AdminBookingsPage() {
             <div className="flex items-center gap-3 flex-wrap">
               <div className="flex items-center gap-2">
                 <Filter className="h-4 w-4 text-clay" />
-                <select
+                <Select
                   value={statusFilter}
-                  onChange={(e) => setStatusFilter(e.target.value)}
-                  className="text-sm border rounded px-3 py-2"
+                  onValueChange={(val) => setStatusFilter(val)}
                 >
-                  <option value="all">All Status</option>
-                  <option value="confirmed">Confirmed</option>
-                  <option value="pending">Pending</option>
-                  <option value="active">Active</option>
-                  <option value="expired">Expired</option>
-                  <option value="cancelled">Cancelled</option>
-                  <option value="suspended">Suspended</option>
-                </select>
+                  <SelectTrigger>
+                    <SelectValue placeholder="All Status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Status</SelectItem>
+                    <SelectItem value="confirmed">Confirmed</SelectItem>
+                    <SelectItem value="pending">Pending</SelectItem>
+                    <SelectItem value="active">Active</SelectItem>
+                    <SelectItem value="expired">Expired</SelectItem>
+                    <SelectItem value="cancelled">Cancelled</SelectItem>
+                    <SelectItem value="suspended">Suspended</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
               <div className="flex items-center gap-2">
                 <SortAsc className="h-4 w-4 text-clay" />
-                <select
+                <Select
                   value={sortBy}
-                  onChange={(e) => setSortBy(e.target.value as any)}
-                  className="text-sm border rounded px-3 py-2"
+                  onValueChange={(val) => setSortBy(val as any)}
                 >
-                  <option value="date">Date</option>
-                  <option value="amount">Amount</option>
-                  <option value="name">Name</option>
-                  <option value="expiry">Expiry</option>
-                </select>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Sort by" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="date">Date</SelectItem>
+                    <SelectItem value="amount">Amount</SelectItem>
+                    <SelectItem value="name">Name</SelectItem>
+                    <SelectItem value="expiry">Expiry</SelectItem>
+                  </SelectContent>
+                </Select>
                 <button
                   onClick={() =>
                     setSortOrder((prev) => (prev === 'asc' ? 'desc' : 'asc'))
@@ -1415,21 +1440,25 @@ export function AdminBookingsPage() {
                               >
                                 {getStatusLabel(r.status)}
                               </Badge>
-                              <select
-                                className="text-xs border rounded px-2 py-1"
+                              <Select
                                 value={r.status}
-                                onChange={(e) =>
-                                  handleStatusChange(r, e.target.value)
+                                onValueChange={(val) =>
+                                  handleStatusChange(r, val)
                                 }
                               >
-                                {Object.values(MEMBERSHIP_STATUS).map(
-                                  (status) => (
-                                    <option key={status} value={status}>
-                                      {getStatusLabel(status)}
-                                    </option>
-                                  )
-                                )}
-                              </select>
+                                <SelectTrigger className="h-auto text-xs px-2 py-1">
+                                  <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {Object.values(MEMBERSHIP_STATUS).map(
+                                    (status) => (
+                                      <SelectItem key={status} value={status}>
+                                        {getStatusLabel(status)}
+                                      </SelectItem>
+                                    )
+                                  )}
+                                </SelectContent>
+                              </Select>
                             </>
                           ) : (
                             <>
@@ -1463,24 +1492,24 @@ export function AdminBookingsPage() {
                                 <span className="text-xs text-fg-2">
                                   Payment
                                 </span>
-                                <select
-                                  className="text-xs border rounded px-2 py-1"
+                                <Select
                                   value={r.paymentStatus || 'pending'}
-                                  disabled={updatingIds.has(r.id)}
-                                  onChange={(e) =>
-                                    handlePaymentStatusChange(
-                                      r.id,
-                                      e.target.value,
-                                      r
-                                    )
+                                  onValueChange={(val) =>
+                                    handlePaymentStatusChange(r.id, val, r)
                                   }
                                 >
-                                  {PAYMENT_STATUSES.map((ps) => (
-                                    <option key={ps} value={ps}>
-                                      {ps.charAt(0).toUpperCase() + ps.slice(1)}
-                                    </option>
-                                  ))}
-                                </select>
+                                  <SelectTrigger className="h-auto text-xs px-2 py-1">
+                                    <SelectValue />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    {PAYMENT_STATUSES.map((ps) => (
+                                      <SelectItem key={ps} value={ps}>
+                                        {ps.charAt(0).toUpperCase() +
+                                          ps.slice(1)}
+                                      </SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
                               </div>
                             </>
                           )}

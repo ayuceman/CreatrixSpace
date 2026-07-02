@@ -11,7 +11,13 @@ import {
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
-import { Select } from '@/components/ui/select'
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from '@/components/ui/select'
 import { ConfirmModal } from '@/components/ui/confirm-modal'
 import { orderService } from '@/services/supabase-service'
 import { supabase } from '@/lib/supabase'
@@ -560,42 +566,55 @@ export function AdminOrdersPage() {
           />
           <Select
             value={filters.company_name}
-            onChange={(e) =>
-              setFilters((f) => ({ ...f, company_name: e.target.value }))
+            onValueChange={(val) =>
+              setFilters((f) => ({ ...f, company_name: val }))
             }
           >
-            <option value="">All Organizations</option>
-            {organizations.map((org) => (
-              <option key={org} value={org}>
-                {org}
-              </option>
-            ))}
+            <SelectTrigger>
+              <SelectValue placeholder="All Organizations" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="">All Organizations</SelectItem>
+              {organizations.map((org) => (
+                <SelectItem key={org} value={org}>
+                  {org}
+                </SelectItem>
+              ))}
+            </SelectContent>
           </Select>
           <Select
             value={filters.item_name}
-            onChange={(e) =>
-              setFilters((f) => ({ ...f, item_name: e.target.value }))
+            onValueChange={(val) =>
+              setFilters((f) => ({ ...f, item_name: val }))
             }
           >
-            <option value="">All Items</option>
-            {itemsList.map((item) => (
-              <option key={item} value={item}>
-                {item}
-              </option>
-            ))}
+            <SelectTrigger>
+              <SelectValue placeholder="All Items" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="">All Items</SelectItem>
+              {itemsList.map((item) => (
+                <SelectItem key={item} value={item}>
+                  {item}
+                </SelectItem>
+              ))}
+            </SelectContent>
           </Select>
           <Select
             value={filters.status}
-            onChange={(e) =>
-              setFilters((f) => ({ ...f, status: e.target.value }))
-            }
+            onValueChange={(val) => setFilters((f) => ({ ...f, status: val }))}
           >
-            <option value="">All Status</option>
-            {STATUS_OPTIONS.map((s) => (
-              <option key={s} value={s}>
-                {s.charAt(0).toUpperCase() + s.slice(1)}
-              </option>
-            ))}
+            <SelectTrigger>
+              <SelectValue placeholder="All Status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="">All Status</SelectItem>
+              {STATUS_OPTIONS.map((s) => (
+                <SelectItem key={s} value={s}>
+                  {s.charAt(0).toUpperCase() + s.slice(1)}
+                </SelectItem>
+              ))}
+            </SelectContent>
           </Select>
         </div>
       </div>
@@ -622,10 +641,8 @@ export function AdminOrdersPage() {
                 <div className="space-y-1.5">
                   <label className="text-label text-fg-2">Organization *</label>
                   <Select
-                    required
                     value={form.company_name}
-                    onChange={(e) => {
-                      const val = e.target.value
+                    onValueChange={(val) => {
                       setForm((f) => ({
                         ...f,
                         company_name: val,
@@ -633,12 +650,19 @@ export function AdminOrdersPage() {
                       }))
                     }}
                   >
-                    <option value="">-- Select Organization --</option>
-                    {organizations.map((org) => (
-                      <option key={org} value={org}>
-                        {org}
-                      </option>
-                    ))}
+                    <SelectTrigger>
+                      <SelectValue placeholder="-- Select Organization --" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="">
+                        -- Select Organization --
+                      </SelectItem>
+                      {organizations.map((org) => (
+                        <SelectItem key={org} value={org}>
+                          {org}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
                   </Select>
                 </div>
               </div>
@@ -657,10 +681,8 @@ export function AdminOrdersPage() {
               <div className="space-y-1.5">
                 <label className="text-label text-fg-2">Item Name *</label>
                 <Select
-                  required
                   value={form.item_name}
-                  onChange={(e) => {
-                    const val = e.target.value
+                  onValueChange={(val) => {
                     setForm((f) => ({
                       ...f,
                       item_name: val,
@@ -671,12 +693,17 @@ export function AdminOrdersPage() {
                     }))
                   }}
                 >
-                  <option value="">-- Select Item --</option>
-                  {itemsList.map((item) => (
-                    <option key={item} value={item}>
-                      {item}
-                    </option>
-                  ))}
+                  <SelectTrigger>
+                    <SelectValue placeholder="-- Select Item --" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="">-- Select Item --</SelectItem>
+                    {itemsList.map((item) => (
+                      <SelectItem key={item} value={item}>
+                        {item}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
                 </Select>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -717,15 +744,20 @@ export function AdminOrdersPage() {
                 <label className="text-label text-fg-2">Status</label>
                 <Select
                   value={form.status}
-                  onChange={(e) =>
-                    setForm((f) => ({ ...f, status: e.target.value }))
+                  onValueChange={(val) =>
+                    setForm((f) => ({ ...f, status: val }))
                   }
                 >
-                  {STATUS_OPTIONS.map((s) => (
-                    <option key={s} value={s}>
-                      {s.charAt(0).toUpperCase() + s.slice(1)}
-                    </option>
-                  ))}
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {STATUS_OPTIONS.map((s) => (
+                      <SelectItem key={s} value={s}>
+                        {s.charAt(0).toUpperCase() + s.slice(1)}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
                 </Select>
               </div>
               <div className="pt-2 text-sm text-fg-2">

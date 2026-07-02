@@ -49,7 +49,7 @@ export function TimePicker({
   const minuteRef = useRef<HTMLDivElement>(null)
 
   const parsed = parse24(value)
-  const currentPeriod: 'AM' | 'PM' = parsed
+  const computedPeriod: 'AM' | 'PM' = parsed
     ? parsed.hour >= 12
       ? 'PM'
       : 'AM'
@@ -65,14 +65,8 @@ export function TimePicker({
       ? nearestMinute5
       : currentMinute
 
-  const [period, setPeriod] = useState<'AM' | 'PM'>(currentPeriod)
-
-  // Sync period when value changes externally
-  useEffect(() => {
-    if (parsed) {
-      setPeriod(parsed.hour >= 12 ? 'PM' : 'AM')
-    }
-  }, [value])
+  const [periodOverride, setPeriodOverride] = useState<'AM' | 'PM' | null>(null)
+  const period = periodOverride ?? computedPeriod
 
   // Close on outside click
   useEffect(() => {
@@ -123,7 +117,7 @@ export function TimePicker({
   }
 
   const togglePeriod = (p: 'AM' | 'PM') => {
-    setPeriod(p)
+    setPeriodOverride(p)
     if (currentHour12 !== null && currentMinute !== null) {
       handleSelect(currentHour12, currentMinute, p)
     }

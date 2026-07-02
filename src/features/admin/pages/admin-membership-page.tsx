@@ -8,6 +8,13 @@ import {
   AccordionTrigger,
   AccordionContent,
 } from '@/components/ui/accordion'
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from '@/components/ui/select'
 import { plansContentService } from '@/services/supabase-service'
 import { showToast } from '@/components/ui/toast'
 
@@ -313,10 +320,10 @@ export function AdminMembershipPage() {
                     </div>
                     <div className="space-y-1.5">
                       <label className="text-caption text-fg-3">Mode</label>
-                      <select
+                      <Select
                         value={tab.mode}
-                        onChange={(e) => {
-                          const mode = e.target.value as 'grid' | 'single'
+                        onValueChange={(val) => {
+                          const mode = val as 'grid' | 'single'
                           updateTab(ti, {
                             mode,
                             ...(mode === 'single' && !tab.single
@@ -335,11 +342,15 @@ export function AdminMembershipPage() {
                               : {}),
                           })
                         }}
-                        className="w-full border border-rule rounded-sm px-2.5 py-1.5 text-sm bg-transparent text-fg-1"
                       >
-                        <option value="grid">Grid</option>
-                        <option value="single">Single</option>
-                      </select>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select mode" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="grid">Grid</SelectItem>
+                          <SelectItem value="single">Single</SelectItem>
+                        </SelectContent>
+                      </Select>
                     </div>
                   </div>
                 </AccordionContent>

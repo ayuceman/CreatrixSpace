@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, useMemo } from 'react'
 import { Calendar, ChevronLeft, ChevronRight } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -35,8 +35,13 @@ export function DatePicker({
   const minDate = toLocalDate(min || '')
   const [open, setOpen] = useState(false)
   const selected = toLocalDate(value)
-  const [viewDate, setViewDate] = useState(selected || new Date())
+  const [monthNav, setMonthNav] = useState(0)
   const wrapperRef = useRef<HTMLDivElement>(null)
+
+  const viewDate = useMemo(() => {
+    const base = toLocalDate(value) || new Date()
+    return new Date(base.getFullYear(), base.getMonth() + monthNav, 1)
+  }, [value, monthNav])
 
   useEffect(() => {
     function handleClick(e: MouseEvent) {
@@ -50,10 +55,6 @@ export function DatePicker({
     document.addEventListener('mousedown', handleClick)
     return () => document.removeEventListener('mousedown', handleClick)
   }, [])
-
-  useEffect(() => {
-    if (selected) setViewDate(selected)
-  }, [value])
 
   const year = viewDate.getFullYear()
   const month = viewDate.getMonth()
@@ -112,7 +113,7 @@ export function DatePicker({
           <div className="flex items-center justify-between mb-2">
             <button
               type="button"
-              onClick={() => setViewDate(new Date(year, month - 1, 1))}
+              onClick={() => setMonthNav((m) => m - 1)}
               className="p-1 rounded-sm hover:bg-bg-raised text-fg-2"
               aria-label="Previous month"
             >
@@ -121,7 +122,7 @@ export function DatePicker({
             <span className="text-sm font-medium text-fg-1">{monthLabel}</span>
             <button
               type="button"
-              onClick={() => setViewDate(new Date(year, month + 1, 1))}
+              onClick={() => setMonthNav((m) => m + 1)}
               className="p-1 rounded-sm hover:bg-bg-raised text-fg-2"
               aria-label="Next month"
             >
@@ -161,6 +162,7 @@ export function DatePicker({
                   disabled={isDisabled}
                   onClick={() => {
                     onChange(toValue(cellDate))
+                    setMonthNav(0)
                     setOpen(false)
                   }}
                   className={cn(
