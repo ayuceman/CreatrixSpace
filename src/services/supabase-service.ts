@@ -1676,7 +1676,8 @@ export const orderService = {
   async getAll(options?: {
     page?: number
     pageSize?: number
-    order_date?: string
+    order_date_from?: string
+    order_date_to?: string
     company_name?: string
     item_name?: string
     status?: string
@@ -1686,8 +1687,11 @@ export const orderService = {
     const from = (page - 1) * pageSize
     const to = from + pageSize - 1
     let query = supabase.from('orders').select('*')
-    if (options?.order_date) {
-      query = query.eq('order_date', options.order_date)
+    if (options?.order_date_from) {
+      query = query.gte('order_date', options.order_date_from)
+    }
+    if (options?.order_date_to) {
+      query = query.lte('order_date', options.order_date_to)
     }
     if (options?.company_name) {
       query = query.ilike('company_name', `%${options.company_name}%`)
@@ -1704,7 +1708,8 @@ export const orderService = {
     return data || []
   },
   async count(options?: {
-    order_date?: string
+    order_date_from?: string
+    order_date_to?: string
     company_name?: string
     item_name?: string
     status?: string
@@ -1712,8 +1717,11 @@ export const orderService = {
     let query: any = supabase
       .from('orders')
       .select('*', { count: 'exact', head: true })
-    if (options?.order_date) {
-      query = query.eq('order_date', options.order_date)
+    if (options?.order_date_from) {
+      query = query.gte('order_date', options.order_date_from)
+    }
+    if (options?.order_date_to) {
+      query = query.lte('order_date', options.order_date_to)
     }
     if (options?.company_name) {
       query = query.ilike('company_name', `%${options.company_name}%`)
