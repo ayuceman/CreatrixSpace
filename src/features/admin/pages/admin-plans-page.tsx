@@ -5,6 +5,13 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from '@/components/ui/select'
 import { ConfirmModal } from '@/components/ui/confirm-modal'
 import { planService } from '@/services/supabase-service'
 import { showToast } from '@/components/ui/toast'
@@ -209,17 +216,21 @@ export function AdminPlansPage() {
               </div>
               <div className="space-y-1.5">
                 <Label>Type</Label>
-                <select
+                <Select
                   value={form.type}
-                  onChange={(e) => handleTypeChange(e.target.value)}
-                  className="w-full border border-rule rounded-sm px-2.5 py-1.5 text-sm bg-transparent text-fg-1"
+                  onValueChange={(val) => handleTypeChange(val)}
                 >
-                  {PLAN_TYPES.map((t) => (
-                    <option key={t.value} value={t.value}>
-                      {t.label}
-                    </option>
-                  ))}
-                </select>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {PLAN_TYPES.map((t) => (
+                      <SelectItem key={t.value} value={t.value}>
+                        {t.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
               <div className="space-y-1.5">
                 <Label>Description</Label>

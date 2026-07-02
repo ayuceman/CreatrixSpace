@@ -10,6 +10,13 @@ import { showToast } from '@/components/ui/toast'
 import { supabaseAdmin } from '@/lib/supabase-admin'
 import { supabase } from '@/lib/supabase'
 import { cn } from '@/lib/utils'
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from '@/components/ui/select'
 import type { Database } from '@/lib/database.types'
 import {
   locationService,
@@ -659,17 +666,21 @@ export function AdminPricingPage() {
                 <div className="grid grid-cols-3 gap-3">
                   <div className="space-y-1">
                     <label className="text-caption text-fg-3">Status</label>
-                    <select
+                    <Select
                       value={newRoomStatus}
-                      onChange={(e) =>
-                        setNewRoomStatus(e.target.value as RoomRow['status'])
+                      onValueChange={(val) =>
+                        setNewRoomStatus(val as RoomRow['status'])
                       }
-                      className="w-full border border-rule rounded-sm px-2.5 py-1.5 text-sm bg-transparent text-fg-1"
                     >
-                      <option value="available">Available</option>
-                      <option value="booked">Booked</option>
-                      <option value="maintenance">Maintenance</option>
-                    </select>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select status" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="available">Available</SelectItem>
+                        <SelectItem value="booked">Booked</SelectItem>
+                        <SelectItem value="maintenance">Maintenance</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
                   <div className="space-y-1 col-span-2">
                     <label className="text-caption text-fg-3">Image</label>

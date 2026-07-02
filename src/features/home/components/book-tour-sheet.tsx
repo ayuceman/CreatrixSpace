@@ -3,6 +3,13 @@ import { AnimatePresence, motion } from 'framer-motion'
 import { useState, useMemo, useEffect } from 'react'
 import { cn } from '@/lib/utils'
 import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from '@/components/ui/select'
+import {
   locationService,
   bookTourContentService,
   formSubmissionService,
@@ -478,17 +485,21 @@ export function BookTourSheet({ open, onClose, seed }: BookTourSheetProps) {
                     <span className="text-[11px] tracking-[0.12em] uppercase text-fg-2 font-medium">
                       What you're after
                     </span>
-                    <select
+                    <Select
                       value={interest}
-                      onChange={(e) => setInterest(e.target.value)}
-                      className="w-full px-3.5 py-3 rounded-sm border border-rule bg-bg-raised text-fg-1 text-[15px] focus:outline-none focus:ring-2 focus:ring-clay appearance-none cursor-pointer"
+                      onValueChange={(val) => setInterest(val)}
                     >
-                      {interestOptions.map((opt) => (
-                        <option key={opt.value} value={opt.value}>
-                          {opt.label}
-                        </option>
-                      ))}
-                    </select>
+                      <SelectTrigger className="bg-bg-raised">
+                        <SelectValue placeholder="What you're after" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {interestOptions.map((opt) => (
+                          <SelectItem key={opt.value} value={opt.value}>
+                            {opt.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </label>
 
                   {/* Notes */}
