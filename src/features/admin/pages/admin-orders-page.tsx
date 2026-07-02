@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import {
   Plus,
+  Minus,
   Pencil,
   Trash2,
   ChevronLeft,
@@ -10,6 +11,7 @@ import {
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
+import { Checkbox } from '@/components/ui/checkbox'
 import { Input } from '@/components/ui/input'
 import {
   Select,
@@ -24,6 +26,10 @@ import { supabase } from '@/lib/supabase'
 import { supabaseAdmin } from '@/lib/supabase-admin'
 import { showToast } from '@/components/ui/toast'
 import { DatePicker } from '@/components/ui/date-picker'
+import {
+  DateRangePicker,
+  type DateRange,
+} from '@/components/ui/date-range-picker'
 import { cn } from '@/lib/utils'
 
 const PAGE_SIZE = 20
@@ -53,10 +59,8 @@ const emptyForm = {
   order_date: new Date().toISOString().split('T')[0],
   company_name: '',
   customer_name: '',
-  item_name: '',
-  quantity: 1,
-  price: '',
   status: 'unpaid',
+  selectedItems: {} as Record<string, { checked: boolean; quantity: number }>,
 }
 
 const emptyMenuItemForm = {
@@ -75,7 +79,7 @@ export function AdminOrdersPage() {
   const [totalCount, setTotalCount] = useState(0)
   const totalPages = Math.max(1, Math.ceil(totalCount / PAGE_SIZE))
   const [filters, setFilters] = useState({
-    order_date: '',
+    dateRange: { from: '', to: '' } as DateRange,
     company_name: '',
     item_name: '',
     status: '',
@@ -223,7 +227,10 @@ export function AdminOrdersPage() {
     setLoading(true)
     const opts = { page, pageSize: PAGE_SIZE }
     const filterOpts: Record<string, string> = {
-      ...(filters.order_date && { order_date: filters.order_date }),
+      ...(filters.dateRange.from && {
+        order_date_from: filters.dateRange.from,
+      }),
+      ...(filters.dateRange.to && { order_date_to: filters.dateRange.to }),
       ...(filters.company_name && { company_name: filters.company_name }),
       ...(filters.item_name && { item_name: filters.item_name }),
       ...(filters.status && { status: filters.status }),
@@ -237,7 +244,10 @@ export function AdminOrdersPage() {
     // Fetch all matching items for totals (unpaginated)
     const loadTotals = async () => {
       let query: any = supabase.from('orders').select('order_date, total_price')
-      if (filters.order_date) query = query.eq('order_date', filters.order_date)
+      if (filters.dateRange.from)
+        query = query.gte('order_date', filters.dateRange.from)
+      if (filters.dateRange.to)
+        query = query.lte('order_date', filters.dateRange.to)
       if (filters.company_name)
         query = query.ilike('company_name', `%${filters.company_name}%`)
       if (filters.item_name)
@@ -261,25 +271,39 @@ export function AdminOrdersPage() {
   }, [load])
 
   const openCreate = () => {
+    const selected: Record<string, { checked: boolean; quantity: number }> = {}
+    itemsList.forEach((name) => {
+      selected[name] = { checked: false, quantity: 1 }
+    })
     setForm({
       ...emptyForm,
       order_date: new Date().toISOString().split('T')[0],
+      selectedItems: selected,
     })
     setEditingId(null)
     setShowForm(true)
   }
 
   const openEdit = (item: Order) => {
+    const selected: Record<string, { checked: boolean; quantity: number }> = {}
+    itemsList.forEach((name) => {
+      selected[name] = {
+        checked: name === item.item_name,
+        quantity: name === item.item_name ? item.quantity : 1,
+      }
+    })
+    // ensure the item exists in the map even if not in itemsList yet
+    if (!selected[item.item_name]) {
+      selected[item.item_name] = { checked: true, quantity: item.quantity }
+    }
     setForm({
       order_date: item.order_date
         ? item.order_date.split('T')[0]
         : new Date().toISOString().split('T')[0],
       company_name: item.company_name,
       customer_name: item.customer_name,
-      item_name: item.item_name,
-      quantity: item.quantity,
-      price: String(item.price),
       status: item.status || 'unpaid',
+      selectedItems: selected,
     })
     setEditingId(item.id)
     setShowForm(true)
@@ -288,23 +312,52 @@ export function AdminOrdersPage() {
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault()
     try {
-      const payload = {
-        order_date: form.order_date,
-        company_name: form.company_name,
-        customer_name: form.customer_name,
-        item_name: form.item_name,
-        quantity: form.quantity,
-        price: parseFloat(form.price),
-        status: form.status,
+      if (!form.company_name) {
+        showToast('Please select an organization.', 'error')
+        return
       }
+
+      const validItems = Object.entries(form.selectedItems)
+        .filter(([name, v]) => v.checked && itemPriceMap[name] !== undefined)
+        .map(([name, v]) => ({
+          item_name: name,
+          quantity: v.quantity,
+          price: itemPriceMap[name],
+        }))
+
+      if (validItems.length === 0) {
+        showToast('Please select at least one item.', 'error')
+        return
+      }
+
       if (editingId) {
+        const li = validItems[0]
+        const payload = {
+          order_date: form.order_date,
+          company_name: form.company_name,
+          customer_name: form.customer_name,
+          item_name: li.item_name,
+          quantity: li.quantity,
+          price: li.price,
+          status: form.status,
+        }
         await orderService.update(editingId, payload)
+        showToast('Order updated!')
       } else {
-        await orderService.create(payload)
+        const payloads = validItems.map((li) => ({
+          order_date: form.order_date,
+          company_name: form.company_name,
+          customer_name: form.customer_name,
+          item_name: li.item_name,
+          quantity: li.quantity,
+          price: li.price,
+          status: form.status,
+        }))
+        await Promise.all(payloads.map((p) => orderService.create(p)))
+        showToast(`${payloads.length} order(s) created!`)
       }
       setShowForm(false)
       load()
-      showToast(editingId ? 'Order updated!' : 'Order created!')
     } catch (err) {
       showToast(`Save failed: ${(err as any)?.message || err}`, 'error')
     }
@@ -412,7 +465,11 @@ export function AdminOrdersPage() {
     0
   )
 
-  const totalPrice = form.quantity * (parseFloat(form.price) || 0)
+  const totalPrice = Object.entries(form.selectedItems).reduce(
+    (sum, [name, v]) =>
+      sum + (v.checked ? v.quantity * (itemPriceMap[name] || 0) : 0),
+    0
+  )
 
   return (
     <div className="space-y-6">
@@ -539,14 +596,14 @@ export function AdminOrdersPage() {
           <span className="text-xs uppercase tracking-wider text-fg-3 font-medium">
             Filters
           </span>
-          {(filters.order_date ||
+          {(filters.dateRange.from ||
             filters.company_name ||
             filters.item_name ||
             filters.status) && (
             <button
               onClick={() =>
                 setFilters({
-                  order_date: '',
+                  dateRange: { from: '', to: '' },
                   company_name: '',
                   item_name: '',
                   status: '',
@@ -560,9 +617,9 @@ export function AdminOrdersPage() {
           )}
         </div>
         <div className="p-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-          <DatePicker
-            value={filters.order_date}
-            onChange={(val) => setFilters((f) => ({ ...f, order_date: val }))}
+          <DateRangePicker
+            value={filters.dateRange}
+            onChange={(val) => setFilters((f) => ({ ...f, dateRange: val }))}
           />
           <Select
             value={filters.company_name}
@@ -654,9 +711,6 @@ export function AdminOrdersPage() {
                       <SelectValue placeholder="-- Select Organization --" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">
-                        -- Select Organization --
-                      </SelectItem>
                       {organizations.map((org) => (
                         <SelectItem key={org} value={org}>
                           {org}
@@ -666,79 +720,101 @@ export function AdminOrdersPage() {
                   </Select>
                 </div>
               </div>
-              <div className="space-y-1.5">
-                <label className="text-label text-fg-2">Customer Name *</label>
-                <Input
-                  required
-                  disabled
-                  value={form.customer_name}
-                  onChange={(e) =>
-                    setForm((f) => ({ ...f, customer_name: e.target.value }))
-                  }
-                  placeholder="e.g. John Doe"
-                />
-              </div>
-              <div className="space-y-1.5">
-                <label className="text-label text-fg-2">Item Name *</label>
-                <Select
-                  value={form.item_name}
-                  onValueChange={(val) => {
-                    setForm((f) => ({
-                      ...f,
-                      item_name: val,
-                      price:
-                        itemPriceMap[val] !== undefined
-                          ? String(itemPriceMap[val])
-                          : '',
-                    }))
-                  }}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="-- Select Item --" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="">-- Select Item --</SelectItem>
-                    {itemsList.map((item) => (
-                      <SelectItem key={item} value={item}>
-                        {item}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="space-y-1.5">
-                  <label className="text-label text-fg-2">Quantity *</label>
-                  <Input
-                    type="number"
-                    required
-                    min={1}
-                    value={form.quantity}
-                    onChange={(e) =>
-                      setForm((f) => ({
-                        ...f,
-                        quantity: Math.max(1, parseInt(e.target.value) || 1),
-                      }))
-                    }
-                  />
-                </div>
-                <div className="space-y-1.5">
-                  <label className="text-label text-fg-2">
-                    Price per unit (NPR) *
-                  </label>
-                  <Input
-                    type="number"
-                    required
-                    disabled
-                    min={0}
-                    step="0.01"
-                    value={form.price}
-                    onChange={(e) =>
-                      setForm((f) => ({ ...f, price: e.target.value }))
-                    }
-                    placeholder="e.g. 250.00"
-                  />
-                </div>
+              <div className="space-y-2">
+                <label className="text-label text-fg-2">Select Items *</label>
+                {itemsList.length === 0 ? (
+                  <p className="text-sm text-fg-3">
+                    No menu items available. Add items via Manage Items first.
+                  </p>
+                ) : (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    {itemsList.map((name) => {
+                      const li = form.selectedItems[name]
+                      const checked = li?.checked ?? false
+                      const qty = li?.quantity ?? 1
+                      const price = itemPriceMap[name] ?? 0
+                      return (
+                        <div
+                          key={name}
+                          className={cn(
+                            'flex items-center gap-3 border rounded-sm px-3 py-2.5 transition-all duration-150',
+                            checked
+                              ? 'border-clay bg-clay/5 shadow-sm'
+                              : 'border-rule bg-bg-raised/30'
+                          )}
+                        >
+                          <Checkbox
+                            checked={checked}
+                            onCheckedChange={(val) =>
+                              setForm((f) => ({
+                                ...f,
+                                selectedItems: {
+                                  ...f.selectedItems,
+                                  [name]: {
+                                    checked: val === true,
+                                    quantity:
+                                      f.selectedItems[name]?.quantity ?? 1,
+                                  },
+                                },
+                              }))
+                            }
+                          />
+                          <div className="flex-1 min-w-0">
+                            <span className="text-sm text-fg-1 truncate block">
+                              {name}
+                            </span>
+                            <span className="text-xs text-fg-3">
+                              NPR {price.toFixed(2)}
+                            </span>
+                          </div>
+                          {checked && (
+                            <div className="flex items-center gap-0 shrink-0 rounded-sm border border-rule overflow-hidden">
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  setForm((f) => ({
+                                    ...f,
+                                    selectedItems: {
+                                      ...f.selectedItems,
+                                      [name]: {
+                                        checked: true,
+                                        quantity: Math.max(1, qty - 1),
+                                      },
+                                    },
+                                  }))
+                                }
+                                className="w-7 h-7 flex items-center justify-center text-fg-2 hover:bg-bg-raised hover:text-fg-1 transition-colors"
+                              >
+                                <Minus className="w-3 h-3" />
+                              </button>
+                              <span className="w-8 h-7 flex items-center justify-center text-sm font-medium text-fg-1 border-x border-rule select-none">
+                                {qty}
+                              </span>
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  setForm((f) => ({
+                                    ...f,
+                                    selectedItems: {
+                                      ...f.selectedItems,
+                                      [name]: {
+                                        checked: true,
+                                        quantity: qty + 1,
+                                      },
+                                    },
+                                  }))
+                                }
+                                className="w-7 h-7 flex items-center justify-center text-fg-2 hover:bg-bg-raised hover:text-fg-1 transition-colors"
+                              >
+                                <Plus className="w-3 h-3" />
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                      )
+                    })}
+                  </div>
+                )}
               </div>
               <div className="space-y-1.5">
                 <label className="text-label text-fg-2">Status</label>
@@ -760,11 +836,28 @@ export function AdminOrdersPage() {
                   </SelectContent>
                 </Select>
               </div>
-              <div className="pt-2 text-sm text-fg-2">
-                Total:{' '}
-                <span className="font-semibold text-fg-1">
-                  NPR {totalPrice.toFixed(2)}
-                </span>
+              <div className="pt-2 text-sm text-fg-2 border-t border-rule space-y-1">
+                {Object.entries(form.selectedItems)
+                  .filter(
+                    ([name, v]) => v.checked && itemPriceMap[name] !== undefined
+                  )
+                  .map(([name, v]) => {
+                    const sub = v.quantity * (itemPriceMap[name] || 0)
+                    return (
+                      <div key={name} className="flex justify-between">
+                        <span className="text-fg-3 truncate max-w-[70%]">
+                          {name} × {v.quantity}
+                        </span>
+                        <span className="text-fg-1">NPR {sub.toFixed(2)}</span>
+                      </div>
+                    )
+                  })}
+                {totalPrice > 0 && (
+                  <div className="flex justify-between font-semibold text-fg-1 pt-1 border-t border-rule">
+                    <span>Total</span>
+                    <span>NPR {totalPrice.toFixed(2)}</span>
+                  </div>
+                )}
               </div>
               <div className="flex flex-col-reverse sm:flex-row gap-3 pt-2">
                 <Button
@@ -775,7 +868,7 @@ export function AdminOrdersPage() {
                 />
                 <Button
                   type="submit"
-                  text={editingId ? 'Update' : 'Order food'}
+                  text={editingId ? 'Update' : 'Prepare order'}
                 />
               </div>
             </form>
